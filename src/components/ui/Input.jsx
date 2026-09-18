@@ -35,8 +35,8 @@ export default function Input({
           placeholder={placeholder}
           disabled={disabled}
           className={`w-full h-11 px-3.5 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border transition-colors outline-none
-            ${error 
-              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]' 
+            ${error
+              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]'
               : 'border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
             }
             ${disabled ? 'bg-[#edeeef] text-[#9ca0a6] cursor-not-allowed' : ''}

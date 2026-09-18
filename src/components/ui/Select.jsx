@@ -33,8 +33,8 @@ export default function Select({
           disabled={disabled}
           className={`w-full h-11 px-3.5 pr-10 rounded-[8px] bg-white text-sm text-[#1f2023] border appearance-none transition-colors outline-none cursor-pointer
             ${!value ? 'text-[#9ca0a6]' : 'text-[#1f2023]'}
-            ${error 
-              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]' 
+            ${error
+              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]'
               : 'border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
             }
             ${disabled ? 'bg-[#edeeef] text-[#9ca0a6] cursor-not-allowed' : ''}

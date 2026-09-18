@@ -12,11 +12,10 @@ export default function Alert({ title, message, onClose, variant = 'error' }) {
   return (
     <div
       role="alert"
-      className={`w-full rounded-[8px] p-4 flex items-start gap-3 transition-all ${
-        isSuccess
+      className={`w-full rounded-[8px] p-4 flex items-start gap-3 transition-all ${isSuccess
           ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
           : 'bg-[#fdecec] text-[#7a0c1e] border border-[#fbd0d4]'
-      }`}
+        }`}
     >
       <div className="shrink-0 mt-0.5">
         {isSuccess ? (

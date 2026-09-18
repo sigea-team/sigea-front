@@ -47,10 +47,18 @@ export default function RegisterForm() {
   const [successResponse, setSuccessResponse] = useState(null);
 
   // Manejo de cambios en los inputs
+  // Manejo de cambios en los inputs con restricción de solo números para documento y teléfono
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
+    // Restricción: únicamente dígitos numéricos en documento y teléfono
+    if (name === 'numeroDocumento' || name === 'telefono') {
+      const onlyNumbers = value.replace(/\D/g, '');
+      setFormData((prev) => ({ ...prev, [name]: onlyNumbers }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     // Limpiar error al tipear
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
@@ -64,15 +72,21 @@ export default function RegisterForm() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.nombres.trim()) {
+    const nombresTrim = formData.nombres.trim();
+    const apellidosTrim = formData.apellidos.trim();
+    const numeroDocTrim = formData.numeroDocumento.trim();
+    const correoTrim = formData.correo.trim();
+    const telefonoTrim = formData.telefono.trim();
+
+    if (!nombresTrim) {
       newErrors.nombres = 'El nombre es obligatorio';
-    } else if (formData.nombres.length > 100) {
+    } else if (nombresTrim.length > 100) {
       newErrors.nombres = 'No puede exceder 100 caracteres';
     }
 
-    if (!formData.apellidos.trim()) {
+    if (!apellidosTrim) {
       newErrors.apellidos = 'Los apellidos son obligatorios';
-    } else if (formData.apellidos.length > 100) {
+    } else if (apellidosTrim.length > 100) {
       newErrors.apellidos = 'No puede exceder 100 caracteres';
     }
 
@@ -80,18 +94,20 @@ export default function RegisterForm() {
       newErrors.tipoDocumento = 'El tipo de documento es obligatorio';
     }
 
-    if (!formData.numeroDocumento.trim()) {
+    if (!numeroDocTrim) {
       newErrors.numeroDocumento = 'El número de documento es obligatorio';
-    } else if (formData.numeroDocumento.length > 30) {
+    } else if (!/^\d+$/.test(numeroDocTrim)) {
+      newErrors.numeroDocumento = 'El documento solo debe contener números';
+    } else if (numeroDocTrim.length > 30) {
       newErrors.numeroDocumento = 'No puede exceder 30 caracteres';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.correo.trim()) {
+    if (!correoTrim) {
       newErrors.correo = 'El correo electrónico es obligatorio';
-    } else if (!emailRegex.test(formData.correo)) {
+    } else if (!emailRegex.test(correoTrim)) {
       newErrors.correo = 'Ingrese un formato de correo electrónico válido';
-    } else if (formData.correo.length > 150) {
+    } else if (correoTrim.length > 150) {
       newErrors.correo = 'El correo no puede exceder 150 caracteres';
     }
 
@@ -99,8 +115,12 @@ export default function RegisterForm() {
       newErrors.afiliacionInstitucional = 'Seleccione su afiliación institucional';
     }
 
-    if (formData.telefono && formData.telefono.length > 30) {
-      newErrors.telefono = 'El teléfono no puede exceder 30 caracteres';
+    if (telefonoTrim) {
+      if (!/^\d+$/.test(telefonoTrim)) {
+        newErrors.telefono = 'El teléfono solo debe contener números';
+      } else if (telefonoTrim.length > 30) {
+        newErrors.telefono = 'El teléfono no puede exceder 30 caracteres';
+      }
     }
 
     // Regla de contraseña del backend:
@@ -127,20 +147,31 @@ export default function RegisterForm() {
     e.preventDefault();
     setGeneralError(null);
 
+    // 1. Limpieza de espacios al inicio y al final en el estado visible
+    const sanitizedData = {
+      ...formData,
+      nombres: formData.nombres.trim(),
+      apellidos: formData.apellidos.trim(),
+      numeroDocumento: formData.numeroDocumento.trim(),
+      correo: formData.correo.trim(),
+      telefono: formData.telefono.trim(),
+    };
+    setFormData(sanitizedData);
+
     if (!validate()) return;
 
     setLoading(true);
 
-    // Preparación del payload esperado por RegistroRequest en el backend
+    // Preparación del payload esperado por RegistroRequest en el backend (limpio de espacios)
     const payload = {
-      nombres: formData.nombres.trim(),
-      apellidos: formData.apellidos.trim(),
-      tipoDocumento: formData.tipoDocumento,
-      numeroDocumento: formData.numeroDocumento.trim(),
-      correo: formData.correo.trim().toLowerCase(),
-      contrasena: formData.contrasena,
-      telefono: formData.telefono.trim() || null,
-      afiliacionInstitucional: formData.afiliacionInstitucional || null,
+      nombres: sanitizedData.nombres,
+      apellidos: sanitizedData.apellidos,
+      tipoDocumento: sanitizedData.tipoDocumento,
+      numeroDocumento: sanitizedData.numeroDocumento,
+      correo: sanitizedData.correo.toLowerCase(),
+      contrasena: sanitizedData.contrasena,
+      telefono: sanitizedData.telefono || null,
+      afiliacionInstitucional: sanitizedData.afiliacionInstitucional || null,
     };
 
     try {
@@ -178,7 +209,7 @@ export default function RegisterForm() {
 
         <p className="text-xs font-bold uppercase tracking-wider text-[#a6192e] mb-2">Registro Exitoso</p>
         <h2 className="font-serif-title text-3xl text-[#1f2023] mb-4">¡Cuenta Creada!</h2>
-        
+
         <p className="text-[#5b5f66] text-sm leading-relaxed mb-6">
           {successResponse.mensaje || 'Se ha registrado la cuenta exitosamente.'}
         </p>
@@ -299,7 +330,6 @@ export default function RegisterForm() {
           <Input
             label="Teléfono de Contacto"
             name="telefono"
-            type="tel"
             value={formData.telefono}
             onChange={handleChange}
             placeholder="Ej. 3001234567 (Opcional)"
