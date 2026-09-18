@@ -1,5 +1,42 @@
 import React from 'react';
 
+/**
+ * @file Select.jsx
+ * @description Componente de lista desplegable (Combobox/Select) estandarizado para SIGEA.
+ * Restringe la entrada a un conjunto cerrado de opciones válidas (como Tipo de Documento y Afiliación Institucional),
+ * incorporando icono chevron decorativo y estilo conforme al sistema de diseño.
+ * @module components/ui/Select
+ */
+
+/**
+ * @typedef {Object} SelectOption
+ * @property {string} value - Valor interno del elemento a persistir o enviar a la API.
+ * @property {string} label - Texto descriptivo para visualización del usuario.
+ */
+
+/**
+ * @typedef {Object} SelectProps
+ * @property {string} [label] - Texto descriptivo del campo desplegable.
+ * @property {string} [id] - Identificador único para el elemento HTML select.
+ * @property {string} [name] - Nombre del control dentro del formulario.
+ * @property {string} value - Valor seleccionado actualmente.
+ * @property {function(React.ChangeEvent<HTMLSelectElement>): void} onChange - Callback invocado al seleccionar una opción.
+ * @property {function(React.FocusEvent<HTMLSelectElement>): void} [onBlur] - Callback invocado al perder el foco.
+ * @property {Array<SelectOption>} [options=[]] - Lista de opciones seleccionables.
+ * @property {string} [placeholder='Seleccione una opción'] - Texto para la opción inactiva por defecto.
+ * @property {string|null} [error] - Mensaje de error de validación asociado al campo.
+ * @property {boolean} [required=false] - Define si el campo es obligatorio.
+ * @property {boolean} [disabled=false] - Indica si el control está inhabilitado.
+ * @property {string} [helperText] - Texto secundario aclaratorio al pie del selector.
+ */
+
+/**
+ * Renderiza un menú desplegable adaptado a las pautas de estilo de SIGEA.
+ *
+ * @component
+ * @param {SelectProps & React.SelectHTMLAttributes<HTMLSelectElement>} props - Propiedades del componente Select.
+ * @returns {JSX.Element} Control select estilizado con label e indicadores de validación.
+ */
 export default function Select({
   label,
   id,

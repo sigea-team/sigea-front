@@ -1,5 +1,31 @@
 import React from 'react';
 
+/**
+ * @file Button.jsx
+ * @description Componente de botón de acción conforme a la identidad visual institucional de SIGEA.
+ * Maneja estilos primarios (`brand-600` #a6192e, hover `brand-700` #7a0c1e), secundario y outline,
+ * además de soporte nativo para indicador de carga (`loading`) con bloqueo de clics repetidos.
+ * @module components/ui/Button
+ */
+
+/**
+ * @typedef {Object} ButtonProps
+ * @property {React.ReactNode} children - Contenido o texto interno del botón.
+ * @property {'button'|'submit'|'reset'} [type='button'] - Tipo de botón HTML nativo.
+ * @property {'primary'|'secondary'|'outline'} [variant='primary'] - Variante estilística según la jerarquía de la acción.
+ * @property {boolean} [loading=false] - Si es true, despliega un spinner giratorio y deshabilita la interacción.
+ * @property {boolean} [disabled=false] - Deshabilita el botón si está en verdadero o si loading está activo.
+ * @property {function(React.MouseEvent<HTMLButtonElement>): void} [onClick] - Función ejecutada al hacer clic sobre el botón.
+ * @property {string} [className=''] - Clases utilitarias CSS adicionales.
+ */
+
+/**
+ * Renderiza un botón interactivo adaptado a las especificaciones de diseño SIGEA.
+ *
+ * @component
+ * @param {ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>} props - Propiedades del botón.
+ * @returns {JSX.Element} Elemento HTML button estilizado.
+ */
 export default function Button({
   children,
   type = 'button',

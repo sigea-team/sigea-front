@@ -1,5 +1,37 @@
 import React from 'react';
 
+/**
+ * @file Input.jsx
+ * @description Componente de campo de entrada de texto estandarizado para el sistema SIGEA.
+ * Aplica los estilos institucionales: radio de 8px, borde `field-border` (#d8dadf) y 
+ * resaltado de estados de error en rojo institucional (`brand-600` #a6192e / `brand-700` #7a0c1e).
+ * @module components/ui/Input
+ */
+
+/**
+ * @typedef {Object} InputProps
+ * @property {string} [label] - Etiqueta de texto descriptiva visible sobre el input.
+ * @property {string} [id] - Identificador único HTML para accesibilidad del control.
+ * @property {string} [name] - Nombre del campo para el formulario.
+ * @property {'text'|'password'|'email'|'tel'|'number'} [type='text'] - Tipo de dato de entrada HTML.
+ * @property {string} value - Valor controlado actual del campo.
+ * @property {function(React.ChangeEvent<HTMLInputElement>): void} onChange - Callback invocado al modificar el contenido.
+ * @property {function(React.FocusEvent<HTMLInputElement>): void} [onBlur] - Callback invocado al perder el foco.
+ * @property {string} [placeholder] - Texto de ayuda o placeholder visual cuando el campo está vacío.
+ * @property {string|null} [error] - Mensaje de error de validación retornado para retroalimentación visual.
+ * @property {boolean} [required=false] - Indica si el campo es obligatorio (muestra asterisco rojo).
+ * @property {boolean} [disabled=false] - Inhabilita la edición del campo visual y funcionalmente.
+ * @property {string} [helperText] - Texto secundario o descriptivo al pie del campo.
+ * @property {React.ReactNode} [rightElement] - Elemento complementario en el extremo derecho (ej. botón ver/ocultar contraseña).
+ */
+
+/**
+ * Renderiza un campo de entrada reutilizable adaptado a la identidad gráfica de SIGEA.
+ *
+ * @component
+ * @param {InputProps & React.InputHTMLAttributes<HTMLInputElement>} props - Propiedades del componente Input.
+ * @returns {JSX.Element} Elemento JSX que contiene label, campo de entrada y feedback de validación.
+ */
 export default function Input({
   label,
   id,

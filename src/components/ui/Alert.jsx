@@ -1,8 +1,27 @@
 import React from 'react';
 
 /**
- * Alert - Siguiendo regla estricta de SIGEA:
- * "Alertas siempre en la misma pareja de colores: fondo brand-100 (#fdecec) con texto brand-700 (#7a0c1e)"
+ * @file Alert.jsx
+ * @description Componente de alerta y notificación de eventos para el sistema SIGEA.
+ * Implementa estrictamente la regla institucional de colores para alertas:
+ * fondo `brand-100` (#fdecec) con tipografía `brand-700` (#7a0c1e) para errores o advertencias.
+ * @module components/ui/Alert
+ */
+
+/**
+ * @typedef {Object} AlertProps
+ * @property {string} [title] - Título en negrita de la notificación.
+ * @property {React.ReactNode} [message] - Mensaje explicativo o descripción del error.
+ * @property {function(): void} [onClose] - Callback para cerrar o descartar la alerta.
+ * @property {'error'|'success'} [variant='error'] - Variante de color de la alerta.
+ */
+
+/**
+ * Renderiza un banner de alerta institucional para mensajes de éxito, error o validación.
+ *
+ * @component
+ * @param {AlertProps} props - Propiedades del componente de alerta.
+ * @returns {JSX.Element|null} Contenedor de la alerta o null si no se suministra mensaje/título.
  */
 export default function Alert({ title, message, onClose, variant = 'error' }) {
   if (!message && !title) return null;

@@ -37,6 +37,28 @@ const INITIAL_FORM = {
   confirmarContrasena: '',
 };
 
+/**
+ * @typedef {Object} RegisterFormData
+ * @property {string} nombres - Nombres completos del usuario.
+ * @property {string} apellidos - Apellidos completos del usuario.
+ * @property {string} tipoDocumento - Sigla del tipo de identificación (CC, TI, etc.).
+ * @property {string} numeroDocumento - Dígitos del documento de identidad.
+ * @property {string} correo - Dirección de correo electrónico.
+ * @property {string} afiliacionInstitucional - Opción seleccionada de vínculo institucional.
+ * @property {string} telefono - Teléfono de contacto (solo dígitos).
+ * @property {string} contrasena - Contraseña con política de seguridad requerida.
+ * @property {string} confirmarContrasena - Confirmación idéntica de la contraseña.
+ */
+
+/**
+ * Componente principal del módulo de registro de usuarios de SIGEA.
+ * Encapsula la gestión de estado reactivo, la validación estricta en el cliente (formato de correo,
+ * dígitos numéricos para documento y teléfono, fortaleza de contraseña) y la comunicación
+ * asíncrona con el endpoint de registro.
+ *
+ * @component
+ * @returns {JSX.Element} Vista del formulario de registro o confirmación de cuenta creada.
+ */
 export default function RegisterForm() {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,8 +68,13 @@ export default function RegisterForm() {
   const [generalError, setGeneralError] = useState(null);
   const [successResponse, setSuccessResponse] = useState(null);
 
-  // Manejo de cambios en los inputs
-  // Manejo de cambios en los inputs con restricción de solo números para documento y teléfono
+  /**
+   * Manejador de eventos de entrada para los controles del formulario.
+   * Aplica restricción inmediata de solo dígitos en los campos 'numeroDocumento' y 'telefono',
+   * y remueve dinámicamente los errores asociados al campo editado.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento de cambio nativo.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -68,7 +95,17 @@ export default function RegisterForm() {
     }
   };
 
-  // Validación local del formulario
+  /**
+   * Ejecuta la validación sintáctica y de reglas de negocio en el cliente sobre los datos del formulario.
+   * Elimina espacios en blanco accidentales (.trim()) y valida:
+   * - Campos obligatorios y longitudes máximas según el esquema de BD.
+   * - Restricción estricta de números enteros en documento y teléfono.
+   * - Formato regular de correo electrónico.
+   * - Política de seguridad de contraseña (8-64 caracteres, minúscula, mayúscula, dígito y símbolo).
+   * - Coincidencia exacta entre contraseña y su confirmación.
+   *
+   * @returns {boolean} Retorna true si todos los campos son válidos; false si existen inconsistencias.
+   */
   const validate = () => {
     const newErrors = {};
 
@@ -142,7 +179,16 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Envío del formulario
+  /**
+   * Procesa el envío del formulario de registro.
+   * Realiza un saneamiento previo eliminando espacios en blanco en los extremos de los campos,
+   * valida los datos, activa el indicador de carga y despacha la petición POST a la API.
+   * En caso de éxito, despliega la pantalla de confirmación; en caso de fallo, mapea los
+   * errores de validación de Spring o despliega la alerta de negocio institucional.
+   *
+   * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - Evento de envío del formulario.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneralError(null);
