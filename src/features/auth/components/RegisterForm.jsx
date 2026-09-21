@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
+/**
+ * @file RegisterForm.jsx
+ * @description Formulario de registro de nuevos usuarios para el sistema SIGEA.
+ * Permite que asistentes, ponentes y organizadores creen su cuenta mediante un
+ * flujo multi-campo con validación en cliente y comunicación con el backend REST.
+ *
+ * Flujo principal:
+ * 1. Al montar el componente se cargan las afiliaciones institucionales desde la API.
+ * 2. El usuario completa los campos del formulario.
+ * 3. Al enviar, se ejecuta la validación local; si pasa, se llama a `registrarUsuario`.
+ * 4. El resultado (éxito o error) se comunica mediante SweetAlert2.
+ *
+ * @module features/auth/components/RegisterForm
+ */
+
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
-import Alert from '../../../components/ui/Alert';
-import { registrarUsuario } from '../../../api/authService';
+import { registrarUsuario, obtenerAfiliaciones } from '../../../api/authService';
 
+/**
+ * Opciones estáticas de tipo de documento de identidad aceptadas por SIGEA.
+ * Cada entrada corresponde a un tipo reconocido por la legislación colombiana
+ * o por acuerdos de internacionalización de la UFPS.
+ *
+ * @constant {Array<{value: string, label: string}>}
+ */
 const TIPOS_DOCUMENTO = [
   { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
   { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
@@ -13,25 +35,20 @@ const TIPOS_DOCUMENTO = [
   { value: 'PEP', label: 'Permiso Especial de Permanencia (PEP)' }
 ];
 
-// Combobox de Afiliación Institucional con opciones estandarizadas
-const AFILIACIONES_INSTITUCIONALES = [
-  { value: 'UFPS - Estudiante', label: 'UFPS — Estudiante de Pregrado / Posgrado' },
-  { value: 'UFPS - Docente', label: 'UFPS — Docente / Investigador' },
-  { value: 'UFPS - Administrativo', label: 'UFPS — Personal Administrativo' },
-  { value: 'UFPS - Egresado', label: 'UFPS — Egresado / Graduado' },
-  { value: 'Otra Universidad Nacional', label: 'Otra Institución Universitaria Nacional' },
-  { value: 'Universidad Internacional', label: 'Institución Universitaria Internacional' },
-  { value: 'Sector Empresarial / Industria', label: 'Sector Productivo / Empresa' },
-  { value: 'Comunidad Externa / Particular', label: 'Comunidad Externa / Independiente' },
-];
-
+/**
+ * Estado inicial vacío del formulario de registro.
+ * Se usa tanto para la inicialización del estado como para el reset
+ * tras un registro exitoso.
+ *
+ * @constant {RegisterFormData}
+ */
 const INITIAL_FORM = {
   nombres: '',
   apellidos: '',
   tipoDocumento: 'CC',
   numeroDocumento: '',
   correo: '',
-  afiliacionInstitucional: '',
+  afiliacionId: '',
   telefono: '',
   contrasena: '',
   confirmarContrasena: '',
@@ -39,46 +56,111 @@ const INITIAL_FORM = {
 
 /**
  * @typedef {Object} RegisterFormData
- * @property {string} nombres - Nombres completos del usuario.
- * @property {string} apellidos - Apellidos completos del usuario.
- * @property {string} tipoDocumento - Sigla del tipo de identificación (CC, TI, etc.).
- * @property {string} numeroDocumento - Dígitos del documento de identidad.
- * @property {string} correo - Dirección de correo electrónico.
- * @property {string} afiliacionInstitucional - Opción seleccionada de vínculo institucional.
- * @property {string} telefono - Teléfono de contacto (solo dígitos).
- * @property {string} contrasena - Contraseña con política de seguridad requerida.
- * @property {string} confirmarContrasena - Confirmación idéntica de la contraseña.
+ * @property {string} nombres            - Nombres del usuario (máx. 100 caracteres).
+ * @property {string} apellidos          - Apellidos del usuario (máx. 100 caracteres).
+ * @property {string} tipoDocumento      - Tipo de documento seleccionado (CC | TI | CE | PASAPORTE | PEP).
+ * @property {string} numeroDocumento    - Número de documento; solo dígitos (máx. 30 caracteres).
+ * @property {string} correo             - Correo electrónico válido (máx. 150 caracteres).
+ * @property {string} afiliacionId       - ID de la afiliación institucional seleccionada.
+ * @property {string} telefono           - Teléfono de contacto opcional; solo dígitos (máx. 30 caracteres).
+ * @property {string} contrasena         - Contraseña (8-64 chars, mayúscula, minúscula, número y símbolo).
+ * @property {string} confirmarContrasena - Repetición de la contraseña para confirmación.
  */
 
 /**
- * Componente principal del módulo de registro de usuarios de SIGEA.
- * Encapsula la gestión de estado reactivo, la validación estricta en el cliente (formato de correo,
- * dígitos numéricos para documento y teléfono, fortaleza de contraseña) y la comunicación
- * asíncrona con el endpoint de registro.
+ * @typedef {Object} RegisterPayload
+ * @property {string}      nombres          - Nombres sanitizados listos para envío.
+ * @property {string}      apellidos        - Apellidos sanitizados listos para envío.
+ * @property {string}      tipoDocumento    - Tipo de documento seleccionado.
+ * @property {string}      numeroDocumento  - Número de documento sanitizado.
+ * @property {string}      correo           - Correo en minúsculas listo para envío.
+ * @property {string}      contrasena       - Contraseña del usuario.
+ * @property {string|null} telefono         - Teléfono de contacto o null si no se proporcionó.
+ * @property {number|null} afiliacionId     - ID numérico de la afiliación o null si no aplica.
+ */
+
+/**
+ * Formulario de registro de usuario para SIGEA.
+ *
+ * Renderiza un formulario completo de creación de cuenta con los siguientes campos:
+ * nombres, apellidos, tipo y número de documento, correo electrónico, teléfono
+ * (opcional), afiliación institucional y contraseña (con campo de confirmación).
+ *
+ * Al montarse, solicita la lista de afiliaciones al backend mediante {@link obtenerAfiliaciones}.
+ * Al enviarse, ejecuta validaciones en el cliente y llama a {@link registrarUsuario};
+ * en caso de éxito muestra un modal SweetAlert2; en caso de error, muestra el
+ * componente `Alert` con el mensaje del servidor.
  *
  * @component
- * @returns {JSX.Element} Vista del formulario de registro o confirmación de cuenta creada.
+ * @returns {JSX.Element} Tarjeta de formulario de registro lista para embeber en el MainLayout.
+ *
+ * @example
+ * // Uso dentro de una página pública de SIGEA:
+ * import RegisterForm from './features/auth/components/RegisterForm';
+ *
+ * function AuthPage() {
+ *   return (
+ *     <main>
+ *       <RegisterForm />
+ *     </main>
+ *   );
+ * }
  */
 export default function RegisterForm() {
   const [formData, setFormData] = useState(INITIAL_FORM);
+  const [afiliacionesOptions, setAfiliacionesOptions] = useState([]);
+  const [loadingAfiliaciones, setLoadingAfiliaciones] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [generalError, setGeneralError] = useState(null);
-  const [successResponse, setSuccessResponse] = useState(null);
 
   /**
-   * Manejador de eventos de entrada para los controles del formulario.
-   * Aplica restricción inmediata de solo dígitos en los campos 'numeroDocumento' y 'telefono',
-   * y remueve dinámicamente los errores asociados al campo editado.
+   * Efecto de montaje: obtiene el catálogo de afiliaciones institucionales.
    *
-   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento de cambio nativo.
+   * Llama a {@link obtenerAfiliaciones} y transforma la respuesta en el
+   * formato `{ value, label }` que requiere el componente `Select`.
+   * Si la petición falla, registra el error en consola pero no interrumpe
+   * la carga del formulario (el campo quedará vacío y deshabilitado).
+   *
+   * @async
+   * @function cargarAfiliaciones
+   * @inner
+   * @returns {Promise<void>}
+   */
+  useEffect(() => {
+    async function cargarAfiliaciones() {
+      try {
+        setLoadingAfiliaciones(true);
+        const data = await obtenerAfiliaciones();
+        const opciones = data.map((af) => ({
+          value: String(af.id),
+          label: af.nombreAfiliacion,
+        }));
+        setAfiliacionesOptions(opciones);
+      } catch (err) {
+        console.error('Error al cargar afiliaciones institucionales:', err);
+      } finally {
+        setLoadingAfiliaciones(false);
+      }
+    }
+    cargarAfiliaciones();
+  }, []);
+
+  /**
+   * Manejador genérico de cambio para todos los campos del formulario.
+   *
+   * Aplica filtrado numérico automático en los campos `numeroDocumento` y
+   * `telefono` (elimina cualquier carácter que no sea dígito). Además limpia
+   * el error del campo modificado y el error general si existían, para dar
+   * retroalimentación visual inmediata al usuario.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento nativo de cambio del input o select.
+   * @returns {void}
    */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restricción: únicamente dígitos numéricos en documento y teléfono
     if (name === 'numeroDocumento' || name === 'telefono') {
       const onlyNumbers = value.replace(/\D/g, '');
       setFormData((prev) => ({ ...prev, [name]: onlyNumbers }));
@@ -86,25 +168,28 @@ export default function RegisterForm() {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
 
-    // Limpiar error al tipear
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
-    }
-    if (generalError) {
-      setGeneralError(null);
     }
   };
 
   /**
-   * Ejecuta la validación sintáctica y de reglas de negocio en el cliente sobre los datos del formulario.
-   * Elimina espacios en blanco accidentales (.trim()) y valida:
-   * - Campos obligatorios y longitudes máximas según el esquema de BD.
-   * - Restricción estricta de números enteros en documento y teléfono.
-   * - Formato regular de correo electrónico.
-   * - Política de seguridad de contraseña (8-64 caracteres, minúscula, mayúscula, dígito y símbolo).
-   * - Coincidencia exacta entre contraseña y su confirmación.
+   * Ejecuta la validación completa del formulario en el cliente.
    *
-   * @returns {boolean} Retorna true si todos los campos son válidos; false si existen inconsistencias.
+   * Reglas aplicadas por campo:
+   * - **nombres / apellidos**: obligatorios, máximo 100 caracteres.
+   * - **tipoDocumento**: obligatorio.
+   * - **numeroDocumento**: obligatorio, solo dígitos, máximo 30 caracteres.
+   * - **correo**: obligatorio, formato RFC básico válido, máximo 150 caracteres.
+   * - **afiliacionId**: obligatorio (debe haber seleccionado un ítem).
+   * - **telefono**: opcional; si se provee, solo dígitos y máximo 30 caracteres.
+   * - **contrasena**: obligatoria, expresión regular de fortaleza
+   *   (8-64 chars, mayúscula, minúscula, dígito y símbolo de `@$!%*?&._-#`).
+   * - **confirmarContrasena**: obligatoria e igual a `contrasena`.
+   *
+   * Actualiza el estado `errors` con los mensajes por campo.
+   *
+   * @returns {boolean} `true` si todos los campos son válidos; `false` si hay al menos un error.
    */
   const validate = () => {
     const newErrors = {};
@@ -148,8 +233,8 @@ export default function RegisterForm() {
       newErrors.correo = 'El correo no puede exceder 150 caracteres';
     }
 
-    if (!formData.afiliacionInstitucional) {
-      newErrors.afiliacionInstitucional = 'Seleccione su afiliación institucional';
+    if (!formData.afiliacionId) {
+      newErrors.afiliacionId = 'Seleccione su afiliación institucional';
     }
 
     if (telefonoTrim) {
@@ -160,8 +245,6 @@ export default function RegisterForm() {
       }
     }
 
-    // Regla de contraseña del backend:
-    // Mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,64}$/;
     if (!formData.contrasena) {
       newErrors.contrasena = 'La contraseña es obligatoria';
@@ -180,20 +263,25 @@ export default function RegisterForm() {
   };
 
   /**
-   * Procesa el envío del formulario de registro.
-   * Realiza un saneamiento previo eliminando espacios en blanco en los extremos de los campos,
-   * valida los datos, activa el indicador de carga y despacha la petición POST a la API.
-   * En caso de éxito, despliega la pantalla de confirmación; en caso de fallo, mapea los
-   * errores de validación de Spring o despliega la alerta de negocio institucional.
+   * Manejador de envío del formulario de registro.
+   *
+   * Flujo de ejecución:
+   * 1. Previene el comportamiento por defecto del `form`.
+   * 2. Sanitiza todos los campos de texto (`.trim()`, correo en minúsculas).
+   * 3. Ejecuta {@link validate}; si falla, aborta sin continuar.
+   * 4. Construye el objeto {@link RegisterPayload} y llama a {@link registrarUsuario}.
+   * 5. Si el registro es exitoso: resetea el formulario y muestra un modal SweetAlert2 de éxito.
+   * 6. Si el servidor devuelve errores de validación en el campo `erroresValidacion`,
+   *    los inyecta en el estado `errors` para resaltarlos en línea.
+   * 7. Cualquier otro error (red, servidor, inesperado) se muestra con un modal SweetAlert2 de error.
    *
    * @async
-   * @param {React.FormEvent<HTMLFormElement>} e - Evento de envío del formulario.
+   * @param {React.FormEvent<HTMLFormElement>} e - Evento nativo de envío del formulario.
+   * @returns {Promise<void>}
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setGeneralError(null);
 
-    // 1. Limpieza de espacios al inicio y al final en el estado visible
     const sanitizedData = {
       ...formData,
       nombres: formData.nombres.trim(),
@@ -208,7 +296,6 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    // Preparación del payload esperado por RegistroRequest en el backend (limpio de espacios)
     const payload = {
       nombres: sanitizedData.nombres,
       apellidos: sanitizedData.apellidos,
@@ -217,68 +304,61 @@ export default function RegisterForm() {
       correo: sanitizedData.correo.toLowerCase(),
       contrasena: sanitizedData.contrasena,
       telefono: sanitizedData.telefono || null,
-      afiliacionInstitucional: sanitizedData.afiliacionInstitucional || null,
+      afiliacionId: sanitizedData.afiliacionId ? Number(sanitizedData.afiliacionId) : null,
     };
 
     try {
       const data = await registrarUsuario(payload);
-      setSuccessResponse(data);
       setFormData(INITIAL_FORM);
+      setErrors({});
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Registro Exitoso!',
+        html: `
+          <p style="color: #5b5f66; font-size: 14px; margin-bottom: 12px;">
+            ${data.mensaje || 'Se ha registrado la cuenta exitosamente.'}
+          </p>
+          <div style="background-color: #f7f7f8; border: 1px solid #e5e7ea; padding: 12px; border-radius: 8px; text-align: left; font-size: 13px; color: #1f2023;">
+            <p><strong>Correo registrado:</strong> ${data.correo}</p>
+            ${data.requiereVerificacion ? '<p style="color: #a6192e; margin-top: 6px; font-weight: 500;">* Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.</p>' : ''}
+          </div>
+        `,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: {
+          popup: 'rounded-[16px]',
+          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
+        }
+      });
     } catch (err) {
+      let errorMessage = 'Error inesperado al intentar registrar el usuario.';
+
       if (err.response?.data) {
         const errorData = err.response.data;
-        // Errores de validación devueltos por el backend (Spring Validation)
         if (errorData.erroresValidacion && typeof errorData.erroresValidacion === 'object') {
           setErrors(errorData.erroresValidacion);
         }
-        // Mensaje de negocio del backend (ej: duplicidad de correo o documento 409)
-        setGeneralError(errorData.message || 'Ocurrió un error al procesar la solicitud.');
+        errorMessage = errorData.message || 'Ocurrió un error al procesar la solicitud.';
       } else if (err.request) {
-        setGeneralError('No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.');
-      } else {
-        setGeneralError('Error inesperado al intentar registrar el usuario.');
+        errorMessage = 'No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.';
       }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo completar el registro',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: {
+          popup: 'rounded-[16px]',
+          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
+        }
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  // Pantalla de éxito tras registro
-  if (successResponse) {
-    return (
-      <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm text-center">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-
-        <p className="text-xs font-bold uppercase tracking-wider text-[#a6192e] mb-2">Registro Exitoso</p>
-        <h2 className="font-serif-title text-3xl text-[#1f2023] mb-4">¡Cuenta Creada!</h2>
-
-        <p className="text-[#5b5f66] text-sm leading-relaxed mb-6">
-          {successResponse.mensaje || 'Se ha registrado la cuenta exitosamente.'}
-        </p>
-
-        <div className="bg-[#f7f7f8] rounded-[8px] p-4 text-left text-xs text-[#5b5f66] space-y-1 mb-8 border border-[#e5e7ea]">
-          <p><strong className="text-[#1f2023]">Correo registrado:</strong> {successResponse.correo}</p>
-          {successResponse.requiereVerificacion && (
-            <p className="text-[#a6192e] font-medium pt-1">
-              * Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.
-            </p>
-          )}
-        </div>
-
-        <Button
-          variant="primary"
-          onClick={() => setSuccessResponse(null)}
-          className="w-full"
-        >
-          Registrar otro usuario
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
@@ -384,21 +464,22 @@ export default function RegisterForm() {
           />
         </div>
 
-        {/* Fila 4: Afiliación Institucional (Combobox de opciones disponibles) */}
+        {/* Fila 4: Afiliación Institucional (Combobox de opciones disponibles desde BD) */}
         <div>
           <Select
             label="Afiliación Institucional"
-            name="afiliacionInstitucional"
-            value={formData.afiliacionInstitucional}
+            name="afiliacionId"
+            value={formData.afiliacionId}
             onChange={handleChange}
-            options={AFILIACIONES_INSTITUCIONALES}
-            placeholder="Seleccione su vinculación / institución"
-            error={errors.afiliacionInstitucional}
+            options={afiliacionesOptions}
+            placeholder={loadingAfiliaciones ? 'Cargando afiliaciones...' : 'Seleccione su vinculación / institución'}
+            error={errors.afiliacionId}
             required
-            disabled={loading}
+            disabled={loading || loadingAfiliaciones}
             helperText="Indica la relación o estatus con la comunidad académica."
           />
         </div>
+
 
         {/* Fila 5: Contraseña y Confirmación */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -18,3 +18,13 @@ export async function registrarUsuario(data) {
   const response = await authApi.post('/register', data);
   return response.data;
 }
+
+/**
+ * Obtiene el catálogo de afiliaciones institucionales desde la base de datos
+ * Endpoint: /api/v1/auth/afiliaciones
+ */
+export async function obtenerAfiliaciones() {
+  const response = await authApi.get('/afiliaciones');
+  return response.data;
+}
+
