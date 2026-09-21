@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import Alert from '../../../components/ui/Alert';
-import { registrarUsuario } from '../../../api/authService';
+import { registrarUsuario, obtenerAfiliaciones } from '../../../api/authService';
 
 const TIPOS_DOCUMENTO = [
   { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
@@ -13,72 +14,50 @@ const TIPOS_DOCUMENTO = [
   { value: 'PEP', label: 'Permiso Especial de Permanencia (PEP)' }
 ];
 
-// Combobox de Afiliación Institucional con opciones estandarizadas
-const AFILIACIONES_INSTITUCIONALES = [
-  { value: 'UFPS - Estudiante', label: 'UFPS — Estudiante de Pregrado / Posgrado' },
-  { value: 'UFPS - Docente', label: 'UFPS — Docente / Investigador' },
-  { value: 'UFPS - Administrativo', label: 'UFPS — Personal Administrativo' },
-  { value: 'UFPS - Egresado', label: 'UFPS — Egresado / Graduado' },
-  { value: 'Otra Universidad Nacional', label: 'Otra Institución Universitaria Nacional' },
-  { value: 'Universidad Internacional', label: 'Institución Universitaria Internacional' },
-  { value: 'Sector Empresarial / Industria', label: 'Sector Productivo / Empresa' },
-  { value: 'Comunidad Externa / Particular', label: 'Comunidad Externa / Independiente' },
-];
-
 const INITIAL_FORM = {
   nombres: '',
   apellidos: '',
   tipoDocumento: 'CC',
   numeroDocumento: '',
   correo: '',
-  afiliacionInstitucional: '',
+  afiliacionId: '',
   telefono: '',
   contrasena: '',
   confirmarContrasena: '',
 };
 
-/**
- * @typedef {Object} RegisterFormData
- * @property {string} nombres - Nombres completos del usuario.
- * @property {string} apellidos - Apellidos completos del usuario.
- * @property {string} tipoDocumento - Sigla del tipo de identificación (CC, TI, etc.).
- * @property {string} numeroDocumento - Dígitos del documento de identidad.
- * @property {string} correo - Dirección de correo electrónico.
- * @property {string} afiliacionInstitucional - Opción seleccionada de vínculo institucional.
- * @property {string} telefono - Teléfono de contacto (solo dígitos).
- * @property {string} contrasena - Contraseña con política de seguridad requerida.
- * @property {string} confirmarContrasena - Confirmación idéntica de la contraseña.
- */
-
-/**
- * Componente principal del módulo de registro de usuarios de SIGEA.
- * Encapsula la gestión de estado reactivo, la validación estricta en el cliente (formato de correo,
- * dígitos numéricos para documento y teléfono, fortaleza de contraseña) y la comunicación
- * asíncrona con el endpoint de registro.
- *
- * @component
- * @returns {JSX.Element} Vista del formulario de registro o confirmación de cuenta creada.
- */
 export default function RegisterForm() {
   const [formData, setFormData] = useState(INITIAL_FORM);
+  const [afiliacionesOptions, setAfiliacionesOptions] = useState([]);
+  const [loadingAfiliaciones, setLoadingAfiliaciones] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generalError, setGeneralError] = useState(null);
-  const [successResponse, setSuccessResponse] = useState(null);
 
-  /**
-   * Manejador de eventos de entrada para los controles del formulario.
-   * Aplica restricción inmediata de solo dígitos en los campos 'numeroDocumento' y 'telefono',
-   * y remueve dinámicamente los errores asociados al campo editado.
-   *
-   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento de cambio nativo.
-   */
+  useEffect(() => {
+    async function cargarAfiliaciones() {
+      try {
+        setLoadingAfiliaciones(true);
+        const data = await obtenerAfiliaciones();
+        const opciones = data.map((af) => ({
+          value: String(af.id),
+          label: af.nombreAfiliacion,
+        }));
+        setAfiliacionesOptions(opciones);
+      } catch (err) {
+        console.error('Error al cargar afiliaciones institucionales:', err);
+      } finally {
+        setLoadingAfiliaciones(false);
+      }
+    }
+    cargarAfiliaciones();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Restricción: únicamente dígitos numéricos en documento y teléfono
     if (name === 'numeroDocumento' || name === 'telefono') {
       const onlyNumbers = value.replace(/\D/g, '');
       setFormData((prev) => ({ ...prev, [name]: onlyNumbers }));
@@ -86,7 +65,6 @@ export default function RegisterForm() {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
 
-    // Limpiar error al tipear
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -95,17 +73,6 @@ export default function RegisterForm() {
     }
   };
 
-  /**
-   * Ejecuta la validación sintáctica y de reglas de negocio en el cliente sobre los datos del formulario.
-   * Elimina espacios en blanco accidentales (.trim()) y valida:
-   * - Campos obligatorios y longitudes máximas según el esquema de BD.
-   * - Restricción estricta de números enteros en documento y teléfono.
-   * - Formato regular de correo electrónico.
-   * - Política de seguridad de contraseña (8-64 caracteres, minúscula, mayúscula, dígito y símbolo).
-   * - Coincidencia exacta entre contraseña y su confirmación.
-   *
-   * @returns {boolean} Retorna true si todos los campos son válidos; false si existen inconsistencias.
-   */
   const validate = () => {
     const newErrors = {};
 
@@ -148,8 +115,8 @@ export default function RegisterForm() {
       newErrors.correo = 'El correo no puede exceder 150 caracteres';
     }
 
-    if (!formData.afiliacionInstitucional) {
-      newErrors.afiliacionInstitucional = 'Seleccione su afiliación institucional';
+    if (!formData.afiliacionId) {
+      newErrors.afiliacionId = 'Seleccione su afiliación institucional';
     }
 
     if (telefonoTrim) {
@@ -160,8 +127,6 @@ export default function RegisterForm() {
       }
     }
 
-    // Regla de contraseña del backend:
-    // Mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,64}$/;
     if (!formData.contrasena) {
       newErrors.contrasena = 'La contraseña es obligatoria';
@@ -179,21 +144,10 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Procesa el envío del formulario de registro.
-   * Realiza un saneamiento previo eliminando espacios en blanco en los extremos de los campos,
-   * valida los datos, activa el indicador de carga y despacha la petición POST a la API.
-   * En caso de éxito, despliega la pantalla de confirmación; en caso de fallo, mapea los
-   * errores de validación de Spring o despliega la alerta de negocio institucional.
-   *
-   * @async
-   * @param {React.FormEvent<HTMLFormElement>} e - Evento de envío del formulario.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneralError(null);
 
-    // 1. Limpieza de espacios al inicio y al final en el estado visible
     const sanitizedData = {
       ...formData,
       nombres: formData.nombres.trim(),
@@ -208,7 +162,6 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    // Preparación del payload esperado por RegistroRequest en el backend (limpio de espacios)
     const payload = {
       nombres: sanitizedData.nombres,
       apellidos: sanitizedData.apellidos,
@@ -217,21 +170,39 @@ export default function RegisterForm() {
       correo: sanitizedData.correo.toLowerCase(),
       contrasena: sanitizedData.contrasena,
       telefono: sanitizedData.telefono || null,
-      afiliacionInstitucional: sanitizedData.afiliacionInstitucional || null,
+      afiliacionId: sanitizedData.afiliacionId ? Number(sanitizedData.afiliacionId) : null,
     };
 
     try {
       const data = await registrarUsuario(payload);
-      setSuccessResponse(data);
       setFormData(INITIAL_FORM);
+      setErrors({});
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Registro Exitoso!',
+        html: `
+          <p style="color: #5b5f66; font-size: 14px; margin-bottom: 12px;">
+            ${data.mensaje || 'Se ha registrado la cuenta exitosamente.'}
+          </p>
+          <div style="background-color: #f7f7f8; border: 1px solid #e5e7ea; padding: 12px; border-radius: 8px; text-align: left; font-size: 13px; color: #1f2023;">
+            <p><strong>Correo registrado:</strong> ${data.correo}</p>
+            ${data.requiereVerificacion ? '<p style="color: #a6192e; margin-top: 6px; font-weight: 500;">* Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.</p>' : ''}
+          </div>
+        `,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: {
+          popup: 'rounded-[16px]',
+          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
+        }
+      });
     } catch (err) {
       if (err.response?.data) {
         const errorData = err.response.data;
-        // Errores de validación devueltos por el backend (Spring Validation)
         if (errorData.erroresValidacion && typeof errorData.erroresValidacion === 'object') {
           setErrors(errorData.erroresValidacion);
         }
-        // Mensaje de negocio del backend (ej: duplicidad de correo o documento 409)
         setGeneralError(errorData.message || 'Ocurrió un error al procesar la solicitud.');
       } else if (err.request) {
         setGeneralError('No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.');
@@ -242,43 +213,6 @@ export default function RegisterForm() {
       setLoading(false);
     }
   };
-
-  // Pantalla de éxito tras registro
-  if (successResponse) {
-    return (
-      <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm text-center">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-
-        <p className="text-xs font-bold uppercase tracking-wider text-[#a6192e] mb-2">Registro Exitoso</p>
-        <h2 className="font-serif-title text-3xl text-[#1f2023] mb-4">¡Cuenta Creada!</h2>
-
-        <p className="text-[#5b5f66] text-sm leading-relaxed mb-6">
-          {successResponse.mensaje || 'Se ha registrado la cuenta exitosamente.'}
-        </p>
-
-        <div className="bg-[#f7f7f8] rounded-[8px] p-4 text-left text-xs text-[#5b5f66] space-y-1 mb-8 border border-[#e5e7ea]">
-          <p><strong className="text-[#1f2023]">Correo registrado:</strong> {successResponse.correo}</p>
-          {successResponse.requiereVerificacion && (
-            <p className="text-[#a6192e] font-medium pt-1">
-              * Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.
-            </p>
-          )}
-        </div>
-
-        <Button
-          variant="primary"
-          onClick={() => setSuccessResponse(null)}
-          className="w-full"
-        >
-          Registrar otro usuario
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
@@ -384,21 +318,22 @@ export default function RegisterForm() {
           />
         </div>
 
-        {/* Fila 4: Afiliación Institucional (Combobox de opciones disponibles) */}
+        {/* Fila 4: Afiliación Institucional (Combobox de opciones disponibles desde BD) */}
         <div>
           <Select
             label="Afiliación Institucional"
-            name="afiliacionInstitucional"
-            value={formData.afiliacionInstitucional}
+            name="afiliacionId"
+            value={formData.afiliacionId}
             onChange={handleChange}
-            options={AFILIACIONES_INSTITUCIONALES}
-            placeholder="Seleccione su vinculación / institución"
-            error={errors.afiliacionInstitucional}
+            options={afiliacionesOptions}
+            placeholder={loadingAfiliaciones ? 'Cargando afiliaciones...' : 'Seleccione su vinculación / institución'}
+            error={errors.afiliacionId}
             required
-            disabled={loading}
+            disabled={loading || loadingAfiliaciones}
             helperText="Indica la relación o estatus con la comunidad académica."
           />
         </div>
+
 
         {/* Fila 5: Contraseña y Confirmación */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
