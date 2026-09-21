@@ -1,11 +1,32 @@
+/**
+ * @file RegisterForm.jsx
+ * @description Formulario de registro de nuevos usuarios para el sistema SIGEA.
+ * Permite que asistentes, ponentes y organizadores creen su cuenta mediante un
+ * flujo multi-campo con validación en cliente y comunicación con el backend REST.
+ *
+ * Flujo principal:
+ * 1. Al montar el componente se cargan las afiliaciones institucionales desde la API.
+ * 2. El usuario completa los campos del formulario.
+ * 3. Al enviar, se ejecuta la validación local; si pasa, se llama a `registrarUsuario`.
+ * 4. El resultado (éxito o error) se comunica mediante SweetAlert2.
+ *
+ * @module features/auth/components/RegisterForm
+ */
+
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
-import Alert from '../../../components/ui/Alert';
 import { registrarUsuario, obtenerAfiliaciones } from '../../../api/authService';
 
+/**
+ * Opciones estáticas de tipo de documento de identidad aceptadas por SIGEA.
+ * Cada entrada corresponde a un tipo reconocido por la legislación colombiana
+ * o por acuerdos de internacionalización de la UFPS.
+ *
+ * @constant {Array<{value: string, label: string}>}
+ */
 const TIPOS_DOCUMENTO = [
   { value: 'CC', label: 'Cédula de Ciudadanía (CC)' },
   { value: 'TI', label: 'Tarjeta de Identidad (TI)' },
@@ -14,6 +35,13 @@ const TIPOS_DOCUMENTO = [
   { value: 'PEP', label: 'Permiso Especial de Permanencia (PEP)' }
 ];
 
+/**
+ * Estado inicial vacío del formulario de registro.
+ * Se usa tanto para la inicialización del estado como para el reset
+ * tras un registro exitoso.
+ *
+ * @constant {RegisterFormData}
+ */
 const INITIAL_FORM = {
   nombres: '',
   apellidos: '',
@@ -26,6 +54,58 @@ const INITIAL_FORM = {
   confirmarContrasena: '',
 };
 
+/**
+ * @typedef {Object} RegisterFormData
+ * @property {string} nombres            - Nombres del usuario (máx. 100 caracteres).
+ * @property {string} apellidos          - Apellidos del usuario (máx. 100 caracteres).
+ * @property {string} tipoDocumento      - Tipo de documento seleccionado (CC | TI | CE | PASAPORTE | PEP).
+ * @property {string} numeroDocumento    - Número de documento; solo dígitos (máx. 30 caracteres).
+ * @property {string} correo             - Correo electrónico válido (máx. 150 caracteres).
+ * @property {string} afiliacionId       - ID de la afiliación institucional seleccionada.
+ * @property {string} telefono           - Teléfono de contacto opcional; solo dígitos (máx. 30 caracteres).
+ * @property {string} contrasena         - Contraseña (8-64 chars, mayúscula, minúscula, número y símbolo).
+ * @property {string} confirmarContrasena - Repetición de la contraseña para confirmación.
+ */
+
+/**
+ * @typedef {Object} RegisterPayload
+ * @property {string}      nombres          - Nombres sanitizados listos para envío.
+ * @property {string}      apellidos        - Apellidos sanitizados listos para envío.
+ * @property {string}      tipoDocumento    - Tipo de documento seleccionado.
+ * @property {string}      numeroDocumento  - Número de documento sanitizado.
+ * @property {string}      correo           - Correo en minúsculas listo para envío.
+ * @property {string}      contrasena       - Contraseña del usuario.
+ * @property {string|null} telefono         - Teléfono de contacto o null si no se proporcionó.
+ * @property {number|null} afiliacionId     - ID numérico de la afiliación o null si no aplica.
+ */
+
+/**
+ * Formulario de registro de usuario para SIGEA.
+ *
+ * Renderiza un formulario completo de creación de cuenta con los siguientes campos:
+ * nombres, apellidos, tipo y número de documento, correo electrónico, teléfono
+ * (opcional), afiliación institucional y contraseña (con campo de confirmación).
+ *
+ * Al montarse, solicita la lista de afiliaciones al backend mediante {@link obtenerAfiliaciones}.
+ * Al enviarse, ejecuta validaciones en el cliente y llama a {@link registrarUsuario};
+ * en caso de éxito muestra un modal SweetAlert2; en caso de error, muestra el
+ * componente `Alert` con el mensaje del servidor.
+ *
+ * @component
+ * @returns {JSX.Element} Tarjeta de formulario de registro lista para embeber en el MainLayout.
+ *
+ * @example
+ * // Uso dentro de una página pública de SIGEA:
+ * import RegisterForm from './features/auth/components/RegisterForm';
+ *
+ * function AuthPage() {
+ *   return (
+ *     <main>
+ *       <RegisterForm />
+ *     </main>
+ *   );
+ * }
+ */
 export default function RegisterForm() {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [afiliacionesOptions, setAfiliacionesOptions] = useState([]);
@@ -34,8 +114,20 @@ export default function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [generalError, setGeneralError] = useState(null);
 
+  /**
+   * Efecto de montaje: obtiene el catálogo de afiliaciones institucionales.
+   *
+   * Llama a {@link obtenerAfiliaciones} y transforma la respuesta en el
+   * formato `{ value, label }` que requiere el componente `Select`.
+   * Si la petición falla, registra el error en consola pero no interrumpe
+   * la carga del formulario (el campo quedará vacío y deshabilitado).
+   *
+   * @async
+   * @function cargarAfiliaciones
+   * @inner
+   * @returns {Promise<void>}
+   */
   useEffect(() => {
     async function cargarAfiliaciones() {
       try {
@@ -55,6 +147,17 @@ export default function RegisterForm() {
     cargarAfiliaciones();
   }, []);
 
+  /**
+   * Manejador genérico de cambio para todos los campos del formulario.
+   *
+   * Aplica filtrado numérico automático en los campos `numeroDocumento` y
+   * `telefono` (elimina cualquier carácter que no sea dígito). Además limpia
+   * el error del campo modificado y el error general si existían, para dar
+   * retroalimentación visual inmediata al usuario.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento nativo de cambio del input o select.
+   * @returns {void}
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -68,11 +171,26 @@ export default function RegisterForm() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
-    if (generalError) {
-      setGeneralError(null);
-    }
   };
 
+  /**
+   * Ejecuta la validación completa del formulario en el cliente.
+   *
+   * Reglas aplicadas por campo:
+   * - **nombres / apellidos**: obligatorios, máximo 100 caracteres.
+   * - **tipoDocumento**: obligatorio.
+   * - **numeroDocumento**: obligatorio, solo dígitos, máximo 30 caracteres.
+   * - **correo**: obligatorio, formato RFC básico válido, máximo 150 caracteres.
+   * - **afiliacionId**: obligatorio (debe haber seleccionado un ítem).
+   * - **telefono**: opcional; si se provee, solo dígitos y máximo 30 caracteres.
+   * - **contrasena**: obligatoria, expresión regular de fortaleza
+   *   (8-64 chars, mayúscula, minúscula, dígito y símbolo de `@$!%*?&._-#`).
+   * - **confirmarContrasena**: obligatoria e igual a `contrasena`.
+   *
+   * Actualiza el estado `errors` con los mensajes por campo.
+   *
+   * @returns {boolean} `true` si todos los campos son válidos; `false` si hay al menos un error.
+   */
   const validate = () => {
     const newErrors = {};
 
@@ -144,9 +262,25 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Manejador de envío del formulario de registro.
+   *
+   * Flujo de ejecución:
+   * 1. Previene el comportamiento por defecto del `form`.
+   * 2. Sanitiza todos los campos de texto (`.trim()`, correo en minúsculas).
+   * 3. Ejecuta {@link validate}; si falla, aborta sin continuar.
+   * 4. Construye el objeto {@link RegisterPayload} y llama a {@link registrarUsuario}.
+   * 5. Si el registro es exitoso: resetea el formulario y muestra un modal SweetAlert2 de éxito.
+   * 6. Si el servidor devuelve errores de validación en el campo `erroresValidacion`,
+   *    los inyecta en el estado `errors` para resaltarlos en línea.
+   * 7. Cualquier otro error (red, servidor, inesperado) se muestra con un modal SweetAlert2 de error.
+   *
+   * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - Evento nativo de envío del formulario.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setGeneralError(null);
 
     const sanitizedData = {
       ...formData,
@@ -198,17 +332,29 @@ export default function RegisterForm() {
         }
       });
     } catch (err) {
+      let errorMessage = 'Error inesperado al intentar registrar el usuario.';
+
       if (err.response?.data) {
         const errorData = err.response.data;
         if (errorData.erroresValidacion && typeof errorData.erroresValidacion === 'object') {
           setErrors(errorData.erroresValidacion);
         }
-        setGeneralError(errorData.message || 'Ocurrió un error al procesar la solicitud.');
+        errorMessage = errorData.message || 'Ocurrió un error al procesar la solicitud.';
       } else if (err.request) {
-        setGeneralError('No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.');
-      } else {
-        setGeneralError('Error inesperado al intentar registrar el usuario.');
+        errorMessage = 'No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.';
       }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo completar el registro',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: {
+          popup: 'rounded-[16px]',
+          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
+        }
+      });
     } finally {
       setLoading(false);
     }
