@@ -37,6 +37,28 @@ const INITIAL_FORM = {
   confirmarContrasena: '',
 };
 
+/**
+ * @typedef {Object} RegisterFormData
+ * @property {string} nombres - Nombres completos del usuario.
+ * @property {string} apellidos - Apellidos completos del usuario.
+ * @property {string} tipoDocumento - Sigla del tipo de identificación (CC, TI, etc.).
+ * @property {string} numeroDocumento - Dígitos del documento de identidad.
+ * @property {string} correo - Dirección de correo electrónico.
+ * @property {string} afiliacionInstitucional - Opción seleccionada de vínculo institucional.
+ * @property {string} telefono - Teléfono de contacto (solo dígitos).
+ * @property {string} contrasena - Contraseña con política de seguridad requerida.
+ * @property {string} confirmarContrasena - Confirmación idéntica de la contraseña.
+ */
+
+/**
+ * Componente principal del módulo de registro de usuarios de SIGEA.
+ * Encapsula la gestión de estado reactivo, la validación estricta en el cliente (formato de correo,
+ * dígitos numéricos para documento y teléfono, fortaleza de contraseña) y la comunicación
+ * asíncrona con el endpoint de registro.
+ *
+ * @component
+ * @returns {JSX.Element} Vista del formulario de registro o confirmación de cuenta creada.
+ */
 export default function RegisterForm() {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,11 +68,24 @@ export default function RegisterForm() {
   const [generalError, setGeneralError] = useState(null);
   const [successResponse, setSuccessResponse] = useState(null);
 
-  // Manejo de cambios en los inputs
+  /**
+   * Manejador de eventos de entrada para los controles del formulario.
+   * Aplica restricción inmediata de solo dígitos en los campos 'numeroDocumento' y 'telefono',
+   * y remueve dinámicamente los errores asociados al campo editado.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento de cambio nativo.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
+    // Restricción: únicamente dígitos numéricos en documento y teléfono
+    if (name === 'numeroDocumento' || name === 'telefono') {
+      const onlyNumbers = value.replace(/\D/g, '');
+      setFormData((prev) => ({ ...prev, [name]: onlyNumbers }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     // Limpiar error al tipear
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
@@ -60,19 +95,35 @@ export default function RegisterForm() {
     }
   };
 
-  // Validación local del formulario
+  /**
+   * Ejecuta la validación sintáctica y de reglas de negocio en el cliente sobre los datos del formulario.
+   * Elimina espacios en blanco accidentales (.trim()) y valida:
+   * - Campos obligatorios y longitudes máximas según el esquema de BD.
+   * - Restricción estricta de números enteros en documento y teléfono.
+   * - Formato regular de correo electrónico.
+   * - Política de seguridad de contraseña (8-64 caracteres, minúscula, mayúscula, dígito y símbolo).
+   * - Coincidencia exacta entre contraseña y su confirmación.
+   *
+   * @returns {boolean} Retorna true si todos los campos son válidos; false si existen inconsistencias.
+   */
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.nombres.trim()) {
+    const nombresTrim = formData.nombres.trim();
+    const apellidosTrim = formData.apellidos.trim();
+    const numeroDocTrim = formData.numeroDocumento.trim();
+    const correoTrim = formData.correo.trim();
+    const telefonoTrim = formData.telefono.trim();
+
+    if (!nombresTrim) {
       newErrors.nombres = 'El nombre es obligatorio';
-    } else if (formData.nombres.length > 100) {
+    } else if (nombresTrim.length > 100) {
       newErrors.nombres = 'No puede exceder 100 caracteres';
     }
 
-    if (!formData.apellidos.trim()) {
+    if (!apellidosTrim) {
       newErrors.apellidos = 'Los apellidos son obligatorios';
-    } else if (formData.apellidos.length > 100) {
+    } else if (apellidosTrim.length > 100) {
       newErrors.apellidos = 'No puede exceder 100 caracteres';
     }
 
@@ -80,18 +131,20 @@ export default function RegisterForm() {
       newErrors.tipoDocumento = 'El tipo de documento es obligatorio';
     }
 
-    if (!formData.numeroDocumento.trim()) {
+    if (!numeroDocTrim) {
       newErrors.numeroDocumento = 'El número de documento es obligatorio';
-    } else if (formData.numeroDocumento.length > 30) {
+    } else if (!/^\d+$/.test(numeroDocTrim)) {
+      newErrors.numeroDocumento = 'El documento solo debe contener números';
+    } else if (numeroDocTrim.length > 30) {
       newErrors.numeroDocumento = 'No puede exceder 30 caracteres';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.correo.trim()) {
+    if (!correoTrim) {
       newErrors.correo = 'El correo electrónico es obligatorio';
-    } else if (!emailRegex.test(formData.correo)) {
+    } else if (!emailRegex.test(correoTrim)) {
       newErrors.correo = 'Ingrese un formato de correo electrónico válido';
-    } else if (formData.correo.length > 150) {
+    } else if (correoTrim.length > 150) {
       newErrors.correo = 'El correo no puede exceder 150 caracteres';
     }
 
@@ -99,8 +152,12 @@ export default function RegisterForm() {
       newErrors.afiliacionInstitucional = 'Seleccione su afiliación institucional';
     }
 
-    if (formData.telefono && formData.telefono.length > 30) {
-      newErrors.telefono = 'El teléfono no puede exceder 30 caracteres';
+    if (telefonoTrim) {
+      if (!/^\d+$/.test(telefonoTrim)) {
+        newErrors.telefono = 'El teléfono solo debe contener números';
+      } else if (telefonoTrim.length > 30) {
+        newErrors.telefono = 'El teléfono no puede exceder 30 caracteres';
+      }
     }
 
     // Regla de contraseña del backend:
@@ -122,25 +179,45 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Envío del formulario
+  /**
+   * Procesa el envío del formulario de registro.
+   * Realiza un saneamiento previo eliminando espacios en blanco en los extremos de los campos,
+   * valida los datos, activa el indicador de carga y despacha la petición POST a la API.
+   * En caso de éxito, despliega la pantalla de confirmación; en caso de fallo, mapea los
+   * errores de validación de Spring o despliega la alerta de negocio institucional.
+   *
+   * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - Evento de envío del formulario.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneralError(null);
+
+    // 1. Limpieza de espacios al inicio y al final en el estado visible
+    const sanitizedData = {
+      ...formData,
+      nombres: formData.nombres.trim(),
+      apellidos: formData.apellidos.trim(),
+      numeroDocumento: formData.numeroDocumento.trim(),
+      correo: formData.correo.trim(),
+      telefono: formData.telefono.trim(),
+    };
+    setFormData(sanitizedData);
 
     if (!validate()) return;
 
     setLoading(true);
 
-    // Preparación del payload esperado por RegistroRequest en el backend
+    // Preparación del payload esperado por RegistroRequest en el backend (limpio de espacios)
     const payload = {
-      nombres: formData.nombres.trim(),
-      apellidos: formData.apellidos.trim(),
-      tipoDocumento: formData.tipoDocumento,
-      numeroDocumento: formData.numeroDocumento.trim(),
-      correo: formData.correo.trim().toLowerCase(),
-      contrasena: formData.contrasena,
-      telefono: formData.telefono.trim() || null,
-      afiliacionInstitucional: formData.afiliacionInstitucional || null,
+      nombres: sanitizedData.nombres,
+      apellidos: sanitizedData.apellidos,
+      tipoDocumento: sanitizedData.tipoDocumento,
+      numeroDocumento: sanitizedData.numeroDocumento,
+      correo: sanitizedData.correo.toLowerCase(),
+      contrasena: sanitizedData.contrasena,
+      telefono: sanitizedData.telefono || null,
+      afiliacionInstitucional: sanitizedData.afiliacionInstitucional || null,
     };
 
     try {
@@ -178,7 +255,7 @@ export default function RegisterForm() {
 
         <p className="text-xs font-bold uppercase tracking-wider text-[#a6192e] mb-2">Registro Exitoso</p>
         <h2 className="font-serif-title text-3xl text-[#1f2023] mb-4">¡Cuenta Creada!</h2>
-        
+
         <p className="text-[#5b5f66] text-sm leading-relaxed mb-6">
           {successResponse.mensaje || 'Se ha registrado la cuenta exitosamente.'}
         </p>
@@ -299,7 +376,6 @@ export default function RegisterForm() {
           <Input
             label="Teléfono de Contacto"
             name="telefono"
-            type="tel"
             value={formData.telefono}
             onChange={handleChange}
             placeholder="Ej. 3001234567 (Opcional)"
