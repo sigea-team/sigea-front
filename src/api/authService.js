@@ -28,3 +28,28 @@ export async function obtenerAfiliaciones() {
   return response.data;
 }
 
+/**
+ * Autentica un usuario mediante correo y contraseña (HU-01, RF01).
+ * Endpoint: /api/v1/auth/login
+ * Respuestas de error relevantes que maneja el backend:
+ *  - 401 CREDENCIALES_INVALIDAS  -> mensaje genérico (Criterio 2)
+ *  - 423 CUENTA_BLOQUEADA        -> bloqueo temporal por intentos fallidos (Criterio 3)
+ *  - 403 CORREO_NO_VERIFICADO    -> ofrece reenviar verificación (trae `correo` en el body)
+ *
+ * @param {{correo: string, contrasena: string}} data
+ */
+export async function loginUsuario(data) {
+  const response = await authApi.post('/login', data);
+  return response.data;
+}
+
+/**
+ * Reenvía el enlace de verificación de correo electrónico a una cuenta pendiente de activar.
+ * Endpoint: /api/v1/auth/resend-verification
+ *
+ * @param {string} correo
+ */
+export async function reenviarVerificacion(correo) {
+  const response = await authApi.post('/resend-verification', { correo });
+  return response.data;
+}
