@@ -27,4 +27,12 @@ export async function obtenerAfiliaciones() {
   const response = await authApi.get('/afiliaciones');
   return response.data;
 }
+export async function solicitarRecuperacion(correo) {
+  const response = await authApi.post('/forgot-password', { correo });
+  return response.data; // { mensaje }
+}
 
+export async function restablecerContrasena(token, nuevaContrasena) {
+  const response = await authApi.post('/reset-password', { token, nuevaContrasena });
+  return response.data; // { mensaje }
+}
