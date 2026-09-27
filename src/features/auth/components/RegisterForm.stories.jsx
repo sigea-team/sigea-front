@@ -1,6 +1,6 @@
 import React from 'react';
 import RegisterForm from './RegisterForm';
-import MainLayout from '../../../components/layout/MainLayout';
+import MainLayout from '../../../components/ui/MainLayout';
 
 export default {
   title: 'Features/Auth/RegisterForm',
