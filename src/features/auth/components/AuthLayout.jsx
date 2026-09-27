@@ -6,7 +6,7 @@ import React from 'react';
  * - Área de contenido a la derecha (flexible, fondo surface-muted #f7f7f8)
  * - Oculta panel de marca por debajo de 980px
  */
-export default function MainLayout({ children }) {
+export default function AuthLayout({ children }) {
   return (
     <div className="min-h-screen w-full flex bg-[#edeeef] text-[#1f2023]">
       {/* Panel de marca UFPS (552px fijo) */}

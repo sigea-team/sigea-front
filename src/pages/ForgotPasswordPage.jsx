@@ -13,11 +13,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
+import AuthLayout from '../features/auth/components/AuthLayout';
 
 export default function ForgotPasswordPage() {
   return (
-    <MainLayout>
+    <AuthLayout>
       <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm text-center">
         <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
           Recuperar acceso
@@ -36,6 +36,6 @@ export default function ForgotPasswordPage() {
           Volver a iniciar sesión
         </Link>
       </div>
-    </MainLayout>
+    </AuthLayout>
   );
 }
