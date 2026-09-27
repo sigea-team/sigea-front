@@ -1,10 +1,14 @@
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import '../src/index.css';
+
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
   parameters: {
     controls: {
       matchers: {
-       color: /(background|color)$/i,
-       date: /Date$/i,
+        color: /(background|color)$/i,
+        date: /Date$/i,
       },
     },
 
@@ -15,6 +19,13 @@ const preview = {
       test: "todo"
     }
   },
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
 export default preview;
