@@ -11,7 +11,7 @@ export default {
   argTypes: {
     activeItem: {
       control: { type: 'select' },
-      options: ['dashboard', 'convocatorias', 'eventos', 'certificados', 'configuracion'],
+      options: ['dashboard', 'convocatorias', 'eventos', 'certificados', 'roles', 'configuracion'],
     },
     onLogout: { action: 'logged out' },
     onSelectNav: { action: 'selected nav' },
@@ -28,6 +28,16 @@ export const Default = {
   },
 };
 
+export const Administrador = {
+  args: {
+    activeItem: 'roles',
+    usuario: {
+      nombreCompleto: 'Admin SIGEA',
+      rol: 'ADMIN',
+    },
+  },
+};
+
 export const ConvocatoriasActivas = {
   args: {
     activeItem: 'convocatorias',
@@ -40,13 +50,13 @@ export const ConvocatoriasActivas = {
 
 export const Interactive = {
   render: () => {
-    const [active, setActive] = useState('dashboard');
+    const [active, setActive] = useState('roles');
     return (
       <div className="h-screen bg-[#edeeef] flex">
         <Sidebar
           activeItem={active}
           onSelectNav={(id) => setActive(id)}
-          usuario={{ nombreCompleto: 'Docente Investigador', rol: 'Docente UFPS' }}
+          usuario={{ nombreCompleto: 'Administrador Sistema', rol: 'ADMIN' }}
         />
       </div>
     );

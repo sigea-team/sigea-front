@@ -5,7 +5,8 @@ import {
   Award, 
   Settings, 
   LogOut,
-  User
+  User,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -20,12 +21,19 @@ const DEFAULT_NAV_ITEMS = [
   { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/configuracion' },
 ];
 
+const ADMIN_NAV_ITEM = {
+  id: 'roles',
+  label: 'Administrar Roles y Permisos',
+  icon: Shield,
+  href: '/roles',
+};
+
 /**
  * @file Sidebar.jsx
  * @description Sidebar de navegación lateral fija (260px) para el sistema SIGEA.
  * Maneja el encabezado de marca institucional, ítems con estado activo/hover y
  * tarjeta inferior de perfil de usuario con datos del usuario logueado (nombre, email, rol)
- * y acción de cierre de sesión.
+ * y acción de cierre de sesión. Muestra 'Administrar Roles y Permisos' en caso de rol ADMIN.
  * @module components/ui/Sidebar
  */
 export default function Sidebar({
@@ -50,6 +58,22 @@ export default function Sidebar({
   const email = usuario?.email || usuario?.correo || 'usuario@ufps.edu.co';
   const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles[0] : 'Asistente');
 
+  const isAdmin =
+    String(rol).toUpperCase() === 'ADMIN' ||
+    String(rol).toUpperCase() === 'ADMINISTRADOR' ||
+    (Array.isArray(usuario?.roles) &&
+      usuario.roles.some((r) => String(r).toUpperCase() === 'ADMIN' || String(r).toUpperCase() === 'ADMINISTRADOR'));
+
+  const navItems = [...DEFAULT_NAV_ITEMS];
+  if (isAdmin) {
+    const configIndex = navItems.findIndex((item) => item.id === 'configuracion');
+    if (configIndex !== -1) {
+      navItems.splice(configIndex, 0, ADMIN_NAV_ITEM);
+    } else {
+      navItems.push(ADMIN_NAV_ITEM);
+    }
+  }
+
   return (
     <aside className={`w-[260px] h-screen flex flex-col bg-white border-r border-[#e5e7ea] shrink-0 select-none ${className}`}>
       {/* Header del Sidebar: Marca SIGEA / UFPS */}
@@ -72,7 +96,7 @@ export default function Sidebar({
         <p className="px-3 text-[11px] font-bold text-[#9ca0a6] uppercase tracking-wider mb-2">
           Navegación
         </p>
-        {DEFAULT_NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id || activeItem === item.label.toLowerCase();
 
