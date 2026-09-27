@@ -8,7 +8,9 @@ import {
   User,
   Shield
 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useAuthStore } from '../../store/authStore';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -43,14 +45,27 @@ export default function Sidebar({
   onLogout: onLogoutProp,
   className = '',
 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const auth = useAuth();
-  const usuario = usuarioProp || auth?.usuario;
+  const storeUser = useAuthStore((state) => state.usuario);
+  const usuario = usuarioProp || auth?.usuario || storeUser;
 
   const handleLogout = () => {
     if (onLogoutProp) {
       onLogoutProp();
     } else if (auth?.logout) {
       auth.logout();
+    }
+  };
+
+  const handleNavClick = (item) => {
+    if (onSelectNav) {
+      onSelectNav(item.id);
+    }
+    if (item.href) {
+      navigate(item.href);
     }
   };
 
@@ -98,13 +113,17 @@ export default function Sidebar({
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeItem === item.id || activeItem === item.label.toLowerCase();
+          const currentPath = location?.pathname;
+          const isActive =
+            activeItem === item.id ||
+            activeItem === item.label.toLowerCase() ||
+            (currentPath && item.href && currentPath === item.href);
 
           return (
             <button
               key={item.id}
               type="button"
-              onClick={() => onSelectNav && onSelectNav(item.id)}
+              onClick={() => handleNavClick(item)}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-sm font-medium transition-colors cursor-pointer text-left ${
                 isActive
                   ? 'bg-[#fdecec] text-[#a6192e]'
