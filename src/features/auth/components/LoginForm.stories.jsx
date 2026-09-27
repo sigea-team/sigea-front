@@ -1,6 +1,6 @@
 import React from 'react';
 import LoginForm from './LoginForm';
-import MainLayout from '../../../components/layout/MainLayout';
+import AuthLayout from './AuthLayout';
 
 export default {
   title: 'Features/Auth/LoginForm',
@@ -18,9 +18,9 @@ export const Default = {
 
 export const InsideLayout = {
   render: () => (
-    <MainLayout>
+    <AuthLayout>
       <LoginForm />
-    </MainLayout>
+    </AuthLayout>
   ),
   parameters: {
     layout: 'fullscreen',
