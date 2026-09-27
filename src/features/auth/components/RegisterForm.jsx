@@ -14,6 +14,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
@@ -88,8 +89,7 @@ const INITIAL_FORM = {
  *
  * Al montarse, solicita la lista de afiliaciones al backend mediante {@link obtenerAfiliaciones}.
  * Al enviarse, ejecuta validaciones en el cliente y llama a {@link registrarUsuario};
- * en caso de éxito muestra un modal SweetAlert2; en caso de error, muestra el
- * componente `Alert` con el mensaje del servidor.
+ * en caso de éxito muestra un modal SweetAlert2; en caso de error, también.
  *
  * @component
  * @returns {JSX.Element} Tarjeta de formulario de registro lista para embeber en el MainLayout.
@@ -152,8 +152,8 @@ export default function RegisterForm() {
    *
    * Aplica filtrado numérico automático en los campos `numeroDocumento` y
    * `telefono` (elimina cualquier carácter que no sea dígito). Además limpia
-   * el error del campo modificado y el error general si existían, para dar
-   * retroalimentación visual inmediata al usuario.
+   * el error del campo modificado si existía, para dar retroalimentación
+   * visual inmediata al usuario.
    *
    * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e - Evento nativo de cambio del input o select.
    * @returns {void}
@@ -375,17 +375,6 @@ export default function RegisterForm() {
         </p>
       </div>
 
-      {/* Alerta de error general / servidor */}
-      {generalError && (
-        <div className="mb-6">
-          <Alert
-            title="No se pudo completar el registro"
-            message={generalError}
-            onClose={() => setGeneralError(null)}
-          />
-        </div>
-      )}
-
       {/* Formulario */}
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {/* Fila 1: Nombres y Apellidos */}
@@ -566,9 +555,9 @@ export default function RegisterForm() {
         <div className="text-center pt-2">
           <p className="text-xs text-[#5b5f66]">
             ¿Ya tienes una cuenta registrada?{' '}
-            <a href="#login" className="text-[#a6192e] font-semibold hover:underline">
+            <Link to="/login" className="text-[#a6192e] font-semibold hover:underline">
               Iniciar Sesión
-            </a>
+            </Link>
           </p>
         </div>
       </form>
