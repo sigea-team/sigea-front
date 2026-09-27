@@ -11,45 +11,55 @@ export const authApi = axios.create({
 });
 
 /**
- * Realiza la petición POST de registro al backend
- * Endpoint: /api/v1/auth/register
+ * Autentica un usuario mediante email y password (o correo y contrasena).
+ * Endpoint: POST /api/v1/auth/login
+ * Body: { email, password }
+ * Response: { token, usuario: { id, nombreCompleto, email, rol, afiliacion } }
+ *
+ * @param {{ email?: string, correo?: string, password?: string, contrasena?: string }} data
  */
-export async function registrarUsuario(data) {
-  const response = await authApi.post('/register', data);
+export async function loginUsuario(data) {
+  const correo = data.email || data.correo;
+  const contrasena = data.password || data.contrasena;
+
+  const response = await authApi.post('/login', { correo, contrasena });
   return response.data;
 }
 
+export const login = loginUsuario;
+
 /**
- * Obtiene el catálogo de afiliaciones institucionales desde la base de datos
- * Endpoint: /api/v1/auth/afiliaciones
+ * Obtiene la lista de afiliaciones institucionales para el registro.
+ * Endpoint: GET /api/v1/auth/afiliaciones
  */
 export async function obtenerAfiliaciones() {
   const response = await authApi.get('/afiliaciones');
   return response.data;
 }
 
+export const getAfiliaciones = obtenerAfiliaciones;
+
 /**
- * Autentica un usuario mediante correo y contraseña (HU-01, RF01).
- * Endpoint: /api/v1/auth/login
- * Respuestas de error relevantes que maneja el backend:
- *  - 401 CREDENCIALES_INVALIDAS  -> mensaje genérico (Criterio 2)
- *  - 423 CUENTA_BLOQUEADA        -> bloqueo temporal por intentos fallidos (Criterio 3)
- *  - 403 CORREO_NO_VERIFICADO    -> ofrece reenviar verificación (trae `correo` en el body)
+ * Envía los datos de registro de un nuevo usuario.
+ * Endpoint: POST /api/v1/auth/register
  *
- * @param {{correo: string, contrasena: string}} data
+ * @param {Object} data
  */
-export async function loginUsuario(data) {
-  const response = await authApi.post('/login', data);
+export async function registrarUsuario(data) {
+  const response = await authApi.post('/register', data);
   return response.data;
 }
 
+export const register = registrarUsuario;
+export const registerUsuario = registrarUsuario;
+
 /**
- * Reenvía el enlace de verificación de correo electrónico a una cuenta pendiente de activar.
- * Endpoint: /api/v1/auth/resend-verification
+ * Reenvía el enlace de verificación de correo electrónico.
+ * Endpoint: POST /api/v1/auth/resend-verification
  *
  * @param {string} correo
  */
 export async function reenviarVerificacion(correo) {
-  const response = await authApi.post('/resend-verification', { correo });
+  const response = await authApi.post('/resend-verification', { correo, email: correo });
   return response.data;
 }

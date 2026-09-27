@@ -1,6 +1,4 @@
-
 import axios from 'axios';
-import { useAuthStore } from '../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
@@ -13,20 +11,21 @@ export const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use((config) => {
-  const { token } = useAuthStore.getState();
+  const token = localStorage.getItem('token') || localStorage.getItem('jwt');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Si el backend responde 401 (token vencido/ inválido), se cierra la sesión local
-// para forzar un nuevo inicio de sesión.
+// Si el backend responde 401 (token vencido / inválido), se limpian las credenciales de localStorage.
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().cerrarSesion();
+      localStorage.removeItem('token');
+      localStorage.removeItem('jwt');
+      localStorage.removeItem('usuario');
     }
     return Promise.reject(error);
   }

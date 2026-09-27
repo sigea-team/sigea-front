@@ -8,25 +8,24 @@
  *  3. Cuenta bloqueada tras intentos fallidos (HTTP 423) -> mensaje de bloqueo temporal.
  *  4. "Olvidé mi contraseña" -> redirige al flujo de recuperación de contraseña.
  *
- * También maneja el flujo alterno de HU-31: correo no verificado (HTTP 403),
- * ofreciendo reenviar el enlace de verificación.
- *
  * @module features/auth/components/LoginForm
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
-import { loginUsuario, reenviarVerificacion } from '../../../api/authService';
+import { reenviarVerificacion } from '../../../api/authService';
+import { useAuth } from '../../../context/AuthContext';
 import { useAuthStore, rutaSegunRoles } from '../../../store/authStore';
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const iniciarSesion = useAuthStore((state) => state.iniciarSesion);
+  const { login } = useAuth();
+  const iniciarSesionStore = useAuthStore((state) => state.iniciarSesion);
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -73,26 +72,36 @@ export default function LoginForm() {
 
     setLoading(true);
     try {
-      // Criterio 1: credenciales correctas -> autentica y redirige al panel según el rol.
-      const data = await loginUsuario({
-        correo: formData.correo.trim().toLowerCase(),
-        contrasena: formData.contrasena,
+      // Criterio 1: credenciales correctas -> autentica mediante AuthContext
+      const data = await login({
+        email: formData.correo.trim().toLowerCase(),
+        password: formData.contrasena,
       });
 
-      iniciarSesion(data);
-      navigate(rutaSegunRoles(data.roles), { replace: true });
+      // Mantener sincronizado el authStore de Zustand
+      if (data) {
+        const usuarioData = data.usuario || data;
+        const roles = usuarioData?.rol ? [usuarioData.rol] : (data.roles || ['PARTICIPANTE']);
+        iniciarSesionStore({
+          token: data.token,
+          usuarioId: usuarioData?.id || data.usuarioId,
+          correo: usuarioData?.email || data.correo,
+          nombreCompleto: usuarioData?.nombreCompleto || data.nombreCompleto,
+          roles,
+        });
+
+        const targetRoute = rutaSegunRoles(roles);
+        navigate(targetRoute, { replace: true });
+      }
     } catch (err) {
       const errorData = err.response?.data;
       const status = err.response?.status;
 
       if (status === 401) {
-        // Criterio 2: mensaje genérico, sin indicar cuál dato es incorrecto.
         setGeneralError(errorData?.message || 'Credenciales incorrectas. Verifique su correo electrónico y contraseña.');
       } else if (status === 423) {
-        // Criterio 3: cuenta bloqueada temporalmente por intentos fallidos.
         setGeneralError(errorData?.message || 'Su cuenta está bloqueada temporalmente. Intente nuevamente más tarde.');
       } else if (status === 403 && errorData?.codigo === 'CORREO_NO_VERIFICADO') {
-        // Flujo alterno (HU-31): correo aún no verificado.
         setGeneralError(errorData.message);
         setCorreoPendienteVerificar(errorData.correo || formData.correo.trim().toLowerCase());
       } else if (err.request) {
@@ -208,7 +217,7 @@ export default function LoginForm() {
           }
         />
 
-        {/* Criterio 4: redirección al flujo de recuperación de contraseña */}
+        {/* Redirección al flujo de recuperación de contraseña */}
         <div className="text-right -mt-2">
           <Link to="/recuperar-password" className="text-xs font-semibold text-[#a6192e] hover:underline">
             ¿Olvidaste tu contraseña?
