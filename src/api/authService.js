@@ -63,3 +63,21 @@ export async function reenviarVerificacion(correo) {
   const response = await authApi.post('/resend-verification', { correo, email: correo });
   return response.data;
 }
+/**
+ * Solicita el envío de un enlace de recuperación de contraseña.
+ * Endpoint: /api/v1/auth/forgot-password
+ * El backend responde igual exista o no el correo (Criterio 4).
+ */
+export async function solicitarRecuperacion(correo) {
+  const response = await authApi.post('/forgot-password', { correo });
+  return response.data; // { mensaje }
+}
+
+/**
+ * Restablece la contraseña usando el token recibido por correo.
+ * Endpoint: /api/v1/auth/reset-password
+ */
+export async function restablecerContrasena(token, nuevaContrasena) {
+  const response = await authApi.post('/reset-password', { token, nuevaContrasena });
+  return response.data; // { mensaje }
+}
