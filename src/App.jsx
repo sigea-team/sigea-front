@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import RolesPage from './pages/RolesPage';
+import AuditoriaPage from './pages/AuditoriaPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/roles-permisos" element={<RolesPage />} />
+            <Route path="/auditoria" element={<AuditoriaPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
