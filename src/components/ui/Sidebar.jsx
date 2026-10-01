@@ -6,7 +6,8 @@ import {
   Settings, 
   LogOut,
   User,
-  Shield
+  Shield,
+  History
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +29,14 @@ const ADMIN_NAV_ITEM = {
   label: 'Administrar Roles y Permisos',
   icon: Shield,
   href: '/roles',
+};
+
+/** HU-03: consulta del log de auditoría (solo administradores). */
+const AUDITORIA_NAV_ITEM = {
+  id: 'auditoria',
+  label: 'Auditoría',
+  icon: History,
+  href: '/auditoria',
 };
 
 /**
@@ -83,9 +92,9 @@ export default function Sidebar({
   if (isAdmin) {
     const configIndex = navItems.findIndex((item) => item.id === 'configuracion');
     if (configIndex !== -1) {
-      navItems.splice(configIndex, 0, ADMIN_NAV_ITEM);
+      navItems.splice(configIndex, 0, ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
     } else {
-      navItems.push(ADMIN_NAV_ITEM);
+      navItems.push(ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
     }
   }
 
