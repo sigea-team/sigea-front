@@ -15,7 +15,9 @@ import { useAuthStore } from '../store/authStore';
  * @module context/AuthContext
  */
 
-// Limpieza única de las claves que usaba la versión anterior (token, jwt, usuario).
+// Limpieza única de las claves sueltas que usaba la versión anterior (token, jwt, usuario).
+// No toca la clave del store ("sigea-auth") ni ninguna otra; si localStorage no está
+// disponible, simplemente se omite.
 try {
   ['token', 'jwt', 'usuario'].forEach((clave) => localStorage.removeItem(clave));
 } catch {
@@ -29,12 +31,19 @@ const AuthContext = createContext(null);
  * Respuesta del backend: { token, tipoToken, usuarioId, correo, nombreCompleto, roles }.
  *
  * @param {{ correo?: string, email?: string, contrasena?: string, password?: string }} credenciales
- * @returns {Promise<Object>} La respuesta del backend.
+ * @returns {Promise<{ token: string, usuario: Object }>} La sesión normalizada guardada en el store.
+ * @throws {Error} con codigo RESPUESTA_LOGIN_INVALIDA si la respuesta no trae un token válido.
  */
 async function login(credenciales) {
   const data = await loginUsuario(credenciales);
-  useAuthStore.getState().iniciarSesion(data);
-  return data;
+  const guardada = useAuthStore.getState().iniciarSesion(data);
+  if (!guardada) {
+    // Nunca se navega al panel con una sesión inválida: el formulario muestra el error.
+    const error = new Error('El servidor respondió sin un token de sesión válido.');
+    error.codigo = 'RESPUESTA_LOGIN_INVALIDA';
+    throw error;
+  }
+  return useAuthStore.getState();
 }
 
 /** Cierra la sesión local. Las rutas protegidas redirigen solas a /login. */

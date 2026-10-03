@@ -36,13 +36,33 @@ const INITIAL_FORM = { correo: '', contrasena: '' };
  * @returns {number|null}
  */
 function calcularDesbloqueo(err) {
-  const retryAfter = Number(err.response?.headers?.['retry-after']);
-  if (Number.isFinite(retryAfter) && retryAfter > 0) {
-    return Date.now() + retryAfter * 1000;
+  const segundos = segundosDeRetryAfter(err.response?.headers?.['retry-after']);
+  if (segundos) {
+    return Date.now() + segundos * 1000;
   }
   const hasta = err.response?.data?.bloqueadoHasta;
-  const instante = hasta ? new Date(hasta).getTime() : NaN;
+  const instante = typeof hasta === 'string' ? Date.parse(hasta) : NaN;
   return Number.isFinite(instante) && instante > Date.now() ? instante : null;
+}
+
+/**
+ * Interpreta la cabecera Retry-After, que según el estándar HTTP puede traer un número
+ * entero de segundos ("900") o una fecha HTTP ("Wed, 21 Oct 2026 07:28:00 GMT").
+ * Se valida con una expresión regular en vez de parseInt, que aceptaría valores
+ * corruptos como "90abc".
+ * @returns {number|null} segundos restantes (entero positivo) o null si no es válida.
+ */
+function segundosDeRetryAfter(valor) {
+  if (valor === undefined || valor === null) return null;
+  const texto = String(valor).trim();
+  if (/^\d+$/.test(texto)) {
+    const segundos = Number(texto);
+    return segundos > 0 ? segundos : null;
+  }
+  const fecha = Date.parse(texto);
+  if (!Number.isFinite(fecha)) return null;
+  const segundos = Math.ceil((fecha - Date.now()) / 1000);
+  return segundos > 0 ? segundos : null;
 }
 
 export default function LoginForm() {
@@ -101,13 +121,15 @@ export default function LoginForm() {
     setLoading(true);
     try {
       // Criterio 1: credenciales correctas -> guarda la sesión y redirige al panel según el rol.
-      const data = await login({
+      const sesion = await login({
         correo: formData.correo.trim().toLowerCase(),
         contrasena: formData.contrasena,
       });
-      navigate(rutaSegunRoles(data?.roles), { replace: true });
+      navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
-      const errorData = err.response?.data;
+      // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
+      const cuerpo = err.response?.data;
+      const errorData = cuerpo && typeof cuerpo === 'object' ? cuerpo : {};
       const status = err.response?.status;
 
       if (status === 401) {
@@ -124,10 +146,18 @@ export default function LoginForm() {
         }
       } else if (status === 403 && errorData?.codigo === 'CORREO_NO_VERIFICADO') {
         // Flujo alterno (HU-31): correo aún no verificado.
-        setGeneralError(errorData.message);
-        setCorreoPendienteVerificar(errorData.correo || formData.correo.trim().toLowerCase());
+        setGeneralError(errorData.message || 'Debe verificar su correo electrónico antes de iniciar sesión.');
+        setCorreoPendienteVerificar(errorData.correo ?? errorData.email ?? formData.correo.trim().toLowerCase());
+      } else if (err.codigo === 'RESPUESTA_LOGIN_INVALIDA') {
+        setGeneralError('El servidor respondió de forma inesperada. Intente nuevamente en unos minutos.');
+      } else if (err.response) {
+        // El servidor respondió, pero con un estado no contemplado (403 sin código, 500, etc.).
+        setGeneralError(
+          errorData.message || `No fue posible iniciar sesión (código ${status}). Intente nuevamente.`
+        );
       } else if (err.request) {
-        setGeneralError('No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.');
+        // Sin respuesta: servidor apagado, sin conexión o tiempo de espera agotado.
+        setGeneralError('No fue posible conectarse con el servidor. Verifique su conexión o que el servicio esté activo.');
       } else {
         setGeneralError('Ocurrió un error inesperado al iniciar sesión.');
       }
@@ -141,10 +171,13 @@ export default function LoginForm() {
     setReenviando(true);
     try {
       const data = await reenviarVerificacion(correoPendienteVerificar);
+      // Envío exitoso: se limpia el aviso para que el botón no quede visible ni "pegado".
+      setGeneralError(null);
+      setCorreoPendienteVerificar(null);
       Swal.fire({
         icon: 'success',
         title: 'Enlace reenviado',
-        text: data.mensaje || 'Revisa tu bandeja de entrada para verificar tu correo.',
+        text: data?.mensaje || 'Revisa tu bandeja de entrada para verificar tu correo.',
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',
         customClass: { popup: 'rounded-[16px]' },
