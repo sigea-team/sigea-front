@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Trash2, RotateCw } from 'lucide-react';
+import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -11,7 +11,6 @@ import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
-import AlertaError from '../features/eventos/components/AlertaError';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -72,7 +71,7 @@ function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligr
 export default function EventosPage({ api = eventoService, usuarioProp, onSelectNav }) {
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [errorCarga, setErrorCarga] = useState(null);
+  const [errorCarga, setErrorCarga] = useState(false);
   const [version, setVersion] = useState(0);
 
   const [busqueda, setBusqueda] = useState('');
@@ -88,10 +87,26 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
       .then((data) => {
         if (!activo) return;
         setEventos(Array.isArray(data) ? data : []);
-        setErrorCarga(null);
+        setErrorCarga(false);
       })
       .catch((err) => {
-        if (activo) setErrorCarga(extraerError(err).mensaje);
+        if (!activo) return;
+        setErrorCarga(true);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudieron cargar los eventos',
+          text: extraerError(err).mensaje,
+          showCancelButton: true,
+          confirmButtonText: 'Reintentar',
+          cancelButtonText: 'Cerrar',
+          confirmButtonColor: '#a6192e',
+          customClass: { popup: 'rounded-[16px]' },
+        }).then((resultado) => {
+          if (resultado.isConfirmed) {
+            setCargando(true);
+            setVersion((v) => v + 1);
+          }
+        });
       })
       .finally(() => {
         if (activo) setCargando(false);
@@ -203,16 +218,6 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
           </p>
         </div>
 
-        {errorCarga && (
-          <AlertaError titulo="No se pudieron cargar los eventos">
-            <span>{errorCarga} </span>
-            <button type="button" onClick={recargar} className="inline-flex items-center gap-1 font-semibold underline cursor-pointer">
-              <RotateCw className="w-3.5 h-3.5" />
-              Reintentar
-            </button>
-          </AlertaError>
-        )}
-
         {/* Tabla */}
         <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
           <div className="overflow-x-auto">
@@ -232,6 +237,21 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
                   <tr>
                     <td colSpan={6} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
                       Cargando eventos...
+                    </td>
+                  </tr>
+                )}
+
+                {!cargando && errorCarga && eventos.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-5 text-center">
+                      <p className="font-semibold text-base text-[#1f2023]">No se pudieron cargar los eventos</p>
+                      <button
+                        type="button"
+                        onClick={recargar}
+                        className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                      >
+                        Reintentar
+                      </button>
                     </td>
                   </tr>
                 )}

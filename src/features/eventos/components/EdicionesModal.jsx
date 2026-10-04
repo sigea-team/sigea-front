@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { History, CopyPlus } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import ModalShell from './ModalShell';
-import AlertaError from './AlertaError';
 import EstadoEventoBadge from './EstadoEventoBadge';
 import { etiquetaModalidad, extraerError, formatearRango } from '../eventoUtils';
 
@@ -25,7 +25,7 @@ import { etiquetaModalidad, extraerError, formatearRango } from '../eventoUtils'
  */
 export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEdicion }) {
   const [historial, setHistorial] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
   const eventoId = evento?.id;
 
   useEffect(() => {
@@ -37,7 +37,16 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
         if (activo) setHistorial(data);
       })
       .catch((err) => {
-        if (activo) setError(extraerError(err).mensaje);
+        if (!activo) return;
+        setError(true);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo cargar el historial',
+          text: extraerError(err).mensaje,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#a6192e',
+          customClass: { popup: 'rounded-[16px]' },
+        });
       });
     return () => {
       activo = false;
@@ -80,7 +89,9 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
         </>
       }
     >
-      {error && <AlertaError titulo="No se pudo cargar el historial">{error}</AlertaError>}
+      {error && (
+        <p className="text-sm text-[#5b5f66] py-8 text-center">No se pudo cargar el historial de ediciones.</p>
+      )}
 
       {!error && !historial && (
         <p className="text-sm text-[#5b5f66] py-8 text-center" role="status">

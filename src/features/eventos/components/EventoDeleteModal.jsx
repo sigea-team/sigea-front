@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { Trash2, ShieldAlert } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import ModalShell from './ModalShell';
-import AlertaError from './AlertaError';
 import { ESTADOS_EVENTO, esEditable, extraerError } from '../eventoUtils';
 
 /**
@@ -25,7 +25,6 @@ import { ESTADOS_EVENTO, esEditable, extraerError } from '../eventoUtils';
  */
 export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas = 0, onClose, onConfirm }) {
   const [eliminando, setEliminando] = useState(false);
-  const [error, setError] = useState(null);
 
   if (!isOpen || !evento) return null;
 
@@ -35,12 +34,18 @@ export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas =
 
   const confirmar = async () => {
     setEliminando(true);
-    setError(null);
     try {
       await onConfirm(evento);
     } catch (err) {
-      setError(extraerError(err).mensaje);
       setEliminando(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo eliminar',
+        text: extraerError(err).mensaje,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: { popup: 'rounded-[16px]' },
+      });
     }
   };
 
@@ -71,20 +76,24 @@ export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas =
       }
     >
       <div className="space-y-4">
-        {error && <AlertaError titulo="No se pudo eliminar">{error}</AlertaError>}
-
         {noEditable && (
-          <AlertaError titulo="El evento ya no está en configuración">
-            Su estado es «{ESTADOS_EVENTO[evento.estado] || evento.estado}». Solo se pueden eliminar eventos en
-            configuración, para conservar el historial de los eventos realizados.
-          </AlertaError>
+          <div>
+            <p className="text-sm font-semibold text-[#1f2023]">El evento ya no está en configuración</p>
+            <p className="text-sm text-[#5b5f66] mt-1 leading-relaxed">
+              Su estado es «{ESTADOS_EVENTO[evento.estado] || evento.estado}». Solo se pueden eliminar eventos en
+              configuración, para conservar el historial de los eventos realizados.
+            </p>
+          </div>
         )}
 
         {!noEditable && tieneEdiciones && (
-          <AlertaError titulo="Es el evento base de otras ediciones">
-            Tiene {edicionesDerivadas} {edicionesDerivadas === 1 ? 'edición vinculada' : 'ediciones vinculadas'}.
-            Elimina primero esas ediciones para no romper el historial.
-          </AlertaError>
+          <div>
+            <p className="text-sm font-semibold text-[#1f2023]">Es el evento base de otras ediciones</p>
+            <p className="text-sm text-[#5b5f66] mt-1 leading-relaxed">
+              Tiene {edicionesDerivadas} {edicionesDerivadas === 1 ? 'edición vinculada' : 'ediciones vinculadas'}.
+              Elimina primero esas ediciones para no romper el historial.
+            </p>
+          </div>
         )}
 
         {!bloqueado && (
