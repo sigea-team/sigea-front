@@ -1,93 +1,79 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext } from 'react';
 import { loginUsuario } from '../api/authService';
+import { useAuthStore } from '../store/authStore';
+
+/**
+ * @file AuthContext.jsx
+ * @description Contexto de autenticación de SIGEA (HU-01).
+ * <p>
+ * Antes la sesión se guardaba en dos lugares (este contexto con claves sueltas de
+ * localStorage y el store de Zustand), y al cerrar sesión solo se limpiaba uno: el
+ * usuario seguía "logueado" para {@link ProtectedRoute}. Ahora el store de Zustand
+ * (`store/authStore.js`) es la ÚNICA fuente de verdad y este contexto solo lo expone
+ * con la misma interfaz de siempre: `{ token, usuario, login, logout, isAuthenticated }`.
+ * </p>
+ * @module context/AuthContext
+ */
+
+// Limpieza única de las claves sueltas que usaba la versión anterior (token, jwt, usuario).
+// No toca la clave del store ("sigea-auth") ni ninguna otra; si localStorage no está
+// disponible, simplemente se omite.
+try {
+  ['token', 'jwt', 'usuario'].forEach((clave) => localStorage.removeItem(clave));
+} catch {
+  // localStorage no disponible (p. ej. modo privado estricto): no hay nada que limpiar.
+}
 
 const AuthContext = createContext(null);
 
 /**
- * Proveedor del Contexto de Autenticación de SIGEA.
- * Mantiene el token JWT y la información del usuario en localStorage
- * y en el estado global de la aplicación.
+ * Inicia sesión contra POST /api/v1/auth/login y guarda la respuesta en el store.
+ * Respuesta del backend: { token, tipoToken, usuarioId, correo, nombreCompleto, roles }.
+ *
+ * @param {{ correo?: string, email?: string, contrasena?: string, password?: string }} credenciales
+ * @returns {Promise<{ token: string, usuario: Object }>} La sesión normalizada guardada en el store.
+ * @throws {Error} con codigo RESPUESTA_LOGIN_INVALIDA si la respuesta no trae un token válido.
+ */
+async function login(credenciales) {
+  const data = await loginUsuario(credenciales);
+  const guardada = useAuthStore.getState().iniciarSesion(data);
+  if (!guardada) {
+    // Nunca se navega al panel con una sesión inválida: el formulario muestra el error.
+    const error = new Error('El servidor respondió sin un token de sesión válido.');
+    error.codigo = 'RESPUESTA_LOGIN_INVALIDA';
+    throw error;
+  }
+  return useAuthStore.getState();
+}
+
+/** Cierra la sesión local. Las rutas protegidas redirigen solas a /login. */
+function logout() {
+  useAuthStore.getState().cerrarSesion();
+}
+
+/**
+ * Proveedor del contexto de autenticación.
  */
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem('token') || localStorage.getItem('jwt') || null;
-  });
-
-  const [usuario, setUsuario] = useState(() => {
-    const savedUser = localStorage.getItem('usuario');
-    if (!savedUser) return null;
-    try {
-      return JSON.parse(savedUser);
-    } catch {
-      return null;
-    }
-  });
-
-  /**
-   * Realiza la autenticación mediante el servicio `loginUsuario`.
-   * Guarda el JWT en `localStorage` y la información del usuario en el estado global.
-   *
-   * @param {{ email?: string, correo?: string, password?: string, contrasena?: string }} credentials
-   */
-  const login = async (credentials) => {
-    const data = await loginUsuario(credentials);
-    const jwtToken = data.token;
-    const userData = data.usuario || data;
-
-    if (jwtToken) {
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('jwt', jwtToken);
-      setToken(jwtToken);
-    }
-
-    if (userData) {
-      localStorage.setItem('usuario', JSON.stringify(userData));
-      setUsuario(userData);
-    }
-
-    return data;
-  };
-
-  /**
-   * Elimina el token y la información del usuario de `localStorage` y limpia el estado global.
-   */
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('usuario');
-    setToken(null);
-    setUsuario(null);
-  };
+  const token = useAuthStore((state) => state.token);
+  const usuario = useAuthStore((state) => state.usuario);
 
   return (
-    <AuthContext.Provider
-      value={{
-        token,
-        usuario,
-        login,
-        logout,
-        isAuthenticated: !!token,
-      }}
-    >
+    <AuthContext.Provider value={{ token, usuario, login, logout, isAuthenticated: Boolean(token) }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 /**
- * Hook para consumir el contexto de autenticación de SIGEA.
+ * Hook para consumir el contexto de autenticación. Fuera de un {@link AuthProvider}
+ * (por ejemplo, en Storybook) lee directamente el store, con el mismo resultado.
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    return {
-      token: null,
-      usuario: null,
-      login: async () => {},
-      logout: () => {},
-      isAuthenticated: false,
-    };
-  }
-  return context;
+  const token = useAuthStore((state) => state.token);
+  const usuario = useAuthStore((state) => state.usuario);
+  if (context) return context;
+  return { token, usuario, login, logout, isAuthenticated: Boolean(token) };
 }
