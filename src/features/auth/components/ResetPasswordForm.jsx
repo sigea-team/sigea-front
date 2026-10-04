@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
@@ -24,6 +24,7 @@ const PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d
 export default function ResetPasswordForm() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -76,8 +77,8 @@ export default function ResetPasswordForm() {
           confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
         }
       }).then(() => {
-        window.location.href = '#login';
-      });
+  navigate('/login');
+});
     } catch (err) {
       // Criterio 3: el backend responde con "El enlace ya fue utilizado" / "ha expirado" / inválido
       const errorMessage = err.response?.data?.message
@@ -111,9 +112,9 @@ export default function ResetPasswordForm() {
         <p className="text-sm text-[#5b5f66]">
           Este enlace no incluye un token de recuperación. Solicita uno nuevo desde la pantalla de recuperación de contraseña.
         </p>
-        <a href="#forgot-password" className="text-[#a6192e] font-semibold text-sm hover:underline mt-4 inline-block">
-          Solicitar un nuevo enlace
-        </a>
+        <Link to="/recuperar-password" className="text-[#a6192e] font-semibold text-sm hover:underline mt-4 inline-block">
+  Solicitar un nuevo enlace
+</Link>
       </div>
     );
   }

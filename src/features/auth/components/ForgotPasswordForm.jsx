@@ -8,6 +8,7 @@
  */
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
@@ -115,9 +116,9 @@ export default function ForgotPasswordForm() {
         <div className="text-center pt-2">
           <p className="text-xs text-[#5b5f66]">
             ¿Ya la recordaste?{' '}
-            <a href="#login" className="text-[#a6192e] font-semibold hover:underline">
-              Iniciar Sesión
-            </a>
+            <Link to="/login" className="text-[#a6192e] font-semibold hover:underline">
+  Iniciar Sesión
+</Link>
           </p>
         </div>
       </form>
