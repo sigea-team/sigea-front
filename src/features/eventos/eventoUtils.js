@@ -22,6 +22,9 @@ export const MODALIDADES = [
 
 const SEMESTRE_REGEX = /^\d{4}-[12]$/;
 
+/** Longitudes máximas; coinciden con las validaciones @Size de EventoRequest en el backend. */
+export const LIMITES = { objetivo: 1000, descripcion: 4000 };
+
 /** @param {string} modalidad */
 export function etiquetaModalidad(modalidad) {
   return MODALIDADES.find((m) => m.value === modalidad)?.label || '—';
@@ -83,6 +86,12 @@ export function validarEvento(form) {
   if (!form.tipo.trim()) errores.tipo = 'Indica el tipo de evento.';
   else if (form.tipo.trim().length > 50) errores.tipo = 'El tipo no puede superar los 50 caracteres.';
   if (!form.modalidad) errores.modalidad = 'Selecciona la modalidad.';
+  if (form.objetivo.trim().length > LIMITES.objetivo) {
+    errores.objetivo = `El objetivo no puede superar los ${LIMITES.objetivo} caracteres.`;
+  }
+  if (form.descripcion.trim().length > LIMITES.descripcion) {
+    errores.descripcion = `La descripción no puede superar los ${LIMITES.descripcion} caracteres.`;
+  }
   Object.assign(errores, validarFechasYSemestre(form));
   return errores;
 }

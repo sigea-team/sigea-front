@@ -7,6 +7,7 @@ import ModalShell from './ModalShell';
 import TextArea from './TextArea';
 import AlertaError from './AlertaError';
 import {
+  LIMITES,
   MODALIDADES,
   calcularSemestre,
   extraerError,
@@ -189,6 +190,7 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
           value={form.objetivo}
           onChange={cambiar('objetivo')}
           placeholder="¿Qué busca lograr el evento?"
+          maxLength={LIMITES.objetivo}
           error={errores.objetivo}
         />
 
@@ -199,6 +201,7 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
           onChange={cambiar('descripcion')}
           placeholder="Temática, público al que se dirige y otros detalles generales."
           rows={4}
+          maxLength={LIMITES.descripcion}
           error={errores.descripcion}
         />
       </form>

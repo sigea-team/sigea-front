@@ -129,7 +129,15 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       if (evento.estado !== 'en_configuracion') {
         throw errorApi(409, `El evento '${evento.nombre}' ya no está en configuración.`, { codigo: 'OPERACION_NO_PERMITIDA' });
       }
-      Object.assign(evento, datos, { semestre: datos.semestre || semestreDe(datos.fechaInicio) });
+      // Igual que el backend: semestre único en la familia (base + ediciones), excluyendo este registro.
+      const semestre = datos.semestre || semestreDe(datos.fechaInicio);
+      const raiz = raizDe(eventos, evento);
+      if (familia(raiz.id).some((e) => e.id !== evento.id && e.semestre === semestre)) {
+        throw errorApi(409, `Ya existe una edición de este evento para el semestre ${semestre}.`, {
+          codigo: 'OPERACION_NO_PERMITIDA',
+        });
+      }
+      Object.assign(evento, datos, { semestre });
       return { ...evento };
     },
 
@@ -168,6 +176,7 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       return {
         eventoBaseId: raiz.id,
         nombreEventoBase: raiz.nombre,
+        // Igual que el backend (EdicionesEventoResponse): cuenta el evento base + sus ediciones.
         totalEdiciones: ediciones.length,
         ediciones,
       };

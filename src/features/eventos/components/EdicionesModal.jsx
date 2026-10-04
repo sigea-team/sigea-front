@@ -48,15 +48,21 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
 
   const ediciones = historial?.ediciones || [];
   const masReciente = ediciones[ediciones.length - 1];
+  // totalEdiciones del backend cuenta el evento base + sus ediciones; aquí se muestran por separado.
+  const derivadas = ediciones.filter((e) => e.eventoBaseId !== null && e.eventoBaseId !== undefined).length;
+
+  let resumen = 'Historial de ediciones';
+  if (historial) {
+    resumen =
+      derivadas === 0
+        ? 'Evento base, todavía sin ediciones derivadas'
+        : `Evento base y ${derivadas} ${derivadas === 1 ? 'edición' : 'ediciones'}, de la más antigua a la más reciente`;
+  }
 
   return (
     <ModalShell
       titulo={historial?.nombreEventoBase || evento.nombre}
-      subtitulo={
-        historial
-          ? `${historial.totalEdiciones} ${historial.totalEdiciones === 1 ? 'edición registrada' : 'ediciones registradas'}, de la más antigua a la más reciente`
-          : 'Historial de ediciones'
-      }
+      subtitulo={resumen}
       icono={History}
       onClose={onClose}
       tituloId="ediciones-titulo"

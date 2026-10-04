@@ -69,7 +69,7 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
     setErrorGeneral(null);
     try {
       await onSubmit({
-        nombre: textoONulo(form.nombre),
+        nombre: form.nombre.trim() || origen.nombre,
         fechaInicio: form.fechaInicio,
         fechaFin: form.fechaFin,
         semestre: textoONulo(form.semestre),
