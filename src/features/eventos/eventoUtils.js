@@ -126,6 +126,14 @@ export function textoONulo(valor) {
   return limpio ? limpio : null;
 }
 
+/** Mensajes de respaldo cuando el backend responde sin un "message" utilizable. */
+const MENSAJE_POR_ESTADO = {
+  400: 'Los datos enviados no son válidos. Revisa el formulario.',
+  404: 'El evento ya no existe. Recarga la página para ver la información actualizada.',
+  409: 'La operación entra en conflicto con el estado actual del evento. Recarga la página e intenta de nuevo.',
+  500: 'El servidor tuvo un problema al procesar la solicitud. Intenta de nuevo en unos minutos.',
+};
+
 /** Nombres de campo del backend que se muestran en otro campo del formulario. */
 const CAMPO_EQUIVALENTE = { rangoFechasValido: 'fechaFin' };
 
@@ -146,17 +154,21 @@ export function extraerError(err) {
     });
   }
 
+  // El mensaje del backend solo se usa si es texto; un cuerpo no estándar (HTML de un proxy,
+  // objeto sin "message") no se muestra tal cual.
+  const mensajeBackend = typeof data?.message === 'string' && data.message.trim() ? data.message : null;
+
   let mensaje;
   if (status === 403) {
     mensaje = 'Tu usuario no tiene permiso para esta acción. Pide al administrador los permisos de eventos.';
   } else if (status === 401) {
     mensaje = 'Tu sesión expiró. Inicia sesión de nuevo.';
-  } else if (data?.message) {
-    mensaje = data.message;
+  } else if (mensajeBackend) {
+    mensaje = mensajeBackend;
   } else if (err?.request && !err?.response) {
     mensaje = 'No fue posible conectarse con el servidor. Verifica que el backend esté activo.';
   } else {
-    mensaje = 'Ocurrió un error inesperado. Intenta de nuevo.';
+    mensaje = MENSAJE_POR_ESTADO[status] || (status >= 500 ? MENSAJE_POR_ESTADO[500] : 'Ocurrió un error inesperado. Intenta de nuevo.');
   }
 
   return { mensaje, campos, status, codigo: data?.codigo };
