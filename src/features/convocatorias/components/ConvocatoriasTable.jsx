@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Pencil, Trash2, Send, Lock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
+import BotonAccion from '../../../components/ui/BotonAccion';
 import EstadoConvocatoriaBadge from './EstadoConvocatoriaBadge';
-import BotonAccion from './BotonAccion';
 import {
   esBorradorEditable,
   formatearFechaHora,

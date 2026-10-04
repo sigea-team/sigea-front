@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 /**
  * @file BotonAccion.jsx
  * @description Botón iconográfico de acción para filas de tablas en SIGEA.
- * Soporta estados activo, deshabilitado con tooltip de motivo y variante de peligro (brand-700 / brand-100).
- * @module features/convocatorias/components/BotonAccion
+ * Componente UI reutilizable en todo el sistema. Soporta estados activo,
+ * deshabilitado con tooltip de motivo y variante de peligro institucional (brand-700 / brand-100).
+ * @module components/ui/BotonAccion
  */
 
 /**
  * @param {Object} props
  * @param {React.ElementType} props.icono - Icono de Lucide a renderizar.
  * @param {string} props.etiqueta - Texto accesible y título descriptivo.
- * @param {Function} props.onClick - Manejador de clic.
+ * @param {Function} props.onClick - Manejador de evento click.
  * @param {boolean} [props.disabled=false] - Indica si el botón está deshabilitado.
  * @param {string} [props.motivo] - Razón de deshabilitación para el tooltip.
- * @param {boolean} [props.peligro=false] - Estilo de advertencia/eliminación.
+ * @param {boolean} [props.peligro=false] - Aplica estilo de advertencia/eliminación.
  */
 export default function BotonAccion({
   icono: Icono,

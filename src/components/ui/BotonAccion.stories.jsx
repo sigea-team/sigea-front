@@ -2,7 +2,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import BotonAccion from './BotonAccion';
 
 export default {
-  title: 'Features/Convocatorias/BotonAccion',
+  title: 'UI/BotonAccion',
   component: BotonAccion,
   tags: ['autodocs'],
 };
@@ -10,7 +10,7 @@ export default {
 export const Normal = {
   args: {
     icono: Pencil,
-    etiqueta: 'Editar convocatoria',
+    etiqueta: 'Editar elemento',
     onClick: () => console.log('Clic'),
   },
 };
@@ -18,9 +18,9 @@ export const Normal = {
 export const DeshabilitadoConMotivo = {
   args: {
     icono: Pencil,
-    etiqueta: 'Editar convocatoria',
+    etiqueta: 'Editar elemento',
     disabled: true,
-    motivo: 'Solo se pueden editar convocatorias en borrador.',
+    motivo: 'Esta acción no está disponible en el estado actual.',
     onClick: () => {},
   },
 };
@@ -28,7 +28,7 @@ export const DeshabilitadoConMotivo = {
 export const Peligro = {
   args: {
     icono: Trash2,
-    etiqueta: 'Eliminar convocatoria',
+    etiqueta: 'Eliminar elemento',
     peligro: true,
     onClick: () => console.log('Eliminar'),
   },
