@@ -38,17 +38,15 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
 
   const { fecha, hora } = formatearFechaHora(registro.fechaHora);
   const detalle = parsearDetalle(registro.detalle);
-  const esComparativo =
-    detalle.tipo === 'objeto' && ('antes' in detalle.valor || 'despues' in detalle.valor);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="w-full max-w-2xl max-h-[90vh] bg-white rounded-[16px] shadow-2xl border border-[#e5e7ea] flex flex-col overflow-hidden"
+        className="w-full max-w-2xl max-h-[calc(100vh-2rem)] bg-white rounded-[16px] shadow-2xl border border-[#e5e7ea] flex flex-col overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-detalle-auditoria"
@@ -70,8 +68,9 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-[8px] text-[#5b5f66] hover:bg-[#edeeef] cursor-pointer"
+            className="p-1.5 rounded-[8px] text-[#5b5f66] hover:bg-[#edeeef] cursor-pointer shrink-0"
             title="Cerrar"
+            aria-label="Cerrar detalle"
           >
             <X className="w-5 h-5" />
           </button>
@@ -79,7 +78,7 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
 
         {/* Cuerpo */}
         <div className="p-6 space-y-6 overflow-y-auto">
-          <dl className="grid grid-cols-2 gap-4 text-sm">
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <Dato etiqueta="Fecha y hora" valor={`${fecha} · ${hora}`} />
             <Dato
               etiqueta="Usuario"
@@ -106,9 +105,22 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
               </pre>
             )}
 
-            {esComparativo && <TablaComparativa antes={detalle.valor.antes} despues={detalle.valor.despues} />}
+            {detalle.tipo === 'comparativo' && (
+              <TablaComparativa antes={detalle.antes} despues={detalle.despues} />
+            )}
 
-            {detalle.tipo === 'objeto' && !esComparativo && <ListaCampos datos={detalle.valor} />}
+            {detalle.tipo === 'objeto' && <ListaCampos datos={detalle.valor} />}
+
+            {detalle.tipo === 'no_estructurado' && (
+              <div className="space-y-2">
+                <p className="text-xs text-[#5b5f66]">
+                  Detalle no estructurado: se muestra tal como fue registrado.
+                </p>
+                <pre className="text-xs bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-4 whitespace-pre-wrap break-words overflow-x-auto">
+                  {JSON.stringify(detalle.valor, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
         </div>
 
@@ -143,8 +155,8 @@ function TablaComparativa({ antes, despues }) {
   const soloAntes = despues === undefined;
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea]">
-      <table className="w-full text-left border-collapse text-sm">
+    <div className="overflow-x-auto rounded-[12px] border border-[#e5e7ea]">
+      <table className="w-full min-w-[28rem] text-left border-collapse text-sm">
         <thead>
           <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold uppercase tracking-wider">
             <th className="py-2.5 px-4 w-1/4">Campo</th>

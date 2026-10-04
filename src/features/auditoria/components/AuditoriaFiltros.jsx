@@ -30,6 +30,8 @@ const TODOS = 'TODOS';
  * @param {function(): void} props.onAplicar
  * @param {function(): void} props.onLimpiar
  * @param {string|null} [props.errorFechas] - Error de validación del rango de fechas.
+ * @param {string|null} [props.avisoTipos] - Aviso si no se pudo cargar el catálogo de tipos.
+ * @param {string} [props.fechaMaxima] - Fecha máxima seleccionable (yyyy-MM-dd), normalmente hoy.
  * @param {boolean} [props.cargando=false]
  */
 export default function AuditoriaFiltros({
@@ -39,6 +41,8 @@ export default function AuditoriaFiltros({
   onAplicar,
   onLimpiar,
   errorFechas = null,
+  avisoTipos = null,
+  fechaMaxima,
   cargando = false,
 }) {
   const opcionesTipo = [
@@ -63,10 +67,10 @@ export default function AuditoriaFiltros({
       <div className="grid grid-cols-4 gap-4 items-start">
         <Input
           id="filtro-correo"
-          label="Usuario"
+          label="Correo del usuario"
           value={valores.correo}
           onChange={(e) => onCambiar('correo', e.target.value)}
-          placeholder="Correo o parte del correo"
+          placeholder="Ej.: admin@ufps.edu.co o parte del correo"
           rightElement={<Search className="w-4 h-4" />}
         />
         <Select
@@ -83,7 +87,7 @@ export default function AuditoriaFiltros({
           type="date"
           value={valores.desde}
           onChange={(e) => onCambiar('desde', e.target.value)}
-          max={valores.hasta || undefined}
+          max={valores.hasta || fechaMaxima}
         />
         <Input
           id="filtro-hasta"
@@ -92,9 +96,16 @@ export default function AuditoriaFiltros({
           value={valores.hasta}
           onChange={(e) => onCambiar('hasta', e.target.value)}
           min={valores.desde || undefined}
+          max={fechaMaxima}
           error={errorFechas}
         />
       </div>
+
+      {avisoTipos && (
+        <p className="text-xs text-[#5b5f66]" role="status">
+          {avisoTipos}
+        </p>
+      )}
 
       <div className="flex items-center justify-end gap-3">
         <Button
@@ -107,7 +118,7 @@ export default function AuditoriaFiltros({
           <RotateCcw className="w-4 h-4" />
           <span>Limpiar filtros</span>
         </Button>
-        <Button type="submit" variant="primary" disabled={cargando} className="h-10 px-5">
+        <Button type="submit" variant="primary" disabled={cargando || Boolean(errorFechas)} className="h-10 px-5">
           <Search className="w-4 h-4" />
           <span>Aplicar filtros</span>
         </Button>

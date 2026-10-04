@@ -12,6 +12,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthStore } from '../../store/authStore';
+import { esAdministrador } from '../../utils/permisos';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -82,11 +83,8 @@ export default function Sidebar({
   const email = usuario?.email || usuario?.correo || 'usuario@ufps.edu.co';
   const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles[0] : 'Asistente');
 
-  const isAdmin =
-    String(rol).toUpperCase() === 'ADMIN' ||
-    String(rol).toUpperCase() === 'ADMINISTRADOR' ||
-    (Array.isArray(usuario?.roles) &&
-      usuario.roles.some((r) => String(r).toUpperCase() === 'ADMIN' || String(r).toUpperCase() === 'ADMINISTRADOR'));
+  // Misma regla que AdminRoute: el menú y las rutas deciden igual quién es administrador.
+  const isAdmin = esAdministrador(usuario);
 
   const navItems = [...DEFAULT_NAV_ITEMS];
   if (isAdmin) {

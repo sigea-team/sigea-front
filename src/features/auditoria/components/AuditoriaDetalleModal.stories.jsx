@@ -35,3 +35,13 @@ export const UsuarioRegistrado = {
 export const SinDetalle = {
   args: { registro: { ...porAccion('ROL_CREADO'), id: 1, detalle: null } },
 };
+
+/** JSON con forma inesperada (arreglo): se muestra como "detalle no estructurado". */
+export const DetalleNoEstructurado = {
+  args: { registro: { ...porAccion('ROL_CREADO'), id: 2, detalle: JSON.stringify([{ a: 1 }, 'texto']) } },
+};
+
+/** Detalle que no es JSON: se muestra tal cual para no perder la evidencia. */
+export const DetalleTextoPlano = {
+  args: { registro: { ...porAccion('ROL_CREADO'), id: 3, detalle: 'registro antiguo sin formato' } },
+};

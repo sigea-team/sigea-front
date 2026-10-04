@@ -7,6 +7,30 @@
  */
 
 import { httpClient } from './httpClient';
+import { esAdministrador } from '../utils/permisos';
+
+/** Permiso que exige el backend para consultar el log (además del rol ADMIN). */
+export const AUDITORIA_PERMISO_REQUERIDO = 'AUDITORIA_VER';
+
+/**
+ * Indica si la interfaz debe ofrecer la auditoría a este usuario. La respuesta de login no
+ * incluye permisos individuales, así que en el frontend se usa el rol de administrador;
+ * el backend vuelve a validar el permiso o el rol en cada petición.
+ * @param {Object|null|undefined} usuario
+ * @returns {boolean}
+ */
+export function puedeVerAuditoria(usuario) {
+  return esAdministrador(usuario);
+}
+
+/**
+ * Indica si un error de Axios significa "sin permisos" (HTTP 403).
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+export function esErrorSinPermiso(error) {
+  return error?.response?.status === 403;
+}
 
 /**
  * @typedef {Object} FiltrosAuditoria

@@ -37,8 +37,23 @@ export const OperacionDelSistema = {
   },
 };
 
+/** Sin registros y sin filtros. */
 export const Vacia = {
   args: { registros: [], totalElementos: 0, totalPaginas: 1 },
+};
+
+/** Sin resultados para los filtros aplicados. */
+export const SinResultadosConFiltros = {
+  args: { registros: [], totalElementos: 0, totalPaginas: 0, hayFiltros: true },
+};
+
+/** Fecha corrupta enviada por el backend: se muestra "Fecha no válida". */
+export const FechaInvalida = {
+  args: {
+    registros: [{ ...REGISTROS_AUDITORIA_MOCK[0], id: 77, fechaHora: 'no-es-fecha' }],
+    totalElementos: 1,
+    totalPaginas: 1,
+  },
 };
 
 export const Cargando = {

@@ -9,6 +9,10 @@ const servicioSinPermiso = crearServicioMock({
   error: { response: { status: 403, data: { message: 'No tiene permisos para realizar esta operación.' } } },
 });
 const servicioSinConexion = crearServicioMock({ error: { code: 'ERR_NETWORK' } });
+const servicioCatalogoCaido = {
+  ...crearServicioMock(),
+  tiposOperacion: () => Promise.reject({ response: { status: 500 } }),
+};
 const servicioPaginado = crearServicioMock({
   registros: Array.from({ length: 5 }).flatMap((_, lote) =>
     crearRegistrosLote(lote)
@@ -91,9 +95,19 @@ export const Cargando = {
   args: { usuarioProp: ADMIN, servicio: servicioCargandoMock },
 };
 
-/** Usuario sin permiso AUDITORIA_VER: el backend responde 403. */
+/** Usuario no administrador que entra por URL: no se hace ninguna petición y se muestra el aviso. */
 export const SinPermiso = {
   args: { usuarioProp: { nombreCompleto: 'Juan Pérez', rol: 'PARTICIPANTE' }, servicio: servicioSinPermiso },
+};
+
+/** Administrador al que el backend le responde 403 (p. ej. le quitaron el permiso): se ocultan los datos. */
+export const SinPermisoDesdeBackend = {
+  args: { usuarioProp: ADMIN, servicio: servicioSinPermiso },
+};
+
+/** El catálogo de tipos de operación no cargó: se avisa y se puede seguir filtrando por correo y fechas. */
+export const CatalogoNoDisponible = {
+  args: { usuarioProp: ADMIN, servicio: servicioCatalogoCaido },
 };
 
 /** Backend apagado o sin conexión. */

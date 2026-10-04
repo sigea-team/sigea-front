@@ -1,5 +1,5 @@
 import { Eye, ChevronLeft, ChevronRight, User, Cpu } from 'lucide-react';
-import { formatearFechaHora } from '../auditoriaUtils';
+import { formatearFechaHora, normalizarPaginacion } from '../auditoriaUtils';
 
 /**
  * @file AuditoriaTabla.jsx
@@ -21,6 +21,7 @@ const FILAS_ESQUELETO = 5;
  * @param {number} [props.totalPaginas=1]
  * @param {function(number): void} [props.onCambiarPagina]
  * @param {function(Object): void} [props.onVerDetalle]
+ * @param {boolean} [props.hayFiltros=false] - Ajusta el mensaje cuando no hay resultados.
  */
 export default function AuditoriaTabla({
   registros = [],
@@ -31,11 +32,14 @@ export default function AuditoriaTabla({
   totalPaginas = 1,
   onCambiarPagina,
   onVerDetalle,
+  hayFiltros = false,
 }) {
-  const desde = totalElementos === 0 ? 0 : pagina * tamano + 1;
-  const hasta = Math.min((pagina + 1) * tamano, totalElementos);
-  const esPrimera = pagina <= 0;
-  const esUltima = pagina >= totalPaginas - 1;
+  // Valores defensivos: totalPaginas mínimo 1 y página siempre dentro del rango.
+  const p = normalizarPaginacion({ pagina, tamano, totalElementos, totalPaginas }, 10);
+  const desde = p.totalElementos === 0 ? 0 : p.pagina * p.tamano + 1;
+  const hasta = Math.min((p.pagina + 1) * p.tamano, p.totalElementos);
+  const esPrimera = p.pagina <= 0;
+  const esUltima = p.pagina >= p.totalPaginas - 1;
 
   return (
     <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white shadow-2xs">
@@ -64,9 +68,13 @@ export default function AuditoriaTabla({
             ) : registros.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 px-6 text-center">
-                  <p className="font-semibold text-base text-[#1f2023]">No hay registros de auditoría</p>
+                  <p className="font-semibold text-base text-[#1f2023]">
+                    {hayFiltros ? 'Sin resultados para los filtros aplicados' : 'Aún no hay operaciones críticas registradas'}
+                  </p>
                   <p className="text-xs mt-1 text-[#9ca0a6]">
-                    Ninguna operación crítica coincide con los filtros aplicados.
+                    {hayFiltros
+                      ? 'Prueba ampliando el rango de fechas o usando "Limpiar filtros".'
+                      : 'Los registros aparecerán aquí a medida que se ejecuten operaciones críticas.'}
                   </p>
                 </td>
               </tr>
@@ -141,14 +149,14 @@ export default function AuditoriaTabla({
             <>
               Mostrando <span className="font-bold text-[#1f2023]">{desde}</span>–
               <span className="font-bold text-[#1f2023]">{hasta}</span> de{' '}
-              <span className="font-bold text-[#1f2023]">{totalElementos}</span> registros
+              <span className="font-bold text-[#1f2023]">{p.totalElementos}</span> registros
             </>
           )}
         </p>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => onCambiarPagina?.(pagina - 1)}
+            onClick={() => onCambiarPagina?.(p.pagina - 1)}
             disabled={cargando || esPrimera}
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
@@ -156,11 +164,11 @@ export default function AuditoriaTabla({
             Anterior
           </button>
           <span className="text-xs text-[#5b5f66] px-1">
-            Página {Math.min(pagina + 1, Math.max(totalPaginas, 1))} de {Math.max(totalPaginas, 1)}
+            Página {p.pagina + 1} de {p.totalPaginas}
           </span>
           <button
             type="button"
-            onClick={() => onCambiarPagina?.(pagina + 1)}
+            onClick={() => onCambiarPagina?.(p.pagina + 1)}
             disabled={cargando || esUltima}
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >

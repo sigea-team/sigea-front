@@ -11,8 +11,9 @@
  */
 export function formatearFechaHora(fechaIso) {
   if (!fechaIso) return { fecha: '—', hora: '' };
-  const fecha = new Date(fechaIso);
-  if (Number.isNaN(fecha.getTime())) return { fecha: fechaIso, hora: '' };
+  const fecha = typeof fechaIso === 'string' ? new Date(fechaIso) : new Date(NaN);
+  // Un valor corrupto no se muestra "crudo": se indica que la fecha no es válida.
+  if (Number.isNaN(fecha.getTime())) return { fecha: 'Fecha no válida', hora: '' };
   return {
     fecha: fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }),
     hora: fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -20,20 +21,52 @@ export function formatearFechaHora(fechaIso) {
 }
 
 /**
- * Convierte el campo `detalle` (JSON en texto) en un objeto. Si no es JSON válido,
- * lo devuelve como texto plano para no perder la evidencia.
+ * Indica si un valor es un objeto "plano" ({ ... }), excluyendo arreglos y null.
+ * @param {unknown} valor
+ * @returns {boolean}
+ */
+export function esObjetoPlano(valor) {
+  return valor !== null && typeof valor === 'object' && !Array.isArray(valor);
+}
+
+/**
+ * Clasifica el campo `detalle` (JSON en texto) para decidir cómo mostrarlo:
+ * - "comparativo": objeto con "antes" y/o "despues", ambos objetos planos.
+ * - "objeto": objeto plano con campos sueltos.
+ * - "no_estructurado": JSON válido con otra forma (arreglo, número, "antes" que no es objeto...).
+ * - "texto": no es JSON; se muestra tal cual para no perder la evidencia.
+ * - "vacio": sin detalle.
+ *
  * @param {string|null} detalle
- * @returns {{ tipo: 'vacio' } | { tipo: 'objeto', valor: Object } | { tipo: 'texto', valor: string }}
+ * @returns {{ tipo: 'vacio' } | { tipo: 'comparativo', antes?: Object, despues?: Object }
+ *   | { tipo: 'objeto', valor: Object } | { tipo: 'no_estructurado', valor: unknown }
+ *   | { tipo: 'texto', valor: string }}
  */
 export function parsearDetalle(detalle) {
-  if (!detalle) return { tipo: 'vacio' };
+  if (detalle === null || detalle === undefined || detalle === '') return { tipo: 'vacio' };
+  if (typeof detalle !== 'string') return { tipo: 'no_estructurado', valor: detalle };
+
+  let valor;
   try {
-    const valor = JSON.parse(detalle);
-    if (valor && typeof valor === 'object') return { tipo: 'objeto', valor };
-    return { tipo: 'texto', valor: String(valor) };
+    valor = JSON.parse(detalle);
   } catch {
     return { tipo: 'texto', valor: detalle };
   }
+
+  if (!esObjetoPlano(valor)) return { tipo: 'no_estructurado', valor };
+
+  const tieneAntes = 'antes' in valor;
+  const tieneDespues = 'despues' in valor;
+  if (tieneAntes || tieneDespues) {
+    const antesValido = !tieneAntes || esObjetoPlano(valor.antes);
+    const despuesValido = !tieneDespues || esObjetoPlano(valor.despues);
+    if (antesValido && despuesValido) {
+      return { tipo: 'comparativo', antes: valor.antes, despues: valor.despues };
+    }
+    return { tipo: 'no_estructurado', valor };
+  }
+
+  return Object.keys(valor).length ? { tipo: 'objeto', valor } : { tipo: 'vacio' };
 }
 
 /**
@@ -57,8 +90,8 @@ export function valorLegible(valor) {
  * @returns {Array<{ campo: string, antes: unknown, despues: unknown, cambio: boolean }>}
  */
 export function compararAntesDespues(antes, despues) {
-  const a = antes && typeof antes === 'object' ? antes : {};
-  const d = despues && typeof despues === 'object' ? despues : {};
+  const a = esObjetoPlano(antes) ? antes : {};
+  const d = esObjetoPlano(despues) ? despues : {};
   const campos = Array.from(new Set([...Object.keys(a), ...Object.keys(d)]));
   return campos.map((campo) => ({
     campo,
@@ -79,4 +112,27 @@ export function etiquetaCampo(clave) {
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .toLowerCase();
   return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/**
+ * Normaliza los datos de paginación que llegan del backend para que la interfaz nunca
+ * calcule valores inconsistentes (totalPaginas en 0, página fuera de rango, etc.).
+ * @param {{ pagina?: number, tamano?: number, totalElementos?: number, totalPaginas?: number }} p
+ * @param {number} tamanoPorDefecto
+ * @returns {{ pagina: number, tamano: number, totalElementos: number, totalPaginas: number }}
+ */
+export function normalizarPaginacion(p, tamanoPorDefecto) {
+  const entero = (v, min) => (Number.isFinite(Number(v)) ? Math.max(min, Math.floor(Number(v))) : min);
+  const tamano = entero(p?.tamano ?? tamanoPorDefecto, 1);
+  const totalElementos = entero(p?.totalElementos, 0);
+  const totalPaginas = Math.max(1, entero(p?.totalPaginas, 1), Math.ceil(totalElementos / tamano));
+  const pagina = Math.min(entero(p?.pagina, 0), totalPaginas - 1);
+  return { pagina, tamano, totalElementos, totalPaginas };
+}
+
+/** Fecha de hoy en formato yyyy-MM-dd (zona horaria local), para limitar los selectores. */
+export function hoyIso() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
