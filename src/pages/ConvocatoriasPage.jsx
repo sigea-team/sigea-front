@@ -1,36 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import {
-  FileText,
-  Plus,
-  Search,
-  Pencil,
-  Trash2,
-  Calendar,
-  Send,
-  Lock,
-  RotateCw,
-  Info,
-} from 'lucide-react';
+import { FileText, Plus, Search, RotateCw, Info } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import { convocatoriaService } from '../api/convocatoriaService';
-import EstadoConvocatoriaBadge from '../features/convocatorias/components/EstadoConvocatoriaBadge';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
-import {
-  esBorradorEditable,
-  formatearFechaHora,
-  puedeEnviarPropuesta,
-} from '../features/convocatorias/convocatoriaUtils';
+import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
+import { formatearFechaHora, puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
 
 /**
  * @file ConvocatoriasPage.jsx
  * @description Gestión integral de convocatorias asociadas a eventos académicos (HU Crear convocatorias).
- * Permite registrar convocatorias en estado Borrador (Criterio 1), validar campos y fechas estrictas (Criterio 2),
- * editar la información de convocatorias en borrador sin publicarlas (Criterio 3), y prevenir el envío
- * automático de propuestas cuando la fecha de cierre ya se cumplió (Criterio 4).
+ * Orquesta la vista principal, filtros, llamadas a la API y modales.
  * @module pages/ConvocatoriasPage
  */
 
@@ -50,38 +33,6 @@ const ALERTA_EXITO = {
     confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
   },
 };
-
-/**
- * Botón de acción para la tabla de convocatorias (editar, eliminar).
- * @param {Object} props
- * @param {React.ElementType} props.icono
- * @param {string} props.etiqueta
- * @param {Function} props.onClick
- * @param {boolean} [props.disabled]
- * @param {string} [props.motivo]
- * @param {boolean} [props.peligro]
- */
-function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligro = false }) {
-  const titulo = disabled && motivo ? motivo : etiqueta;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={titulo}
-      aria-label={titulo}
-      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
-        disabled
-          ? 'border-[#e5e7ea] text-[#9ca0a6] cursor-not-allowed bg-white/50'
-          : peligro
-          ? 'border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] cursor-pointer'
-          : 'border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] cursor-pointer'
-      }`}
-    >
-      <Icono className="w-4 h-4" />
-    </button>
-  );
-}
 
 /**
  * Componente de página para la gestión de convocatorias académicas.
@@ -221,6 +172,8 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
     });
   };
 
+  const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
+
   return (
     <MainLayout
       title="Gestión de convocatorias"
@@ -281,7 +234,7 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
           </p>
         </div>
 
-        {/* Alerta de Error de carga si la hubiere */}
+        {/* Alerta de Error de carga */}
         {errorCarga && (
           <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
@@ -299,139 +252,15 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
           </div>
         )}
 
-        {/* Tabla de Convocatorias */}
-        <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
-                  <th scope="col" className="py-3.5 px-5">Convocatoria / Evento</th>
-                  <th scope="col" className="py-3.5 px-5">Periodo de recepción</th>
-                  <th scope="col" className="py-3.5 px-5">Estado</th>
-                  <th scope="col" className="py-3.5 px-5">Envío de propuesta</th>
-                  <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
-                {cargando && convocatorias.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
-                      Cargando convocatorias...
-                    </td>
-                  </tr>
-                )}
-
-                {!cargando && !errorCarga && convocatoriasFiltradas.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-12 px-5 text-center">
-                      <p className="font-semibold text-base text-[#1f2023]">
-                        {busqueda || filtroEstado !== 'todos'
-                          ? 'Ninguna convocatoria coincide con los criterios de búsqueda'
-                          : 'Todavía no hay convocatorias registradas'}
-                      </p>
-                      <p className="text-xs mt-1 text-[#5b5f66]">
-                        {busqueda || filtroEstado !== 'todos'
-                          ? 'Prueba con otros términos de búsqueda.'
-                          : 'Usa «Crear convocatoria» para configurar la primera.'}
-                      </p>
-                    </td>
-                  </tr>
-                )}
-
-                {convocatoriasFiltradas.map((convocatoria) => {
-                  const editable = esBorradorEditable(convocatoria);
-                  const validacionEnvio = puedeEnviarPropuesta(convocatoria);
-
-                  return (
-                    <tr key={convocatoria.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
-                      {/* Convocatoria / Evento */}
-                      <td className="py-4 px-5 align-middle max-w-sm">
-                        <p className="font-semibold text-[#1f2023] leading-snug">{convocatoria.titulo}</p>
-                        <p className="text-xs text-[#a6192e] font-medium mt-1">
-                          {convocatoria.eventoNombre}
-                        </p>
-                        <p className="text-xs text-[#5b5f66] mt-1 line-clamp-2">
-                          {convocatoria.descripcion}
-                        </p>
-                      </td>
-
-                      {/* Periodo de recepción */}
-                      <td className="py-4 px-5 align-middle whitespace-nowrap text-xs text-[#1f2023]">
-                        <div className="space-y-1">
-                          <p>
-                            <span className="text-[#5b5f66]">Apertura:</span>{' '}
-                            <strong>{formatearFechaHora(convocatoria.fechaApertura)}</strong>
-                          </p>
-                          <p>
-                            <span className="text-[#5b5f66]">Cierre:</span>{' '}
-                            <strong>{formatearFechaHora(convocatoria.fechaCierre)}</strong>
-                          </p>
-                        </div>
-                      </td>
-
-                      {/* Estado */}
-                      <td className="py-4 px-5 align-middle whitespace-nowrap">
-                        <EstadoConvocatoriaBadge
-                          estado={convocatoria.estado}
-                          fechaCierre={convocatoria.fechaCierre}
-                        />
-                      </td>
-
-                      {/* Simulación de Envío para Autor (Criterio 4) */}
-                      <td className="py-4 px-5 align-middle whitespace-nowrap">
-                        <Button
-                          type="button"
-                          variant={validacionEnvio.permitido ? 'primary' : 'outline'}
-                          size="sm"
-                          onClick={() => intentarEnviarPropuesta(convocatoria)}
-                          disabled={!validacionEnvio.permitido}
-                          title={validacionEnvio.motivo || 'Enviar propuesta'}
-                          className="text-xs"
-                        >
-                          {validacionEnvio.permitido ? (
-                            <>
-                              <Send className="w-3.5 h-3.5" />
-                              <span>Enviar propuesta</span>
-                            </>
-                          ) : (
-                            <>
-                              <Lock className="w-3.5 h-3.5 text-[#a6192e]" />
-                              <span>Recepción cerrada</span>
-                            </>
-                          )}
-                        </Button>
-                      </td>
-
-                      {/* Acciones de administración */}
-                      <td className="py-4 px-5 align-middle">
-                        <div className="flex items-center justify-end gap-2">
-                          {/* Criterio 3: Editar en borrador */}
-                          <BotonAccion
-                            icono={Pencil}
-                            etiqueta="Editar convocatoria"
-                            onClick={() => setModal({ tipo: 'editar', convocatoria })}
-                            disabled={!editable}
-                            motivo="Solo se pueden editar convocatorias en estado borrador."
-                          />
-
-                          {/* Eliminar borrador */}
-                          <BotonAccion
-                            icono={Trash2}
-                            etiqueta="Eliminar convocatoria"
-                            onClick={() => eliminar(convocatoria)}
-                            disabled={!editable}
-                            motivo="Solo se pueden eliminar convocatorias en estado borrador."
-                            peligro
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* Tabla Modular de Convocatorias */}
+        <ConvocatoriasTable
+          convocatorias={convocatoriasFiltradas}
+          cargando={cargando}
+          hayFiltros={hayFiltros}
+          onEditar={(conv) => setModal({ tipo: 'editar', convocatoria: conv })}
+          onEliminar={eliminar}
+          onIntentarEnviar={intentarEnviarPropuesta}
+        />
       </div>
 
       {/* Modal Crear / Editar */}
