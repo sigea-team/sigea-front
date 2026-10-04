@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { CalendarPlus, Pencil } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import ModalShell from './ModalShell';
 import TextArea from './TextArea';
-import AlertaError from './AlertaError';
 import {
   LIMITES,
   MODALIDADES,
@@ -48,7 +48,6 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
   const editando = Boolean(evento?.id);
   const [form, setForm] = useState(() => formularioInicial(evento));
   const [errores, setErrores] = useState({});
-  const [errorGeneral, setErrorGeneral] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
   if (!isOpen) return null;
@@ -69,7 +68,6 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
     }
 
     setGuardando(true);
-    setErrorGeneral(null);
     try {
       await onSubmit({
         nombre: form.nombre.trim(),
@@ -84,8 +82,15 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
     } catch (err) {
       const { mensaje, campos } = extraerError(err);
       setErrores(campos);
-      setErrorGeneral(mensaje);
       setGuardando(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo guardar el evento',
+        text: mensaje,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: { popup: 'rounded-[16px]' },
+      });
     }
   };
 
@@ -112,8 +117,6 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
       }
     >
       <form id="evento-form" onSubmit={guardar} noValidate className="space-y-5">
-        {errorGeneral && <AlertaError titulo="No se pudo guardar el evento">{errorGeneral}</AlertaError>}
-
         <Input
           label="Nombre del evento"
           id="evento-nombre"

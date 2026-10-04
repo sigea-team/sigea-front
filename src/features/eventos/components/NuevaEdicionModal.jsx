@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { CopyPlus } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import ModalShell from './ModalShell';
-import AlertaError from './AlertaError';
 import {
   calcularSemestre,
   etiquetaModalidad,
@@ -45,7 +45,6 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
     semestre: '',
   });
   const [errores, setErrores] = useState({});
-  const [errorGeneral, setErrorGeneral] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
   if (!isOpen || !origen) return null;
@@ -66,7 +65,6 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
     }
 
     setGuardando(true);
-    setErrorGeneral(null);
     try {
       await onSubmit({
         nombre: form.nombre.trim() || origen.nombre,
@@ -77,8 +75,15 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
     } catch (err) {
       const { mensaje, campos } = extraerError(err);
       setErrores(campos);
-      setErrorGeneral(mensaje);
       setGuardando(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo crear la edición',
+        text: mensaje,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: { popup: 'rounded-[16px]' },
+      });
     }
   };
 
@@ -101,8 +106,6 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
       }
     >
       <form id="nueva-edicion-form" onSubmit={guardar} noValidate className="space-y-5">
-        {errorGeneral && <AlertaError titulo="No se pudo crear la edición">{errorGeneral}</AlertaError>}
-
         <section aria-labelledby="heredado-titulo" className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
           <h3 id="heredado-titulo" className="text-sm font-semibold text-[#1f2023]">
             Se copia del evento origen
