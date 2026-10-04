@@ -50,6 +50,7 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-detalle-auditoria"
+        aria-describedby="descripcion-detalle-auditoria"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Encabezado */}
@@ -62,7 +63,9 @@ export default function AuditoriaDetalleModal({ isOpen, registro = null, onClose
               <h2 id="titulo-detalle-auditoria" className="font-serif-title text-xl text-[#1f2023] leading-tight">
                 Registro de auditoría #{registro.id}
               </h2>
-              <p className="text-xs text-[#5b5f66] mt-0.5">{registro.accionDescripcion || registro.accion}</p>
+              <p id="descripcion-detalle-auditoria" className="text-xs text-[#5b5f66] mt-0.5">
+                {registro.accionDescripcion || registro.accion}
+              </p>
             </div>
           </div>
           <button

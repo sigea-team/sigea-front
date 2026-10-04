@@ -4,16 +4,21 @@
  * @module features/auditoria/auditoriaUtils
  */
 
+/** Textos de presentación para valores ausentes o inválidos. */
+export const TEXTO_SIN_VALOR = '—';
+export const TEXTO_FECHA_INVALIDA = 'Fecha no válida';
+export const TEXTO_LISTA_VACIA = '(ninguno)';
+
 /**
  * Formatea la fecha y hora de un registro en formato local colombiano.
  * @param {string|null} fechaIso - Ej. "2026-09-28T10:15:30".
  * @returns {{ fecha: string, hora: string }}
  */
 export function formatearFechaHora(fechaIso) {
-  if (!fechaIso) return { fecha: '—', hora: '' };
+  if (!fechaIso) return { fecha: TEXTO_SIN_VALOR, hora: '' };
   const fecha = typeof fechaIso === 'string' ? new Date(fechaIso) : new Date(NaN);
   // Un valor corrupto no se muestra "crudo": se indica que la fecha no es válida.
-  if (Number.isNaN(fecha.getTime())) return { fecha: 'Fecha no válida', hora: '' };
+  if (Number.isNaN(fecha.getTime())) return { fecha: TEXTO_FECHA_INVALIDA, hora: '' };
   return {
     fecha: fecha.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }),
     hora: fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -75,8 +80,8 @@ export function parsearDetalle(detalle) {
  * @returns {string}
  */
 export function valorLegible(valor) {
-  if (valor === null || valor === undefined || valor === '') return '—';
-  if (Array.isArray(valor)) return valor.length ? valor.join(', ') : '(ninguno)';
+  if (valor === null || valor === undefined || valor === '') return TEXTO_SIN_VALOR;
+  if (Array.isArray(valor)) return valor.length ? valor.join(', ') : TEXTO_LISTA_VACIA;
   if (typeof valor === 'boolean') return valor ? 'Sí' : 'No';
   if (typeof valor === 'object') return JSON.stringify(valor);
   return String(valor);

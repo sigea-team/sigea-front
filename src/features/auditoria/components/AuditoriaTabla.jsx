@@ -127,6 +127,7 @@ export default function AuditoriaTabla({
                         onClick={() => onVerDetalle?.(r)}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold text-[#1f2023] bg-white border border-[#d8dadf] hover:bg-[#f7f7f8] hover:border-[#9ca0a6] transition-colors cursor-pointer"
                         title="Ver datos afectados"
+                        aria-label={`Ver datos afectados del registro ${r.id}`}
                       >
                         <Eye className="w-3.5 h-3.5 text-[#5b5f66]" />
                         <span>Ver detalle</span>
@@ -158,18 +159,20 @@ export default function AuditoriaTabla({
             type="button"
             onClick={() => onCambiarPagina?.(p.pagina - 1)}
             disabled={cargando || esPrimera}
+            aria-label="Página anterior"
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             Anterior
           </button>
-          <span className="text-xs text-[#5b5f66] px-1">
+          <span className="text-xs text-[#5b5f66] px-1" aria-live="polite">
             Página {p.pagina + 1} de {p.totalPaginas}
           </span>
           <button
             type="button"
             onClick={() => onCambiarPagina?.(p.pagina + 1)}
             disabled={cargando || esUltima}
+            aria-label="Página siguiente"
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             Siguiente
