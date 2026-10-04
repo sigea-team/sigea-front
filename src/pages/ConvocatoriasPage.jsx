@@ -25,6 +25,15 @@ import {
   puedeEnviarPropuesta,
 } from '../features/convocatorias/convocatoriaUtils';
 
+/**
+ * @file ConvocatoriasPage.jsx
+ * @description Gestión integral de convocatorias asociadas a eventos académicos (HU Crear convocatorias).
+ * Permite registrar convocatorias en estado Borrador (Criterio 1), validar campos y fechas estrictas (Criterio 2),
+ * editar la información de convocatorias en borrador sin publicarlas (Criterio 3), y prevenir el envío
+ * automático de propuestas cuando la fecha de cierre ya se cumplió (Criterio 4).
+ * @module pages/ConvocatoriasPage
+ */
+
 const OPCIONES_FILTRO_ESTADO = [
   { value: 'todos', label: 'Todos los estados' },
   { value: 'BORRADOR', label: 'Borrador' },
@@ -42,6 +51,16 @@ const ALERTA_EXITO = {
   },
 };
 
+/**
+ * Botón de acción para la tabla de convocatorias (editar, eliminar).
+ * @param {Object} props
+ * @param {React.ElementType} props.icono
+ * @param {string} props.etiqueta
+ * @param {Function} props.onClick
+ * @param {boolean} [props.disabled]
+ * @param {string} [props.motivo]
+ * @param {boolean} [props.peligro]
+ */
 function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligro = false }) {
   const titulo = disabled && motivo ? motivo : etiqueta;
   return (
@@ -64,6 +83,13 @@ function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligr
   );
 }
 
+/**
+ * Componente de página para la gestión de convocatorias académicas.
+ * @param {Object} props
+ * @param {typeof convocatoriaService} [props.api] - Cliente de API para convocatorias.
+ * @param {Object} [props.usuarioProp] - Usuario autenticado opcional (para Storybook o pruebas).
+ * @param {Function} [props.onSelectNav] - Callback para navegación de ítems de menú.
+ */
 export default function ConvocatoriasPage({ api = convocatoriaService, usuarioProp, onSelectNav }) {
   const [convocatorias, setConvocatorias] = useState([]);
   const [cargando, setCargando] = useState(true);

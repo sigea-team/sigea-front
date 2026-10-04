@@ -25,6 +25,15 @@ const EVENTOS_DISPONIBLES_DEFAULT = [
   { value: '103', label: 'Congreso Internacional de Computación Aplicada 2026' },
 ];
 
+/**
+ * Modal para creación y edición de convocatorias en estado borrador.
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Indica si el modal está visible.
+ * @param {Object} [props.convocatoria] - Objeto convocatoria para modo edición (null para crear).
+ * @param {Array<{value: string, label: string}>} [props.eventosDisponibles] - Lista de eventos asociables.
+ * @param {Function} props.onClose - Callback al cancelar o cerrar el modal.
+ * @param {Function} props.onSubmit - Callback al confirmar el formulario (guarda en borrador).
+ */
 export default function ConvocatoriaFormModal({
   isOpen,
   convocatoria,

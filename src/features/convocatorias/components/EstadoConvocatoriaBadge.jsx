@@ -7,6 +7,13 @@ import { esConvocatoriaExpirada } from '../convocatoriaUtils';
  * Respeta la paleta institucional (brand-600 #a6192e, brand-100 #fdecec, surface-muted, ink-600).
  * @module features/convocatorias/components/EstadoConvocatoriaBadge
  */
+
+/**
+ * Renderiza el badge de estado para una convocatoria.
+ * @param {Object} props
+ * @param {string} props.estado - Estado de la convocatoria ('BORRADOR' | 'ABIERTA' | 'CERRADA').
+ * @param {string|Date} [props.fechaCierre] - Fecha de cierre para evaluar expiración automática.
+ */
 export default function EstadoConvocatoriaBadge({ estado, fechaCierre }) {
   const expirada = fechaCierre ? esConvocatoriaExpirada(fechaCierre) : false;
 
