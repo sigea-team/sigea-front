@@ -6,11 +6,13 @@ import {
   Settings, 
   LogOut,
   User,
-  Shield
+  Shield,
+  History
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthStore } from '../../store/authStore';
+import { esAdministrador } from '../../utils/permisos';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -28,6 +30,14 @@ const ADMIN_NAV_ITEM = {
   label: 'Administrar Roles y Permisos',
   icon: Shield,
   href: '/roles',
+};
+
+/** HU-03: consulta del log de auditoría (solo administradores). */
+const AUDITORIA_NAV_ITEM = {
+  id: 'auditoria',
+  label: 'Auditoría',
+  icon: History,
+  href: '/auditoria',
 };
 
 /**
@@ -73,19 +83,16 @@ export default function Sidebar({
   const email = usuario?.email || usuario?.correo || 'usuario@ufps.edu.co';
   const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles[0] : 'Asistente');
 
-  const isAdmin =
-    String(rol).toUpperCase() === 'ADMIN' ||
-    String(rol).toUpperCase() === 'ADMINISTRADOR' ||
-    (Array.isArray(usuario?.roles) &&
-      usuario.roles.some((r) => String(r).toUpperCase() === 'ADMIN' || String(r).toUpperCase() === 'ADMINISTRADOR'));
+  // Misma regla que AdminRoute: el menú y las rutas deciden igual quién es administrador.
+  const isAdmin = esAdministrador(usuario);
 
   const navItems = [...DEFAULT_NAV_ITEMS];
   if (isAdmin) {
     const configIndex = navItems.findIndex((item) => item.id === 'configuracion');
     if (configIndex !== -1) {
-      navItems.splice(configIndex, 0, ADMIN_NAV_ITEM);
+      navItems.splice(configIndex, 0, ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
     } else {
-      navItems.push(ADMIN_NAV_ITEM);
+      navItems.push(ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
     }
   }
 

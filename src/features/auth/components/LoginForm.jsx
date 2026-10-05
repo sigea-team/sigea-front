@@ -5,27 +5,71 @@
  * Cubre los 4 criterios de aceptación de HU-01:
  *  1. Credenciales correctas -> autentica, guarda la sesión y redirige al panel según el rol.
  *  2. Contraseña incorrecta -> mensaje de error genérico (no revela cuál dato falló).
- *  3. Cuenta bloqueada tras intentos fallidos (HTTP 423) -> mensaje de bloqueo temporal.
+ *  3. Cuenta bloqueada tras intentos fallidos (HTTP 423) -> mensaje de bloqueo temporal con
+ *     cuenta regresiva (usa la cabecera Retry-After o el campo bloqueadoHasta del backend) y
+ *     el botón de ingreso deshabilitado hasta el desbloqueo.
  *  4. "Olvidé mi contraseña" -> redirige al flujo de recuperación de contraseña.
+ *
+ * Si el usuario llega con `?sesion=expirada` (token vencido o invalidado tras un cambio de
+ * permisos de su rol, HU-02), se muestra un aviso informativo.
  *
  * @module features/auth/components/LoginForm
  */
 
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Info } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
-import { useAuthStore, rutaSegunRoles } from '../../../store/authStore';
+import { rutaSegunRoles } from '../../../store/authStore';
+import AvisoBloqueo from './AvisoBloqueo';
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
+
+/**
+ * Calcula el instante (ms) en que termina el bloqueo a partir de la respuesta 423.
+ * Se prefiere Retry-After (segundos restantes) porque no depende de la zona horaria
+ * del servidor; si no viene, se usa bloqueadoHasta.
+ * @returns {number|null}
+ */
+function calcularDesbloqueo(err) {
+  const segundos = segundosDeRetryAfter(err.response?.headers?.['retry-after']);
+  if (segundos) {
+    return Date.now() + segundos * 1000;
+  }
+  const hasta = err.response?.data?.bloqueadoHasta;
+  const instante = typeof hasta === 'string' ? Date.parse(hasta) : NaN;
+  return Number.isFinite(instante) && instante > Date.now() ? instante : null;
+}
+
+/**
+ * Interpreta la cabecera Retry-After, que según el estándar HTTP puede traer un número
+ * entero de segundos ("900") o una fecha HTTP ("Wed, 21 Oct 2026 07:28:00 GMT").
+ * Se valida con una expresión regular en vez de parseInt, que aceptaría valores
+ * corruptos como "90abc".
+ * @returns {number|null} segundos restantes (entero positivo) o null si no es válida.
+ */
+function segundosDeRetryAfter(valor) {
+  if (valor === undefined || valor === null) return null;
+  const texto = String(valor).trim();
+  if (/^\d+$/.test(texto)) {
+    const segundos = Number(texto);
+    return segundos > 0 ? segundos : null;
+  }
+  const fecha = Date.parse(texto);
+  if (!Number.isFinite(fecha)) return null;
+  const segundos = Math.ceil((fecha - Date.now()) / 1000);
+  return segundos > 0 ? segundos : null;
+}
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const iniciarSesionStore = useAuthStore((state) => state.iniciarSesion);
+  const [searchParams] = useSearchParams();
+  const sesionExpirada = searchParams.get('sesion') === 'expirada';
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -36,6 +80,10 @@ export default function LoginForm() {
   // Correo pendiente de verificación (flujo alterno de HU-31 disparado desde login).
   const [correoPendienteVerificar, setCorreoPendienteVerificar] = useState(null);
   const [reenviando, setReenviando] = useState(false);
+
+  // Criterio 3: { mensaje, desbloqueoEn } mientras la cuenta está bloqueada.
+  const [bloqueo, setBloqueo] = useState(null);
+  const finalizarBloqueo = useCallback(() => setBloqueo(null), []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,44 +116,48 @@ export default function LoginForm() {
     setGeneralError(null);
     setCorreoPendienteVerificar(null);
 
-    if (!validate()) return;
+    if (bloqueo || !validate()) return;
 
     setLoading(true);
     try {
-      // Criterio 1: credenciales correctas -> autentica mediante AuthContext
-      const data = await login({
-        email: formData.correo.trim().toLowerCase(),
-        password: formData.contrasena,
+      // Criterio 1: credenciales correctas -> guarda la sesión y redirige al panel según el rol.
+      const sesion = await login({
+        correo: formData.correo.trim().toLowerCase(),
+        contrasena: formData.contrasena,
       });
-
-      // Mantener sincronizado el authStore de Zustand
-      if (data) {
-        const usuarioData = data.usuario || data;
-        const roles = usuarioData?.rol ? [usuarioData.rol] : (data.roles || ['PARTICIPANTE']);
-        iniciarSesionStore({
-          token: data.token,
-          usuarioId: usuarioData?.id || data.usuarioId,
-          correo: usuarioData?.email || data.correo,
-          nombreCompleto: usuarioData?.nombreCompleto || data.nombreCompleto,
-          roles,
-        });
-
-        const targetRoute = rutaSegunRoles(roles);
-        navigate(targetRoute, { replace: true });
-      }
+      navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
-      const errorData = err.response?.data;
+      // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
+      const cuerpo = err.response?.data;
+      const errorData = cuerpo && typeof cuerpo === 'object' ? cuerpo : {};
       const status = err.response?.status;
 
       if (status === 401) {
+        // Criterio 2: mensaje genérico, sin indicar cuál dato es incorrecto.
         setGeneralError(errorData?.message || 'Credenciales incorrectas. Verifique su correo electrónico y contraseña.');
       } else if (status === 423) {
-        setGeneralError(errorData?.message || 'Su cuenta está bloqueada temporalmente. Intente nuevamente más tarde.');
+        // Criterio 3: cuenta bloqueada temporalmente por intentos fallidos.
+        const mensaje = errorData?.message || 'Su cuenta está bloqueada temporalmente. Intente nuevamente más tarde.';
+        const desbloqueoEn = calcularDesbloqueo(err);
+        if (desbloqueoEn) {
+          setBloqueo({ mensaje, desbloqueoEn });
+        } else {
+          setGeneralError(mensaje);
+        }
       } else if (status === 403 && errorData?.codigo === 'CORREO_NO_VERIFICADO') {
-        setGeneralError(errorData.message);
-        setCorreoPendienteVerificar(errorData.correo || formData.correo.trim().toLowerCase());
+        // Flujo alterno (HU-31): correo aún no verificado.
+        setGeneralError(errorData.message || 'Debe verificar su correo electrónico antes de iniciar sesión.');
+        setCorreoPendienteVerificar(errorData.correo ?? errorData.email ?? formData.correo.trim().toLowerCase());
+      } else if (err.codigo === 'RESPUESTA_LOGIN_INVALIDA') {
+        setGeneralError('El servidor respondió de forma inesperada. Intente nuevamente en unos minutos.');
+      } else if (err.response) {
+        // El servidor respondió, pero con un estado no contemplado (403 sin código, 500, etc.).
+        setGeneralError(
+          errorData.message || `No fue posible iniciar sesión (código ${status}). Intente nuevamente.`
+        );
       } else if (err.request) {
-        setGeneralError('No fue posible conectarse con el servidor backend. Verifique que el servicio esté activo.');
+        // Sin respuesta: servidor apagado, sin conexión o tiempo de espera agotado.
+        setGeneralError('No fue posible conectarse con el servidor. Verifique su conexión o que el servicio esté activo.');
       } else {
         setGeneralError('Ocurrió un error inesperado al iniciar sesión.');
       }
@@ -119,10 +171,13 @@ export default function LoginForm() {
     setReenviando(true);
     try {
       const data = await reenviarVerificacion(correoPendienteVerificar);
+      // Envío exitoso: se limpia el aviso para que el botón no quede visible ni "pegado".
+      setGeneralError(null);
+      setCorreoPendienteVerificar(null);
       Swal.fire({
         icon: 'success',
         title: 'Enlace reenviado',
-        text: data.mensaje || 'Revisa tu bandeja de entrada para verificar tu correo.',
+        text: data?.mensaje || 'Revisa tu bandeja de entrada para verificar tu correo.',
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',
         customClass: { popup: 'rounded-[16px]' },
@@ -155,6 +210,19 @@ export default function LoginForm() {
           Ingresa tus credenciales para acceder a la plataforma SIGEA.
         </p>
       </div>
+
+      {/* Aviso de sesión expirada o invalidada */}
+      {sesionExpirada && !generalError && !bloqueo && (
+        <div className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
+          <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
+          <p>Tu sesión se cerró porque expiró o porque cambiaron los permisos de tu rol. Inicia sesión nuevamente.</p>
+        </div>
+      )}
+
+      {/* Criterio 3: cuenta bloqueada con cuenta regresiva */}
+      {bloqueo && (
+        <AvisoBloqueo mensaje={bloqueo.mensaje} desbloqueoEn={bloqueo.desbloqueoEn} onFinalizado={finalizarBloqueo} />
+      )}
 
       {/* Alerta de error general / servidor */}
       {generalError && (
@@ -217,7 +285,7 @@ export default function LoginForm() {
           }
         />
 
-        {/* Redirección al flujo de recuperación de contraseña */}
+        {/* Criterio 4: redirección al flujo de recuperación de contraseña */}
         <div className="text-right -mt-2">
           <Link to="/recuperar-password" className="text-xs font-semibold text-[#a6192e] hover:underline">
             ¿Olvidaste tu contraseña?
@@ -225,7 +293,7 @@ export default function LoginForm() {
         </div>
 
         <div className="pt-2">
-          <Button type="submit" variant="primary" loading={loading} className="w-full">
+          <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
             Ingresar a SIGEA
           </Button>
         </div>
