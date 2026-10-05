@@ -70,6 +70,8 @@ export default function LoginForm() {
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const sesionExpirada = searchParams.get('sesion') === 'expirada';
+  // HU-32: vuelve aquí tras restablecer la contraseña.
+  const recuperacionExitosa = searchParams.get('recuperacion') === 'exitosa';
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -216,6 +218,14 @@ export default function LoginForm() {
         <div className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
           <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
           <p>Tu sesión se cerró porque expiró o porque cambiaron los permisos de tu rol. Inicia sesión nuevamente.</p>
+        </div>
+      )}
+
+      {/* HU-32: contraseña restablecida */}
+      {recuperacionExitosa && !sesionExpirada && !generalError && !bloqueo && (
+        <div role="status" className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
+          <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
+          <p>Tu contraseña fue actualizada. Inicia sesión con tu nueva contraseña.</p>
         </div>
       )}
 
