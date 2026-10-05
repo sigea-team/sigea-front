@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Tags, Trash2 } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import { eventoService } from '../api/eventoService';
+import { parametroEventoService } from '../api/parametroEventoService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
+import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -25,6 +27,7 @@ import {
  * Lista los eventos y permite crearlos (Criterio 1), editarlos mientras están en configuración
  * (Criterio 2), crear nuevas ediciones (Criterio 3), consultar el historial de ediciones (Criterio 4)
  * y eliminarlos con confirmación (Criterio 5).
+ * Desde cada fila también se abren los tipos de actividad y las líneas temáticas del evento (HU-05).
  * @module pages/EventosPage
  */
 
@@ -65,10 +68,11 @@ function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligr
 /**
  * @param {Object} props
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
+ * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
-export default function EventosPage({ api = eventoService, usuarioProp, onSelectNav }) {
+export default function EventosPage({ api = eventoService, apiParametros = parametroEventoService, usuarioProp, onSelectNav }) {
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(false);
@@ -77,7 +81,7 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros', evento }
   const [modal, setModal] = useState(null);
 
   useEffect(() => {
@@ -304,6 +308,11 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                           <BotonAccion
+                            icono={Tags}
+                            etiqueta="Tipos de actividad y líneas temáticas"
+                            onClick={() => setModal({ tipo: 'parametros', evento })}
+                          />
+                          <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
                             onClick={() => setModal({ tipo: 'historial', evento })}
@@ -368,6 +377,16 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
           api={api}
           onClose={cerrarModal}
           onNuevaEdicion={(origen) => setModal({ tipo: 'edicion', evento: origen })}
+        />
+      )}
+
+      {modal?.tipo === 'parametros' && (
+        <ParametrosEventoModal
+          key={`parametros-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiParametros}
+          onClose={cerrarModal}
         />
       )}
 
