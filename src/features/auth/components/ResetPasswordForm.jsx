@@ -4,10 +4,20 @@
  * trae el token como query param (?token=...); este componente lo lee con
  * react-router-dom y lo envía junto con la nueva contraseña al backend.
  *
+ * Validación de token:
+ * - Si no viene token, o viene vacío/con formato claramente inválido, se
+ *   muestra de inmediato la pantalla de "enlace no válido" sin llamar al
+ *   backend (evita una petición innecesaria y da feedback instantáneo).
+ * - Si el backend rechaza el token al enviar el formulario (porque expiró,
+ *   ya fue usado, o no existe), la pantalla cambia a ese mismo estado de
+ *   "enlace no válido" con el motivo exacto que dio el backend, en vez de
+ *   solo un popup pasajero — así el usuario no se queda sin saber qué pasó
+ *   ni atrapado en un formulario que nunca va a funcionar.
+ *
  * @module features/auth/components/ResetPasswordForm
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
@@ -21,16 +31,37 @@ const INITIAL_FORM = {
 
 const PASS_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,64}$/;
 
+// El backend genera el token con UUID.randomUUID() — formato estándar UUID v4.
+const TOKEN_FORMAT_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default function ResetPasswordForm() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   const navigate = useNavigate();
+
+  const rawToken = searchParams.get('token');
+  const token = rawToken ? rawToken.trim() : null;
+
+  // Validación de formato ANTES de cualquier petición al backend.
+  const tokenFormatoValido = useMemo(() => {
+    if (!token) return false;
+    return TOKEN_FORMAT_REGEX.test(token);
+  }, [token]);
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [completado, setCompletado] = useState(false);
+
+  // Motivo por el que el token quedó inválido: null mientras no se sepa,
+  // o un mensaje (del backend o local) cuando ya se sabe que no sirve.
+  const [tokenInvalidoMotivo, setTokenInvalidoMotivo] = useState(
+    !token
+      ? 'Este enlace no incluye un token de recuperación.'
+      : !tokenFormatoValido
+      ? 'Este enlace tiene un formato inválido y no puede procesarse.'
+      : null
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +88,17 @@ export default function ResetPasswordForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Reconoce si el mensaje del backend corresponde a un token inválido/usado/
+  // expirado (Criterio 3), para mostrar la pantalla de error dedicada en vez
+  // de solo un popup.
+  const esErrorDeToken = (mensaje) => {
+    if (!mensaje) return false;
+    const m = mensaje.toLowerCase();
+    return m.includes('expiró') || m.includes('expirad') || m.includes('utilizado')
+      || m.includes('usado') || m.includes('inválido') || m.includes('no válido')
+      || m.includes('no existe');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -77,12 +119,19 @@ export default function ResetPasswordForm() {
           confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm'
         }
       }).then(() => {
-  navigate('/login');
-});
+        navigate('/login');
+      });
     } catch (err) {
-      // Criterio 3: el backend responde con "El enlace ya fue utilizado" / "ha expirado" / inválido
       const errorMessage = err.response?.data?.message
         || (err.request ? 'No fue posible conectarse con el servidor backend.' : 'Ocurrió un error inesperado.');
+
+      // Criterio 3: si el backend dice que el token ya no sirve, pasamos a
+      // la pantalla dedicada en vez de dejar al usuario en un formulario
+      // que nunca va a funcionar.
+      if (esErrorDeToken(errorMessage)) {
+        setTokenInvalidoMotivo(errorMessage);
+        return;
+      }
 
       Swal.fire({
         icon: 'error',
@@ -100,7 +149,7 @@ export default function ResetPasswordForm() {
     }
   };
 
-  if (!token) {
+  if (tokenInvalidoMotivo) {
     return (
       <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm text-center">
         <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
@@ -110,11 +159,11 @@ export default function ResetPasswordForm() {
           Enlace no válido
         </h2>
         <p className="text-sm text-[#5b5f66]">
-          Este enlace no incluye un token de recuperación. Solicita uno nuevo desde la pantalla de recuperación de contraseña.
+          {tokenInvalidoMotivo} Solicita uno nuevo desde la pantalla de recuperación de contraseña.
         </p>
         <Link to="/recuperar-password" className="text-[#a6192e] font-semibold text-sm hover:underline mt-4 inline-block">
-  Solicitar un nuevo enlace
-</Link>
+          Solicitar un nuevo enlace
+        </Link>
       </div>
     );
   }
