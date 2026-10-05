@@ -5,9 +5,11 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import RolesPage from './pages/RolesPage';
+import AuditoriaPage from './pages/AuditoriaPage';
 import EventosPage from './pages/EventosPage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
+import AdminRoute from './routes/AdminRoute';
 
 function App() {
   return (
@@ -21,10 +23,15 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/roles" element={<RolesPage />} />
-            <Route path="/roles-permisos" element={<RolesPage />} />
             <Route path="/eventos" element={<EventosPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
+
+            {/* Solo administradores (la API también lo valida y responde 403) */}
+            <Route element={<AdminRoute />}>
+              <Route path="/roles" element={<RolesPage />} />
+              <Route path="/roles-permisos" element={<RolesPage />} />
+              <Route path="/auditoria" element={<AuditoriaPage />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
