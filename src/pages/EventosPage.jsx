@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Tags, Trash2 } from 'lucide-react';
+import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Tags, Trash2, Users } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
+import BotonAccion from '../components/ui/BotonAccion';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
+import { comiteService } from '../api/comiteService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
+import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -28,6 +31,7 @@ import {
  * (Criterio 2), crear nuevas ediciones (Criterio 3), consultar el historial de ediciones (Criterio 4)
  * y eliminarlos con confirmación (Criterio 5).
  * Desde cada fila también se abren los tipos de actividad y las líneas temáticas del evento (HU-05).
+ * Desde cada fila también se abre el comité organizador del evento (HU-06).
  * @module pages/EventosPage
  */
 
@@ -43,36 +47,16 @@ const ALERTA_EXITO = {
   customClass: { popup: 'rounded-[16px]', confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm' },
 };
 
-function BotonAccion({ icono: Icono, etiqueta, onClick, disabled, motivo, peligro = false }) {
-  const titulo = disabled && motivo ? motivo : etiqueta;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={titulo}
-      aria-label={titulo}
-      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
-        disabled
-          ? 'border-[#e5e7ea] text-[#9ca0a6] cursor-not-allowed'
-          : peligro
-          ? 'border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] cursor-pointer'
-          : 'border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] cursor-pointer'
-      }`}
-    >
-      <Icono className="w-4 h-4" />
-    </button>
-  );
-}
-
 /**
  * @param {Object} props
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
+ * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
-export default function EventosPage({ api = eventoService, apiParametros = parametroEventoService, usuarioProp, onSelectNav }) {
+export default function EventosPage({ api = eventoService, apiParametros = parametroEventoService, apiComite = comiteService, usuarioProp, onSelectNav }) {
+
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(false);
@@ -81,7 +65,7 @@ export default function EventosPage({ api = eventoService, apiParametros = param
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite', evento }
   const [modal, setModal] = useState(null);
 
   useEffect(() => {
@@ -308,10 +292,15 @@ export default function EventosPage({ api = eventoService, apiParametros = param
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                           <BotonAccion
-                            icono={Tags}
-                            etiqueta="Tipos de actividad y líneas temáticas"
-                            onClick={() => setModal({ tipo: 'parametros', evento })}
-                          />
+                    icono={Tags}
+                    etiqueta="Tipos de actividad y líneas temáticas"
+                    onClick={() => setModal({ tipo: 'parametros', evento })}
+                         />
+                          <BotonAccion
+                            icono={Users}
+                            etiqueta="Comité organizador"
+                            onClick={() => setModal({ tipo: 'comite', evento })}
+                         />
                           <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
@@ -386,6 +375,16 @@ export default function EventosPage({ api = eventoService, apiParametros = param
           isOpen
           evento={modal.evento}
           api={apiParametros}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'comite' && (
+        <ComiteOrganizadorModal
+          key={`comite-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiComite}
           onClose={cerrarModal}
         />
       )}

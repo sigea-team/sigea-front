@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 export const authApi = axios.create({
   baseURL: `${API_BASE_URL}/api/v1/auth`,
   headers: {
@@ -63,3 +62,40 @@ export async function reenviarVerificacion(correo) {
   const response = await authApi.post('/resend-verification', { correo, email: correo });
   return response.data;
 }
+
+/**
+ * Solicita el enlace de recuperación de contraseña (HU-32, Criterios 1 y 4).
+ * Endpoint: POST /api/v1/auth/forgot-password
+ * Body: { correo }
+ * Response: { mensaje } — el backend responde SIEMPRE el mismo mensaje genérico,
+ * exista o no la cuenta, para no revelar qué correos están registrados.
+ *
+ * @param {string} correo
+ * @returns {Promise<{ mensaje: string }>}
+ */
+export async function solicitarRecuperacion(correo) {
+  const response = await authApi.post('/forgot-password', { correo });
+  return response.data;
+}
+
+/**
+ * Restablece la contraseña con el token recibido por correo (HU-32, Criterios 2 y 3).
+ * Endpoint: POST /api/v1/auth/reset-password
+ * Body: { token, nuevaContrasena }
+ * Response: { mensaje, correo }
+ * Errores: 400 TOKEN_INVALIDO (no existe, ya usado o expirado) y
+ *          400 VALIDACION_FALLIDA (la contraseña no cumple la política).
+ *
+ * @param {{ token: string, nuevaContrasena: string }} data
+ * @returns {Promise<{ mensaje: string, correo: string }>}
+ */
+export async function restablecerContrasena({ token, nuevaContrasena }) {
+  const response = await authApi.post('/reset-password', { token, nuevaContrasena });
+  return response.data;
+}
+
+/** Agrupa las funciones de HU-32 para poder inyectar una API simulada en Storybook. */
+export const servicioRecuperacion = {
+  solicitar: solicitarRecuperacion,
+  restablecer: restablecerContrasena,
+};
