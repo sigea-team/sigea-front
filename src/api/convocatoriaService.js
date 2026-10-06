@@ -67,13 +67,8 @@ function guardarMock(lista) {
  * @returns {Promise<Array<Object>>}
  */
 export async function listarConvocatorias() {
-  try {
-    const { data } = await httpClient.get('/convocatorias');
-    if (Array.isArray(data) && data.length > 0) return data;
-  } catch (err) {
-    // Fallback a almacenamiento local si el backend no tiene el endpoint activo
-  }
-  return cargarMock();
+  const { data } = await httpClient.get('/convocatorias');
+  return Array.isArray(data) ? data : [];
 }
 
 /**
@@ -81,16 +76,8 @@ export async function listarConvocatorias() {
  * @param {number|string} id
  */
 export async function obtenerConvocatoria(id) {
-  try {
-    const { data } = await httpClient.get(`/convocatorias/${id}`);
-    if (data) return data;
-  } catch (err) {
-    // Fallback
-  }
-  const lista = cargarMock();
-  const encontrada = lista.find((c) => String(c.id) === String(id));
-  if (!encontrada) throw new Error('Convocatoria no encontrada.');
-  return encontrada;
+  const { data } = await httpClient.get(`/convocatorias/${id}`);
+  return data;
 }
 
 /**
@@ -99,26 +86,16 @@ export async function obtenerConvocatoria(id) {
  */
 export async function crearConvocatoria(convocatoria) {
   const payload = {
-    ...convocatoria,
-    estado: 'BORRADOR', // Criterio 1: Guarda en estado borrador
+    eventoId: Number(convocatoria.eventoId),
+    titulo: convocatoria.titulo,
+    descripcion: convocatoria.descripcion,
+    requisitos: convocatoria.requisitos,
+    fechaApertura: convocatoria.fechaApertura,
+    fechaCierre: convocatoria.fechaCierre,
   };
 
-  try {
-    const { data } = await httpClient.post('/convocatorias', payload);
-    if (data) return data;
-  } catch (err) {
-    // Fallback local
-  }
-
-  const lista = cargarMock();
-  const nueva = {
-    id: Date.now(),
-    ...payload,
-    creadoEn: new Date().toISOString(),
-  };
-  lista.unshift(nueva);
-  guardarMock(lista);
-  return nueva;
+  const { data } = await httpClient.post('/convocatorias', payload);
+  return data;
 }
 
 /**
@@ -127,28 +104,17 @@ export async function crearConvocatoria(convocatoria) {
  * @param {Object} cambios
  */
 export async function actualizarConvocatoria(id, cambios) {
-  try {
-    const { data } = await httpClient.put(`/convocatorias/${id}`, cambios);
-    if (data) return data;
-  } catch (err) {
-    // Fallback local
-  }
-
-  const lista = cargarMock();
-  const index = lista.findIndex((c) => String(c.id) === String(id));
-  if (index === -1) throw new Error('Convocatoria no encontrada.');
-
-  const actualizada = {
-    ...lista[index],
-    ...cambios,
-    // Asegurar que si estaba en borrador continúe en borrador (Criterio 3)
-    estado: lista[index].estado === 'BORRADOR' ? 'BORRADOR' : lista[index].estado,
-    actualizadoEn: new Date().toISOString(),
+  const payload = {
+    eventoId: Number(cambios.eventoId),
+    titulo: cambios.titulo,
+    descripcion: cambios.descripcion,
+    requisitos: cambios.requisitos,
+    fechaApertura: cambios.fechaApertura,
+    fechaCierre: cambios.fechaCierre,
   };
 
-  lista[index] = actualizada;
-  guardarMock(lista);
-  return actualizada;
+  const { data } = await httpClient.put(`/convocatorias/${id}`, payload);
+  return data;
 }
 
 /**
@@ -156,16 +122,8 @@ export async function actualizarConvocatoria(id, cambios) {
  * @param {number|string} id
  */
 export async function eliminarConvocatoria(id) {
-  try {
-    const { data } = await httpClient.delete(`/convocatorias/${id}`);
-    return data;
-  } catch (err) {
-    // Fallback local
-  }
-  const lista = cargarMock();
-  const filtradas = lista.filter((c) => String(c.id) !== String(id));
-  guardarMock(filtradas);
-  return { mensaje: 'Convocatoria eliminada correctamente.' };
+  const { data } = await httpClient.delete(`/convocatorias/${id}`);
+  return data;
 }
 
 export const convocatoriaService = {
