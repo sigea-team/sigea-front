@@ -43,14 +43,22 @@ export default function ConvocatoriaFormModal({
 }) {
   const esEdicion = Boolean(convocatoria?.id);
 
+  const aValorInputFecha = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string' && val.length >= 16) {
+      return val.substring(0, 16);
+    }
+    return '';
+  };
+
   const [form, setForm] = useState(() => ({
     eventoId: convocatoria?.eventoId ? String(convocatoria.eventoId) : (eventosDisponibles[0]?.value || ''),
     eventoNombre: convocatoria?.eventoNombre || '',
     titulo: convocatoria?.titulo || '',
     descripcion: convocatoria?.descripcion || '',
     requisitos: convocatoria?.requisitos || '',
-    fechaApertura: convocatoria?.fechaApertura || '',
-    fechaCierre: convocatoria?.fechaCierre || '',
+    fechaApertura: aValorInputFecha(convocatoria?.fechaApertura),
+    fechaCierre: aValorInputFecha(convocatoria?.fechaCierre),
   }));
 
   const [errores, setErrores] = useState({});
@@ -111,10 +119,16 @@ export default function ConvocatoriaFormModal({
           'Evento UFPS',
       });
     } catch (err) {
+      const errorMsg =
+        err?.response?.data?.mensaje ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'Ocurrió un error inesperado al procesar la solicitud.';
+
       Swal.fire({
         icon: 'error',
         title: 'No se pudo guardar la convocatoria',
-        text: err?.message || 'Ocurrió un error inesperado al procesar la solicitud.',
+        text: errorMsg,
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',
         customClass: {
