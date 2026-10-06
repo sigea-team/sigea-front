@@ -118,6 +118,16 @@ export async function actualizarConvocatoria(id, cambios) {
 }
 
 /**
+ * Publica una convocatoria que se encuentra en borrador.
+ * Endpoint: POST /api/v1/convocatorias/{id}/publicar
+ * @param {number|string} id
+ */
+export async function publicarConvocatoria(id) {
+  const { data } = await httpClient.post(`/convocatorias/${id}/publicar`);
+  return data;
+}
+
+/**
  * Elimina una convocatoria en borrador.
  * @param {number|string} id
  */
@@ -131,5 +141,6 @@ export const convocatoriaService = {
   obtenerConvocatoria,
   crearConvocatoria,
   actualizarConvocatoria,
+  publicarConvocatoria,
   eliminarConvocatoria,
 };

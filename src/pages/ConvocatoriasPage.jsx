@@ -141,6 +141,53 @@ export default function ConvocatoriasPage({
     });
   };
 
+  const publicar = (convocatoria) => {
+    Swal.fire({
+      title: '¿Publicar convocatoria?',
+      text: `Al publicar «${convocatoria.titulo}», quedará abierta oficialmente para que los autores puedan enviar sus propuestas durante el periodo de recepción.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, publicar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+      customClass: {
+        popup: 'rounded-[16px]',
+        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const publicada = await api.publicarConvocatoria(convocatoria.id);
+          recargar();
+          Swal.fire({
+            ...ALERTA_EXITO,
+            title: '¡Convocatoria publicada!',
+            text: `La convocatoria «${publicada.titulo || convocatoria.titulo}» ahora está publicada y disponible para la comunidad académica.`,
+          });
+        } catch (err) {
+          const msg =
+            err?.response?.data?.mensaje ||
+            err?.response?.data?.message ||
+            err?.message ||
+            'No se pudo publicar la convocatoria.';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al publicar',
+            text: msg,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: {
+              popup: 'rounded-[16px]',
+              confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+            },
+          });
+        }
+      }
+    });
+  };
+
   const eliminar = (convocatoria) => {
     Swal.fire({
       title: '¿Eliminar convocatoria?',
@@ -286,6 +333,7 @@ export default function ConvocatoriasPage({
           cargando={cargando}
           hayFiltros={hayFiltros}
           onEditar={(conv) => setModal({ tipo: 'editar', convocatoria: conv })}
+          onPublicar={publicar}
           onEliminar={eliminar}
           onIntentarEnviar={intentarEnviarPropuesta}
         />
