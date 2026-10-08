@@ -72,6 +72,16 @@ export async function listarEdiciones(id) {
 }
 
 /**
+ * Publica un evento o edición que se encuentra en configuración (pasa a habilitado).
+ * Endpoint: POST /api/v1/eventos/{id}/publicar
+ * @param {number} id
+ */
+export async function publicarEvento(id) {
+  const { data } = await httpClient.post(`/eventos/${id}/publicar`);
+  return data;
+}
+
+/**
  * Elimina un evento o edición. Se llama solo después de que el usuario confirma en la
  * interfaz, por eso siempre envía confirmar=true (Criterio 5).
  * Endpoint: DELETE /api/v1/eventos/{id}?confirmar=true
@@ -90,5 +100,6 @@ export const eventoService = {
   actualizarEvento,
   crearEdicion,
   listarEdiciones,
+  publicarEvento,
   eliminarEvento,
 };

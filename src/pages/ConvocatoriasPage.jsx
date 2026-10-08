@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import { convocatoriaService } from '../api/convocatoriaService';
+import { eventoService } from '../api/eventoService';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
 import { formatearFechaHora, puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
@@ -20,7 +21,7 @@ import { formatearFechaHora, puedeEnviarPropuesta } from '../features/convocator
 const OPCIONES_FILTRO_ESTADO = [
   { value: 'todos', label: 'Todos los estados' },
   { value: 'BORRADOR', label: 'Borrador' },
-  { value: 'ABIERTA', label: 'Abierta' },
+  { value: 'PUBLICADA', label: 'Publicada / Abierta' },
   { value: 'CERRADA', label: 'Cerrada / Vencida' },
 ];
 
@@ -38,11 +39,18 @@ const ALERTA_EXITO = {
  * Componente de página para la gestión de convocatorias académicas.
  * @param {Object} props
  * @param {typeof convocatoriaService} [props.api] - Cliente de API para convocatorias.
+ * @param {typeof eventoService} [props.apiEventos] - Cliente de API para eventos.
  * @param {Object} [props.usuarioProp] - Usuario autenticado opcional (para Storybook o pruebas).
  * @param {Function} [props.onSelectNav] - Callback para navegación de ítems de menú.
  */
-export default function ConvocatoriasPage({ api = convocatoriaService, usuarioProp, onSelectNav }) {
+export default function ConvocatoriasPage({
+  api = convocatoriaService,
+  apiEventos = eventoService,
+  usuarioProp,
+  onSelectNav,
+}) {
   const [convocatorias, setConvocatorias] = useState([]);
+  const [eventosDisponibles, setEventosDisponibles] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
   const [version, setVersion] = useState(0);
@@ -56,15 +64,28 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
   useEffect(() => {
     let activo = true;
     setCargando(true);
-    api
-      .listarConvocatorias()
-      .then((data) => {
+
+    Promise.all([api.listarConvocatorias(), apiEventos.listarEventos().catch(() => [])])
+      .then(([listaConvocatorias, listaEventos]) => {
         if (!activo) return;
-        setConvocatorias(Array.isArray(data) ? data : []);
+        setConvocatorias(Array.isArray(listaConvocatorias) ? listaConvocatorias : []);
+
+        const eventosOpciones = (Array.isArray(listaEventos) ? listaEventos : []).map((ev) => ({
+          value: String(ev.id),
+          label: ev.nombre,
+        }));
+        setEventosDisponibles(eventosOpciones);
         setErrorCarga(null);
       })
       .catch((err) => {
-        if (activo) setErrorCarga(err.message || 'Error al cargar las convocatorias.');
+        if (activo) {
+          const msg =
+            err?.response?.data?.mensaje ||
+            err?.response?.data?.message ||
+            err?.message ||
+            'Error al cargar las convocatorias.';
+          setErrorCarga(msg);
+        }
       })
       .finally(() => {
         if (activo) setCargando(false);
@@ -73,7 +94,7 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
     return () => {
       activo = false;
     };
-  }, [api, version]);
+  }, [api, apiEventos, version]);
 
   const recargar = () => setVersion((v) => v + 1);
   const cerrarModal = () => setModal(null);
@@ -81,7 +102,14 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
   const convocatoriasFiltradas = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
     return convocatorias.filter((c) => {
-      if (filtroEstado !== 'todos' && c.estado !== filtroEstado) return false;
+      const estadoUpper = (c.estado || '').toUpperCase();
+      if (filtroEstado !== 'todos') {
+        if (filtroEstado === 'PUBLICADA' && estadoUpper !== 'PUBLICADA' && estadoUpper !== 'ABIERTA') {
+          return false;
+        } else if (filtroEstado !== 'PUBLICADA' && estadoUpper !== filtroEstado) {
+          return false;
+        }
+      }
       if (!texto) return true;
       return [c.titulo, c.eventoNombre, c.descripcion].some((campo) =>
         (campo || '').toLowerCase().includes(texto)
@@ -110,6 +138,53 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
       ...ALERTA_EXITO,
       title: 'Cambios actualizados',
       text: `Se actualizó la información de «${actualizada.titulo}» manteniéndose en borrador (Criterio 3).`,
+    });
+  };
+
+  const publicar = (convocatoria) => {
+    Swal.fire({
+      title: '¿Publicar convocatoria?',
+      text: `Al publicar «${convocatoria.titulo}», quedará abierta oficialmente para que los autores puedan enviar sus propuestas durante el periodo de recepción.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, publicar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+      customClass: {
+        popup: 'rounded-[16px]',
+        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const publicada = await api.publicarConvocatoria(convocatoria.id);
+          recargar();
+          Swal.fire({
+            ...ALERTA_EXITO,
+            title: '¡Convocatoria publicada!',
+            text: `La convocatoria «${publicada.titulo || convocatoria.titulo}» ahora está publicada y disponible para la comunidad académica.`,
+          });
+        } catch (err) {
+          const msg =
+            err?.response?.data?.mensaje ||
+            err?.response?.data?.message ||
+            err?.message ||
+            'No se pudo publicar la convocatoria.';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al publicar',
+            text: msg,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: {
+              popup: 'rounded-[16px]',
+              confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+            },
+          });
+        }
+      }
     });
   };
 
@@ -258,6 +333,7 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
           cargando={cargando}
           hayFiltros={hayFiltros}
           onEditar={(conv) => setModal({ tipo: 'editar', convocatoria: conv })}
+          onPublicar={publicar}
           onEliminar={eliminar}
           onIntentarEnviar={intentarEnviarPropuesta}
         />
@@ -269,6 +345,7 @@ export default function ConvocatoriasPage({ api = convocatoriaService, usuarioPr
           key={`modal-convocatoria-${modal.convocatoria?.id || 'nueva'}`}
           isOpen={Boolean(modal)}
           convocatoria={modal.convocatoria}
+          eventosDisponibles={eventosDisponibles}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
         />

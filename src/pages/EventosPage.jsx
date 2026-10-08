@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Tags, Trash2, Users } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Tags, Trash2, Users } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -157,6 +157,44 @@ export default function EventosPage({ api = eventoService, apiParametros = param
     terminar('Evento eliminado', `Se eliminó «${evento.nombre}».`);
   };
 
+  const publicar = (evento) => {
+    Swal.fire({
+      title: '¿Publicar evento?',
+      text: `Al publicar «${evento.nombre}», su estado pasará a habilitado y quedará disponible para las siguientes fases del sistema.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, publicar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+      customClass: {
+        popup: 'rounded-[16px]',
+        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const publicado = await api.publicarEvento(evento.id);
+          terminar('¡Evento publicado!', `«${publicado.nombre || evento.nombre}» ahora está habilitado.`);
+        } catch (err) {
+          const { mensaje } = extraerError(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo publicar el evento',
+            text: mensaje,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: {
+              popup: 'rounded-[16px]',
+              confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+            },
+          });
+        }
+      }
+    });
+  };
+
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
@@ -292,10 +330,17 @@ export default function EventosPage({ api = eventoService, apiParametros = param
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                           <BotonAccion
-                    icono={Tags}
-                    etiqueta="Tipos de actividad y líneas temáticas"
-                    onClick={() => setModal({ tipo: 'parametros', evento })}
-                         />
+                            icono={Globe}
+                            etiqueta="Publicar evento"
+                            onClick={() => publicar(evento)}
+                            disabled={!editable}
+                            motivo={motivoBloqueo}
+                          />
+                          <BotonAccion
+                            icono={Tags}
+                            etiqueta="Tipos de actividad y líneas temáticas"
+                            onClick={() => setModal({ tipo: 'parametros', evento })}
+                          />
                           <BotonAccion
                             icono={Users}
                             etiqueta="Comité organizador"

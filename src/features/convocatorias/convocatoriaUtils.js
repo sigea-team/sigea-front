@@ -66,7 +66,8 @@ export function puedeEnviarPropuesta(convocatoria) {
     return { permitido: false, motivo: 'Convocatoria no encontrada.' };
   }
 
-  if (convocatoria.estado === 'BORRADOR') {
+  const estadoUpper = (convocatoria.estado || '').toUpperCase();
+  if (estadoUpper === 'BORRADOR') {
     return {
       permitido: false,
       motivo: 'La convocatoria está en estado borrador y aún no recibe propuestas.',
@@ -99,7 +100,8 @@ export function puedeEnviarPropuesta(convocatoria) {
  * @returns {boolean}
  */
 export function esBorradorEditable(convocatoria) {
-  return convocatoria?.estado === 'BORRADOR';
+  const est = (convocatoria?.estado || '').toUpperCase();
+  return est === 'BORRADOR';
 }
 
 /**

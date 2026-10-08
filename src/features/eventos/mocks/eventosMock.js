@@ -182,6 +182,16 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       };
     },
 
+    async publicarEvento(id) {
+      await esperar();
+      const evento = buscar(id);
+      if (evento.estado !== 'en_configuracion') {
+        throw errorApi(409, `Solo se pueden publicar eventos en configuración. El estado actual es ${evento.estado}.`);
+      }
+      evento.estado = 'habilitado';
+      return { ...evento };
+    },
+
     async eliminarEvento(id) {
       await esperar();
       const evento = buscar(id);

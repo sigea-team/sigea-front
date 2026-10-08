@@ -13,6 +13,7 @@ import { useAuthStore, esTokenValido } from '../store/authStore';
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://sigea-backend-production.up.railway.app';
+const MODO_DESARROLLO = Boolean(import.meta.env.DEV);
 
 export const httpClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,

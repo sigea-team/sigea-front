@@ -16,8 +16,9 @@ import { esConvocatoriaExpirada } from '../convocatoriaUtils';
  */
 export default function EstadoConvocatoriaBadge({ estado, fechaCierre }) {
   const expirada = fechaCierre ? esConvocatoriaExpirada(fechaCierre) : false;
+  const estadoUpper = (estado || '').toUpperCase();
 
-  if (estado === 'BORRADOR') {
+  if (estadoUpper === 'BORRADOR') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f7f7f8] text-[#5b5f66] border border-[#d8dadf]">
         <span className="w-1.5 h-1.5 rounded-full bg-[#9ca0a6] mr-1.5"></span>
@@ -26,7 +27,7 @@ export default function EstadoConvocatoriaBadge({ estado, fechaCierre }) {
     );
   }
 
-  if (expirada || estado === 'CERRADA') {
+  if (expirada || estadoUpper === 'CERRADA') {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#fdecec] text-[#7a0c1e] border border-[#a6192e]/20">
         <span className="w-1.5 h-1.5 rounded-full bg-[#a6192e] mr-1.5"></span>
@@ -38,7 +39,7 @@ export default function EstadoConvocatoriaBadge({ estado, fechaCierre }) {
   return (
     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
       <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1.5"></span>
-      Abierta
+      {estadoUpper === 'PUBLICADA' ? 'Publicada' : 'Abierta'}
     </span>
   );
 }
