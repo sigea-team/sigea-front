@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Tags, Trash2, Users } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Tags, Trash2, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -9,6 +9,7 @@ import BotonAccion from '../components/ui/BotonAccion';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
+import { presupuestoService } from '../api/presupuestoService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
@@ -16,6 +17,7 @@ import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
+import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -32,6 +34,7 @@ import {
  * y eliminarlos con confirmación (Criterio 5).
  * Desde cada fila también se abren los tipos de actividad y las líneas temáticas del evento (HU-05).
  * Desde cada fila también se abre el comité organizador del evento (HU-06).
+ * Desde cada fila también se abre el presupuesto preliminar del evento (HU-07).
  * @module pages/EventosPage
  */
 
@@ -52,10 +55,18 @@ const ALERTA_EXITO = {
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
  * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
+ * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto (HU-07); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
-export default function EventosPage({ api = eventoService, apiParametros = parametroEventoService, apiComite = comiteService, usuarioProp, onSelectNav }) {
+export default function EventosPage({
+  api = eventoService,
+  apiParametros = parametroEventoService,
+  apiComite = comiteService,
+  apiPresupuesto = presupuestoService,
+  usuarioProp,
+  onSelectNav,
+}) {
 
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -65,7 +76,7 @@ export default function EventosPage({ api = eventoService, apiParametros = param
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto', evento }
   const [modal, setModal] = useState(null);
 
   useEffect(() => {
@@ -345,7 +356,12 @@ export default function EventosPage({ api = eventoService, apiParametros = param
                             icono={Users}
                             etiqueta="Comité organizador"
                             onClick={() => setModal({ tipo: 'comite', evento })}
-                         />
+                          />
+                          <BotonAccion
+                            icono={Wallet}
+                            etiqueta="Presupuesto preliminar"
+                            onClick={() => setModal({ tipo: 'presupuesto', evento })}
+                          />
                           <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
@@ -430,6 +446,16 @@ export default function EventosPage({ api = eventoService, apiParametros = param
           isOpen
           evento={modal.evento}
           api={apiComite}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'presupuesto' && (
+        <PresupuestoPreliminarModal
+          key={`presupuesto-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiPresupuesto}
           onClose={cerrarModal}
         />
       )}
