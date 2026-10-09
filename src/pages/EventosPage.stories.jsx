@@ -2,6 +2,7 @@ import EventosPage from './EventosPage';
 import { crearApiMock, apiMockConError } from '../features/eventos/mocks/eventosMock';
 import { crearApiParametrosMock } from '../features/eventos/mocks/parametrosMock';
 import { crearComiteApiMock } from '../features/comite/mocks/comiteMock';
+import { crearPresupuestoApiMock } from '../features/presupuesto/mocks/presupuestoMock';
 
 export default {
   title: 'Pages/EventosPage',
@@ -17,6 +18,7 @@ export const FlujoCompleto = {
     api: crearApiMock(), 
     apiParametros: crearApiParametrosMock(),
     apiComite: crearComiteApiMock(),
+    apiPresupuesto: crearPresupuestoApiMock(),
     usuarioProp: usuario 
   },
 };
