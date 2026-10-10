@@ -27,7 +27,7 @@ import {
 function formularioInicial(evento) {
   return {
     nombre: evento?.nombre || '',
-    tipo: evento?.tipo || '',
+    tipoEventoId: evento?.tipoEventoId ? String(evento.tipoEventoId) : '',
     modalidad: evento?.modalidad || '',
     fechaInicio: evento?.fechaInicio || '',
     fechaFin: evento?.fechaFin || '',
@@ -43,8 +43,17 @@ function formularioInicial(evento) {
  * @param {Object|null} [props.evento] - Evento a editar; null para crear uno nuevo.
  * @param {function(): void} props.onClose
  * @param {function(Object): Promise<any>} props.onSubmit - Recibe el payload para la API. Si lanza error, el modal lo muestra.
+ * @param {Array<{id: number, nombre: string}>|null} [props.tiposEvento] - Catálogo para el combobox; null mientras carga.
+ * @param {function(): void} [props.onAdministrarTipos] - Abre la administración del catálogo de tipos de evento.
  */
-export default function EventoFormModal({ isOpen, evento = null, onClose, onSubmit }) {
+export default function EventoFormModal({
+  isOpen,
+  evento = null,
+  onClose,
+  onSubmit,
+  tiposEvento = [],
+  onAdministrarTipos,
+}) {
   const editando = Boolean(evento?.id);
   const [form, setForm] = useState(() => formularioInicial(evento));
   const [errores, setErrores] = useState({});
@@ -59,6 +68,8 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
 
   const semestreSugerido = calcularSemestre(form.fechaInicio);
 
+  const opcionesTipo = (tiposEvento || []).map((t) => ({ value: String(t.id), label: t.nombre }));
+
   const guardar = async (e) => {
     e?.preventDefault();
     const nuevosErrores = validarEvento(form);
@@ -71,7 +82,7 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
     try {
       await onSubmit({
         nombre: form.nombre.trim(),
-        tipo: form.tipo.trim(),
+        tipoEventoId: Number(form.tipoEventoId),
         modalidad: form.modalidad,
         fechaInicio: form.fechaInicio,
         fechaFin: form.fechaFin,
@@ -129,16 +140,34 @@ export default function EventoFormModal({ isOpen, evento = null, onClose, onSubm
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="Tipo de evento"
-            id="evento-tipo"
-            value={form.tipo}
-            onChange={cambiar('tipo')}
-            placeholder="Ej. Congreso, seminario, feria"
-            maxLength={50}
-            required
-            error={errores.tipo}
-          />
+          <div>
+            <Select
+              label="Tipo de evento"
+              id="evento-tipo"
+              value={form.tipoEventoId}
+              onChange={cambiar('tipoEventoId')}
+              options={opcionesTipo}
+              placeholder={
+                tiposEvento === null
+                  ? 'Cargando tipos...'
+                  : tiposEvento.length === 0
+                  ? 'No hay tipos registrados'
+                  : 'Selecciona el tipo'
+              }
+              required
+              disabled={tiposEvento === null}
+              error={errores.tipoEventoId}
+            />
+            {onAdministrarTipos && (
+              <button
+                type="button"
+                onClick={onAdministrarTipos}
+                className="text-xs mt-1.5 text-[#a6192e] font-semibold underline cursor-pointer"
+              >
+                {tiposEvento?.length === 0 ? 'Crear tipos de evento' : '¿No está el tipo? Administrar tipos de evento'}
+              </button>
+            )}
+          </div>
           <Select
             label="Modalidad"
             id="evento-modalidad"

@@ -83,8 +83,7 @@ export function validarEvento(form) {
   const errores = {};
   if (!form.nombre.trim()) errores.nombre = 'Escribe el nombre del evento.';
   else if (form.nombre.trim().length > 200) errores.nombre = 'El nombre no puede superar los 200 caracteres.';
-  if (!form.tipo.trim()) errores.tipo = 'Indica el tipo de evento.';
-  else if (form.tipo.trim().length > 50) errores.tipo = 'El tipo no puede superar los 50 caracteres.';
+  if (!form.tipoEventoId) errores.tipoEventoId = 'Selecciona el tipo de evento.';
   if (!form.modalidad) errores.modalidad = 'Selecciona la modalidad.';
   if (form.objetivo.trim().length > LIMITES.objetivo) {
     errores.objetivo = `El objetivo no puede superar los ${LIMITES.objetivo} caracteres.`;
