@@ -34,6 +34,7 @@ const PESTANAS = [
  * @param {typeof presupuestoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {'rubros'|'historial'} [props.pestanaInicial='rubros']
  * @param {function(): void} props.onClose
+ * @param {function(): void} [props.onAbrirPresupuestoAprobado]
  */
 export default function PresupuestoPreliminarModal({
   isOpen,
@@ -41,6 +42,7 @@ export default function PresupuestoPreliminarModal({
   api = presupuestoService,
   pestanaInicial = 'rubros',
   onClose,
+  onAbrirPresupuestoAprobado,
 }) {
   const [pestana, setPestana] = useState(pestanaInicial);
   const [presupuesto, setPresupuesto] = useState(null);
@@ -164,11 +166,30 @@ export default function PresupuestoPreliminarModal({
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
               <EstadoEventoBadge estado={presupuesto?.estadoEvento || evento.estado} />
-              {presupuesto?.presupuestoAprobado && (
-                <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20">
-                  Presupuesto aprobado
-                </span>
-              )}
+              {presupuesto?.presupuestoAprobado ? (
+                onAbrirPresupuestoAprobado ? (
+                  <button
+                    type="button"
+                    onClick={onAbrirPresupuestoAprobado}
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20 hover:bg-[#e8f3ec]/80 cursor-pointer"
+                    title="Ver presupuesto aprobado formalmente"
+                  >
+                    Presupuesto aprobado →
+                  </button>
+                ) : (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20">
+                    Presupuesto aprobado
+                  </span>
+                )
+              ) : onAbrirPresupuestoAprobado ? (
+                <button
+                  type="button"
+                  onClick={onAbrirPresupuestoAprobado}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#a6192e] hover:underline cursor-pointer"
+                >
+                  Registrar presupuesto oficial →
+                </button>
+              ) : null}
             </div>
             <p className="text-xs text-[#5b5f66]">
               {presupuesto ? `${cantidad} ${cantidad === 1 ? 'rubro vigente' : 'rubros vigentes'}` : 'Cargando presupuesto...'}
