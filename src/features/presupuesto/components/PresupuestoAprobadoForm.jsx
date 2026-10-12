@@ -1,11 +1,10 @@
-import { useRef, useState } from 'react';
-import { AlertCircle, ArrowUpRight, Check, FileCheck, FileText, UploadCloud, X } from 'lucide-react';
+import { useState } from 'react';
+import { AlertCircle, ArrowUpRight, Check, ExternalLink, FileText, Link as LinkIcon } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import { formatearPesos, leerNumero } from '../presupuestoUtils';
 import {
   compararConPreliminar,
-  formatearTamanoArchivo,
   validarPresupuestoAprobado,
 } from '../presupuestoAprobadoUtils';
 
@@ -14,7 +13,7 @@ import {
  * @description Formulario para registrar o actualizar el presupuesto aprobado formalmente (HU-08).
  * - Criterio 1: Compara con el presupuesto preliminar (puede diferir) y registra la versión oficial.
  * - Criterio 2: En actualización, solicita motivo y conserva la versión previa.
- * - Criterio 3: Exige soporte documental obligatorio antes de guardar.
+ * - Criterio 3: Exige el enlace o URL del soporte documental obligatorio antes de guardar.
  * @module features/presupuesto/components/PresupuestoAprobadoForm
  */
 
@@ -35,21 +34,15 @@ export default function PresupuestoAprobadoForm({
   onCancelar,
   deshabilitado = false,
 }) {
-  const fileInputRef = useRef(null);
-
   const [form, setForm] = useState({
     valorTotalAprobado: aprobadoVigente ? String(aprobadoVigente.valorTotalAprobado) : '',
     resolucionOActa: aprobadoVigente?.resolucionOActa || '',
     justificacion: '',
     evidenciaUrl: aprobadoVigente?.evidenciaUrl || '',
-    evidencia: null,
-    evidenciaNombre: aprobadoVigente?.evidenciaUrl || '',
-    evidenciaTamano: 0,
   });
 
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
-  const [arrastrando, setArrastrando] = useState(false);
 
   // Comparación dinámica en tiempo real contra el presupuesto preliminar
   const comparativa = compararConPreliminar(form.valorTotalAprobado, totalPreliminar);
@@ -71,52 +64,12 @@ export default function PresupuestoAprobadoForm({
     }
   };
 
-  const handleArchivoSeleccionado = (archivo) => {
-    if (!archivo) return;
-    setForm((prev) => ({
-      ...prev,
-      evidencia: archivo,
-      evidenciaNombre: archivo.name,
-      evidenciaUrl: prev.evidenciaUrl || `https://archivos.ufps.edu.co/soporte/${archivo.name}`,
-      evidenciaTamano: archivo.size,
-    }));
-    if (errores.evidencia) {
-      setErrores((prev) => {
-        const nuevos = { ...prev };
-        delete nuevos.evidencia;
-        return nuevos;
-      });
-    }
-  };
-
-  const handleRemoverArchivo = () => {
-    setForm((prev) => ({
-      ...prev,
-      evidencia: null,
-      evidenciaNombre: '',
-      evidenciaUrl: '',
-      evidenciaTamano: 0,
-    }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setArrastrando(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleArchivoSeleccionado(e.dataTransfer.files[0]);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar datos en el cliente (Criterio 3: exige evidencia de aprobación)
+    // Validar datos en el cliente (Criterio 3: exige URL de la evidencia de aprobación)
     const erroresValidacion = validarPresupuestoAprobado(form, {
       esActualizacion,
-      conservarEvidenciaPrevia: false,
     });
 
     if (Object.keys(erroresValidacion).length > 0) {
@@ -130,11 +83,9 @@ export default function PresupuestoAprobadoForm({
 
       const payload = {
         valorTotalAprobado: montoNumero,
-        evidenciaUrl: (form.evidenciaUrl || form.evidenciaNombre || '').trim(),
+        evidenciaUrl: form.evidenciaUrl.trim(),
         resolucionOActa: form.resolucionOActa.trim(),
         justificacion: form.justificacion.trim(),
-        evidencia: form.evidencia,
-        evidenciaNombre: form.evidenciaNombre,
       };
 
       await onSubmit(payload);
@@ -232,110 +183,38 @@ export default function PresupuestoAprobadoForm({
         </div>
       </div>
 
-      {/* Criterio 3: Soporte Documental / Evidencia de Aprobación (OBLIGATORIO) */}
+      {/* Criterio 3: Enlace / URL de la Evidencia de Aprobación (OBLIGATORIO) */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-[#1f2023] flex items-center justify-between">
-          <span className="flex items-center gap-1">
-            Evidencia documental de aprobación
+        <div className="flex items-center justify-between">
+          <label htmlFor="evidencia-url" className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+            Enlace o URL de la evidencia documental
             <span className="text-[#a6192e] font-bold">*</span>
-          </span>
-          <span className="text-xs text-[#5b5f66] font-normal">PDF, PNG, JPG (máx. 10 MB)</span>
-        </label>
-
-        {/* Caja de carga / Drag and drop */}
-        {!form.evidenciaNombre ? (
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setArrastrando(true);
-            }}
-            onDragLeave={() => setArrastrando(false)}
-            onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-[12px] p-6 text-center transition-colors cursor-pointer ${
-              arrastrando
-                ? 'border-[#a6192e] bg-[#fdecec]/30'
-                : errores.evidencia
-                ? 'border-[#a6192e] bg-[#fdecec]/20'
-                : 'border-[#d8dadf] hover:border-[#a6192e] bg-[#f7f7f8]/50'
-            }`}
-            onClick={() => fileInputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
-            aria-label="Adjuntar evidencia documental de aprobación"
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-              className="hidden"
-              onChange={(e) => handleArchivoSeleccionado(e.target.files?.[0])}
-              disabled={deshabilitado || enviando}
-            />
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center">
-                <UploadCloud className="w-6 h-6" />
-              </div>
-              <p className="text-sm font-medium text-[#1f2023]">
-                Haz clic para adjuntar o arrastra aquí el documento soporte
-              </p>
-              <p className="text-xs text-[#5b5f66]">
-                Acta firmada, resolución escaneada o soporte oficial expedido por la institución
-              </p>
-            </div>
-          </div>
-        ) : (
-          /* Archivo cargado */
-          <div className="flex items-center justify-between p-3.5 rounded-[12px] border border-[#e5e7ea] bg-white">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-[8px] bg-[#e8f3ec] text-[#1e6b3a] flex items-center justify-center shrink-0">
-                <FileCheck className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[#1f2023] truncate">{form.evidenciaNombre}</p>
-                <p className="text-xs text-[#5b5f66]">
-                  {formatearTamanoArchivo(form.evidenciaTamano)} • Soporte listo para guardar
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleRemoverArchivo}
-              className="p-1.5 text-[#5b5f66] hover:text-[#a6192e] hover:bg-[#fdecec] rounded-full transition-colors cursor-pointer"
-              title="Quitar archivo"
-              aria-label="Quitar archivo adjunto"
-              disabled={deshabilitado || enviando}
+          </label>
+          {form.evidenciaUrl.trim() && (
+            <a
+              href={form.evidenciaUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-[#a6192e] hover:text-[#7a0c1e] hover:underline inline-flex items-center gap-1"
+              title="Abrir enlace en una pestaña nueva para verificarlo"
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Opción de URL directa para la evidencia */}
-        <div className="pt-1.5">
-          <Input
-            id="evidencia-url-input"
-            label="O especifica la URL / enlace institucional del soporte"
-            value={form.evidenciaUrl}
-            onChange={(e) => handleChange('evidenciaUrl', e.target.value)}
-            placeholder="https://archivos.ufps.edu.co/presupuestos/acta-2026.pdf"
-            helperText="Enlace al repositorio institucional (máx. 255 caracteres)"
-            disabled={deshabilitado || enviando}
-          />
+              <ExternalLink className="w-3.5 h-3.5" />
+              Probar enlace
+            </a>
+          )}
         </div>
-
-        {/* Mensaje de error para Criterio 3: Soporte exigido */}
-        {errores.evidencia && (
-          <div className="p-2.5 rounded-[8px] bg-[#fdecec] text-[#7a0c1e] text-xs flex items-center gap-2 mt-1.5" role="alert">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span className="font-medium">{errores.evidencia}</span>
-          </div>
-        )}
+        <Input
+          id="evidencia-url"
+          name="evidenciaUrl"
+          required
+          value={form.evidenciaUrl}
+          onChange={(e) => handleChange('evidenciaUrl', e.target.value)}
+          placeholder="https://archivos.ufps.edu.co/presupuestos/acta-aprobacion-2026.pdf"
+          error={errores.evidenciaUrl}
+          helperText="Enlace al documento oficial alojado en la nube (Google Drive institucional, OneDrive, SharePoint o repositorio UFPS; máx. 255 caracteres)."
+          rightElement={<LinkIcon className="w-4 h-4 text-[#5b5f66]" />}
+          disabled={deshabilitado || enviando}
+        />
       </div>
 
       {/* Criterio 2: Justificación / Motivo del cambio (resaltado en actualización) */}

@@ -1,6 +1,5 @@
 import { ArrowRight, Calendar, ExternalLink, FileCheck, History, ShieldCheck, User } from 'lucide-react';
 import { formatearPesos, formatearFechaHora } from '../presupuestoUtils';
-import { formatearTamanoArchivo } from '../presupuestoAprobadoUtils';
 
 /**
  * @file HistorialPresupuestoAprobado.jsx
@@ -175,11 +174,8 @@ export default function HistorialPresupuestoAprobado({
                 <div className="flex items-center gap-2 text-xs text-[#1f2023] min-w-0">
                   <FileCheck className="w-4 h-4 text-[#a6192e] shrink-0" />
                   <span className="font-medium truncate max-w-md">
-                    {v.evidenciaNombre || v.evidenciaUrl || 'Soporte documental adjunto'}
+                    {v.evidenciaUrl || v.evidenciaNombre || 'Soporte documental registrado'}
                   </span>
-                  {v.evidenciaTamano ? (
-                    <span className="text-[#5b5f66]">({formatearTamanoArchivo(v.evidenciaTamano)})</span>
-                  ) : null}
                 </div>
 
                 {v.evidenciaUrl && (

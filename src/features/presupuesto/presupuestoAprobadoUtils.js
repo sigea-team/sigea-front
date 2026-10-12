@@ -15,6 +15,7 @@ export const LIMITES_PRESUPUESTO_APROBADO = {
   justificacion: 500,
   enterosValor: 14,
   decimales: 2,
+  evidenciaUrl: 255,
 };
 
 /** Mensajes de validación */
@@ -23,25 +24,24 @@ export const MENSAJES_PRESUPUESTO_APROBADO = {
   montoInvalido: 'El monto aprobado debe ser un número válido, por ejemplo 15.000.000.',
   montoPositivo: 'El monto aprobado debe ser mayor a cero.',
   montoExcede: 'El monto aprobado supera el límite permitido.',
-  evidenciaObligatoria: 'Debe adjuntar la evidencia documental de aprobación (acta, resolución o soporte firmado) antes de guardar.',
+  evidenciaObligatoria: 'El enlace o URL de la evidencia documental de aprobación es obligatorio antes de guardar.',
   motivoActualizacionObligatorio: 'Debe indicar el motivo o justificación de la actualización del presupuesto aprobado.',
 };
 
 /**
  * Valida los datos del formulario de presupuesto aprobado.
- * Criterio 3: Exige soporte / evidencia de aprobación obligatoria.
+ * Criterio 3: Exige soporte / evidencia de aprobación obligatoria (URL o enlace).
  *
  * @param {Object} form
  * @param {string|number} form.valorTotalAprobado
- * @param {File|string|null} form.evidencia - Archivo seleccionado o URL/nombre de evidencia existente
+ * @param {string} form.evidenciaUrl - Enlace del soporte documental
  * @param {string} [form.resolucionOActa]
  * @param {string} [form.justificacion]
  * @param {Object} [opciones]
  * @param {boolean} [opciones.esActualizacion=false] - Indica si es una nueva versión que actualiza a una anterior
- * @param {boolean} [opciones.conservarEvidenciaPrevia=false] - Si ya existía un archivo en la versión previa y no se reemplaza
  * @returns {Object} Errores por campo (vacío si es válido)
  */
-export function validarPresupuestoAprobado(form, { esActualizacion = false, conservarEvidenciaPrevia = false } = {}) {
+export function validarPresupuestoAprobado(form, { esActualizacion = false } = {}) {
   const errores = {};
 
   // 1. Monto aprobado
@@ -56,17 +56,12 @@ export function validarPresupuestoAprobado(form, { esActualizacion = false, cons
     errores.valorTotalAprobado = MENSAJES_PRESUPUESTO_APROBADO.montoExcede;
   }
 
-  // 2. Criterio 3: Evidencia de aprobación OBLIGATORIA
-  const evidenciaTexto = (form.evidenciaUrl || form.evidenciaNombre || '').trim();
-  const tieneEvidencia = Boolean(
-    form.evidencia ||
-    (conservarEvidenciaPrevia && form.evidenciaUrlPrevia) ||
-    evidenciaTexto
-  );
-  if (!tieneEvidencia) {
-    errores.evidencia = MENSAJES_PRESUPUESTO_APROBADO.evidenciaObligatoria;
-  } else if (evidenciaTexto.length > (LIMITES_PRESUPUESTO_APROBADO.evidenciaUrl || 255)) {
-    errores.evidencia = 'La URL o soporte documental no puede superar los 255 caracteres.';
+  // 2. Criterio 3: Enlace / URL de evidencia documental OBLIGATORIA
+  const url = (form.evidenciaUrl || '').trim();
+  if (!url) {
+    errores.evidenciaUrl = MENSAJES_PRESUPUESTO_APROBADO.evidenciaObligatoria;
+  } else if (url.length > LIMITES_PRESUPUESTO_APROBADO.evidenciaUrl) {
+    errores.evidenciaUrl = `El enlace no puede superar los ${LIMITES_PRESUPUESTO_APROBADO.evidenciaUrl} caracteres.`;
   }
 
   // 3. Criterio 2: Motivo o justificación al actualizar

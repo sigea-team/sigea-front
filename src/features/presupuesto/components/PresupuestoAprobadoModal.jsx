@@ -16,7 +16,7 @@ import EstadoEventoBadge from '../../eventos/components/EstadoEventoBadge';
 import { extraerError } from '../../eventos/eventoUtils';
 import { presupuestoAprobadoService } from '../../../api/presupuestoAprobadoService';
 import { formatearFechaHora, formatearPesos } from '../presupuestoUtils';
-import { compararConPreliminar, formatearTamanoArchivo } from '../presupuestoAprobadoUtils';
+import { compararConPreliminar } from '../presupuestoAprobadoUtils';
 import PresupuestoAprobadoForm from './PresupuestoAprobadoForm';
 import HistorialPresupuestoAprobado from './HistorialPresupuestoAprobado';
 
@@ -381,14 +381,9 @@ export default function PresupuestoAprobadoModal({
                           <p className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">
                             Evidencia documental oficial
                           </p>
-                          <p className="text-sm font-semibold text-[#1f2023] truncate">
-                            {aprobadoVigente.evidenciaNombre || aprobadoVigente.evidenciaUrl || 'Soporte documental adjunto'}
+                          <p className="text-sm font-semibold text-[#1f2023] truncate max-w-md">
+                            {aprobadoVigente.evidenciaUrl || 'Soporte documental registrado'}
                           </p>
-                          {aprobadoVigente.evidenciaTamano && (
-                            <p className="text-xs text-[#5b5f66]">
-                              {formatearTamanoArchivo(aprobadoVigente.evidenciaTamano)}
-                            </p>
-                          )}
                         </div>
                       </div>
 
