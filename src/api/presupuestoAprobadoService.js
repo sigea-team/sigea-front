@@ -1,66 +1,87 @@
 /**
  * @file presupuestoAprobadoService.js
- * @description Cliente de la API para el registro y actualización del presupuesto aprobado
+ * @description Cliente de la API para el registro, actualización y consulta del presupuesto aprobado
  * formalmente para un evento (HU-08: RF07).
- * Usa el httpClient compartido con token JWT.
- * Base: /api/v1/eventos/{eventoId}/presupuesto-aprobado
+ * Conecta con el backend Spring Boot: PresupuestoAprobadoController (/api/v1/eventos/{eventoId}/presupuesto-aprobado).
  * @module api/presupuestoAprobadoService
  */
 
 import { httpClient } from './httpClient';
 
 /**
- * Consulta la versión oficial vigente del presupuesto aprobado de un evento y su resumen preliminar.
- * Endpoint: GET /api/v1/eventos/{eventoId}/presupuesto-aprobado
+ * Consulta el resumen presupuestal comparativo del evento:
+ * preliminar proyectado, versión oficial vigente (si existe) e historial de versiones.
+ * Endpoint: GET /api/v1/eventos/{eventoId}/presupuesto-aprobado/resumen
  *
  * @param {number} eventoId
  * @returns {Promise<{
+ *   eventoId: number,
+ *   eventoNombre: string,
  *   tienePreliminar: boolean,
  *   totalPreliminar: number,
+ *   cantidadRubrosPreliminares: number,
  *   aprobadoVigente: Object|null,
  *   versiones: Array<Object>,
  *   editable: boolean
  * }>}
  */
 export async function consultarPresupuestoAprobado(eventoId) {
-  const { data } = await httpClient.get(`/eventos/${eventoId}/presupuesto-aprobado`);
-  return data;
+  const { data } = await httpClient.get(`/eventos/${eventoId}/presupuesto-aprobado/resumen`);
+  const totalPreliminar = Number(data.totalPreliminarProyectado || 0);
+  const cantidadRubros = Number(data.cantidadRubrosPreliminares || 0);
+
+  return {
+    eventoId: data.eventoId,
+    eventoNombre: data.eventoNombre,
+    tienePreliminar: Boolean(totalPreliminar > 0 || cantidadRubros > 0),
+    totalPreliminar,
+    cantidadRubrosPreliminares: cantidadRubros,
+    aprobadoVigente: data.presupuestoOficial || null,
+    versiones: Array.isArray(data.historialVersiones) ? data.historialVersiones : [],
+    editable: true,
+  };
 }
 
 /**
- * Registra formalmente por primera vez el presupuesto aprobado del evento (Criterio 1).
- * Exige evidencia de aprobación (Criterio 3).
+ * Registra o actualiza el presupuesto aprobado formalmente para un evento (Criterios 1, 2 y 3).
+ * El backend maneja el guardado inicial (Criterio 1) y en caso de actualización pasa la
+ * versión previa a histórica y guarda la nueva como versión oficial (Criterio 2).
+ * Exige evidencia documental obligatoria (Criterio 3).
  * Endpoint: POST /api/v1/eventos/{eventoId}/presupuesto-aprobado
  *
  * @param {number} eventoId
- * @param {FormData|Object} payload
+ * @param {Object} payload
+ * @param {number} payload.valorTotalAprobado - Monto oficial aprobado
+ * @param {string} payload.evidenciaUrl - Enlace o nombre de la evidencia documental (máx. 255)
+ * @param {number} [payload.aprobadoPorId] - Opcional; si es nulo el backend lo infiere del token JWT
  * @returns {Promise<Object>} Registro del presupuesto aprobado guardado como versión oficial
  */
 export async function registrarPresupuestoAprobado(eventoId, payload) {
-  const esFormData = payload instanceof FormData;
-  const config = esFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined;
-  const { data } = await httpClient.post(`/eventos/${eventoId}/presupuesto-aprobado`, payload, config);
+  const requestBody = {
+    valorTotalAprobado: Number(payload.valorTotalAprobado),
+    evidenciaUrl: (payload.evidenciaUrl || payload.evidenciaNombre || '').trim(),
+    aprobadoPorId: payload.aprobadoPorId || null,
+  };
+
+  const { data } = await httpClient.post(`/eventos/${eventoId}/presupuesto-aprobado`, requestBody);
   return data;
 }
 
 /**
- * Registra una actualización del presupuesto aprobado, conservando la versión anterior
- * en el historial de cambios (Criterio 2).
- * Endpoint: PUT /api/v1/eventos/{eventoId}/presupuesto-aprobado
+ * Actualiza el presupuesto aprobado conservando la versión previa en el historial (Criterio 2).
+ * En el backend, registrarOActualizar gestiona la actualización mediante POST.
+ * Endpoint: POST /api/v1/eventos/{eventoId}/presupuesto-aprobado
  *
  * @param {number} eventoId
- * @param {FormData|Object} payload
- * @returns {Promise<Object>} Nueva versión oficial registrada con su historial actualizado
+ * @param {Object} payload
+ * @returns {Promise<Object>}
  */
 export async function actualizarPresupuestoAprobado(eventoId, payload) {
-  const esFormData = payload instanceof FormData;
-  const config = esFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined;
-  const { data } = await httpClient.put(`/eventos/${eventoId}/presupuesto-aprobado`, payload, config);
-  return data;
+  return registrarPresupuestoAprobado(eventoId, payload);
 }
 
 /**
- * Obtiene el historial cronológico de todas las versiones del presupuesto aprobado del evento (Criterio 2).
+ * Obtiene el historial completo de versiones de presupuestos aprobados del evento (Criterio 2).
  * Endpoint: GET /api/v1/eventos/{eventoId}/presupuesto-aprobado/historial
  *
  * @param {number} eventoId
@@ -68,10 +89,10 @@ export async function actualizarPresupuestoAprobado(eventoId, payload) {
  */
 export async function consultarHistorialPresupuestoAprobado(eventoId) {
   const { data } = await httpClient.get(`/eventos/${eventoId}/presupuesto-aprobado/historial`);
-  return data;
+  return Array.isArray(data) ? data : [];
 }
 
-/** Cliente agrupado para inyección de dependencias o Storybook */
+/** Cliente de la API para inyección o pruebas */
 export const presupuestoAprobadoService = {
   consultarPresupuestoAprobado,
   registrarPresupuestoAprobado,

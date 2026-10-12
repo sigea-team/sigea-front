@@ -41,8 +41,9 @@ export default function PresupuestoAprobadoForm({
     valorTotalAprobado: aprobadoVigente ? String(aprobadoVigente.valorTotalAprobado) : '',
     resolucionOActa: aprobadoVigente?.resolucionOActa || '',
     justificacion: '',
+    evidenciaUrl: aprobadoVigente?.evidenciaUrl || '',
     evidencia: null,
-    evidenciaNombre: '',
+    evidenciaNombre: aprobadoVigente?.evidenciaUrl || '',
     evidenciaTamano: 0,
   });
 
@@ -76,6 +77,7 @@ export default function PresupuestoAprobadoForm({
       ...prev,
       evidencia: archivo,
       evidenciaNombre: archivo.name,
+      evidenciaUrl: prev.evidenciaUrl || `https://archivos.ufps.edu.co/soporte/${archivo.name}`,
       evidenciaTamano: archivo.size,
     }));
     if (errores.evidencia) {
@@ -92,6 +94,7 @@ export default function PresupuestoAprobadoForm({
       ...prev,
       evidencia: null,
       evidenciaNombre: '',
+      evidenciaUrl: '',
       evidenciaTamano: 0,
     }));
     if (fileInputRef.current) {
@@ -118,7 +121,6 @@ export default function PresupuestoAprobadoForm({
 
     if (Object.keys(erroresValidacion).length > 0) {
       setErrores(erroresValidacion);
-      // Enfocar o desplazarse al error
       return;
     }
 
@@ -126,9 +128,9 @@ export default function PresupuestoAprobadoForm({
       setEnviando(true);
       const montoNumero = leerNumero(form.valorTotalAprobado);
 
-      // Si hay archivo, construimos FormData para soporte de subida
       const payload = {
         valorTotalAprobado: montoNumero,
+        evidenciaUrl: (form.evidenciaUrl || form.evidenciaNombre || '').trim(),
         resolucionOActa: form.resolucionOActa.trim(),
         justificacion: form.justificacion.trim(),
         evidencia: form.evidencia,
@@ -313,6 +315,19 @@ export default function PresupuestoAprobadoForm({
             </button>
           </div>
         )}
+
+        {/* Opción de URL directa para la evidencia */}
+        <div className="pt-1.5">
+          <Input
+            id="evidencia-url-input"
+            label="O especifica la URL / enlace institucional del soporte"
+            value={form.evidenciaUrl}
+            onChange={(e) => handleChange('evidenciaUrl', e.target.value)}
+            placeholder="https://archivos.ufps.edu.co/presupuestos/acta-2026.pdf"
+            helperText="Enlace al repositorio institucional (máx. 255 caracteres)"
+            disabled={deshabilitado || enviando}
+          />
+        </div>
 
         {/* Mensaje de error para Criterio 3: Soporte exigido */}
         {errores.evidencia && (

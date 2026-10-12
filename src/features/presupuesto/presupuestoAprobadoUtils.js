@@ -57,13 +57,16 @@ export function validarPresupuestoAprobado(form, { esActualizacion = false, cons
   }
 
   // 2. Criterio 3: Evidencia de aprobación OBLIGATORIA
+  const evidenciaTexto = (form.evidenciaUrl || form.evidenciaNombre || '').trim();
   const tieneEvidencia = Boolean(
     form.evidencia ||
     (conservarEvidenciaPrevia && form.evidenciaUrlPrevia) ||
-    form.evidenciaNombre
+    evidenciaTexto
   );
   if (!tieneEvidencia) {
     errores.evidencia = MENSAJES_PRESUPUESTO_APROBADO.evidenciaObligatoria;
+  } else if (evidenciaTexto.length > (LIMITES_PRESUPUESTO_APROBADO.evidenciaUrl || 255)) {
+    errores.evidencia = 'La URL o soporte documental no puede superar los 255 caracteres.';
   }
 
   // 3. Criterio 2: Motivo o justificación al actualizar

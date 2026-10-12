@@ -170,7 +170,7 @@ export default function PresupuestoAprobadoModal({
             </div>
             <p className="text-xs text-[#5b5f66]">
               {aprobadoVigente
-                ? `Aprobado por ${aprobadoVigente.aprobadoPor?.nombreCompleto || 'Administración'} el ${formatearFechaHora(aprobadoVigente.fechaAprobacion)}`
+                ? `Aprobado ${aprobadoVigente.aprobadoPorNombre ? `por ${aprobadoVigente.aprobadoPorNombre}` : aprobadoVigente.aprobadoPor?.nombreCompleto ? `por ${aprobadoVigente.aprobadoPor.nombreCompleto}` : ''} el ${formatearFechaHora(aprobadoVigente.fechaAprobacion)}`
                 : 'Monto oficial que regirá la ejecución financiera del evento'}
             </p>
           </div>
@@ -308,7 +308,7 @@ export default function PresupuestoAprobadoModal({
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-lg text-[#1f2023]">
-                            Versión oficial vigente (v{aprobadoVigente.version})
+                            Versión oficial vigente {aprobadoVigente.version ? `(v${aprobadoVigente.version})` : ''}
                           </h3>
                           {aprobadoVigente.resolucionOActa && (
                             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-[6px] bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]">
@@ -318,7 +318,8 @@ export default function PresupuestoAprobadoModal({
                         </div>
                         <p className="text-xs text-[#5b5f66] mt-1">
                           Registrado el {formatearFechaHora(aprobadoVigente.fechaAprobacion)}
-                          {aprobadoVigente.aprobadoPor?.nombreCompleto && ` por ${aprobadoVigente.aprobadoPor.nombreCompleto}`}
+                          {(aprobadoVigente.aprobadoPorNombre || aprobadoVigente.aprobadoPor?.nombreCompleto) &&
+                            ` por ${aprobadoVigente.aprobadoPorNombre || aprobadoVigente.aprobadoPor?.nombreCompleto}`}
                         </p>
                       </div>
 
@@ -381,7 +382,7 @@ export default function PresupuestoAprobadoModal({
                             Evidencia documental oficial
                           </p>
                           <p className="text-sm font-semibold text-[#1f2023] truncate">
-                            {aprobadoVigente.evidenciaNombre || 'Soporte documental adjunto'}
+                            {aprobadoVigente.evidenciaNombre || aprobadoVigente.evidenciaUrl || 'Soporte documental adjunto'}
                           </p>
                           {aprobadoVigente.evidenciaTamano && (
                             <p className="text-xs text-[#5b5f66]">
