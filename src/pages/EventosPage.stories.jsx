@@ -4,6 +4,7 @@ import { crearApiTiposEventoMock, apiTiposEventoConError } from '../features/eve
 import { crearApiParametrosMock } from '../features/eventos/mocks/parametrosMock';
 import { crearComiteApiMock } from '../features/comite/mocks/comiteMock';
 import { crearPresupuestoApiMock } from '../features/presupuesto/mocks/presupuestoMock';
+import { crearPresupuestoAprobadoApiMock } from '../features/presupuesto/mocks/presupuestoAprobadoMock';
 
 export default {
   title: 'Pages/EventosPage',
@@ -25,6 +26,7 @@ export const FlujoCompleto = {
     apiParametros: crearApiParametrosMock(),
     apiComite: crearComiteApiMock(),
     apiPresupuesto: crearPresupuestoApiMock(),
+    apiPresupuestoAprobado: crearPresupuestoAprobadoApiMock(),
     usuarioProp: usuario 
   },
 };

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, Tags, Trash2, Users, Wallet } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -11,6 +11,7 @@ import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
 import { presupuestoService } from '../api/presupuestoService';
 import { tipoEventoService } from '../api/tipoEventoService';
+import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
@@ -20,6 +21,7 @@ import ParametrosEventoModal from '../features/eventos/components/ParametrosEven
 import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
+import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -57,7 +59,8 @@ const ALERTA_EXITO = {
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
  * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
- * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto (HU-07); Storybook inyecta una versión simulada.
+ * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto preliminar (HU-07); Storybook inyecta una versión simulada.
+ * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
@@ -68,6 +71,7 @@ export default function EventosPage({
   apiComite = comiteService,
   apiPresupuesto = presupuestoService,
   apiTiposEvento = tipoEventoService,
+  apiPresupuestoAprobado = presupuestoAprobadoService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -410,6 +414,11 @@ export default function EventosPage({
                             onClick={() => setModal({ tipo: 'presupuesto', evento })}
                           />
                           <BotonAccion
+                            icono={ShieldCheck}
+                            etiqueta="Presupuesto aprobado formalmente"
+                            onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
+                          />
+                          <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
                             onClick={() => setModal({ tipo: 'historial', evento })}
@@ -506,6 +515,19 @@ export default function EventosPage({
           evento={modal.evento}
           api={apiPresupuesto}
           onClose={cerrarModal}
+          onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
+        />
+      )}
+
+      {modal?.tipo === 'presupuestoAprobado' && (
+        <PresupuestoAprobadoModal
+          key={`aprobado-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiPresupuestoAprobado}
+          onClose={cerrarModal}
+          onAbrirPreliminar={() => setModal({ tipo: 'presupuesto', evento: modal.evento })}
+          onPresupuestoActualizado={recargar}
         />
       )}
 
