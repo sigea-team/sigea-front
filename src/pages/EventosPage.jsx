@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, ShieldCheck, Tags, Trash2, Users, Wallet } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -10,6 +10,7 @@ import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
 import { presupuestoService } from '../api/presupuestoService';
+import { tipoEventoService } from '../api/tipoEventoService';
 import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
@@ -17,6 +18,7 @@ import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal'
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
+import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
@@ -59,6 +61,7 @@ const ALERTA_EXITO = {
  * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto preliminar (HU-07); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
+ * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
@@ -67,6 +70,7 @@ export default function EventosPage({
   apiParametros = parametroEventoService,
   apiComite = comiteService,
   apiPresupuesto = presupuestoService,
+  apiTiposEvento = tipoEventoService,
   apiPresupuestoAprobado = presupuestoAprobadoService,
   usuarioProp,
   onSelectNav,
@@ -82,6 +86,37 @@ export default function EventosPage({
 
   // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto', evento }
   const [modal, setModal] = useState(null);
+
+  // Catálogo de tipos de evento para el combobox del formulario (null mientras carga). La ventana de
+  // administración se abre aparte, encima del formulario, para no perder lo que el usuario escribió.
+  const [tiposEvento, setTiposEvento] = useState(null);
+  const [tiposAbierto, setTiposAbierto] = useState(false);
+
+  useEffect(() => {
+    let activo = true;
+    apiTiposEvento
+      .listar()
+      .then((data) => {
+        if (activo) setTiposEvento(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        // Sin catálogo el combobox queda vacío; el error de permisos o de conexión ya lo informa la carga de eventos.
+        if (activo) setTiposEvento([]);
+      });
+    return () => {
+      activo = false;
+    };
+  }, [apiTiposEvento]);
+
+  /** Al cerrar la administración de tipos se refresca el combobox y la tabla (un tipo pudo cambiar de nombre). */
+  const cerrarTipos = (lista) => {
+    setTiposAbierto(false);
+    if (Array.isArray(lista)) {
+      setTiposEvento(lista);
+      setCargando(true);
+      setVersion((v) => v + 1);
+    }
+  };
 
   useEffect(() => {
     let activo = true;
@@ -175,7 +210,7 @@ export default function EventosPage({
   const publicar = (evento) => {
     Swal.fire({
       title: '¿Publicar evento?',
-      text: `Al publicar «${evento.nombre}», su estado pasará a habilitado y quedará disponible para las siguientes fases del sistema.`,
+      text: `Al publicar «${evento.nombre}», su estado pasará a habilitado y quedará disponible para las siguientes fases del sistema. El día de inicio pasará automáticamente a «en ejecución».`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, publicar',
@@ -191,7 +226,13 @@ export default function EventosPage({
       if (result.isConfirmed) {
         try {
           const publicado = await api.publicarEvento(evento.id);
-          terminar('¡Evento publicado!', `«${publicado.nombre || evento.nombre}» ahora está habilitado.`);
+          const nombre = publicado.nombre || evento.nombre;
+          terminar(
+            '¡Evento publicado!',
+            publicado.estado === 'en_ejecucion'
+              ? `«${nombre}» ya está en ejecución, porque hoy está dentro de sus fechas.`
+              : `«${nombre}» ahora está habilitado. Pasará a «en ejecución» automáticamente el día de inicio.`
+          );
         } catch (err) {
           const { mensaje } = extraerError(err);
           Swal.fire({
@@ -227,10 +268,16 @@ export default function EventosPage({
               Crea los eventos del programa y reutiliza su configuración en cada nueva edición.
             </p>
           </div>
-          <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })} className="shrink-0">
-            <Plus className="w-4 h-4" />
-            <span>Crear evento</span>
-          </Button>
+          <div className="flex items-center gap-3 shrink-0">
+            <Button type="button" variant="outline" onClick={() => setTiposAbierto(true)}>
+              <Shapes className="w-4 h-4" />
+              <span>Tipos de evento</span>
+            </Button>
+            <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })}>
+              <Plus className="w-4 h-4" />
+              <span>Crear evento</span>
+            </Button>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -415,6 +462,8 @@ export default function EventosPage({
           evento={modal.evento}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
+          tiposEvento={tiposEvento}
+          onAdministrarTipos={() => setTiposAbierto(true)}
         />
       )}
 
@@ -492,6 +541,9 @@ export default function EventosPage({
           onConfirm={eliminar}
         />
       )}
+
+      {/* Se monta después del formulario para quedar encima si se abre desde él */}
+      {tiposAbierto && <TiposEventoModal key="tipos-evento" isOpen api={apiTiposEvento} onClose={cerrarTipos} />}
     </MainLayout>
   );
 }

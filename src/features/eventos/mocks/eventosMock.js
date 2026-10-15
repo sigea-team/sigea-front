@@ -5,6 +5,8 @@
  * @module features/eventos/mocks/eventosMock
  */
 
+import { TIPOS_EVENTO_MOCK, crearApiTiposEventoMock } from './tiposEventoMock';
+
 export const EVENTOS_MOCK = [
   {
     id: 4,
@@ -12,6 +14,7 @@ export const EVENTOS_MOCK = [
     objetivo: 'Socializar avances de los semilleros de investigación del programa.',
     descripcion: 'Jornada de ponencias cortas y paneles con egresados.',
     tipo: 'Seminario',
+    tipoEventoId: 2,
     modalidad: 'hibrida',
     fechaInicio: '2026-11-12',
     fechaFin: '2026-11-12',
@@ -26,6 +29,7 @@ export const EVENTOS_MOCK = [
     objetivo: 'Integrar a la comunidad académica alrededor de la investigación en computación.',
     descripcion: 'Conferencias, talleres y ponencias evaluadas por el comité técnico.',
     tipo: 'Congreso',
+    tipoEventoId: 1,
     modalidad: 'presencial',
     fechaInicio: '2026-10-20',
     fechaFin: '2026-10-22',
@@ -40,6 +44,7 @@ export const EVENTOS_MOCK = [
     objetivo: 'Integrar a la comunidad académica alrededor de la investigación en computación.',
     descripcion: 'Conferencias, talleres y ponencias evaluadas por el comité técnico.',
     tipo: 'Congreso',
+    tipoEventoId: 1,
     modalidad: 'presencial',
     fechaInicio: '2025-10-21',
     fechaFin: '2025-10-23',
@@ -54,6 +59,7 @@ export const EVENTOS_MOCK = [
     objetivo: 'Integrar a la comunidad académica alrededor de la investigación en computación.',
     descripcion: 'Primera edición del congreso organizada por el programa.',
     tipo: 'Congreso',
+    tipoEventoId: 1,
     modalidad: 'presencial',
     fechaInicio: '2024-10-15',
     fechaFin: '2024-10-16',
@@ -82,11 +88,20 @@ function raizDe(eventos, evento) {
   return evento.eventoBaseId ? eventos.find((e) => e.id === evento.eventoBaseId) : evento;
 }
 
+/** Fecha de hoy "AAAA-MM-DD" en la hora local del navegador, para imitar el cambio de estado por fechas. */
+function hoyIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const nombreTipoPorDefecto = (id) => TIPOS_EVENTO_MOCK.find((t) => t.id === Number(id))?.nombre ?? null;
+
 /**
  * Crea una API simulada con estado en memoria y las mismas reglas del backend.
  * @param {Array<Object>} [datosIniciales=EVENTOS_MOCK]
+ * @param {{ nombreTipo?: function(number): string|null }} [opciones] - Resuelve el nombre del tipo de evento por ID.
  */
-export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
+export function crearApiMock(datosIniciales = EVENTOS_MOCK, { nombreTipo = nombreTipoPorDefecto } = {}) {
   let eventos = datosIniciales.map((e) => ({ ...e }));
   let siguienteId = Math.max(0, ...eventos.map((e) => e.id)) + 1;
 
@@ -113,6 +128,7 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       await esperar();
       const nuevo = {
         ...datos,
+        tipo: nombreTipo(datos.tipoEventoId),
         id: siguienteId++,
         semestre: datos.semestre || semestreDe(datos.fechaInicio),
         estado: 'en_configuracion',
@@ -137,7 +153,7 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
           codigo: 'OPERACION_NO_PERMITIDA',
         });
       }
-      Object.assign(evento, datos, { semestre });
+      Object.assign(evento, datos, { semestre, tipo: nombreTipo(datos.tipoEventoId) });
       return { ...evento };
     },
 
@@ -157,6 +173,7 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
         objetivo: origen.objetivo,
         descripcion: origen.descripcion,
         tipo: origen.tipo,
+        tipoEventoId: origen.tipoEventoId,
         modalidad: origen.modalidad,
         fechaInicio: datos.fechaInicio,
         fechaFin: datos.fechaFin,
@@ -188,7 +205,14 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       if (evento.estado !== 'en_configuracion') {
         throw errorApi(409, `Solo se pueden publicar eventos en configuración. El estado actual es ${evento.estado}.`);
       }
-      evento.estado = 'habilitado';
+      // Igual que el backend: no se publica si ya terminó, y si hoy está dentro de sus fechas queda en ejecución.
+      const hoy = hoyIso();
+      if (evento.fechaFin < hoy) {
+        throw errorApi(409, `No es posible publicar '${evento.nombre}' porque su fecha de fin (${evento.fechaFin}) ya pasó.`, {
+          codigo: 'OPERACION_NO_PERMITIDA',
+        });
+      }
+      evento.estado = evento.fechaInicio <= hoy ? 'en_ejecucion' : 'habilitado';
       return { ...evento };
     },
 
@@ -204,7 +228,25 @@ export function crearApiMock(datosIniciales = EVENTOS_MOCK) {
       eventos = eventos.filter((e) => e.id !== evento.id);
       return { mensaje: 'Evento eliminado exitosamente.', eventoId: String(id) };
     },
+
+    /** Cuántos eventos usan un tipo (lo consulta la API simulada de tipos antes de eliminar). */
+    contarPorTipo(tipoEventoId) {
+      return eventos.filter((e) => e.tipoEventoId === Number(tipoEventoId)).length;
+    },
   };
+}
+
+/**
+ * Crea las API simuladas de eventos y de tipos de evento enlazadas entre sí: los eventos muestran el
+ * nombre actual de su tipo y un tipo en uso no se puede eliminar.
+ * @param {Array<Object>} [datosIniciales=EVENTOS_MOCK]
+ * @returns {{ api: ReturnType<typeof crearApiMock>, apiTipos: ReturnType<typeof crearApiTiposEventoMock> }}
+ */
+export function crearApisEnlazadas(datosIniciales = EVENTOS_MOCK) {
+  let api = null;
+  const apiTipos = crearApiTiposEventoMock({ contarUso: (id) => (api ? api.contarPorTipo(id) : 0) });
+  api = crearApiMock(datosIniciales, { nombreTipo: apiTipos.nombreDe });
+  return { api, apiTipos };
 }
 
 /** API simulada que siempre falla, para mostrar el estado de error en Storybook. */

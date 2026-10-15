@@ -49,6 +49,23 @@ export const CATALOGOS = {
     vacioTexto: 'Agrega las áreas de conocimiento en las que se recibirán propuestas.',
     reasignar: 'Reasigna esos registros a otra línea antes de eliminarla.',
   },
+  /**
+   * Catálogo global de tipos de evento (no pertenece a un evento). El límite de nombre coincide
+   * con TipoEventoRequest (50) en el backend.
+   */
+  tiposEvento: {
+    clave: 'tiposEvento',
+    titulo: 'Tipos de evento',
+    singular: 'tipo de evento',
+    maxNombre: 50,
+    ayuda: 'Cada evento se clasifica en uno de estos tipos. El catálogo es el mismo para todos los eventos.',
+    placeholderNombre: 'Congreso',
+    placeholderDescripcion: 'Evento de varios días con conferencias y ponencias evaluadas',
+    vacioTitulo: 'Todavía no hay tipos de evento',
+    vacioTexto: 'Agrega los tipos que se podrán elegir al crear un evento, por ejemplo Congreso, Seminario o Taller.',
+    reasignar: 'Asigna otro tipo a esos eventos antes de eliminarlo.',
+    duplicado: 'Ya existe un tipo de evento con ese nombre.',
+  },
 };
 
 /**
@@ -90,7 +107,9 @@ export function validarParametro(form, config, items, excluirId) {
   } else if (nombre.length > config.maxNombre) {
     errores.nombre = `El nombre no puede superar los ${config.maxNombre} caracteres.`;
   } else if (existeNombre(items, nombre, excluirId)) {
-    errores.nombre = `Ya existe ${config.clave === 'tipos' ? 'un tipo de actividad' : 'una línea temática'} con ese nombre en este evento.`;
+    errores.nombre =
+      config.duplicado ||
+      `Ya existe ${config.clave === 'tipos' ? 'un tipo de actividad' : 'una línea temática'} con ese nombre en este evento.`;
   }
   if ((form.descripcion || '').trim().length > MAX_DESCRIPCION) {
     errores.descripcion = `La descripción no puede superar los ${MAX_DESCRIPCION} caracteres.`;
@@ -108,11 +127,15 @@ export function aPeticion(form) {
 }
 
 /**
- * Describe el uso de un elemento, por ejemplo "3 actividades de la agenda y 2 propuestas".
- * @param {{actividades: number, propuestas: number}} uso
+ * Describe el uso de un elemento, por ejemplo "3 actividades de la agenda y 2 propuestas",
+ * o "4 eventos" para un tipo de evento.
+ * @param {{actividades?: number, propuestas?: number, eventos?: number}} uso
  */
 export function describirUso(uso) {
   const partes = [];
+  if (uso?.eventos > 0) {
+    partes.push(`${uso.eventos} ${uso.eventos === 1 ? 'evento' : 'eventos'}`);
+  }
   if (uso?.actividades > 0) {
     partes.push(`${uso.actividades} ${uso.actividades === 1 ? 'actividad' : 'actividades'} de la agenda`);
   }
