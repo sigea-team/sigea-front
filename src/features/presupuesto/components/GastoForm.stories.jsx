@@ -15,7 +15,7 @@ const RUBROS = [
 
 const esperar = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Criterio 1: elige el rubro, escribe el valor y registra. Prueba un valor mayor al disponible: solo se informa. */
+/** Criterio 1: elige el rubro, escribe el valor y registra. Criterio 2: prueba un valor mayor al disponible; se advierte y se puede registrar. */
 export const Registro = {
   args: {
     rubros: RUBROS,

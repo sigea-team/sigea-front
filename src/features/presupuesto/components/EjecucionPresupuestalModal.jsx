@@ -18,7 +18,7 @@ import GastosTabla from './GastosTabla';
  * @description Gastos ejecutados y ejecución presupuestal de un evento (HU-09: RF11 + RF12).
  * - Criterio 1: registra un gasto contra un rubro y muestra el acumulado del rubro y el porcentaje
  *   de ejecución del evento recalculados (ejecutado / presupuesto aprobado).
- * - Un gasto que supera el disponible del rubro se registra igual; se informa y el rubro queda «Excedido».
+ * - Criterio 2: un gasto que supera el disponible del rubro se registra igual; se advierte y el rubro queda «Excedido».
  * - Criterio 3: sin valor o con valor negativo se rechaza; el valor 0 se acepta y el soporte es opcional.
  * - Criterio 4: sin gastos la ejecución se muestra en 0 % sin error.
  * Requiere un presupuesto aprobado (HU-08); con el evento cerrado queda en solo lectura.

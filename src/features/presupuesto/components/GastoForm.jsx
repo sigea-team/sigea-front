@@ -16,8 +16,8 @@ import {
 /**
  * @file GastoForm.jsx
  * @description Formulario para registrar un gasto ejecutado contra un rubro (HU-09: RF11, Criterio 1).
- * - Muestra mientras se escribe cuánto le queda al rubro elegido. Si el gasto lo supera, solo lo
- *   informa: el gasto se puede registrar igual.
+ * - Criterio 2: muestra mientras se escribe cuánto le queda al rubro elegido. Si el gasto lo supera, lo
+ *   advierte: el gasto se puede registrar igual.
  * - Criterio 3: sin valor o con valor negativo se marca en su campo antes de enviar; si el backend
  *   igual lo rechaza (400), su mensaje se muestra en el mismo campo. El valor 0 se acepta y el
  *   soporte es opcional (puede ser un enlace o una referencia en texto).

@@ -34,7 +34,7 @@ export async function consultarEjecucion(eventoId) {
 
 /**
  * Registra un gasto contra un rubro y devuelve el acumulado del rubro y el % del evento recalculados
- * (Criterio 1). Un gasto que supera el disponible del rubro se registra igual y la respuesta lo indica.
+ * (Criterio 1). Un gasto que supera el disponible del rubro se registra igual y la respuesta lo advierte (Criterio 2).
  * Sin valor o con valor negativo → 400 con erroresValidacion (Criterio 3).
  * Endpoint: POST /api/v1/eventos/{eventoId}/ejecucion-presupuestal/gastos
  * @param {number} eventoId

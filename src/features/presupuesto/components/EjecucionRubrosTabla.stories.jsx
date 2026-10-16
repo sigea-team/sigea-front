@@ -14,7 +14,7 @@ const RUBROS = [
   { rubroId: 5, nombre: 'Auditorio institucional', presupuestado: 0, ejecutado: 0, disponible: 0, porcentajeEjecucion: 0, excedido: false, cantidadGastos: 0 },
 ];
 
-/** Criterio 1: acumulado, disponible y % por rubro. «Transporte» se pasó de lo presupuestado. */
+/** Criterio 1: acumulado, disponible y % por rubro. Criterio 2: «Transporte» se pasó de lo presupuestado y queda «Excedido». */
 export const ConGastos = {
   args: {
     rubros: RUBROS,
