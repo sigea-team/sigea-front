@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, Users, Wallet } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -12,6 +12,7 @@ import { comiteService } from '../api/comiteService';
 import { presupuestoService } from '../api/presupuestoService';
 import { tipoEventoService } from '../api/tipoEventoService';
 import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
+import { ejecucionPresupuestalService } from '../api/ejecucionPresupuestalService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
@@ -22,6 +23,7 @@ import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
+import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -39,6 +41,7 @@ import {
  * Desde cada fila también se abren los tipos de actividad y las líneas temáticas del evento (HU-05).
  * Desde cada fila también se abre el comité organizador del evento (HU-06).
  * Desde cada fila también se abre el presupuesto preliminar del evento (HU-07).
+ * Desde cada fila también se abren los gastos y la ejecución presupuestal del evento (HU-09).
  * @module pages/EventosPage
  */
 
@@ -61,6 +64,7 @@ const ALERTA_EXITO = {
  * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto preliminar (HU-07); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
+ * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
@@ -72,6 +76,7 @@ export default function EventosPage({
   apiPresupuesto = presupuestoService,
   apiTiposEvento = tipoEventoService,
   apiPresupuestoAprobado = presupuestoAprobadoService,
+  apiEjecucion = ejecucionPresupuestalService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -84,7 +89,7 @@ export default function EventosPage({
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto'|'presupuestoAprobado'|'ejecucion', evento }
   const [modal, setModal] = useState(null);
 
   // Catálogo de tipos de evento para el combobox del formulario (null mientras carga). La ventana de
@@ -419,6 +424,11 @@ export default function EventosPage({
                             onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
                           />
                           <BotonAccion
+                            icono={TrendingUp}
+                            etiqueta="Gastos y ejecución presupuestal"
+                            onClick={() => setModal({ tipo: 'ejecucion', evento })}
+                          />
+                          <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
                             onClick={() => setModal({ tipo: 'historial', evento })}
@@ -528,6 +538,17 @@ export default function EventosPage({
           onClose={cerrarModal}
           onAbrirPreliminar={() => setModal({ tipo: 'presupuesto', evento: modal.evento })}
           onPresupuestoActualizado={recargar}
+        />
+      )}
+
+      {modal?.tipo === 'ejecucion' && (
+        <EjecucionPresupuestalModal
+          key={`ejecucion-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiEjecucion}
+          onClose={cerrarModal}
+          onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
         />
       )}
 
