@@ -26,6 +26,7 @@ import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
 import { rutaSegunRoles } from '../../../store/authStore';
 import AvisoBloqueo from './AvisoBloqueo';
+import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
@@ -113,20 +114,26 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente'
+
+  const handleSubmit = async (e, modoForzado) => {
+    if (e && e.preventDefault) e.preventDefault();
     setGeneralError(null);
     setCorreoPendienteVerificar(null);
 
     if (bloqueo || !validate()) return;
 
+    const modoFinal = modoForzado || modoAcceso;
     setLoading(true);
     try {
-      // Criterio 1: credenciales correctas -> guarda la sesión y redirige al panel según el rol.
-      const sesion = await login({
-        correo: formData.correo.trim().toLowerCase(),
-        contrasena: formData.contrasena,
-      });
+      // Criterio 1: credenciales correctas -> guarda la sesión con el modo seleccionado
+      const sesion = await login(
+        {
+          correo: formData.correo.trim().toLowerCase(),
+          contrasena: formData.contrasena,
+        },
+        modoFinal.toUpperCase()
+      );
       navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
       // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
@@ -304,7 +311,7 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            Ingresar a SIGEA
+            {modoAcceso === 'ponente' ? 'Ingresar como Ponente' : 'Ingresar a SIGEA'}
           </Button>
         </div>
 
@@ -323,6 +330,12 @@ export default function LoginForm() {
             Ver convocatorias abiertas
           </Link>
         </div>
+        {/* Barra de acceso por perfil institucional inspirada en DIVISIST 2.0 (UFPS) */}
+        <SelectorPerfilAcceso
+          modoAcceso={modoAcceso}
+          onChangeModo={setModoAcceso}
+          disabled={loading}
+        />
       </form>
     </div>
   );
