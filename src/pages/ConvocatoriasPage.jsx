@@ -66,11 +66,20 @@ export default function ConvocatoriasPage({
   // Modal de propuesta de ponencia (HU Registro de autores y ponentes)
   const [modalPropuesta, setModalPropuesta] = useState(null);
 
+  const auth = useAuth();
+  const usuarioActual = usuarioProp || auth?.usuario;
+  const isAdmin = esAdministrador(usuarioActual);
+
   useEffect(() => {
     let activo = true;
     setCargando(true);
 
-    Promise.all([api.listarConvocatorias(), apiEventos.listarEventos().catch(() => [])])
+    const peticiones = [
+      api.listarConvocatorias(isAdmin),
+      isAdmin ? apiEventos.listarEventos().catch(() => []) : Promise.resolve([]),
+    ];
+
+    Promise.all(peticiones)
       .then(([listaConvocatorias, listaEventos]) => {
         if (!activo) return;
         setConvocatorias(Array.isArray(listaConvocatorias) ? listaConvocatorias : []);
@@ -242,10 +251,6 @@ export default function ConvocatoriasPage({
     // Abre el modal para registrar datos de autor/ponente y enviar la propuesta
     setModalPropuesta(convocatoria);
   };
-
-  const auth = useAuth();
-  const usuarioActual = usuarioProp || auth?.usuario;
-  const isAdmin = esAdministrador(usuarioActual);
 
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 

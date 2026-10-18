@@ -65,11 +65,16 @@ function guardarMock(lista) {
 
 /**
  * Lista todas las convocatorias registradas.
- * Si el backend responde 403 (sin permisos de administración) o no está disponible,
- * recurre al catálogo local/mock para que los ponentes puedan ver convocatorias y enviar propuestas.
+ * Si el usuario no es administrador o el backend responde 403 / error,
+ * recurre al catálogo local para que los ponentes puedan ver convocatorias y enviar propuestas.
+ * @param {boolean} [esAdmin=true]
  * @returns {Promise<Array<Object>>}
  */
-export async function listarConvocatorias() {
+export async function listarConvocatorias(esAdmin = true) {
+  if (!esAdmin) {
+    return cargarMock();
+  }
+
   try {
     const { data } = await httpClient.get('/convocatorias');
     if (Array.isArray(data) && data.length > 0) {
