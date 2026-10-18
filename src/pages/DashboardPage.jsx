@@ -8,6 +8,7 @@
 import MainLayout from '../components/ui/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { useAuthStore } from '../store/authStore';
+import BannerModoPonente from '../features/convocatorias/components/BannerModoPonente';
 
 export default function DashboardPage() {
   const { usuario: contextUser } = useAuth();
@@ -18,6 +19,11 @@ export default function DashboardPage() {
   const email = usuario?.email || usuario?.correo || 'No especificado';
   const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles.join(', ') : 'No especificado');
   const afiliacion = typeof usuario?.afiliacion === 'object' ? usuario.afiliacion?.nombreAfiliacion : usuario?.afiliacion;
+
+  const esPonente =
+    usuario?.modoIngreso === 'PONENTE' ||
+    usuario?.roles?.includes('PONENTE') ||
+    usuario?.roles?.includes('AUTOR');
 
   return (
     <MainLayout title="Dashboard Principal" activeNav="dashboard">
@@ -33,6 +39,9 @@ export default function DashboardPage() {
             Sistema Integral de Gestión de Eventos Académicos (SIGEA) — UFPS Cúcuta.
           </p>
         </div>
+
+        {/* Banner destacado para modo Ponente */}
+        {esPonente && <BannerModoPonente enlaceConvocatorias="#/convocatorias" />}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
@@ -53,7 +62,8 @@ export default function DashboardPage() {
           <h3 className="font-semibold text-[#1f2023] text-base mb-2">Información de la Sesión Actual</h3>
           <p><strong className="text-[#1f2023]">Nombre Completo:</strong> {nombreCompleto}</p>
           <p><strong className="text-[#1f2023]">Correo Electrónico:</strong> {email}</p>
-          <p><strong className="text-[#1f2023]">Rol:</strong> {rol}</p>
+          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esPonente ? 'Ponente / Autor de Convocatorias' : 'Asistente General'}</p>
+          <p><strong className="text-[#1f2023]">Rol del Sistema:</strong> {rol}</p>
           {afiliacion && <p><strong className="text-[#1f2023]">Afiliación Institucional:</strong> {afiliacion}</p>}
         </div>
       </div>

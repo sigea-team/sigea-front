@@ -85,8 +85,24 @@ export default function Sidebar({
 
   // Misma regla que AdminRoute: el menú y las rutas deciden igual quién es administrador.
   const isAdmin = esAdministrador(usuario);
+  const esPonente =
+    usuario?.modoIngreso === 'PONENTE' ||
+    usuario?.roles?.includes('PONENTE') ||
+    usuario?.roles?.includes('AUTOR');
 
-  const navItems = [...DEFAULT_NAV_ITEMS];
+  // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
+  const navItems = DEFAULT_NAV_ITEMS.filter((item) => {
+    if (item.id === 'convocatorias') {
+      return isAdmin || esPonente;
+    }
+    return true;
+  }).map((item) => {
+    if (item.id === 'convocatorias' && esPonente && !isAdmin) {
+      return { ...item, label: 'Convocatorias Abiertas' };
+    }
+    return item;
+  });
+
   if (isAdmin) {
     const configIndex = navItems.findIndex((item) => item.id === 'configuracion');
     if (configIndex !== -1) {
@@ -146,7 +162,25 @@ export default function Sidebar({
 
       {/* Perfil de Usuario y Cerrar Sesión (Pie del Sidebar) */}
       <div className="p-4 border-t border-[#e5e7ea] bg-[#f7f7f8]/50 shrink-0 space-y-3">
-        
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center font-bold text-xs shrink-0">
+            {nombreCompleto.charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-[#1f2023] truncate">{nombreCompleto}</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`inline-block text-[10px] font-semibold px-1.5 py-0.2 rounded ${
+                isAdmin
+                  ? 'bg-[#1f2023] text-white'
+                  : esPonente
+                  ? 'bg-[#fdecec] text-[#a6192e]'
+                  : 'bg-[#e5e7ea] text-[#5b5f66]'
+              }`}>
+                {isAdmin ? 'Admin' : esPonente ? 'Ponente' : 'Asistente'}
+              </span>
+            </div>
+          </div>
+        </div>
 
         <button
           type="button"

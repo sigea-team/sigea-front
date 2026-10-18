@@ -14,8 +14,13 @@ import { httpClient } from './httpClient';
  * @returns {Promise<Array<Object>>}
  */
 export async function listarEventos() {
-  const { data } = await httpClient.get('/eventos');
-  return data;
+  try {
+    const { data } = await httpClient.get('/eventos');
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('[eventoService] No se pudieron listar eventos por restricción de permisos del backend:', err?.response?.status || err?.message);
+    return [];
+  }
 }
 
 /**

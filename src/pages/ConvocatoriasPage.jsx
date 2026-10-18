@@ -9,7 +9,10 @@ import { convocatoriaService } from '../api/convocatoriaService';
 import { eventoService } from '../api/eventoService';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
-import { formatearFechaHora, puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
+import PropuestaFormModal from '../features/propuestas/components/PropuestaFormModal';
+import { puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
+import { useAuth } from '../context/AuthContext';
+import { esAdministrador } from '../utils/permisos';
 
 /**
  * @file ConvocatoriasPage.jsx
@@ -60,12 +63,23 @@ export default function ConvocatoriasPage({
 
   // Modal: { tipo: 'crear' | 'editar', convocatoria }
   const [modal, setModal] = useState(null);
+  // Modal de propuesta de ponencia (HU Registro de autores y ponentes)
+  const [modalPropuesta, setModalPropuesta] = useState(null);
+
+  const auth = useAuth();
+  const usuarioActual = usuarioProp || auth?.usuario;
+  const isAdmin = esAdministrador(usuarioActual);
 
   useEffect(() => {
     let activo = true;
     setCargando(true);
 
-    Promise.all([api.listarConvocatorias(), apiEventos.listarEventos().catch(() => [])])
+    const peticiones = [
+      api.listarConvocatorias(isAdmin),
+      isAdmin ? apiEventos.listarEventos().catch(() => []) : Promise.resolve([]),
+    ];
+
+    Promise.all(peticiones)
       .then(([listaConvocatorias, listaEventos]) => {
         if (!activo) return;
         setConvocatorias(Array.isArray(listaConvocatorias) ? listaConvocatorias : []);
@@ -216,7 +230,7 @@ export default function ConvocatoriasPage({
     });
   };
 
-  // Criterio 4: Verificación de intento de envío de propuesta
+  // Criterio 4: Verificación de intento de envío de propuesta y apertura del formulario de propuesta
   const intentarEnviarPropuesta = (convocatoria) => {
     const validacion = puedeEnviarPropuesta(convocatoria);
     if (!validacion.permitido) {
@@ -234,24 +248,15 @@ export default function ConvocatoriasPage({
       return;
     }
 
-    Swal.fire({
-      icon: 'info',
-      title: 'Formulario de envío de propuesta',
-      text: `El periodo de recepción está activo hasta el ${formatearFechaHora(convocatoria.fechaCierre)}.`,
-      confirmButtonText: 'Continuar al formulario',
-      confirmButtonColor: '#a6192e',
-      customClass: {
-        popup: 'rounded-[16px]',
-        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-      },
-    });
+    // Abre el modal para registrar datos de autor/ponente y enviar la propuesta
+    setModalPropuesta(convocatoria);
   };
 
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
     <MainLayout
-      title="Gestión de convocatorias"
+      title={isAdmin ? 'Gestión de convocatorias' : 'Convocatorias abiertas'}
       activeNav="convocatorias"
       onSelectNav={onSelectNav}
       usuario={usuarioProp}
@@ -262,25 +267,28 @@ export default function ConvocatoriasPage({
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" />
-              SIGEA — Convocatorias y recepción de propuestas
+              SIGEA — {isAdmin ? 'Gestión y recepción de propuestas' : 'Convocatorias vigentes para ponencias'}
             </span>
             <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
-              Convocatorias académicas
+              {isAdmin ? 'Convocatorias académicas' : 'Convocatorias abiertas'}
             </h2>
             <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
-              Configura las fechas de apertura y cierre para la recepción de ponencias, pósters y artículos
-              asociados a cada evento.
+              {isAdmin
+                ? 'Configura las fechas de apertura y cierre para la recepción de ponencias, pósters y artículos asociados a cada evento.'
+                : 'Consulta las convocatorias activas para presentar ponencias. Haz clic en «Enviar propuesta» para registrar tus datos de autor y postularte.'}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => setModal({ tipo: 'crear', convocatoria: null })}
-            className="shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Crear convocatoria</span>
-          </Button>
+          {isAdmin && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setModal({ tipo: 'crear', convocatoria: null })}
+              className="shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Crear convocatoria</span>
+            </Button>
+          )}
         </div>
 
         {/* Filtros */}
@@ -339,7 +347,7 @@ export default function ConvocatoriasPage({
         />
       </div>
 
-      {/* Modal Crear / Editar */}
+      {/* Modal Crear / Editar Convocatoria */}
       {modal && (
         <ConvocatoriaFormModal
           key={`modal-convocatoria-${modal.convocatoria?.id || 'nueva'}`}
@@ -348,6 +356,19 @@ export default function ConvocatoriasPage({
           eventosDisponibles={eventosDisponibles}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
+        />
+      )}
+
+      {/* Modal Envío de Propuesta y Registro de Autores/Ponentes (HU-Propuestas) */}
+      {modalPropuesta && (
+        <PropuestaFormModal
+          key={`modal-propuesta-${modalPropuesta.id}`}
+          isOpen={Boolean(modalPropuesta)}
+          convocatoria={modalPropuesta}
+          onClose={() => setModalPropuesta(null)}
+          onPropuestaEnviada={() => {
+            recargar();
+          }}
         />
       )}
     </MainLayout>
