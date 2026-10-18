@@ -9,7 +9,8 @@ import { convocatoriaService } from '../api/convocatoriaService';
 import { eventoService } from '../api/eventoService';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
-import { formatearFechaHora, puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
+import PropuestaFormModal from '../features/propuestas/components/PropuestaFormModal';
+import { puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
 
 /**
  * @file ConvocatoriasPage.jsx
@@ -60,6 +61,8 @@ export default function ConvocatoriasPage({
 
   // Modal: { tipo: 'crear' | 'editar', convocatoria }
   const [modal, setModal] = useState(null);
+  // Modal de propuesta de ponencia (HU Registro de autores y ponentes)
+  const [modalPropuesta, setModalPropuesta] = useState(null);
 
   useEffect(() => {
     let activo = true;
@@ -216,7 +219,7 @@ export default function ConvocatoriasPage({
     });
   };
 
-  // Criterio 4: Verificación de intento de envío de propuesta
+  // Criterio 4: Verificación de intento de envío de propuesta y apertura del formulario de propuesta
   const intentarEnviarPropuesta = (convocatoria) => {
     const validacion = puedeEnviarPropuesta(convocatoria);
     if (!validacion.permitido) {
@@ -234,17 +237,8 @@ export default function ConvocatoriasPage({
       return;
     }
 
-    Swal.fire({
-      icon: 'info',
-      title: 'Formulario de envío de propuesta',
-      text: `El periodo de recepción está activo hasta el ${formatearFechaHora(convocatoria.fechaCierre)}.`,
-      confirmButtonText: 'Continuar al formulario',
-      confirmButtonColor: '#a6192e',
-      customClass: {
-        popup: 'rounded-[16px]',
-        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-      },
-    });
+    // Abre el modal para registrar datos de autor/ponente y enviar la propuesta
+    setModalPropuesta(convocatoria);
   };
 
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
@@ -339,7 +333,7 @@ export default function ConvocatoriasPage({
         />
       </div>
 
-      {/* Modal Crear / Editar */}
+      {/* Modal Crear / Editar Convocatoria */}
       {modal && (
         <ConvocatoriaFormModal
           key={`modal-convocatoria-${modal.convocatoria?.id || 'nueva'}`}
@@ -348,6 +342,19 @@ export default function ConvocatoriasPage({
           eventosDisponibles={eventosDisponibles}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
+        />
+      )}
+
+      {/* Modal Envío de Propuesta y Registro de Autores/Ponentes (HU-Propuestas) */}
+      {modalPropuesta && (
+        <PropuestaFormModal
+          key={`modal-propuesta-${modalPropuesta.id}`}
+          isOpen={Boolean(modalPropuesta)}
+          convocatoria={modalPropuesta}
+          onClose={() => setModalPropuesta(null)}
+          onPropuestaEnviada={() => {
+            recargar();
+          }}
         />
       )}
     </MainLayout>

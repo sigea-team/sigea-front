@@ -18,7 +18,7 @@
 
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Info } from 'lucide-react';
+import { Info, User, Rocket } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
@@ -113,20 +113,26 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente'
+
+  const handleSubmit = async (e, modoForzado) => {
+    if (e && e.preventDefault) e.preventDefault();
     setGeneralError(null);
     setCorreoPendienteVerificar(null);
 
     if (bloqueo || !validate()) return;
 
+    const modoFinal = modoForzado || modoAcceso;
     setLoading(true);
     try {
-      // Criterio 1: credenciales correctas -> guarda la sesión y redirige al panel según el rol.
-      const sesion = await login({
-        correo: formData.correo.trim().toLowerCase(),
-        contrasena: formData.contrasena,
-      });
+      // Criterio 1: credenciales correctas -> guarda la sesión con el modo seleccionado
+      const sesion = await login(
+        {
+          correo: formData.correo.trim().toLowerCase(),
+          contrasena: formData.contrasena,
+        },
+        modoFinal.toUpperCase()
+      );
       navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
       // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
@@ -304,7 +310,7 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            Ingresar a SIGEA
+            {modoAcceso === 'ponente' ? 'Ingresar como Ponente' : 'Ingresar a SIGEA'}
           </Button>
         </div>
 
@@ -315,6 +321,61 @@ export default function LoginForm() {
               Regístrate
             </Link>
           </p>
+        </div>
+
+        {/* Barra de acceso por perfil institucional inspirada en DIVISIST 2.0 (UFPS) */}
+        <div className="mt-8 pt-4 border-t-2 border-[#a6192e] -mx-8 sm:-mx-12 -mb-8 sm:-mb-12 bg-[#f7f7f8] rounded-b-[16px] px-6 py-4">
+          <p className="text-center text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider mb-2.5">
+            Selecciona tu perfil de ingreso
+          </p>
+          <div className="flex items-center justify-center gap-8">
+            <button
+              type="button"
+              onClick={() => setModoAcceso('asistente')}
+              title="Ingresar como Asistente"
+              className={`group flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] ${
+                modoAcceso === 'asistente'
+                  ? 'text-[#a6192e] bg-[#fdecec] font-bold'
+                  : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
+              }`}
+            >
+              <div
+                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
+                  modoAcceso === 'asistente'
+                    ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
+                    : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
+                }`}
+              >
+                <User className="w-5 h-5" />
+              </div>
+              <span className="text-xs">Asistente</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setModoAcceso('ponente')}
+              title="Ingresar como Ponente / Autor de propuestas"
+              className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] ${
+                modoAcceso === 'ponente'
+                  ? 'text-[#a6192e] bg-[#fdecec] font-bold'
+                  : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
+              }`}
+            >
+              <div
+                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
+                  modoAcceso === 'ponente'
+                    ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
+                    : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
+                }`}
+              >
+                <Rocket className="w-5 h-5" />
+              </div>
+              <span className="text-xs">Ponente</span>
+              <span className="absolute -top-1 right-0 px-1.5 py-0.2 bg-[#a6192e] text-white text-[9px] font-bold rounded-full shadow-xs">
+                PROPUESTAS
+              </span>
+            </button>
+          </div>
         </div>
       </form>
     </div>
