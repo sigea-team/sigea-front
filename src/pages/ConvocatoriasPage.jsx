@@ -243,9 +243,37 @@ export default function ConvocatoriasPage({
     });
   };
 
+  /**
+   * Códigos con los que el backend rechaza el cambio porque la convocatoria ya no se puede modificar
+   * (expiró o dejó de estar publicada mientras el modal estaba abierto). Reintentar no sirve: se cierra
+   * el modal y se recarga la lista para mostrar el estado actual.
+   */
+  const CODIGOS_CONVOCATORIA_NO_MODIFICABLE = ['CONVOCATORIA_CERRADA', 'OPERACION_NO_PERMITIDA'];
+
   // HU-11, Criterio 2: modificar la fecha límite de una convocatoria publicada
   const modificarFechaCierre = async (nuevaFecha) => {
-    const resultado = await api.actualizarFechaCierre(modal.convocatoria.id, nuevaFecha);
+    let resultado;
+    try {
+      resultado = await api.actualizarFechaCierre(modal.convocatoria.id, nuevaFecha);
+    } catch (err) {
+      if (!CODIGOS_CONVOCATORIA_NO_MODIFICABLE.includes(err?.response?.data?.codigo)) {
+        throw err; // Otros errores (p. ej. fecha inválida) se muestran dentro del modal para corregirlos.
+      }
+      cerrarModal();
+      recargar();
+      Swal.fire({
+        icon: 'error',
+        title: 'La convocatoria ya no se puede modificar',
+        text: `${mensajeErrorApi(err, 'La convocatoria cambió de estado.')} La lista se actualizó con su estado actual.`,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#a6192e',
+        customClass: {
+          popup: 'rounded-[16px]',
+          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+        },
+      });
+      return;
+    }
     const titulo = resultado?.convocatoria?.titulo || modal.convocatoria.titulo;
     const nuevoCierre = resultado?.convocatoria?.fechaCierre || nuevaFecha;
     const notificados = Number(resultado?.usuariosNotificados) || 0;

@@ -12,6 +12,9 @@ import { estadoRecepcion, formatearFechaHora } from '../convocatoriaUtils';
  * @module features/convocatorias/components/ConvocatoriaPublicaCard
  */
 
+/** Fecha legible o un texto claro si el dato no viene en la respuesta. */
+const fechaOTexto = (fecha) => (fecha ? formatearFechaHora(fecha) : 'Sin fecha definida');
+
 const ESTILOS_RECEPCION = {
   abierta: {
     texto: 'Recibiendo propuestas',
@@ -69,12 +72,12 @@ export default function ConvocatoriaPublicaCard({ convocatoria, destacada = fals
         <p className="flex items-center gap-1.5">
           <CalendarDays className="w-3.5 h-3.5 text-[#5b5f66]" />
           <span className="text-[#5b5f66]">Apertura:</span>
-          <strong>{formatearFechaHora(convocatoria.fechaApertura)}</strong>
+          <strong>{fechaOTexto(convocatoria.fechaApertura)}</strong>
         </p>
         <p className="flex items-center gap-1.5">
           <CalendarDays className="w-3.5 h-3.5 text-[#a6192e]" />
           <span className="text-[#5b5f66]">Fecha límite:</span>
-          <strong>{formatearFechaHora(convocatoria.fechaCierre)}</strong>
+          <strong>{fechaOTexto(convocatoria.fechaCierre)}</strong>
         </p>
       </div>
 
