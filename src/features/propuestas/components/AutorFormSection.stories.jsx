@@ -20,7 +20,9 @@ export const ModoEdicion = {
   args: {
     autorEnEdicion: {
       id: 1,
-      nombreCompleto: 'Dra. María Fernández',
+      nombre: 'María',
+      apellidos: 'Fernández',
+      nombreCompleto: 'María Fernández',
       correo: 'maria.fernandez@ufps.edu.co',
       filiacion: 'Universidad Francisco de Paula Santander',
       rol: ROLES_AUTOR.AUTOR_PRINCIPAL,

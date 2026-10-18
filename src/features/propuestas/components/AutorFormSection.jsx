@@ -39,7 +39,10 @@ export default function AutorFormSection({
   autoresActuales = [],
 }) {
   const { usuario } = useAuth();
-  const [formData, setFormData] = useState(() => autorEnEdicion || AUTOR_VACIO);
+  const [formData, setFormData] = useState(() => ({
+    ...AUTOR_VACIO,
+    ...(autorEnEdicion || {}),
+  }));
   const [errores, setErrores] = useState({});
 
   const handleChange = (e) => {
@@ -83,6 +86,18 @@ export default function AutorFormSection({
 
     // Criterio 3: Rechaza la operación si faltan datos obligatorios y señala los campos
     const errs = validarAutor(formData);
+
+    // Evitar registrar duplicados de correo dentro de la misma propuesta
+    if (!errs.correo && formData.correo) {
+      const correoNormalizado = formData.correo.trim().toLowerCase();
+      const yaExiste = autoresActuales.some(
+        (a) => a.correo?.trim().toLowerCase() === correoNormalizado && a.id !== autorEnEdicion?.id
+      );
+      if (yaExiste) {
+        errs.correo = 'Ya existe un autor o ponente con este correo en la propuesta.';
+      }
+    }
+
     if (Object.keys(errs).length > 0) {
       setErrores(errs);
       return;
