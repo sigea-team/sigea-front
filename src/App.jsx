@@ -9,6 +9,7 @@ import RolesPage from './pages/RolesPage';
 import AuditoriaPage from './pages/AuditoriaPage';
 import EventosPage from './pages/EventosPage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
+import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 
@@ -23,6 +24,8 @@ function App() {
           <Route path="/recuperar-password" element={<ForgotPasswordPage />} />
           {/* HU-32: destino del enlace del correo (app.mail.reset-password-path del backend) */}
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* HU-11 (Criterio 1): convocatorias publicadas, visibles sin iniciar sesión */}
+          <Route path="/convocatorias-publicas" element={<ConvocatoriasPublicasPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />

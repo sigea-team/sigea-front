@@ -1,7 +1,8 @@
-import { Bell, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useAuth } from '../../context/AuthContext';
+import NotificacionesCampana from '../../features/notificaciones/components/NotificacionesCampana';
 
 /**
  * @file MainLayout.jsx
@@ -9,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
  * Divide la pantalla en un Sidebar fijo de 260px a la izquierda y un área principal a la derecha
  * con Topbar (64px), contenedor central `<main>` (padding 32px) con tarjeta blanca y Footer institucional.
  * Consume los datos del usuario autenticado del AuthContext o por props.
+ * La campana del Topbar muestra las notificaciones del usuario (HU-11).
  * @module components/ui/MainLayout
  */
 export default function MainLayout({
@@ -18,6 +20,7 @@ export default function MainLayout({
   onSelectNav,
   usuario: usuarioProp,
   onLogout: onLogoutProp,
+  apiNotificaciones,
 }) {
   const auth = useAuth();
   const usuario = usuarioProp || auth?.usuario;
@@ -54,15 +57,8 @@ export default function MainLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Botón de Notificaciones */}
-            <button
-              type="button"
-              className="p-2 rounded-full text-[#5b5f66] hover:bg-[#f7f7f8] hover:text-[#1f2023] transition-colors relative cursor-pointer"
-              title="Notificaciones"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#a6192e]"></span>
-            </button>
+            {/* Campana de Notificaciones (HU-11) */}
+            <NotificacionesCampana api={apiNotificaciones} />
 
             {/* Separador */}
             <div className="h-6 w-px bg-[#e5e7ea]"></div>

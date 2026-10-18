@@ -316,6 +316,13 @@ export default function LoginForm() {
             </Link>
           </p>
         </div>
+
+        {/* HU-11 (Criterio 1): acceso a las convocatorias publicadas sin iniciar sesión */}
+        <div className="text-center -mt-2">
+          <Link to="/convocatorias-publicas" className="text-xs font-semibold text-[#a6192e] hover:underline">
+            Ver convocatorias abiertas
+          </Link>
+        </div>
       </form>
     </div>
   );
