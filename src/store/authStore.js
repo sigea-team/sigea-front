@@ -24,6 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
+ * @property {'ASISTENTE'|'PONENTE'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  */
 
 /**

@@ -10,6 +10,24 @@ import { INFO_ROL_AUTOR, ROLES_AUTOR } from '../propuestaUtils';
  * @module features/propuestas/components/AutoresList
  */
 
+/**
+ * @typedef {Object} AutorPropuesta
+ * @property {string|number} id - Identificador único temporal o definitivo del autor.
+ * @property {string} nombreCompleto - Nombre completo del autor o ponente.
+ * @property {string} correo - Correo electrónico de contacto.
+ * @property {string} filiacion - Filiación institucional.
+ * @property {'AUTOR_PRINCIPAL'|'COAUTOR'|'PONENTE'} rol - Rol específico en la propuesta (Criterio 2).
+ */
+
+/**
+ * Tabla y lista de autores asociados a una propuesta.
+ * @param {Object} props
+ * @param {Array<AutorPropuesta>} [props.autores=[]] - Lista de autores vinculados a la propuesta.
+ * @param {function(AutorPropuesta): void} [props.onEditar] - Callback al solicitar editar un autor.
+ * @param {function(string|number): void} [props.onEliminar] - Callback al eliminar un autor.
+ * @param {boolean} [props.disabled=false] - Indica si las acciones están inhabilitadas.
+ * @returns {JSX.Element}
+ */
 export default function AutoresList({
   autores = [],
   onEditar,

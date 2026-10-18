@@ -31,6 +31,16 @@ const ALERTA_EXITO = {
   },
 };
 
+/**
+ * Modal que gestiona el envío de una propuesta académica y la vinculación de sus autores y ponentes.
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Define si el modal se encuentra visible.
+ * @param {Object} props.convocatoria - Objeto de la convocatoria a la que se postula la propuesta.
+ * @param {function(): void} props.onClose - Callback al cerrar el modal.
+ * @param {function(Object): void} [props.onPropuestaEnviada] - Callback invocado tras enviar la propuesta con éxito.
+ * @param {typeof propuestaService} [props.api=propuestaService] - Cliente de API para el envío de propuestas.
+ * @returns {JSX.Element|null}
+ */
 export default function PropuestaFormModal({
   isOpen,
   convocatoria,

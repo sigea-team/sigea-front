@@ -18,7 +18,7 @@
 
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Info, User, Rocket } from 'lucide-react';
+import { Info } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
@@ -26,6 +26,7 @@ import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
 import { rutaSegunRoles } from '../../../store/authStore';
 import AvisoBloqueo from './AvisoBloqueo';
+import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
@@ -324,59 +325,11 @@ export default function LoginForm() {
         </div>
 
         {/* Barra de acceso por perfil institucional inspirada en DIVISIST 2.0 (UFPS) */}
-        <div className="mt-8 pt-4 border-t-2 border-[#a6192e] -mx-8 sm:-mx-12 -mb-8 sm:-mb-12 bg-[#f7f7f8] rounded-b-[16px] px-6 py-4">
-          <p className="text-center text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider mb-2.5">
-            Selecciona tu perfil de ingreso
-          </p>
-          <div className="flex items-center justify-center gap-8">
-            <button
-              type="button"
-              onClick={() => setModoAcceso('asistente')}
-              title="Ingresar como Asistente"
-              className={`group flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] ${
-                modoAcceso === 'asistente'
-                  ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-                  : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-              }`}
-            >
-              <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
-                  modoAcceso === 'asistente'
-                    ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                    : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-                }`}
-              >
-                <User className="w-5 h-5" />
-              </div>
-              <span className="text-xs">Asistente</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setModoAcceso('ponente')}
-              title="Ingresar como Ponente / Autor de propuestas"
-              className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] ${
-                modoAcceso === 'ponente'
-                  ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-                  : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-              }`}
-            >
-              <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
-                  modoAcceso === 'ponente'
-                    ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                    : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-                }`}
-              >
-                <Rocket className="w-5 h-5" />
-              </div>
-              <span className="text-xs">Ponente</span>
-              <span className="absolute -top-1 right-0 px-1.5 py-0.2 bg-[#a6192e] text-white text-[9px] font-bold rounded-full shadow-xs">
-                PROPUESTAS
-              </span>
-            </button>
-          </div>
-        </div>
+        <SelectorPerfilAcceso
+          modoAcceso={modoAcceso}
+          onChangeModo={setModoAcceso}
+          disabled={loading}
+        />
       </form>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { UserPlus, Check, Sparkles, AlertCircle } from 'lucide-react';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
@@ -22,6 +22,15 @@ const AUTOR_VACIO = {
   rol: ROLES_AUTOR.AUTOR_PRINCIPAL,
 };
 
+/**
+ * Formulario para capturar o actualizar la información de un autor o ponente.
+ * @param {Object} props
+ * @param {function(Object): void} props.onAgregarAutor - Callback invocado al confirmar el autor.
+ * @param {Object|null} [props.autorEnEdicion=null] - Objeto del autor en edición o null para nuevo.
+ * @param {function(): void} [props.onCancelarEdicion] - Callback al descartar la edición.
+ * @param {Array<Object>} [props.autoresActuales=[]] - Lista de autores ya asociados.
+ * @returns {JSX.Element}
+ */
 export default function AutorFormSection({
   onAgregarAutor,
   autorEnEdicion = null,

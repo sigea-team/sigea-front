@@ -8,6 +8,7 @@
 import MainLayout from '../components/ui/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { useAuthStore } from '../store/authStore';
+import BannerModoPonente from '../features/convocatorias/components/BannerModoPonente';
 
 export default function DashboardPage() {
   const { usuario: contextUser } = useAuth();
@@ -40,27 +41,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Banner destacado para modo Ponente */}
-        {esPonente && (
-          <div className="bg-[#fdecec] border border-[#a6192e]/30 rounded-[16px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-            <div>
-              <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#a6192e] text-white rounded-full mb-1">
-                Modo Ponente Activo
-              </span>
-              <h2 className="text-base font-bold text-[#1f2023]">
-                Convocatorias Abiertas para Envío de Propuestas
-              </h2>
-              <p className="text-xs text-[#5b5f66] mt-1 max-w-xl">
-                Como ponente o autor tienes habilitada la recepción de ponencias. Puedes registrar los datos de tus autores y enviar propuestas a las convocatorias vigentes.
-              </p>
-            </div>
-            <a
-              href="#/convocatorias"
-              className="inline-flex items-center justify-center px-4 py-2.5 bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-xs font-semibold rounded-[8px] transition-colors shrink-0 shadow-xs"
-            >
-              Explorar Convocatorias Abiertas
-            </a>
-          </div>
-        )}
+        {esPonente && <BannerModoPonente enlaceConvocatorias="#/convocatorias" />}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
