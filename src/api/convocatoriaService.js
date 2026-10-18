@@ -186,6 +186,41 @@ export async function publicarConvocatoria(id) {
 }
 
 /**
+ * HU-11 (Criterio 2): modifica la fecha límite de una convocatoria publicada que aún no ha expirado.
+ * El backend notifica el cambio (campana) a todos los usuarios activos.
+ * Endpoint: PATCH /api/v1/convocatorias/{id}/fecha-cierre
+ * @param {number|string} id
+ * @param {string} fechaCierre - Nueva fecha y hora límite (YYYY-MM-DDTHH:mm).
+ * @returns {Promise<{ convocatoria: Object, fechaCierreAnterior: string, usuariosNotificados: number }>}
+ */
+export async function actualizarFechaCierre(id, fechaCierre) {
+  const { data } = await httpClient.patch(`/convocatorias/${id}/fecha-cierre`, { fechaCierre });
+  return data;
+}
+
+/**
+ * HU-11 (Criterio 1): consulta pública de convocatorias publicadas (no requiere sesión).
+ * Endpoint: GET /api/v1/publico/convocatorias
+ * @param {number|string} [eventoId] - Filtra por evento.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function listarConvocatoriasPublicadas(eventoId) {
+  const params = eventoId ? { eventoId } : undefined;
+  const { data } = await httpClient.get('/publico/convocatorias', { params });
+  return Array.isArray(data) ? data : [];
+}
+
+/**
+ * HU-11 (Criterio 1): detalle público de una convocatoria publicada (404 si no está publicada).
+ * Endpoint: GET /api/v1/publico/convocatorias/{id}
+ * @param {number|string} id
+ */
+export async function obtenerConvocatoriaPublicada(id) {
+  const { data } = await httpClient.get(`/publico/convocatorias/${id}`);
+  return data;
+}
+
+/**
  * Elimina una convocatoria en borrador.
  * @param {number|string} id
  */
@@ -206,5 +241,8 @@ export const convocatoriaService = {
   crearConvocatoria,
   actualizarConvocatoria,
   publicarConvocatoria,
+  actualizarFechaCierre,
+  listarConvocatoriasPublicadas,
+  obtenerConvocatoriaPublicada,
   eliminarConvocatoria,
 };

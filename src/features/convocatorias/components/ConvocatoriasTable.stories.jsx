@@ -25,6 +25,15 @@ const MOCK_CONVOCATORIAS = [
     fechaCierre: '2026-09-30T18:00',
     estado: 'ABIERTA',
   },
+  {
+    id: 3,
+    eventoNombre: 'Congreso de Ingeniería de Sistemas 2026',
+    titulo: 'Convocatoria de Talleres y Tutoriales',
+    descripcion: 'Publicada y vigente: permite modificar la fecha límite (HU-11).',
+    fechaApertura: '2026-10-01T08:00',
+    fechaCierre: '2027-12-15T23:59',
+    estado: 'publicada',
+  },
 ];
 
 export const ConDatos = {
@@ -33,6 +42,8 @@ export const ConDatos = {
     cargando: false,
     hayFiltros: false,
     onEditar: (item) => console.log('Editar:', item),
+    onPublicar: (item) => console.log('Publicar:', item),
+    onModificarFechaCierre: (item) => console.log('Modificar fecha límite:', item),
     onEliminar: (item) => console.log('Eliminar:', item),
     onIntentarEnviar: (item) => console.log('Intentar enviar:', item),
   },
