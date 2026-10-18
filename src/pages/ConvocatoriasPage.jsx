@@ -11,6 +11,8 @@ import ConvocatoriaFormModal from '../features/convocatorias/components/Convocat
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
 import PropuestaFormModal from '../features/propuestas/components/PropuestaFormModal';
 import { puedeEnviarPropuesta } from '../features/convocatorias/convocatoriaUtils';
+import { useAuth } from '../context/AuthContext';
+import { esAdministrador } from '../utils/permisos';
 
 /**
  * @file ConvocatoriasPage.jsx
@@ -241,11 +243,15 @@ export default function ConvocatoriasPage({
     setModalPropuesta(convocatoria);
   };
 
+  const auth = useAuth();
+  const usuarioActual = usuarioProp || auth?.usuario;
+  const isAdmin = esAdministrador(usuarioActual);
+
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
     <MainLayout
-      title="Gestión de convocatorias"
+      title={isAdmin ? 'Gestión de convocatorias' : 'Convocatorias abiertas'}
       activeNav="convocatorias"
       onSelectNav={onSelectNav}
       usuario={usuarioProp}
@@ -256,25 +262,28 @@ export default function ConvocatoriasPage({
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" />
-              SIGEA — Convocatorias y recepción de propuestas
+              SIGEA — {isAdmin ? 'Gestión y recepción de propuestas' : 'Convocatorias vigentes para ponencias'}
             </span>
             <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
-              Convocatorias académicas
+              {isAdmin ? 'Convocatorias académicas' : 'Convocatorias abiertas'}
             </h2>
             <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
-              Configura las fechas de apertura y cierre para la recepción de ponencias, pósters y artículos
-              asociados a cada evento.
+              {isAdmin
+                ? 'Configura las fechas de apertura y cierre para la recepción de ponencias, pósters y artículos asociados a cada evento.'
+                : 'Consulta las convocatorias activas para presentar ponencias. Haz clic en «Enviar propuesta» para registrar tus datos de autor y postularte.'}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => setModal({ tipo: 'crear', convocatoria: null })}
-            className="shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Crear convocatoria</span>
-          </Button>
+          {isAdmin && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setModal({ tipo: 'crear', convocatoria: null })}
+              className="shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Crear convocatoria</span>
+            </Button>
+          )}
         </div>
 
         {/* Filtros */}
