@@ -132,6 +132,13 @@ export default function PropuestaFormModal({
       // Criterio 1: Se asocian los datos de los autores y ponentes a la propuesta enviada
       const respuesta = await api.enviarPropuesta(datosPropuesta);
 
+      // Mapear roles a etiquetas legibles para el mensaje de éxito
+      const rolesLegibles = {
+        autor_principal: 'Autor Principal',
+        coautor: 'Coautor',
+        ponente: 'Ponente',
+      };
+
       Swal.fire({
         ...ALERTA_EXITO,
         title: '¡Propuesta enviada con éxito!',
@@ -142,7 +149,7 @@ export default function PropuestaFormModal({
           <div class="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3 text-left text-xs space-y-1">
             <p><strong>Convocatoria:</strong> ${convocatoria?.titulo || 'Convocatoria académica'}</p>
             <p><strong>Evento:</strong> ${convocatoria?.eventoNombre || 'Evento UFPS'}</p>
-            <p><strong>Autores asociados:</strong> ${autores.map((a) => `${a.nombreCompleto} (${a.rol})`).join(', ')}</p>
+            <p><strong>Autores asociados:</strong> ${autores.map((a) => `${a.nombreCompleto} (${rolesLegibles[a.rol] || a.rol})`).join(', ')}</p>
           </div>
         `,
       });
@@ -152,14 +159,29 @@ export default function PropuestaFormModal({
       }
       onClose();
     } catch (err) {
-      const msg =
-        err?.response?.data?.mensaje ||
-        err?.response?.data?.message ||
-        err?.message ||
-        'Ocurrió un error al enviar la propuesta. Intente nuevamente.';
+      const status = err?.response?.status;
+      const data = err?.response?.data;
+
+      // Extraer mensaje de error del backend
+      let titulo = 'Error al enviar propuesta';
+      let msg = 'Ocurrió un error al enviar la propuesta. Intente nuevamente.';
+
+      if (status === 400) {
+        titulo = 'Datos inválidos';
+        msg = data?.mensaje || data?.message || 'Verifique que todos los campos obligatorios estén completos y sean válidos.';
+      } else if (status === 404) {
+        titulo = 'Recurso no encontrado';
+        msg = data?.mensaje || data?.message || 'La convocatoria seleccionada no fue encontrada o ya no está disponible.';
+      } else if (status === 409) {
+        titulo = 'Conflicto detectado';
+        msg = data?.mensaje || data?.message || 'Un autor ya se encuentra registrado en esta propuesta con los mismos datos.';
+      } else {
+        msg = data?.mensaje || data?.message || err?.message || msg;
+      }
+
       Swal.fire({
         icon: 'error',
-        title: 'Error al enviar propuesta',
+        title: titulo,
         text: msg,
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',

@@ -7,10 +7,14 @@
  * @module features/propuestas/propuestaUtils
  */
 
+/**
+ * Roles de autor alineados con el enum `RolAutor` del backend Java.
+ * El backend usa snake_case en minúsculas: autor_principal, coautor, ponente.
+ */
 export const ROLES_AUTOR = {
-  AUTOR_PRINCIPAL: 'AUTOR_PRINCIPAL',
-  COAUTOR: 'COAUTOR',
-  PONENTE: 'PONENTE',
+  AUTOR_PRINCIPAL: 'autor_principal',
+  COAUTOR: 'coautor',
+  PONENTE: 'ponente',
 };
 
 export const OPCIONES_ROL_AUTOR = [
@@ -46,7 +50,8 @@ export const INFO_ROL_AUTOR = {
  * cuando confirmo el registro, entonces el sistema rechaza la operación y señala los campos faltantes."
  *
  * @param {Object} autor
- * @param {string} autor.nombreCompleto
+ * @param {string} autor.nombre - Nombre(s) del autor.
+ * @param {string} autor.apellidos - Apellidos del autor.
  * @param {string} autor.correo
  * @param {string} autor.filiacion
  * @param {string} autor.rol
@@ -55,8 +60,12 @@ export const INFO_ROL_AUTOR = {
 export function validarAutor(autor) {
   const errores = {};
 
-  if (!autor?.nombreCompleto || typeof autor.nombreCompleto !== 'string' || !autor.nombreCompleto.trim()) {
-    errores.nombreCompleto = 'El nombre completo es obligatorio.';
+  if (!autor?.nombre || typeof autor.nombre !== 'string' || !autor.nombre.trim()) {
+    errores.nombre = 'El nombre es obligatorio.';
+  }
+
+  if (!autor?.apellidos || typeof autor.apellidos !== 'string' || !autor.apellidos.trim()) {
+    errores.apellidos = 'Los apellidos son obligatorios.';
   }
 
   if (!autor?.correo || typeof autor.correo !== 'string' || !autor.correo.trim()) {
@@ -105,4 +114,43 @@ export function validarPropuesta(propuesta) {
   }
 
   return errores;
+}
+
+/**
+ * Convierte un autor del formato frontend al formato esperado por el backend (AutorRequest DTO).
+ * El formulario ya captura nombre y apellidos por separado, así que el mapeo es directo.
+ * @param {Object} autorFront - Autor en formato frontend { nombre, apellidos, correo, filiacion, rol }
+ * @param {number} [orden] - Orden de autoría
+ * @returns {Object} AutorRequest compatible con el backend
+ */
+export function autorFrontToBackend(autorFront, orden) {
+  return {
+    nombre: autorFront.nombre,
+    apellidos: autorFront.apellidos || undefined,
+    correo: autorFront.correo,
+    filiacion: autorFront.filiacion,
+    rol: autorFront.rol,
+    orden: orden !== undefined ? orden : undefined,
+  };
+}
+
+/**
+ * Convierte un autor del formato backend (AutorResponse) al formato usado internamente por el frontend.
+ * @param {Object} autorBack - Autor en formato backend { personaId, nombres, apellidos, nombreCompleto, correo, filiacion, rol, rolDescripcion, orden }
+ * @returns {Object} Autor en formato frontend { id, nombre, apellidos, nombreCompleto, correo, filiacion, rol }
+ */
+export function autorBackendToFront(autorBack) {
+  const nombre = autorBack.nombres || autorBack.nombre || '';
+  const apellidos = autorBack.apellidos || '';
+  return {
+    id: autorBack.personaId || autorBack.id,
+    nombre,
+    apellidos,
+    nombreCompleto: autorBack.nombreCompleto || `${nombre} ${apellidos}`.trim(),
+    correo: autorBack.correo || autorBack.email || '',
+    filiacion: autorBack.filiacion || autorBack.afiliacion || '',
+    rol: autorBack.rol,
+    personaId: autorBack.personaId,
+    orden: autorBack.orden,
+  };
 }

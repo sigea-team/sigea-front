@@ -16,7 +16,8 @@ import { useAuth } from '../../../context/AuthContext';
  */
 
 const AUTOR_VACIO = {
-  nombreCompleto: '',
+  nombre: '',
+  apellidos: '',
   correo: '',
   filiacion: '',
   rol: ROLES_AUTOR.AUTOR_PRINCIPAL,
@@ -55,9 +56,21 @@ export default function AutorFormSection({
 
   const handleCargarMisDatos = () => {
     if (!usuario) return;
+    const nombreCompleto = usuario.nombreCompleto || usuario.nombre || '';
+    // Intentar separar nombre y apellidos del usuario autenticado
+    const partes = nombreCompleto.trim().split(/\s+/);
+    let nombre = nombreCompleto;
+    let apellidos = '';
+    if (partes.length >= 2) {
+      const mitad = Math.ceil(partes.length / 2);
+      nombre = partes.slice(0, mitad).join(' ');
+      apellidos = partes.slice(mitad).join(' ');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      nombreCompleto: usuario.nombreCompleto || usuario.nombre || '',
+      nombre,
+      apellidos,
       correo: usuario.correo || usuario.email || '',
       filiacion: 'Universidad Francisco de Paula Santander (UFPS)',
       rol: prev.rol || ROLES_AUTOR.AUTOR_PRINCIPAL,
@@ -75,8 +88,12 @@ export default function AutorFormSection({
       return;
     }
 
+    // Construir nombreCompleto a partir de nombre + apellidos para uso interno del frontend
+    const nombreCompleto = `${formData.nombre.trim()} ${formData.apellidos.trim()}`.trim();
+
     onAgregarAutor({
       ...formData,
+      nombreCompleto,
       id: autorEnEdicion?.id || Date.now(),
     });
 
@@ -129,15 +146,27 @@ export default function AutorFormSection({
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            label="Nombre Completo"
-            name="nombreCompleto"
-            value={formData.nombreCompleto}
+            label="Nombre(s)"
+            name="nombre"
+            value={formData.nombre}
             onChange={handleChange}
-            placeholder="Ej. Ing. Carlos Mendoza"
-            error={errores.nombreCompleto}
+            placeholder="Ej. Carlos Andrés"
+            error={errores.nombre}
             required
           />
 
+          <Input
+            label="Apellidos"
+            name="apellidos"
+            value={formData.apellidos}
+            onChange={handleChange}
+            placeholder="Ej. Gómez Pérez"
+            error={errores.apellidos}
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Correo Electrónico"
             name="correo"
@@ -148,9 +177,7 @@ export default function AutorFormSection({
             error={errores.correo}
             required
           />
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Filiación Institucional"
             name="filiacion"
@@ -160,7 +187,9 @@ export default function AutorFormSection({
             error={errores.filiacion}
             required
           />
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select
             label="Rol en la Propuesta"
             name="rol"
