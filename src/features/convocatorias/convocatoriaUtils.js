@@ -256,3 +256,31 @@ export function mensajeErrorApi(err, porDefecto) {
     porDefecto
   );
 }
+
+/**
+ * HU-11 (Criterio 3): convierte el detalle de un error 400 CONVOCATORIA_INCOMPLETA en una lista legible.
+ * El backend envía `erroresValidacion` como objeto `{ campo: mensaje }`; por tolerancia también acepta
+ * una lista (de textos o de objetos `{ campo, mensaje }`). Si no hay detalle, devuelve una lista vacía.
+ * @param {{ erroresValidacion?: Object|Array }} data - Cuerpo de la respuesta de error.
+ * @returns {Array<{ campo: string, etiqueta: string, mensaje: string }>}
+ */
+export function listarCamposFaltantes(data) {
+  const detalle = data?.erroresValidacion;
+  if (!detalle) return [];
+
+  const aItem = (campo, mensaje) => ({
+    campo: campo || '',
+    etiqueta: CAMPOS_CONVOCATORIA[campo] || campo || 'Dato obligatorio',
+    mensaje: String(mensaje ?? ''),
+  });
+
+  if (Array.isArray(detalle)) {
+    return detalle.map((item) =>
+      typeof item === 'string' ? aItem('', item) : aItem(item?.campo, item?.mensaje ?? item?.message)
+    );
+  }
+  if (typeof detalle === 'object') {
+    return Object.entries(detalle).map(([campo, mensaje]) => aItem(campo, mensaje));
+  }
+  return [];
+}

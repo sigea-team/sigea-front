@@ -1,3 +1,4 @@
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import NotificacionesCampana from './NotificacionesCampana';
 import { crearNotificacionesApiMock, notificacionesApiConError } from '../mocks/notificacionesMock';
 
@@ -22,6 +23,17 @@ export const ConNoLeidas = {
 /** Panel abierto: clic en una notificación la marca como leída. */
 export const PanelAbierto = {
   args: { api: crearNotificacionesApiMock(), abiertaInicial: true },
+};
+
+/** Prueba: muestra el contador y "Marcar todas como leídas" lo deja en cero. */
+export const MarcarTodasComoLeidas = {
+  args: { api: crearNotificacionesApiMock(), abiertaInicial: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByText('2 sin leer')).toBeInTheDocument());
+    await userEvent.click(canvas.getByRole('button', { name: /marcar todas como leídas/i }));
+    await waitFor(() => expect(canvas.getByText('Estás al día')).toBeInTheDocument());
+  },
 };
 
 /** Sin notificaciones. */

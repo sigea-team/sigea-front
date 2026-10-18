@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
+import withReactContent from 'sweetalert2-react-content';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Plus, Search, RotateCw, Info, Globe } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
@@ -12,8 +13,8 @@ import ConvocatoriaFormModal from '../features/convocatorias/components/Convocat
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
 import FechaCierreModal from '../features/convocatorias/components/FechaCierreModal';
 import {
-  CAMPOS_CONVOCATORIA,
   formatearFechaHora,
+  listarCamposFaltantes,
   mensajeErrorApi,
   puedeEnviarPropuesta,
 } from '../features/convocatorias/convocatoriaUtils';
@@ -36,9 +37,8 @@ const OPCIONES_FILTRO_ESTADO = [
   { value: 'CERRADA', label: 'Cerrada / Vencida' },
 ];
 
-/** Escapa texto antes de insertarlo en el HTML de una alerta. */
-const escaparHtml = (texto) =>
-  String(texto ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+/** SweetAlert2 con soporte de contenido React: el texto se escapa solo, sin construir HTML a mano. */
+const SwalReact = withReactContent(Swal);
 
 const ALERTA_EXITO = {
   icon: 'success',
@@ -64,6 +64,7 @@ export default function ConvocatoriasPage({
   usuarioProp,
   onSelectNav,
 }) {
+  const navigate = useNavigate();
   const [convocatorias, setConvocatorias] = useState([]);
   const [eventosDisponibles, setEventosDisponibles] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -158,22 +159,27 @@ export default function ConvocatoriasPage({
 
   // HU-11, Criterio 3: el backend responde 400 CONVOCATORIA_INCOMPLETA con los campos faltantes
   const mostrarConvocatoriaIncompleta = (convocatoria, data) => {
-    const faltantes = Object.entries(data?.erroresValidacion || {});
-    const lista = faltantes
-      .map(
-        ([campo, mensaje]) =>
-          `<li><strong>${escaparHtml(CAMPOS_CONVOCATORIA[campo] || campo)}:</strong> ${escaparHtml(mensaje)}</li>`
-      )
-      .join('');
+    const faltantes = listarCamposFaltantes(data);
 
-    Swal.fire({
+    SwalReact.fire({
       icon: 'warning',
       title: 'Completa los datos para publicar',
-      html: `<p style="font-size:14px;color:#5b5f66;margin-bottom:8px">${escaparHtml(
-        data?.message || 'La convocatoria tiene datos obligatorios sin completar.'
-      )}</p>${
-        lista ? `<ul style="text-align:left;font-size:13px;color:#1f2023;padding-left:18px;list-style:disc">${lista}</ul>` : ''
-      }`,
+      html: (
+        <div className="text-left">
+          <p className="text-sm text-[#5b5f66] mb-2">
+            {data?.message || 'La convocatoria tiene datos obligatorios sin completar.'}
+          </p>
+          {faltantes.length > 0 && (
+            <ul className="list-disc pl-5 text-[13px] text-[#1f2023] space-y-1">
+              {faltantes.map((f) => (
+                <li key={f.campo || f.mensaje}>
+                  <strong>{f.etiqueta}:</strong> {f.mensaje}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ),
       showCancelButton: true,
       confirmButtonText: 'Completar datos',
       cancelButtonText: 'Ahora no',
@@ -243,6 +249,7 @@ export default function ConvocatoriasPage({
     const titulo = resultado?.convocatoria?.titulo || modal.convocatoria.titulo;
     const nuevoCierre = resultado?.convocatoria?.fechaCierre || nuevaFecha;
     const notificados = Number(resultado?.usuariosNotificados) || 0;
+    const convocatoriaId = resultado?.convocatoria?.id || modal.convocatoria.id;
     cerrarModal();
     recargar();
     Swal.fire({
@@ -251,6 +258,15 @@ export default function ConvocatoriasPage({
       text: `La nueva fecha límite de «${titulo}» es el ${formatearFechaHora(nuevoCierre)}. Se notificó el cambio a ${notificados} ${
         notificados === 1 ? 'usuario' : 'usuarios'
       }.`,
+      showDenyButton: true,
+      denyButtonText: 'Ver en página pública',
+      denyButtonColor: '#5b5f66',
+      customClass: {
+        ...ALERTA_EXITO.customClass,
+        denyButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    }).then(({ isDenied }) => {
+      if (isDenied) navigate(`/convocatorias-publicas?convocatoria=${convocatoriaId}`);
     });
   };
 

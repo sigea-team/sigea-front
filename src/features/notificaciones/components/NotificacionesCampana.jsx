@@ -15,7 +15,8 @@ import {
 /**
  * @file NotificacionesCampana.jsx
  * @description Campana de notificaciones del Topbar (HU-11, Criterio 2).
- * - Muestra el número de notificaciones sin leer y lo refresca cada minuto.
+ * - Muestra el número de notificaciones sin leer y lo refresca cada minuto, solo mientras la pestaña
+ *   está visible (Page Visibility API); al volver a la pestaña se actualiza de inmediato.
  * - Al abrirla lista las más recientes; al hacer clic en una la marca como leída y,
  *   si está relacionada con una convocatoria, lleva a su vista pública.
  * - Permite marcar todas como leídas.
@@ -62,12 +63,25 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
       .finally(() => setCargando(false));
   }, [api, habilitada]);
 
-  // Conteo inicial y refresco periódico mientras la página está abierta.
+  // Conteo inicial y refresco periódico. Con la pestaña oculta no se consulta el backend
+  // (evita llamadas de pestañas inactivas); al volver a ella se actualiza de inmediato.
   useEffect(() => {
     if (!habilitada) return undefined;
-    actualizarConteo();
-    const intervalo = setInterval(actualizarConteo, INTERVALO_CONTEO_MS);
-    return () => clearInterval(intervalo);
+    const pestanaVisible = () => typeof document === 'undefined' || !document.hidden;
+
+    if (pestanaVisible()) actualizarConteo();
+    const intervalo = setInterval(() => {
+      if (pestanaVisible()) actualizarConteo();
+    }, INTERVALO_CONTEO_MS);
+    const alCambiarVisibilidad = () => {
+      if (pestanaVisible()) actualizarConteo();
+    };
+    document.addEventListener('visibilitychange', alCambiarVisibilidad);
+
+    return () => {
+      clearInterval(intervalo);
+      document.removeEventListener('visibilitychange', alCambiarVisibilidad);
+    };
   }, [actualizarConteo, habilitada]);
 
   // Al abrir el panel se cargan las notificaciones más recientes.

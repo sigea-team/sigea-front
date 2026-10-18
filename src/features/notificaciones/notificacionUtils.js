@@ -42,11 +42,14 @@ export function rutaDeNotificacion(notificacion) {
   return null;
 }
 
+/** Máximo que muestra el contador de la campana; por encima se ve "9+" (cabe en el círculo de 18px). */
+export const LIMITE_VISUAL_CONTADOR = 9;
+
 /**
  * Texto del contador de la campana (máximo "9+").
  * @param {number} cantidad
  * @returns {string}
  */
 export function textoContador(cantidad) {
-  return cantidad > 9 ? '9+' : String(cantidad);
+  return cantidad > LIMITE_VISUAL_CONTADOR ? `${LIMITE_VISUAL_CONTADOR}+` : String(cantidad);
 }
