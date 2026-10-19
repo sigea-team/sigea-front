@@ -24,6 +24,10 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
+ * @property {string} [avatarUrl]
+ * @property {string} [telefono]
+ * @property {string} [afiliacion]
+ * @property {string} [biografia]
  */
 
 /**
@@ -68,6 +72,10 @@ export function normalizarSesion(data) {
       correo: origen.correo ?? origen.email ?? '',
       nombreCompleto: origen.nombreCompleto ?? origen.nombre ?? origen.name ?? '',
       roles,
+      avatarUrl: origen.avatarUrl ?? origen.foto ?? '',
+      telefono: origen.telefono ?? '',
+      afiliacion: origen.afiliacion ?? '',
+      biografia: origen.biografia ?? '',
     },
   };
 }
@@ -91,6 +99,15 @@ export const useAuthStore = create(
         set(sesion);
         return true;
       },
+
+      /**
+       * Actualiza los datos del usuario en la sesión activa.
+       * @param {Partial<UsuarioSesion>} nuevosDatos
+       */
+      actualizarUsuario: (nuevosDatos) =>
+        set((state) => ({
+          usuario: state.usuario ? { ...state.usuario, ...nuevosDatos } : null,
+        })),
 
       /** Cierra la sesión y limpia el estado persistido. */
       cerrarSesion: () => set({ token: null, usuario: null }),

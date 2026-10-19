@@ -8,6 +8,7 @@ import RolesPage from './pages/RolesPage';
 import AuditoriaPage from './pages/AuditoriaPage';
 import EventosPage from './pages/EventosPage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
+import CuentaPage from './pages/CuentaPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 
@@ -25,6 +26,9 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/eventos" element={<EventosPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
+            <Route path="/cuenta" element={<CuentaPage />} />
+            <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
+            <Route path="/configuracion" element={<CuentaPage />} />
 
             {/* Solo administradores (la API también lo valida y responde 403) */}
             <Route element={<AdminRoute />}>

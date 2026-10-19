@@ -51,6 +51,11 @@ function logout() {
   useAuthStore.getState().cerrarSesion();
 }
 
+/** Actualiza los datos del usuario en la sesión activa. */
+function actualizarUsuario(nuevosDatos) {
+  useAuthStore.getState().actualizarUsuario(nuevosDatos);
+}
+
 /**
  * Proveedor del contexto de autenticación.
  */
@@ -59,7 +64,7 @@ export function AuthProvider({ children }) {
   const usuario = useAuthStore((state) => state.usuario);
 
   return (
-    <AuthContext.Provider value={{ token, usuario, login, logout, isAuthenticated: Boolean(token) }}>
+    <AuthContext.Provider value={{ token, usuario, login, logout, actualizarUsuario, isAuthenticated: Boolean(token) }}>
       {children}
     </AuthContext.Provider>
   );
@@ -75,5 +80,5 @@ export function useAuth() {
   const token = useAuthStore((state) => state.token);
   const usuario = useAuthStore((state) => state.usuario);
   if (context) return context;
-  return { token, usuario, login, logout, isAuthenticated: Boolean(token) };
+  return { token, usuario, login, logout, actualizarUsuario, isAuthenticated: Boolean(token) };
 }
