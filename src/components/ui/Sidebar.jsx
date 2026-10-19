@@ -98,8 +98,24 @@ export default function Sidebar({
 
   // Misma regla que AdminRoute: el menú y las rutas deciden igual quién es administrador.
   const isAdmin = esAdministrador(usuario);
+  const esPonente =
+    usuario?.modoIngreso === 'PONENTE' ||
+    usuario?.roles?.includes('PONENTE') ||
+    usuario?.roles?.includes('AUTOR');
 
-  const navItems = [...DEFAULT_NAV_ITEMS];
+  // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
+  const navItems = DEFAULT_NAV_ITEMS.filter((item) => {
+    if (item.id === 'convocatorias') {
+      return isAdmin || esPonente;
+    }
+    return true;
+  }).map((item) => {
+    if (item.id === 'convocatorias' && esPonente && !isAdmin) {
+      return { ...item, label: 'Convocatorias Abiertas' };
+    }
+    return item;
+  });
+
   if (isAdmin) {
     const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
     if (cuentaIndex !== -1) {

@@ -26,6 +26,7 @@ import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
 import { rutaSegunRoles } from '../../../store/authStore';
 import AvisoBloqueo from './AvisoBloqueo';
+import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
@@ -70,6 +71,8 @@ export default function LoginForm() {
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const sesionExpirada = searchParams.get('sesion') === 'expirada';
+  // HU-32: vuelve aquí tras restablecer la contraseña.
+  const recuperacionExitosa = searchParams.get('recuperacion') === 'exitosa';
 
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -111,20 +114,26 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente'
+
+  const handleSubmit = async (e, modoForzado) => {
+    if (e && e.preventDefault) e.preventDefault();
     setGeneralError(null);
     setCorreoPendienteVerificar(null);
 
     if (bloqueo || !validate()) return;
 
+    const modoFinal = modoForzado || modoAcceso;
     setLoading(true);
     try {
-      // Criterio 1: credenciales correctas -> guarda la sesión y redirige al panel según el rol.
-      const sesion = await login({
-        correo: formData.correo.trim().toLowerCase(),
-        contrasena: formData.contrasena,
-      });
+      // Criterio 1: credenciales correctas -> guarda la sesión con el modo seleccionado
+      const sesion = await login(
+        {
+          correo: formData.correo.trim().toLowerCase(),
+          contrasena: formData.contrasena,
+        },
+        modoFinal.toUpperCase()
+      );
       navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
       // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
@@ -219,6 +228,14 @@ export default function LoginForm() {
         </div>
       )}
 
+      {/* HU-32: contraseña restablecida */}
+      {recuperacionExitosa && !sesionExpirada && !generalError && !bloqueo && (
+        <div role="status" className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
+          <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
+          <p>Tu contraseña fue actualizada. Inicia sesión con tu nueva contraseña.</p>
+        </div>
+      )}
+
       {/* Criterio 3: cuenta bloqueada con cuenta regresiva */}
       {bloqueo && (
         <AvisoBloqueo mensaje={bloqueo.mensaje} desbloqueoEn={bloqueo.desbloqueoEn} onFinalizado={finalizarBloqueo} />
@@ -294,7 +311,7 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            Ingresar a SIGEA
+            {modoAcceso === 'ponente' ? 'Ingresar como Ponente' : 'Ingresar a SIGEA'}
           </Button>
         </div>
 
@@ -306,6 +323,19 @@ export default function LoginForm() {
             </Link>
           </p>
         </div>
+
+        {/* HU-11 (Criterio 1): acceso a las convocatorias publicadas sin iniciar sesión */}
+        <div className="text-center -mt-2">
+          <Link to="/convocatorias-publicas" className="text-xs font-semibold text-[#a6192e] hover:underline">
+            Ver convocatorias abiertas
+          </Link>
+        </div>
+        {/* Barra de acceso por perfil institucional inspirada en DIVISIST 2.0 (UFPS) */}
+        <SelectorPerfilAcceso
+          modoAcceso={modoAcceso}
+          onChangeModo={setModoAcceso}
+          disabled={loading}
+        />
       </form>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MainLayout from './MainLayout';
 import Button from './Button';
+import { crearNotificacionesApiMock } from '../../features/notificaciones/mocks/notificacionesMock';
 
 export default {
   title: 'UI/MainLayout',
@@ -28,6 +29,7 @@ export const Default = {
       nombreCompleto: 'Carlos Andrés Gómez',
       rol: 'Organizador',
     },
+    apiNotificaciones: crearNotificacionesApiMock(),
     children: (
       <div className="space-y-6">
         <div>

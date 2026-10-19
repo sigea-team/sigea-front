@@ -34,9 +34,9 @@ const AuthContext = createContext(null);
  * @returns {Promise<{ token: string, usuario: Object }>} La sesión normalizada guardada en el store.
  * @throws {Error} con codigo RESPUESTA_LOGIN_INVALIDA si la respuesta no trae un token válido.
  */
-async function login(credenciales) {
+async function login(credenciales, modoIngreso = 'ASISTENTE') {
   const data = await loginUsuario(credenciales);
-  const guardada = useAuthStore.getState().iniciarSesion(data);
+  const guardada = useAuthStore.getState().iniciarSesion(data, modoIngreso);
   if (!guardada) {
     // Nunca se navega al panel con una sesión inválida: el formulario muestra el error.
     const error = new Error('El servidor respondió sin un token de sesión válido.');

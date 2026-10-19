@@ -23,6 +23,13 @@ export default defineConfig({
   },
   test: {
     projects: [{
+      // Pruebas unitarias de funciones puras (utils): corren en Node, sin navegador.
+      test: {
+        name: 'unit',
+        environment: 'node',
+        include: ['src/**/*.test.{js,jsx}']
+      }
+    }, {
       extends: true,
       plugins: [
       // The plugin will run tests for the stories defined in your Storybook config

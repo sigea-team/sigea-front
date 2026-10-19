@@ -1,5 +1,6 @@
 import React from 'react';
 import ForgotPasswordPage from './ForgotPasswordPage';
+import { servicioRecuperacionExitoso } from '../features/auth/mocks/recuperacionMock';
 
 export default {
   title: 'Pages/ForgotPasswordPage',
@@ -11,5 +12,5 @@ export default {
 };
 
 export const Default = {
-  render: () => <ForgotPasswordPage />,
+  render: () => <ForgotPasswordPage servicio={servicioRecuperacionExitoso} />,
 };

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Pencil, Trash2, Send, Lock } from 'lucide-react';
+import { Pencil, Trash2, Send, Lock, Globe, CalendarClock } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import BotonAccion from '../../../components/ui/BotonAccion';
 import EstadoConvocatoriaBadge from './EstadoConvocatoriaBadge';
@@ -7,12 +7,15 @@ import {
   esBorradorEditable,
   formatearFechaHora,
   puedeEnviarPropuesta,
+  puedeModificarFechaCierre,
 } from '../convocatoriaUtils';
 
 /**
  * @file ConvocatoriasTable.jsx
  * @description Tabla para visualizar y gestionar convocatorias académicas.
  * Desacopla la lógica de presentación de la página principal e implementa:
+ * - Publicación de convocatorias en borrador para abrirlas a recepción (HU-11, Criterio 1).
+ * - HU-11, Criterio 2: modificación de la fecha límite de convocatorias publicadas no expiradas.
  * - Criterio 3: Bloqueo de acciones de edición si no está en borrador.
  * - Criterio 4: Indicación clara y bloqueo de botón de envío cuando la fecha ya se cumplió o está en borrador.
  * @module features/convocatorias/components/ConvocatoriasTable
@@ -24,6 +27,8 @@ import {
  * @param {boolean} [props.cargando=false] - Bandera de carga.
  * @param {boolean} [props.hayFiltros=false] - Indica si hay filtros activos en la búsqueda.
  * @param {Function} props.onEditar - Callback para editar una convocatoria.
+ * @param {Function} props.onPublicar - Callback para publicar una convocatoria en borrador.
+ * @param {Function} [props.onModificarFechaCierre] - Callback para modificar la fecha límite (HU-11).
  * @param {Function} props.onEliminar - Callback para eliminar una convocatoria en borrador.
  * @param {Function} props.onIntentarEnviar - Callback para simular envío de propuesta (Criterio 4).
  */
@@ -32,6 +37,8 @@ export default function ConvocatoriasTable({
   cargando = false,
   hayFiltros = false,
   onEditar,
+  onPublicar,
+  onModificarFechaCierre,
   onEliminar,
   onIntentarEnviar,
 }) {
@@ -77,6 +84,7 @@ export default function ConvocatoriasTable({
             {convocatorias.map((convocatoria) => {
               const editable = esBorradorEditable(convocatoria);
               const validacionEnvio = puedeEnviarPropuesta(convocatoria);
+              const validacionFecha = puedeModificarFechaCierre(convocatoria);
 
               return (
                 <tr key={convocatoria.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
@@ -141,6 +149,26 @@ export default function ConvocatoriasTable({
                   {/* Acciones de administración */}
                   <td className="py-4 px-5 align-middle">
                     <div className="flex items-center justify-end gap-2">
+                      {/* Publicar convocatoria en borrador */}
+                      <BotonAccion
+                        icono={Globe}
+                        etiqueta="Publicar convocatoria"
+                        onClick={() => onPublicar && onPublicar(convocatoria)}
+                        disabled={!editable}
+                        motivo="Solo se pueden publicar convocatorias en estado borrador."
+                      />
+
+                      {/* HU-11, Criterio 2: modificar la fecha límite de una convocatoria publicada */}
+                      {onModificarFechaCierre && (
+                        <BotonAccion
+                          icono={CalendarClock}
+                          etiqueta="Modificar fecha límite"
+                          onClick={() => onModificarFechaCierre(convocatoria)}
+                          disabled={!validacionFecha.permitido}
+                          motivo={validacionFecha.motivo}
+                        />
+                      )}
+
                       {/* Criterio 3: Editar en borrador */}
                       <BotonAccion
                         icono={Pencil}
@@ -176,6 +204,8 @@ ConvocatoriasTable.propTypes = {
   cargando: PropTypes.bool,
   hayFiltros: PropTypes.bool,
   onEditar: PropTypes.func.isRequired,
+  onPublicar: PropTypes.func,
+  onModificarFechaCierre: PropTypes.func,
   onEliminar: PropTypes.func.isRequired,
   onIntentarEnviar: PropTypes.func.isRequired,
 };

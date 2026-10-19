@@ -14,8 +14,13 @@ import { httpClient } from './httpClient';
  * @returns {Promise<Array<Object>>}
  */
 export async function listarEventos() {
-  const { data } = await httpClient.get('/eventos');
-  return data;
+  try {
+    const { data } = await httpClient.get('/eventos');
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('[eventoService] No se pudieron listar eventos por restricción de permisos del backend:', err?.response?.status || err?.message);
+    return [];
+  }
 }
 
 /**
@@ -72,6 +77,16 @@ export async function listarEdiciones(id) {
 }
 
 /**
+ * Publica un evento o edición que se encuentra en configuración (pasa a habilitado).
+ * Endpoint: POST /api/v1/eventos/{id}/publicar
+ * @param {number} id
+ */
+export async function publicarEvento(id) {
+  const { data } = await httpClient.post(`/eventos/${id}/publicar`);
+  return data;
+}
+
+/**
  * Elimina un evento o edición. Se llama solo después de que el usuario confirma en la
  * interfaz, por eso siempre envía confirmar=true (Criterio 5).
  * Endpoint: DELETE /api/v1/eventos/{id}?confirmar=true
@@ -90,5 +105,6 @@ export const eventoService = {
   actualizarEvento,
   crearEdicion,
   listarEdiciones,
+  publicarEvento,
   eliminarEvento,
 };

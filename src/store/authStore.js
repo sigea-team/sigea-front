@@ -24,6 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
+ * @property {'ASISTENTE'|'PONENTE'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  * @property {string} [avatarUrl]
  * @property {string} [telefono]
  * @property {string} [afiliacion]
@@ -49,7 +50,7 @@ export function esTokenValido(token) {
  * @param {unknown} data
  * @returns {{ token: string, usuario: UsuarioSesion } | null} null si la respuesta no es válida.
  */
-export function normalizarSesion(data) {
+export function normalizarSesion(data, modoIngreso = 'ASISTENTE') {
   if (!data || typeof data !== 'object') return null;
 
   const origen =
@@ -65,6 +66,8 @@ export function normalizarSesion(data) {
     .filter((r) => typeof r === 'string' && r.trim() !== '')
     .map((r) => r.trim().toUpperCase());
 
+  const modo = (origen.modoIngreso || modoIngreso || 'ASISTENTE').toUpperCase();
+
   return {
     token,
     usuario: {
@@ -72,6 +75,7 @@ export function normalizarSesion(data) {
       correo: origen.correo ?? origen.email ?? '',
       nombreCompleto: origen.nombreCompleto ?? origen.nombre ?? origen.name ?? '',
       roles,
+      modoIngreso: modo,
       avatarUrl: origen.avatarUrl ?? origen.foto ?? '',
       telefono: origen.telefono ?? '',
       afiliacion: origen.afiliacion ?? '',
@@ -91,13 +95,46 @@ export const useAuthStore = create(
       /**
        * Guarda la sesión tras un login exitoso.
        * @param {unknown} data - Respuesta de POST /api/v1/auth/login.
+       * @param {string} [modoIngreso='ASISTENTE'] - Modo de ingreso ('ASISTENTE' o 'PONENTE').
        * @returns {boolean} false si la respuesta no trae un token válido (no se guarda nada).
        */
-      iniciarSesion: (data) => {
-        const sesion = normalizarSesion(data);
+      iniciarSesion: (data, modoIngreso = 'ASISTENTE') => {
+        const sesion = normalizarSesion(data, modoIngreso);
         if (!sesion) return false;
         set(sesion);
         return true;
+      },
+
+      /**
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE' o 'PONENTE').
+       * @param {string} modo
+       */
+      setModoIngreso: (modo) => {
+        set((state) => {
+          if (!state.usuario) return state;
+          return {
+            usuario: {
+              ...state.usuario,
+              modoIngreso: String(modo || 'ASISTENTE').toUpperCase(),
+            },
+          };
+        });
+      },
+
+      /**
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE' o 'PONENTE').
+       * @param {string} modo
+       */
+      setModoIngreso: (modo) => {
+        set((state) => {
+          if (!state.usuario) return state;
+          return {
+            usuario: {
+              ...state.usuario,
+              modoIngreso: String(modo || 'ASISTENTE').toUpperCase(),
+            },
+          };
+        });
       },
 
       /**

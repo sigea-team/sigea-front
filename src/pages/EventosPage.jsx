@@ -1,17 +1,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, History, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import BotonAccion from '../components/ui/BotonAccion';
 import { eventoService } from '../api/eventoService';
+import { parametroEventoService } from '../api/parametroEventoService';
+import { comiteService } from '../api/comiteService';
+import { presupuestoService } from '../api/presupuestoService';
+import { tipoEventoService } from '../api/tipoEventoService';
+import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
+import { ejecucionPresupuestalService } from '../api/ejecucionPresupuestalService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
+import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
+import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
+import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
+import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
+import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
+import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -26,6 +38,10 @@ import {
  * Lista los eventos y permite crearlos (Criterio 1), editarlos mientras están en configuración
  * (Criterio 2), crear nuevas ediciones (Criterio 3), consultar el historial de ediciones (Criterio 4)
  * y eliminarlos con confirmación (Criterio 5).
+ * Desde cada fila también se abren los tipos de actividad y las líneas temáticas del evento (HU-05).
+ * Desde cada fila también se abre el comité organizador del evento (HU-06).
+ * Desde cada fila también se abre el presupuesto preliminar del evento (HU-07).
+ * Desde cada fila también se abren los gastos y la ejecución presupuestal del evento (HU-09).
  * @module pages/EventosPage
  */
 
@@ -44,10 +60,27 @@ const ALERTA_EXITO = {
 /**
  * @param {Object} props
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
+ * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
+ * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
+ * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto preliminar (HU-07); Storybook inyecta una versión simulada.
+ * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
+ * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
+ * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
-export default function EventosPage({ api = eventoService, usuarioProp, onSelectNav }) {
+export default function EventosPage({
+  api = eventoService,
+  apiParametros = parametroEventoService,
+  apiComite = comiteService,
+  apiPresupuesto = presupuestoService,
+  apiTiposEvento = tipoEventoService,
+  apiPresupuestoAprobado = presupuestoAprobadoService,
+  apiEjecucion = ejecucionPresupuestalService,
+  usuarioProp,
+  onSelectNav,
+}) {
+
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(false);
@@ -56,8 +89,39 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto'|'presupuestoAprobado'|'ejecucion', evento }
   const [modal, setModal] = useState(null);
+
+  // Catálogo de tipos de evento para el combobox del formulario (null mientras carga). La ventana de
+  // administración se abre aparte, encima del formulario, para no perder lo que el usuario escribió.
+  const [tiposEvento, setTiposEvento] = useState(null);
+  const [tiposAbierto, setTiposAbierto] = useState(false);
+
+  useEffect(() => {
+    let activo = true;
+    apiTiposEvento
+      .listar()
+      .then((data) => {
+        if (activo) setTiposEvento(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        // Sin catálogo el combobox queda vacío; el error de permisos o de conexión ya lo informa la carga de eventos.
+        if (activo) setTiposEvento([]);
+      });
+    return () => {
+      activo = false;
+    };
+  }, [apiTiposEvento]);
+
+  /** Al cerrar la administración de tipos se refresca el combobox y la tabla (un tipo pudo cambiar de nombre). */
+  const cerrarTipos = (lista) => {
+    setTiposAbierto(false);
+    if (Array.isArray(lista)) {
+      setTiposEvento(lista);
+      setCargando(true);
+      setVersion((v) => v + 1);
+    }
+  };
 
   useEffect(() => {
     let activo = true;
@@ -148,6 +212,50 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
     terminar('Evento eliminado', `Se eliminó «${evento.nombre}».`);
   };
 
+  const publicar = (evento) => {
+    Swal.fire({
+      title: '¿Publicar evento?',
+      text: `Al publicar «${evento.nombre}», su estado pasará a habilitado y quedará disponible para las siguientes fases del sistema. El día de inicio pasará automáticamente a «en ejecución».`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, publicar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+      customClass: {
+        popup: 'rounded-[16px]',
+        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const publicado = await api.publicarEvento(evento.id);
+          const nombre = publicado.nombre || evento.nombre;
+          terminar(
+            '¡Evento publicado!',
+            publicado.estado === 'en_ejecucion'
+              ? `«${nombre}» ya está en ejecución, porque hoy está dentro de sus fechas.`
+              : `«${nombre}» ahora está habilitado. Pasará a «en ejecución» automáticamente el día de inicio.`
+          );
+        } catch (err) {
+          const { mensaje } = extraerError(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo publicar el evento',
+            text: mensaje,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: {
+              popup: 'rounded-[16px]',
+              confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+            },
+          });
+        }
+      }
+    });
+  };
+
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
@@ -165,10 +273,16 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
               Crea los eventos del programa y reutiliza su configuración en cada nueva edición.
             </p>
           </div>
-          <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })} className="shrink-0">
-            <Plus className="w-4 h-4" />
-            <span>Crear evento</span>
-          </Button>
+          <div className="flex items-center gap-3 shrink-0">
+            <Button type="button" variant="outline" onClick={() => setTiposAbierto(true)}>
+              <Shapes className="w-4 h-4" />
+              <span>Tipos de evento</span>
+            </Button>
+            <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })}>
+              <Plus className="w-4 h-4" />
+              <span>Crear evento</span>
+            </Button>
+          </div>
         </div>
 
         {/* Filtros */}
@@ -283,6 +397,38 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                           <BotonAccion
+                            icono={Globe}
+                            etiqueta="Publicar evento"
+                            onClick={() => publicar(evento)}
+                            disabled={!editable}
+                            motivo={motivoBloqueo}
+                          />
+                          <BotonAccion
+                            icono={Tags}
+                            etiqueta="Tipos de actividad y líneas temáticas"
+                            onClick={() => setModal({ tipo: 'parametros', evento })}
+                          />
+                          <BotonAccion
+                            icono={Users}
+                            etiqueta="Comité organizador"
+                            onClick={() => setModal({ tipo: 'comite', evento })}
+                          />
+                          <BotonAccion
+                            icono={Wallet}
+                            etiqueta="Presupuesto preliminar"
+                            onClick={() => setModal({ tipo: 'presupuesto', evento })}
+                          />
+                          <BotonAccion
+                            icono={ShieldCheck}
+                            etiqueta="Presupuesto aprobado formalmente"
+                            onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
+                          />
+                          <BotonAccion
+                            icono={TrendingUp}
+                            etiqueta="Gastos y ejecución presupuestal"
+                            onClick={() => setModal({ tipo: 'ejecucion', evento })}
+                          />
+                          <BotonAccion
                             icono={History}
                             etiqueta="Ver historial de ediciones"
                             onClick={() => setModal({ tipo: 'historial', evento })}
@@ -326,6 +472,8 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
           evento={modal.evento}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
+          tiposEvento={tiposEvento}
+          onAdministrarTipos={() => setTiposAbierto(true)}
         />
       )}
 
@@ -350,6 +498,60 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
         />
       )}
 
+      {modal?.tipo === 'parametros' && (
+        <ParametrosEventoModal
+          key={`parametros-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiParametros}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'comite' && (
+        <ComiteOrganizadorModal
+          key={`comite-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiComite}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'presupuesto' && (
+        <PresupuestoPreliminarModal
+          key={`presupuesto-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiPresupuesto}
+          onClose={cerrarModal}
+          onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
+        />
+      )}
+
+      {modal?.tipo === 'presupuestoAprobado' && (
+        <PresupuestoAprobadoModal
+          key={`aprobado-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiPresupuestoAprobado}
+          onClose={cerrarModal}
+          onAbrirPreliminar={() => setModal({ tipo: 'presupuesto', evento: modal.evento })}
+          onPresupuestoActualizado={recargar}
+        />
+      )}
+
+      {modal?.tipo === 'ejecucion' && (
+        <EjecucionPresupuestalModal
+          key={`ejecucion-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiEjecucion}
+          onClose={cerrarModal}
+          onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
+        />
+      )}
+
       {modal?.tipo === 'eliminar' && (
         <EventoDeleteModal
           key={`eliminar-${modal.evento.id}`}
@@ -360,6 +562,9 @@ export default function EventosPage({ api = eventoService, usuarioProp, onSelect
           onConfirm={eliminar}
         />
       )}
+
+      {/* Se monta después del formulario para quedar encima si se abre desde él */}
+      {tiposAbierto && <TiposEventoModal key="tipos-evento" isOpen api={apiTiposEvento} onClose={cerrarTipos} />}
     </MainLayout>
   );
 }

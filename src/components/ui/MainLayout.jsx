@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { useAuth } from '../../context/AuthContext';
+import NotificacionesCampana from '../../features/notificaciones/components/NotificacionesCampana';
 
 /**
  * @file MainLayout.jsx
@@ -11,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
  * Divide la pantalla en un Sidebar colapsable a la izquierda y un área principal a la derecha
  * con Topbar (64px), contenedor central `<main>` (padding 32px) con tarjeta blanca y Footer institucional.
  * Consume los datos del usuario autenticado del AuthContext o por props.
+ * La campana del Topbar muestra las notificaciones del usuario (HU-11).
  * @module components/ui/MainLayout
  */
 export default function MainLayout({
@@ -20,6 +22,7 @@ export default function MainLayout({
   onSelectNav,
   usuario: usuarioProp,
   onLogout: onLogoutProp,
+  apiNotificaciones,
 }) {
   const navigate = useNavigate();
   const auth = useAuth();

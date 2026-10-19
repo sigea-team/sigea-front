@@ -66,7 +66,8 @@ export function puedeEnviarPropuesta(convocatoria) {
     return { permitido: false, motivo: 'Convocatoria no encontrada.' };
   }
 
-  if (convocatoria.estado === 'BORRADOR') {
+  const estadoUpper = (convocatoria.estado || '').toUpperCase();
+  if (estadoUpper === 'BORRADOR') {
     return {
       permitido: false,
       motivo: 'La convocatoria está en estado borrador y aún no recibe propuestas.',
@@ -99,7 +100,8 @@ export function puedeEnviarPropuesta(convocatoria) {
  * @returns {boolean}
  */
 export function esBorradorEditable(convocatoria) {
-  return convocatoria?.estado === 'BORRADOR';
+  const est = (convocatoria?.estado || '').toUpperCase();
+  return est === 'BORRADOR';
 }
 
 /**
@@ -155,4 +157,130 @@ export function validarConvocatoria(form) {
   }
 
   return errores;
+}
+
+/**
+ * Nombres legibles de los campos que el backend puede reportar como faltantes al publicar
+ * (HU-11, Criterio 3: respuesta 400 CONVOCATORIA_INCOMPLETA con `erroresValidacion`).
+ */
+export const CAMPOS_CONVOCATORIA = {
+  titulo: 'Título',
+  fechaApertura: 'Fecha de apertura',
+  fechaCierre: 'Fecha límite de recepción de propuestas',
+};
+
+/**
+ * Indica si la convocatoria está publicada (el backend responde el estado en minúsculas: 'publicada').
+ * @param {{ estado: string }} convocatoria
+ * @returns {boolean}
+ */
+export function esPublicada(convocatoria) {
+  const est = (convocatoria?.estado || '').toUpperCase();
+  return est === 'PUBLICADA' || est === 'ABIERTA';
+}
+
+/**
+ * HU-11 (Criterio 2): la fecha límite solo se puede modificar en convocatorias publicadas
+ * que todavía no han expirado.
+ * @param {{ estado: string, fechaCierre: string|Date }} convocatoria
+ * @returns {{ permitido: boolean, motivo?: string }}
+ */
+export function puedeModificarFechaCierre(convocatoria) {
+  if (!esPublicada(convocatoria)) {
+    return {
+      permitido: false,
+      motivo: 'Solo se puede modificar la fecha límite de convocatorias publicadas.',
+    };
+  }
+  if (esConvocatoriaExpirada(convocatoria.fechaCierre)) {
+    return {
+      permitido: false,
+      motivo: 'La convocatoria ya expiró; su fecha límite no se puede modificar.',
+    };
+  }
+  return { permitido: true };
+}
+
+/**
+ * HU-11 (Criterio 2): valida la nueva fecha límite antes de enviarla al backend.
+ * Reglas: obligatoria, distinta de la actual, futura y posterior a la fecha de apertura.
+ * @param {string} nuevaFecha - Valor del input datetime-local (YYYY-MM-DDTHH:mm).
+ * @param {{ fechaApertura: string, fechaCierre: string }} convocatoria
+ * @returns {string|null} Mensaje de error, o null si es válida.
+ */
+export function validarNuevaFechaCierre(nuevaFecha, convocatoria) {
+  if (!nuevaFecha) {
+    return 'Selecciona la nueva fecha y hora límite.';
+  }
+  const nueva = aFecha(nuevaFecha);
+  if (!nueva) {
+    return 'La fecha ingresada no es válida.';
+  }
+  const actual = aFecha(convocatoria?.fechaCierre);
+  if (actual && Math.floor(actual.getTime() / 60000) === Math.floor(nueva.getTime() / 60000)) {
+    return 'La nueva fecha límite es igual a la actual.';
+  }
+  if (nueva.getTime() <= Date.now()) {
+    return 'La nueva fecha límite debe ser posterior a la fecha y hora actual.';
+  }
+  const apertura = aFecha(convocatoria?.fechaApertura);
+  if (apertura && nueva.getTime() <= apertura.getTime()) {
+    return 'La nueva fecha límite debe ser posterior a la fecha de apertura.';
+  }
+  return null;
+}
+
+/**
+ * Estado de recepción de una convocatoria publicada, para la vista pública (HU-11, Criterio 1).
+ * @param {{ fechaApertura: string, fechaCierre: string }} convocatoria
+ * @returns {'proxima'|'abierta'|'cerrada'}
+ */
+export function estadoRecepcion(convocatoria) {
+  if (esConvocatoriaExpirada(convocatoria?.fechaCierre)) return 'cerrada';
+  const inicio = aFecha(convocatoria?.fechaApertura);
+  if (inicio && Date.now() < inicio.getTime()) return 'proxima';
+  return 'abierta';
+}
+
+/**
+ * Extrae el mensaje legible de un error de la API (formato ErrorResponse del backend).
+ * @param {unknown} err
+ * @param {string} porDefecto
+ * @returns {string}
+ */
+export function mensajeErrorApi(err, porDefecto) {
+  return (
+    err?.response?.data?.mensaje ||
+    err?.response?.data?.message ||
+    err?.message ||
+    porDefecto
+  );
+}
+
+/**
+ * HU-11 (Criterio 3): convierte el detalle de un error 400 CONVOCATORIA_INCOMPLETA en una lista legible.
+ * El backend envía `erroresValidacion` como objeto `{ campo: mensaje }`; por tolerancia también acepta
+ * una lista (de textos o de objetos `{ campo, mensaje }`). Si no hay detalle, devuelve una lista vacía.
+ * @param {{ erroresValidacion?: Object|Array }} data - Cuerpo de la respuesta de error.
+ * @returns {Array<{ campo: string, etiqueta: string, mensaje: string }>}
+ */
+export function listarCamposFaltantes(data) {
+  const detalle = data?.erroresValidacion;
+  if (!detalle) return [];
+
+  const aItem = (campo, mensaje) => ({
+    campo: campo || '',
+    etiqueta: CAMPOS_CONVOCATORIA[campo] || campo || 'Dato obligatorio',
+    mensaje: String(mensaje ?? ''),
+  });
+
+  if (Array.isArray(detalle)) {
+    return detalle.map((item) =>
+      typeof item === 'string' ? aItem('', item) : aItem(item?.campo, item?.mensaje ?? item?.message)
+    );
+  }
+  if (typeof detalle === 'object') {
+    return Object.entries(detalle).map(([campo, mensaje]) => aItem(campo, mensaje));
+  }
+  return [];
 }
