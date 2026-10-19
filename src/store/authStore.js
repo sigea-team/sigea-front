@@ -106,23 +106,7 @@ export const useAuthStore = create(
       },
 
       /**
-       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE' o 'PONENTE').
-       * @param {string} modo
-       */
-      setModoIngreso: (modo) => {
-        set((state) => {
-          if (!state.usuario) return state;
-          return {
-            usuario: {
-              ...state.usuario,
-              modoIngreso: String(modo || 'ASISTENTE').toUpperCase(),
-            },
-          };
-        });
-      },
-
-      /**
-       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE' o 'PONENTE').
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE' o 'ADMINISTRADOR').
        * @param {string} modo
        */
       setModoIngreso: (modo) => {

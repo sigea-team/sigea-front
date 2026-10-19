@@ -31,6 +31,8 @@ import {
   extraerError,
   formatearRango,
 } from '../features/eventos/eventoUtils';
+import { useAuth } from '../context/AuthContext';
+import { esAdministrador } from '../utils/permisos';
 
 /**
  * @file EventosPage.jsx
@@ -80,6 +82,9 @@ export default function EventosPage({
   usuarioProp,
   onSelectNav,
 }) {
+  const auth = useAuth();
+  const usuarioActual = usuarioProp || auth?.usuario;
+  const isAdmin = esAdministrador(usuarioActual);
 
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -259,30 +264,41 @@ export default function EventosPage({
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
-    <MainLayout title="Gestión de eventos" activeNav="eventos" onSelectNav={onSelectNav} usuario={usuarioProp}>
+    <MainLayout
+      title={isAdmin ? "Gestión de eventos" : "Eventos académicos"}
+      activeNav="eventos"
+      onSelectNav={onSelectNav}
+      usuario={usuarioActual}
+    >
       <div className="space-y-6">
         {/* Encabezado */}
         <div className="flex items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
               <CalendarDays className="w-3.5 h-3.5" />
-              SIGEA — Eventos académicos
+              SIGEA — {isAdmin ? 'Gestión de eventos' : 'Eventos académicos'}
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">Eventos y ediciones</h2>
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+              {isAdmin ? 'Eventos y ediciones' : 'Catálogo de eventos'}
+            </h2>
             <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
-              Crea los eventos del programa y reutiliza su configuración en cada nueva edición.
+              {isAdmin
+                ? 'Crea los eventos del programa y reutiliza su configuración en cada nueva edición.'
+                : 'Consulta los eventos académicos institucionales programados por la universidad.'}
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <Button type="button" variant="outline" onClick={() => setTiposAbierto(true)}>
-              <Shapes className="w-4 h-4" />
-              <span>Tipos de evento</span>
-            </Button>
-            <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })}>
-              <Plus className="w-4 h-4" />
-              <span>Crear evento</span>
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-3 shrink-0">
+              <Button type="button" variant="outline" onClick={() => setTiposAbierto(true)}>
+                <Shapes className="w-4 h-4" />
+                <span>Tipos de evento</span>
+              </Button>
+              <Button type="button" variant="primary" onClick={() => setModal({ tipo: 'crear', evento: null })}>
+                <Plus className="w-4 h-4" />
+                <span>Crear evento</span>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Filtros */}
@@ -322,7 +338,7 @@ export default function EventosPage({
                   <th scope="col" className="py-3.5 px-5">Semestre</th>
                   <th scope="col" className="py-3.5 px-5">Modalidad</th>
                   <th scope="col" className="py-3.5 px-5">Estado</th>
-                  <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>
+                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Detalles'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
@@ -360,7 +376,9 @@ export default function EventosPage({
                       ) : (
                         <>
                           <p className="font-semibold text-base text-[#1f2023]">Todavía no hay eventos registrados</p>
-                          <p className="text-xs mt-1 text-[#5b5f66]">Usa «Crear evento» para registrar el primero.</p>
+                          <p className="text-xs mt-1 text-[#5b5f66]">
+                            {isAdmin ? 'Usa «Crear evento» para registrar el primero.' : 'Próximamente se publicarán nuevos eventos académicos.'}
+                          </p>
                         </>
                       )}
                     </td>
@@ -396,63 +414,73 @@ export default function EventosPage({
                       </td>
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
-                          <BotonAccion
-                            icono={Globe}
-                            etiqueta="Publicar evento"
-                            onClick={() => publicar(evento)}
-                            disabled={!editable}
-                            motivo={motivoBloqueo}
-                          />
-                          <BotonAccion
-                            icono={Tags}
-                            etiqueta="Tipos de actividad y líneas temáticas"
-                            onClick={() => setModal({ tipo: 'parametros', evento })}
-                          />
-                          <BotonAccion
-                            icono={Users}
-                            etiqueta="Comité organizador"
-                            onClick={() => setModal({ tipo: 'comite', evento })}
-                          />
-                          <BotonAccion
-                            icono={Wallet}
-                            etiqueta="Presupuesto preliminar"
-                            onClick={() => setModal({ tipo: 'presupuesto', evento })}
-                          />
-                          <BotonAccion
-                            icono={ShieldCheck}
-                            etiqueta="Presupuesto aprobado formalmente"
-                            onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
-                          />
-                          <BotonAccion
-                            icono={TrendingUp}
-                            etiqueta="Gastos y ejecución presupuestal"
-                            onClick={() => setModal({ tipo: 'ejecucion', evento })}
-                          />
-                          <BotonAccion
-                            icono={History}
-                            etiqueta="Ver historial de ediciones"
-                            onClick={() => setModal({ tipo: 'historial', evento })}
-                          />
-                          <BotonAccion
-                            icono={CopyPlus}
-                            etiqueta="Crear nueva edición a partir de este evento"
-                            onClick={() => setModal({ tipo: 'edicion', evento })}
-                          />
-                          <BotonAccion
-                            icono={Pencil}
-                            etiqueta="Editar configuración"
-                            onClick={() => setModal({ tipo: 'editar', evento })}
-                            disabled={!editable}
-                            motivo={motivoBloqueo}
-                          />
-                          <BotonAccion
-                            icono={Trash2}
-                            etiqueta="Eliminar evento"
-                            onClick={() => setModal({ tipo: 'eliminar', evento })}
-                            disabled={!editable}
-                            motivo={motivoBloqueo}
-                            peligro
-                          />
+                          {isAdmin ? (
+                            <>
+                              <BotonAccion
+                                icono={Globe}
+                                etiqueta="Publicar evento"
+                                onClick={() => publicar(evento)}
+                                disabled={!editable}
+                                motivo={motivoBloqueo}
+                              />
+                              <BotonAccion
+                                icono={Tags}
+                                etiqueta="Tipos de actividad y líneas temáticas"
+                                onClick={() => setModal({ tipo: 'parametros', evento })}
+                              />
+                              <BotonAccion
+                                icono={Users}
+                                etiqueta="Comité organizador"
+                                onClick={() => setModal({ tipo: 'comite', evento })}
+                              />
+                              <BotonAccion
+                                icono={Wallet}
+                                etiqueta="Presupuesto preliminar"
+                                onClick={() => setModal({ tipo: 'presupuesto', evento })}
+                              />
+                              <BotonAccion
+                                icono={ShieldCheck}
+                                etiqueta="Presupuesto aprobado formalmente"
+                                onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
+                              />
+                              <BotonAccion
+                                icono={TrendingUp}
+                                etiqueta="Gastos y ejecución presupuestal"
+                                onClick={() => setModal({ tipo: 'ejecucion', evento })}
+                              />
+                              <BotonAccion
+                                icono={History}
+                                etiqueta="Ver historial de ediciones"
+                                onClick={() => setModal({ tipo: 'historial', evento })}
+                              />
+                              <BotonAccion
+                                icono={CopyPlus}
+                                etiqueta="Crear nueva edición a partir de este evento"
+                                onClick={() => setModal({ tipo: 'edicion', evento })}
+                              />
+                              <BotonAccion
+                                icono={Pencil}
+                                etiqueta="Editar configuración"
+                                onClick={() => setModal({ tipo: 'editar', evento })}
+                                disabled={!editable}
+                                motivo={motivoBloqueo}
+                              />
+                              <BotonAccion
+                                icono={Trash2}
+                                etiqueta="Eliminar evento"
+                                onClick={() => setModal({ tipo: 'eliminar', evento })}
+                                disabled={!editable}
+                                motivo={motivoBloqueo}
+                                peligro
+                              />
+                            </>
+                          ) : (
+                            <BotonAccion
+                              icono={History}
+                              etiqueta="Ver historial de ediciones"
+                              onClick={() => setModal({ tipo: 'historial', evento })}
+                            />
+                          )}
                         </div>
                       </td>
                     </tr>

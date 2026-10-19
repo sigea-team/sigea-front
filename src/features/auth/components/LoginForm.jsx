@@ -24,7 +24,8 @@ import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
-import { rutaSegunRoles } from '../../../store/authStore';
+import { rutaSegunRoles, useAuthStore } from '../../../store/authStore';
+import { tieneRolAdministrador } from '../../../utils/permisos';
 import AvisoBloqueo from './AvisoBloqueo';
 import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
@@ -114,7 +115,7 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente'
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'administrador'
 
   const handleSubmit = async (e, modoForzado) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -134,6 +135,28 @@ export default function LoginForm() {
         },
         modoFinal.toUpperCase()
       );
+
+      // Si seleccionó modo Administrador, validar que la cuenta realmente tenga privilegios de administrador
+      if (modoFinal === 'administrador') {
+        const usuarioLogueado = sesion?.usuario;
+        if (!tieneRolAdministrador(usuarioLogueado)) {
+          // Revertir y limpiar la sesión guardada
+          useAuthStore.getState().cerrarSesion();
+          const mensajeError = 'Acceso denegado: Esta cuenta no cuenta con rol de Administrador. Por favor ingresa seleccionando tu perfil correspondiente (Asistente o Ponente).';
+          setGeneralError(mensajeError);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'Esta cuenta no tiene privilegios de Administrador. Solo las cuentas autorizadas como administrador pueden ingresar en este perfil.',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: { popup: 'rounded-[16px]' },
+          });
+          return;
+        }
+      }
+
       navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
     } catch (err) {
       // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
@@ -311,7 +334,11 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            {modoAcceso === 'ponente' ? 'Ingresar como Ponente' : 'Ingresar a SIGEA'}
+            {modoAcceso === 'administrador'
+              ? 'Ingresar como Administrador'
+              : modoAcceso === 'ponente'
+              ? 'Ingresar como Ponente'
+              : 'Ingresar a SIGEA'}
           </Button>
         </div>
 
