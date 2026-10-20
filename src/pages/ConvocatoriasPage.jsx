@@ -464,6 +464,7 @@ export default function ConvocatoriasPage({
           onModificarFechaCierre={(conv) => setModal({ tipo: 'fecha', convocatoria: conv })}
           onEliminar={eliminar}
           onIntentarEnviar={intentarEnviarPropuesta}
+          isAdmin={isAdmin}
         />
       </div>
 

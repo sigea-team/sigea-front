@@ -25,6 +25,10 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} nombreCompleto
  * @property {string[]} roles
  * @property {'ASISTENTE'|'PONENTE'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
+ * @property {string} [avatarUrl]
+ * @property {string} [telefono]
+ * @property {string} [afiliacion]
+ * @property {string} [biografia]
  */
 
 /**
@@ -72,6 +76,10 @@ export function normalizarSesion(data, modoIngreso = 'ASISTENTE') {
       nombreCompleto: origen.nombreCompleto ?? origen.nombre ?? origen.name ?? '',
       roles,
       modoIngreso: modo,
+      avatarUrl: origen.avatarUrl ?? origen.foto ?? '',
+      telefono: origen.telefono ?? '',
+      afiliacion: origen.afiliacion ?? '',
+      biografia: origen.biografia ?? '',
     },
   };
 }
@@ -98,7 +106,7 @@ export const useAuthStore = create(
       },
 
       /**
-       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE' o 'PONENTE').
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE' o 'ADMINISTRADOR').
        * @param {string} modo
        */
       setModoIngreso: (modo) => {
@@ -112,6 +120,15 @@ export const useAuthStore = create(
           };
         });
       },
+
+      /**
+       * Actualiza los datos del usuario en la sesión activa.
+       * @param {Partial<UsuarioSesion>} nuevosDatos
+       */
+      actualizarUsuario: (nuevosDatos) =>
+        set((state) => ({
+          usuario: state.usuario ? { ...state.usuario, ...nuevosDatos } : null,
+        })),
 
       /** Cierra la sesión y limpia el estado persistido. */
       cerrarSesion: () => set({ token: null, usuario: null }),

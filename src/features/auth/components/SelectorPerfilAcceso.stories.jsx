@@ -21,3 +21,10 @@ export const ModoPonente = {
     onChangeModo: (modo) => console.log('Modo cambiado:', modo),
   },
 };
+
+export const ModoAdministrador = {
+  args: {
+    modoAcceso: 'administrador',
+    onChangeModo: (modo) => console.log('Modo cambiado:', modo),
+  },
+};

@@ -1,16 +1,15 @@
-import { User } from 'lucide-react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
+import Topbar from './Topbar';
 import Footer from './Footer';
 import { useAuth } from '../../context/AuthContext';
-import NotificacionesCampana from '../../features/notificaciones/components/NotificacionesCampana';
 
 /**
  * @file MainLayout.jsx
  * @description Layout principal de aplicación funcional para el sistema SIGEA.
- * Divide la pantalla en un Sidebar fijo de 260px a la izquierda y un área principal a la derecha
- * con Topbar (64px), contenedor central `<main>` (padding 32px) con tarjeta blanca y Footer institucional.
+ * Divide la pantalla en un Sidebar colapsable a la izquierda y un área principal a la derecha
+ * con Topbar (64px) independiente, contenedor central `<main>` (padding 32px) con tarjeta blanca y Footer institucional.
  * Consume los datos del usuario autenticado del AuthContext o por props.
- * La campana del Topbar muestra las notificaciones del usuario (HU-11).
  * @module components/ui/MainLayout
  */
 export default function MainLayout({
@@ -25,6 +24,26 @@ export default function MainLayout({
   const auth = useAuth();
   const usuario = usuarioProp || auth?.usuario;
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('sigea-sidebar-collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('sigea-sidebar-collapsed', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   const handleLogout = () => {
     if (onLogoutProp) {
       onLogoutProp();
@@ -33,59 +52,30 @@ export default function MainLayout({
     }
   };
 
-  const nombreCompleto = usuario?.nombreCompleto || 'Usuario SIGEA';
-  const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles[0] : 'Asistente');
-
   return (
     <div className="min-h-screen w-full flex bg-[#edeeef] text-[#1f2023] font-sans antialiased">
-      {/* Sidebar Lateral Fijo (260px) */}
+      {/* Sidebar Lateral Colapsable (Maneja su propio colapso) */}
       <Sidebar
         activeItem={activeNav}
         onSelectNav={onSelectNav}
         usuario={usuario}
         onLogout={handleLogout}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
 
       {/* Área Principal de Contenido (Derecha) */}
-      <div className="flex-1 flex flex-col min-h-screen bg-[#f7f7f8] min-w-0">
-        {/* Topbar Superior (64px) */}
-        <header className="h-16 px-8 bg-white border-b border-[#e5e7ea] flex items-center justify-between shrink-0 shadow-2xs">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-[#1f2023] tracking-tight">
-              {title}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Campana de Notificaciones (HU-11) */}
-            <NotificacionesCampana api={apiNotificaciones} />
-
-            {/* Separador */}
-            <div className="h-6 w-px bg-[#e5e7ea]"></div>
-
-            {/* Perfil / Avatar en Topbar */}
-            <div className="flex items-center gap-3 select-none">
-              <div className="w-9 h-9 rounded-full bg-[#fdecec] border border-[#a6192e]/20 text-[#a6192e] flex items-center justify-center font-bold text-sm shadow-xs">
-                {usuario?.avatarUrl ? (
-                  <img src={usuario.avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  <User className="w-5 h-5" />
-                )}
-              </div>
-              <div className="hidden sm:block text-left">
-                <p className="text-xs font-semibold text-[#1f2023] leading-tight">
-                  {nombreCompleto}
-                </p>
-                <p className="text-[10px] text-[#5b5f66] capitalize">
-                  {rol}
-                </p>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className="flex-1 flex flex-col min-h-screen bg-[#f7f7f8] min-w-0 transition-all duration-300">
+        {/* Topbar Superior Independiente */}
+        <Topbar
+          title={title}
+          usuario={usuario}
+          onLogout={handleLogout}
+          apiNotificaciones={apiNotificaciones}
+        />
 
         {/* Contenedor Central <main> con padding de 32px (p-8) */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
           <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-6 sm:p-8 shadow-xs">
             {children}
           </div>

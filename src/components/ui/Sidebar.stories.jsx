@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 
 export default {
@@ -11,8 +11,9 @@ export default {
   argTypes: {
     activeItem: {
       control: { type: 'select' },
-      options: ['dashboard', 'convocatorias', 'eventos', 'certificados', 'roles', 'configuracion'],
+      options: ['dashboard', 'convocatorias', 'eventos', 'certificados', 'cuenta', 'roles', 'configuracion'],
     },
+    collapsed: { control: 'boolean' },
     onLogout: { action: 'logged out' },
     onSelectNav: { action: 'selected nav' },
   },
@@ -21,10 +22,14 @@ export default {
 export const Default = {
   args: {
     activeItem: 'dashboard',
-    usuario: {
-      nombreCompleto: 'Carlos Andrés Gómez',
-      rol: 'Organizador',
-    },
+    collapsed: false,
+  },
+};
+
+export const Colapsado = {
+  args: {
+    activeItem: 'dashboard',
+    collapsed: true,
   },
 };
 
@@ -32,8 +37,8 @@ export const Administrador = {
   args: {
     activeItem: 'roles',
     usuario: {
-      nombreCompleto: 'Admin SIGEA',
       rol: 'ADMIN',
+      roles: ['ADMIN'],
     },
   },
 };
@@ -41,24 +46,25 @@ export const Administrador = {
 export const ConvocatoriasActivas = {
   args: {
     activeItem: 'convocatorias',
-    usuario: {
-      nombreCompleto: 'María Fernanda Ruiz',
-      rol: 'Ponente',
-    },
   },
 };
 
 export const Interactive = {
   render: () => {
-    const [active, setActive] = useState('roles');
+    const [active, setActive] = useState('dashboard');
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
     return (
       <div className="h-screen bg-[#edeeef] flex">
         <Sidebar
           activeItem={active}
           onSelectNav={(id) => setActive(id)}
-          usuario={{ nombreCompleto: 'Administrador Sistema', rol: 'ADMIN' }}
+          collapsed={isCollapsed}
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+          usuario={{ rol: 'ADMIN', roles: ['ADMIN'] }}
         />
       </div>
     );
   },
 };
+

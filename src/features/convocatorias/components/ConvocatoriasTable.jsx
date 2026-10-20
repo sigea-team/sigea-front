@@ -41,7 +41,10 @@ export default function ConvocatoriasTable({
   onModificarFechaCierre,
   onEliminar,
   onIntentarEnviar,
+  isAdmin = true,
 }) {
+  const columnasTotales = isAdmin ? 5 : 4;
+
   return (
     <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
       <div className="overflow-x-auto">
@@ -52,13 +55,13 @@ export default function ConvocatoriasTable({
               <th scope="col" className="py-3.5 px-5">Periodo de recepción</th>
               <th scope="col" className="py-3.5 px-5">Estado</th>
               <th scope="col" className="py-3.5 px-5">Envío de propuesta</th>
-              <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>
+              {isAdmin && <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
             {cargando && convocatorias.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
+                <td colSpan={columnasTotales} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
                   Cargando convocatorias...
                 </td>
               </tr>
@@ -66,7 +69,7 @@ export default function ConvocatoriasTable({
 
             {!cargando && convocatorias.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-12 px-5 text-center">
+                <td colSpan={columnasTotales} className="py-12 px-5 text-center">
                   <p className="font-semibold text-base text-[#1f2023]">
                     {hayFiltros
                       ? 'Ninguna convocatoria coincide con los criterios de búsqueda'
@@ -75,7 +78,9 @@ export default function ConvocatoriasTable({
                   <p className="text-xs mt-1 text-[#5b5f66]">
                     {hayFiltros
                       ? 'Prueba con otros términos o cambia el filtro de estado.'
-                      : 'Usa «Crear convocatoria» para configurar la primera.'}
+                      : isAdmin
+                      ? 'Usa «Crear convocatoria» para configurar la primera.'
+                      : 'Próximamente se publicarán nuevas convocatorias.'}
                   </p>
                 </td>
               </tr>
@@ -147,48 +152,50 @@ export default function ConvocatoriasTable({
                   </td>
 
                   {/* Acciones de administración */}
-                  <td className="py-4 px-5 align-middle">
-                    <div className="flex items-center justify-end gap-2">
-                      {/* Publicar convocatoria en borrador */}
-                      <BotonAccion
-                        icono={Globe}
-                        etiqueta="Publicar convocatoria"
-                        onClick={() => onPublicar && onPublicar(convocatoria)}
-                        disabled={!editable}
-                        motivo="Solo se pueden publicar convocatorias en estado borrador."
-                      />
-
-                      {/* HU-11, Criterio 2: modificar la fecha límite de una convocatoria publicada */}
-                      {onModificarFechaCierre && (
+                  {isAdmin && (
+                    <td className="py-4 px-5 align-middle">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Publicar convocatoria en borrador */}
                         <BotonAccion
-                          icono={CalendarClock}
-                          etiqueta="Modificar fecha límite"
-                          onClick={() => onModificarFechaCierre(convocatoria)}
-                          disabled={!validacionFecha.permitido}
-                          motivo={validacionFecha.motivo}
+                          icono={Globe}
+                          etiqueta="Publicar convocatoria"
+                          onClick={() => onPublicar && onPublicar(convocatoria)}
+                          disabled={!editable}
+                          motivo="Solo se pueden publicar convocatorias en estado borrador."
                         />
-                      )}
 
-                      {/* Criterio 3: Editar en borrador */}
-                      <BotonAccion
-                        icono={Pencil}
-                        etiqueta="Editar convocatoria"
-                        onClick={() => onEditar(convocatoria)}
-                        disabled={!editable}
-                        motivo="Solo se pueden editar convocatorias en estado borrador."
-                      />
+                        {/* HU-11, Criterio 2: modificar la fecha límite de una convocatoria publicada */}
+                        {onModificarFechaCierre && (
+                          <BotonAccion
+                            icono={CalendarClock}
+                            etiqueta="Modificar fecha límite"
+                            onClick={() => onModificarFechaCierre(convocatoria)}
+                            disabled={!validacionFecha.permitido}
+                            motivo={validacionFecha.motivo}
+                          />
+                        )}
 
-                      {/* Eliminar borrador */}
-                      <BotonAccion
-                        icono={Trash2}
-                        etiqueta="Eliminar convocatoria"
-                        onClick={() => onEliminar(convocatoria)}
-                        disabled={!editable}
-                        motivo="Solo se pueden eliminar convocatorias en estado borrador."
-                        peligro
-                      />
-                    </div>
-                  </td>
+                        {/* Criterio 3: Editar en borrador */}
+                        <BotonAccion
+                          icono={Pencil}
+                          etiqueta="Editar convocatoria"
+                          onClick={() => onEditar(convocatoria)}
+                          disabled={!editable}
+                          motivo="Solo se pueden editar convocatorias en estado borrador."
+                        />
+
+                        {/* Eliminar borrador */}
+                        <BotonAccion
+                          icono={Trash2}
+                          etiqueta="Eliminar convocatoria"
+                          onClick={() => onEliminar(convocatoria)}
+                          disabled={!editable}
+                          motivo="Solo se pueden eliminar convocatorias en estado borrador."
+                          peligro
+                        />
+                      </div>
+                    </td>
+                  )}
                 </tr>
               );
             })}
