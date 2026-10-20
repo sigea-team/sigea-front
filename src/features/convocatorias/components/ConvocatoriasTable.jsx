@@ -43,7 +43,7 @@ export default function ConvocatoriasTable({
   onIntentarEnviar,
   isAdmin = true,
 }) {
-  const columnasTotales = isAdmin ? 5 : 4;
+  const columnasTotales = 4;
 
   return (
     <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
@@ -54,7 +54,7 @@ export default function ConvocatoriasTable({
               <th scope="col" className="py-3.5 px-5">Convocatoria / Evento</th>
               <th scope="col" className="py-3.5 px-5">Periodo de recepción</th>
               <th scope="col" className="py-3.5 px-5">Estado</th>
-              <th scope="col" className="py-3.5 px-5">Envío de propuesta</th>
+              {!isAdmin && <th scope="col" className="py-3.5 px-5">Envío de propuesta</th>}
               {isAdmin && <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>}
             </tr>
           </thead>
@@ -88,7 +88,7 @@ export default function ConvocatoriasTable({
 
             {convocatorias.map((convocatoria) => {
               const editable = esBorradorEditable(convocatoria);
-              const validacionEnvio = puedeEnviarPropuesta(convocatoria);
+              const validacionEnvio = !isAdmin ? puedeEnviarPropuesta(convocatoria) : null;
               const validacionFecha = puedeModificarFechaCierre(convocatoria);
 
               return (
@@ -126,30 +126,32 @@ export default function ConvocatoriasTable({
                     />
                   </td>
 
-                  {/* Simulación de Envío para Autor (Criterio 4) */}
-                  <td className="py-4 px-5 align-middle whitespace-nowrap">
-                    <Button
-                      type="button"
-                      variant={validacionEnvio.permitido ? 'primary' : 'outline'}
-                      size="sm"
-                      onClick={() => onIntentarEnviar(convocatoria)}
-                      disabled={!validacionEnvio.permitido}
-                      title={validacionEnvio.motivo || 'Enviar propuesta'}
-                      className="text-xs"
-                    >
-                      {validacionEnvio.permitido ? (
-                        <>
-                          <Send className="w-3.5 h-3.5" />
-                          <span>Enviar propuesta</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5 text-[#a6192e]" />
-                          <span>Recepción cerrada</span>
-                        </>
-                      )}
-                    </Button>
-                  </td>
+                  {/* Simulación de Envío para Autor (Criterio 4) - Solo visible para no administradores */}
+                  {!isAdmin && (
+                    <td className="py-4 px-5 align-middle whitespace-nowrap">
+                      <Button
+                        type="button"
+                        variant={validacionEnvio?.permitido ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => onIntentarEnviar && onIntentarEnviar(convocatoria)}
+                        disabled={!validacionEnvio?.permitido}
+                        title={validacionEnvio?.motivo || 'Enviar propuesta'}
+                        className="text-xs"
+                      >
+                        {validacionEnvio?.permitido ? (
+                          <>
+                            <Send className="w-3.5 h-3.5" />
+                            <span>Enviar propuesta</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3.5 h-3.5 text-[#a6192e]" />
+                            <span>Recepción cerrada</span>
+                          </>
+                        )}
+                      </Button>
+                    </td>
+                  )}
 
                   {/* Acciones de administración */}
                   {isAdmin && (
@@ -210,9 +212,10 @@ ConvocatoriasTable.propTypes = {
   convocatorias: PropTypes.arrayOf(PropTypes.object),
   cargando: PropTypes.bool,
   hayFiltros: PropTypes.bool,
-  onEditar: PropTypes.func.isRequired,
+  onEditar: PropTypes.func,
   onPublicar: PropTypes.func,
   onModificarFechaCierre: PropTypes.func,
-  onEliminar: PropTypes.func.isRequired,
-  onIntentarEnviar: PropTypes.func.isRequired,
+  onEliminar: PropTypes.func,
+  onIntentarEnviar: PropTypes.func,
+  isAdmin: PropTypes.bool,
 };

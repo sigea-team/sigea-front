@@ -36,18 +36,30 @@ const MOCK_CONVOCATORIAS = [
   },
 ];
 
-export const ConDatos = {
+export const ModoAdmin = {
   args: {
     convocatorias: MOCK_CONVOCATORIAS,
     cargando: false,
     hayFiltros: false,
+    isAdmin: true,
     onEditar: (item) => console.log('Editar:', item),
     onPublicar: (item) => console.log('Publicar:', item),
     onModificarFechaCierre: (item) => console.log('Modificar fecha límite:', item),
     onEliminar: (item) => console.log('Eliminar:', item),
+  },
+};
+
+export const ModoPonente = {
+  args: {
+    convocatorias: MOCK_CONVOCATORIAS,
+    cargando: false,
+    hayFiltros: false,
+    isAdmin: false,
     onIntentarEnviar: (item) => console.log('Intentar enviar:', item),
   },
 };
+
+export const ConDatos = ModoAdmin;
 
 export const Vacia = {
   args: {
