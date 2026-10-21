@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import BotonAccion from '../components/ui/BotonAccion';
+import MenuAcciones from '../components/ui/MenuAcciones';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
@@ -44,6 +45,8 @@ import { esAdministrador } from '../utils/permisos';
  * Desde cada fila también se abre el comité organizador del evento (HU-06).
  * Desde cada fila también se abre el presupuesto preliminar del evento (HU-07).
  * Desde cada fila también se abren los gastos y la ejecución presupuestal del evento (HU-09).
+ * En cada fila solo quedan visibles «Publicar» y «Editar» (cuando el evento está en configuración);
+ * el resto de acciones va agrupado por tema en el menú «Más».
  * @module pages/EventosPage
  */
 
@@ -51,6 +54,27 @@ const OPCIONES_ESTADO = [
   { value: 'todos', label: 'Todos los estados' },
   ...Object.entries(ESTADOS_EVENTO).map(([value, label]) => ({ value, label })),
 ];
+
+/**
+ * Botón compacto con ícono y texto para las acciones visibles de una fila.
+ * @param {{ icono: React.ElementType, children: React.ReactNode, onClick: function(): void, principal?: boolean }} props
+ */
+function BotonFila({ icono: Icono, children, onClick, principal = false }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`h-9 px-3.5 inline-flex items-center gap-1.5 rounded-[8px] border text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] focus-visible:ring-offset-1 ${
+        principal
+          ? 'bg-[#a6192e] border-[#a6192e] text-white hover:bg-[#7a0c1e] hover:border-[#7a0c1e]'
+          : 'bg-white border-[#d8dadf] text-[#1f2023] hover:bg-[#f7f7f8]'
+      }`}
+    >
+      <Icono className={`w-4 h-4 ${principal ? 'text-white' : 'text-[#5b5f66]'}`} aria-hidden="true" />
+      {children}
+    </button>
+  );
+}
 
 const ALERTA_EXITO = {
   icon: 'success',
@@ -387,7 +411,6 @@ export default function EventosPage({
 
                 {eventosFiltrados.map((evento) => {
                   const editable = esEditable(evento);
-                  const motivoBloqueo = `Solo disponible en configuración. Estado actual: ${ESTADOS_EVENTO[evento.estado] || evento.estado}.`;
                   const nombreBase = evento.eventoBaseId ? nombrePorId[evento.eventoBaseId] : null;
                   const derivadas = edicionesPorBase[evento.id] || 0;
 
@@ -416,62 +439,55 @@ export default function EventosPage({
                         <div className="flex items-center justify-end gap-2">
                           {isAdmin ? (
                             <>
-                              <BotonAccion
-                                icono={Globe}
-                                etiqueta="Publicar evento"
-                                onClick={() => publicar(evento)}
-                                disabled={!editable}
-                                motivo={motivoBloqueo}
-                              />
-                              <BotonAccion
-                                icono={Tags}
-                                etiqueta="Tipos de actividad y líneas temáticas"
-                                onClick={() => setModal({ tipo: 'parametros', evento })}
-                              />
-                              <BotonAccion
-                                icono={Users}
-                                etiqueta="Comité organizador"
-                                onClick={() => setModal({ tipo: 'comite', evento })}
-                              />
-                              <BotonAccion
-                                icono={Wallet}
-                                etiqueta="Presupuesto preliminar"
-                                onClick={() => setModal({ tipo: 'presupuesto', evento })}
-                              />
-                              <BotonAccion
-                                icono={ShieldCheck}
-                                etiqueta="Presupuesto aprobado formalmente"
-                                onClick={() => setModal({ tipo: 'presupuestoAprobado', evento })}
-                              />
-                              <BotonAccion
-                                icono={TrendingUp}
-                                etiqueta="Gastos y ejecución presupuestal"
-                                onClick={() => setModal({ tipo: 'ejecucion', evento })}
-                              />
-                              <BotonAccion
-                                icono={History}
-                                etiqueta="Ver historial de ediciones"
-                                onClick={() => setModal({ tipo: 'historial', evento })}
-                              />
-                              <BotonAccion
-                                icono={CopyPlus}
-                                etiqueta="Crear nueva edición a partir de este evento"
-                                onClick={() => setModal({ tipo: 'edicion', evento })}
-                              />
-                              <BotonAccion
-                                icono={Pencil}
-                                etiqueta="Editar configuración"
-                                onClick={() => setModal({ tipo: 'editar', evento })}
-                                disabled={!editable}
-                                motivo={motivoBloqueo}
-                              />
-                              <BotonAccion
-                                icono={Trash2}
-                                etiqueta="Eliminar evento"
-                                onClick={() => setModal({ tipo: 'eliminar', evento })}
-                                disabled={!editable}
-                                motivo={motivoBloqueo}
-                                peligro
+                              {editable && (
+                                <>
+                                  <BotonFila icono={Globe} principal onClick={() => publicar(evento)}>
+                                    Publicar
+                                  </BotonFila>
+                                  <BotonFila icono={Pencil} onClick={() => setModal({ tipo: 'editar', evento })}>
+                                    Editar
+                                  </BotonFila>
+                                </>
+                              )}
+                              <MenuAcciones
+                                ariaLabel={`Más acciones de ${evento.nombre}`}
+                                grupos={[
+                                  {
+                                    titulo: 'Configuración del evento',
+                                    acciones: [
+                                      { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
+                                      { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
+                                    ],
+                                  },
+                                  {
+                                    titulo: 'Presupuesto',
+                                    acciones: [
+                                      { id: 'presupuesto', etiqueta: 'Presupuesto preliminar', icono: Wallet, onClick: () => setModal({ tipo: 'presupuesto', evento }) },
+                                      { id: 'presupuestoAprobado', etiqueta: 'Presupuesto aprobado', icono: ShieldCheck, onClick: () => setModal({ tipo: 'presupuestoAprobado', evento }) },
+                                      { id: 'ejecucion', etiqueta: 'Gastos y ejecución', icono: TrendingUp, onClick: () => setModal({ tipo: 'ejecucion', evento }) },
+                                    ],
+                                  },
+                                  {
+                                    titulo: 'Ediciones',
+                                    acciones: [
+                                      { id: 'historial', etiqueta: 'Historial de ediciones', icono: History, onClick: () => setModal({ tipo: 'historial', evento }) },
+                                      { id: 'edicion', etiqueta: 'Crear nueva edición', icono: CopyPlus, onClick: () => setModal({ tipo: 'edicion', evento }) },
+                                    ],
+                                  },
+                                  {
+                                    acciones: [
+                                      {
+                                        id: 'eliminar',
+                                        etiqueta: 'Eliminar evento',
+                                        icono: Trash2,
+                                        peligro: true,
+                                        disabled: !editable,
+                                        motivo: 'Solo se puede eliminar mientras está en configuración.',
+                                        onClick: () => setModal({ tipo: 'eliminar', evento }),
+                                      },
+                                    ],
+                                  },
+                                ]}
                               />
                             </>
                           ) : (
