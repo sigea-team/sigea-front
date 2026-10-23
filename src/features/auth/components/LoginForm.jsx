@@ -115,7 +115,7 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'administrador'
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'evaluador' | 'administrador'
 
   const handleSubmit = async (e, modoForzado) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -155,6 +155,12 @@ export default function LoginForm() {
           });
           return;
         }
+      }
+
+      // Si ingresó expresamente como Evaluador, redirigir al panel de Evaluaciones (HU-17)
+      if (modoFinal === 'evaluador') {
+        navigate('/evaluaciones', { replace: true });
+        return;
       }
 
       navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
@@ -337,8 +343,10 @@ export default function LoginForm() {
             {modoAcceso === 'administrador'
               ? 'Ingresar como Administrador'
               : modoAcceso === 'ponente'
-              ? 'Ingresar como Ponente'
-              : 'Ingresar a SIGEA'}
+                ? 'Ingresar como Ponente'
+                : modoAcceso === 'evaluador'
+                  ? 'Ingresar como Evaluador'
+                  : 'Ingresar a SIGEA'}
           </Button>
         </div>
 

@@ -24,7 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
- * @property {'ASISTENTE'|'PONENTE'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
+ * @property {'ASISTENTE'|'PONENTE'|'EVALUADOR'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  * @property {string} [avatarUrl]
  * @property {string} [telefono]
  * @property {string} [afiliacion]
@@ -161,7 +161,7 @@ if (typeof window !== 'undefined') {
 const RUTA_POR_ROL = {
   ADMIN: '/dashboard',
   ADMINISTRADOR: '/dashboard',
-  EVALUADOR: '/dashboard',
+  EVALUADOR: '/evaluaciones',
   PARTICIPANTE: '/dashboard',
 };
 

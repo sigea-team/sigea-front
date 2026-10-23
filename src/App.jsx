@@ -11,6 +11,7 @@ import EventosPage from './pages/EventosPage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
 import CuentaPage from './pages/CuentaPage';
 import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
+import EvaluacionesPage from './pages/EvaluacionesPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/eventos" element={<EventosPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
+            <Route path="/evaluaciones" element={<EvaluacionesPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             <Route path="/configuracion" element={<CuentaPage />} />
