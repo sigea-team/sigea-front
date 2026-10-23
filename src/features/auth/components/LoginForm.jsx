@@ -204,45 +204,6 @@ export default function LoginForm() {
     }
   };
 
-  /**
-   * Permite probar la aplicación localmente en modo demo si Railway o la BD Neon están caídos.
-   */
-  const handleAccesoDemoOffline = () => {
-    const modoFinal = modoAcceso;
-    const dummyToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vQHVmcHMuZWR1LmNvIiwicm9sZXMiOlsiRVZBTFVBRE9SIl0sImlhdCI6MTUxNjIzOTAyMn0.mock-signature';
-    const dummyUsuario = {
-      token: dummyToken,
-      usuarioId: 99,
-      correo: formData.correo.trim() || `${modoFinal}@ufps.edu.co`,
-      nombreCompleto:
-        modoFinal === 'evaluador'
-          ? 'Dr. Evaluador Académico UFPS'
-          : modoFinal === 'administrador'
-          ? 'Administrador General SIGEA'
-          : modoFinal === 'ponente'
-          ? 'Dra. Ponente Investigadora'
-          : 'Participante General',
-      roles:
-        modoFinal === 'administrador'
-          ? ['ADMIN', 'ADMINISTRADOR']
-          : modoFinal === 'evaluador'
-          ? ['EVALUADOR']
-          : modoFinal === 'ponente'
-          ? ['PONENTE', 'AUTOR']
-          : ['PARTICIPANTE'],
-      modoIngreso: modoFinal.toUpperCase(),
-      afiliacion: 'Universidad Francisco de Paula Santander',
-    };
-
-    useAuthStore.getState().iniciarSesion(dummyUsuario, modoFinal.toUpperCase());
-
-    if (modoFinal === 'evaluador') {
-      navigate('/evaluaciones', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
-  };
-
   const handleReenviarVerificacion = async () => {
     if (!correoPendienteVerificar) return;
     setReenviando(true);
@@ -382,10 +343,10 @@ export default function LoginForm() {
             {modoAcceso === 'administrador'
               ? 'Ingresar como Administrador'
               : modoAcceso === 'ponente'
-              ? 'Ingresar como Ponente'
-              : modoAcceso === 'evaluador'
-              ? 'Ingresar como Evaluador'
-              : 'Ingresar a SIGEA'}
+                ? 'Ingresar como Ponente'
+                : modoAcceso === 'evaluador'
+                  ? 'Ingresar como Evaluador'
+                  : 'Ingresar a SIGEA'}
           </Button>
         </div>
 
@@ -403,17 +364,6 @@ export default function LoginForm() {
           <Link to="/convocatorias-publicas" className="text-xs font-semibold text-[#a6192e] hover:underline">
             Ver convocatorias abiertas
           </Link>
-        </div>
-
-        {/* Acceso demo sin backend cuando Railway o la base de datos están caídos */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={handleAccesoDemoOffline}
-            className="w-full py-2 px-3 text-xs font-semibold text-[#5b5f66] hover:text-[#a6192e] bg-[#f7f7f8] hover:bg-[#fdecec] border border-[#e5e7ea] hover:border-[#a6192e]/30 rounded-[8px] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-          >
-            <span>⚡ Probar Localmente sin Servidor (Demo Offline)</span>
-          </button>
         </div>
         {/* Barra de acceso por perfil institucional inspirada en DIVISIST 2.0 (UFPS) */}
         <SelectorPerfilAcceso
