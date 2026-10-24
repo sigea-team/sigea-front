@@ -24,10 +24,17 @@ import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { reenviarVerificacion } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
-import { rutaSegunRoles, useAuthStore } from '../../../store/authStore';
+import { RUTA_MI_PERFIL_CONFERENCISTA, rutaSegunRoles, useAuthStore } from '../../../store/authStore';
 import { tieneRolAdministrador } from '../../../utils/permisos';
 import AvisoBloqueo from './AvisoBloqueo';
 import SelectorPerfilAcceso from './SelectorPerfilAcceso';
+
+/** Texto del botón de ingreso según el perfil seleccionado. */
+const TEXTO_BOTON_INGRESO = {
+  ponente: 'Ingresar como Ponente',
+  conferencista: 'Ingresar como Conferencista',
+  administrador: 'Ingresar como Administrador',
+};
 
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
@@ -115,7 +122,7 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'administrador'
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'conferencista' | 'administrador'
 
   const handleSubmit = async (e, modoForzado) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -142,7 +149,7 @@ export default function LoginForm() {
         if (!tieneRolAdministrador(usuarioLogueado)) {
           // Revertir y limpiar la sesión guardada
           useAuthStore.getState().cerrarSesion();
-          const mensajeError = 'Acceso denegado: Esta cuenta no cuenta con rol de Administrador. Por favor ingresa seleccionando tu perfil correspondiente (Asistente o Ponente).';
+          const mensajeError = 'Acceso denegado: Esta cuenta no cuenta con rol de Administrador. Por favor ingresa seleccionando tu perfil correspondiente (Asistente, Ponente o Conferencista).';
           setGeneralError(mensajeError);
 
           Swal.fire({
@@ -157,7 +164,9 @@ export default function LoginForm() {
         }
       }
 
-      navigate(rutaSegunRoles(sesion?.usuario?.roles), { replace: true });
+      // HU-12: el conferencista entra directo a su perfil para ver y actualizar su trayectoria.
+      const destino = modoFinal === 'conferencista' ? RUTA_MI_PERFIL_CONFERENCISTA : rutaSegunRoles(sesion?.usuario?.roles);
+      navigate(destino, { replace: true });
     } catch (err) {
       // El cuerpo de error puede no traer el formato esperado: se valida antes de usarlo.
       const cuerpo = err.response?.data;
@@ -334,11 +343,7 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            {modoAcceso === 'administrador'
-              ? 'Ingresar como Administrador'
-              : modoAcceso === 'ponente'
-              ? 'Ingresar como Ponente'
-              : 'Ingresar a SIGEA'}
+            {TEXTO_BOTON_INGRESO[modoAcceso] || 'Ingresar a SIGEA'}
           </Button>
         </div>
 

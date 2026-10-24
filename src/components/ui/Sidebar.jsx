@@ -10,11 +10,12 @@ import {
   Shield,
   History,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Mic
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useAuthStore } from '../../store/authStore';
+import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../../store/authStore';
 import { esAdministrador } from '../../utils/permisos';
 
 /**
@@ -42,6 +43,14 @@ const AUDITORIA_NAV_ITEM = {
   label: 'Auditoría',
   icon: History,
   href: '/auditoria',
+};
+
+/** HU-12: perfil propio del conferencista invitado (solo con el perfil de ingreso «Conferencista»). */
+const MI_PERFIL_CONFERENCISTA_NAV_ITEM = {
+  id: 'mi-perfil-conferencista',
+  label: 'Mi trayectoria',
+  icon: Mic,
+  href: RUTA_MI_PERFIL_CONFERENCISTA,
 };
 
 /**
@@ -102,6 +111,7 @@ export default function Sidebar({
     usuario?.modoIngreso === 'PONENTE' ||
     usuario?.roles?.includes('PONENTE') ||
     usuario?.roles?.includes('AUTOR');
+  const esConferencista = esModoConferencista(usuario);
 
   // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
   const navItems = DEFAULT_NAV_ITEMS.filter((item) => {
@@ -115,6 +125,10 @@ export default function Sidebar({
     }
     return item;
   });
+
+  if (esConferencista) {
+    navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
+  }
 
   if (isAdmin) {
     const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');

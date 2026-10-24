@@ -7,7 +7,7 @@
 
 import MainLayout from '../components/ui/MainLayout';
 import { useAuth } from '../context/AuthContext';
-import { useAuthStore } from '../store/authStore';
+import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../store/authStore';
 import BannerModoPonente from '../features/convocatorias/components/BannerModoPonente';
 
 export default function DashboardPage() {
@@ -24,6 +24,7 @@ export default function DashboardPage() {
     usuario?.modoIngreso === 'PONENTE' ||
     usuario?.roles?.includes('PONENTE') ||
     usuario?.roles?.includes('AUTOR');
+  const esConferencista = esModoConferencista(usuario);
 
   return (
     <MainLayout title="Dashboard Principal" activeNav="dashboard">
@@ -42,6 +43,28 @@ export default function DashboardPage() {
 
         {/* Banner destacado para modo Ponente */}
         {esPonente && <BannerModoPonente enlaceConvocatorias="#/convocatorias" />}
+
+        {/* HU-12: acceso directo a la trayectoria del conferencista invitado */}
+        {esConferencista && (
+          <div className="bg-[#fdecec] border border-[#a6192e]/30 rounded-[16px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+            <div>
+              <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#a6192e] text-white rounded-full mb-1">
+                Modo Conferencista Activo
+              </span>
+              <h2 className="text-base font-bold text-[#1f2023]">Tu trayectoria académica y profesional</h2>
+              <p className="text-xs text-[#5b5f66] mt-1 max-w-xl">
+                Revisa y actualiza tu biografía, estudios y publicaciones. Los cambios se ven de inmediato en la
+                página pública de los eventos en los que participas.
+              </p>
+            </div>
+            <a
+              href={`#${RUTA_MI_PERFIL_CONFERENCISTA}`}
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-xs font-semibold rounded-[8px] transition-colors shrink-0 shadow-xs"
+            >
+              Ir a mi perfil de conferencista
+            </a>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
@@ -62,7 +85,7 @@ export default function DashboardPage() {
           <h3 className="font-semibold text-[#1f2023] text-base mb-2">Información de la Sesión Actual</h3>
           <p><strong className="text-[#1f2023]">Nombre Completo:</strong> {nombreCompleto}</p>
           <p><strong className="text-[#1f2023]">Correo Electrónico:</strong> {email}</p>
-          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esPonente ? 'Ponente / Autor de Convocatorias' : 'Asistente General'}</p>
+          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esConferencista ? 'Conferencista invitado' : esPonente ? 'Ponente / Autor de Convocatorias' : 'Asistente General'}</p>
           <p><strong className="text-[#1f2023]">Rol del Sistema:</strong> {rol}</p>
           {afiliacion && <p><strong className="text-[#1f2023]">Afiliación Institucional:</strong> {afiliacion}</p>}
         </div>
