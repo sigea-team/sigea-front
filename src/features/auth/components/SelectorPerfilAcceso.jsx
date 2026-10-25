@@ -32,14 +32,14 @@ const PERFILES = [
     etiqueta: 'Conferencista',
     titulo: 'Ingresar como Conferencista invitado para actualizar tu trayectoria',
     icono: Mic,
-    insignia: 'HU-12',
+    insignia: 'CONFERENCISTA',
   },
   {
     modo: 'evaluador',
     etiqueta: 'Evaluador',
     titulo: 'Ingresar como Evaluador de propuestas académicas',
     icono: ClipboardCheck,
-    insignia: 'HU-17',
+    insignia: 'EVALUADOR',
   },
   {
     modo: 'administrador',
