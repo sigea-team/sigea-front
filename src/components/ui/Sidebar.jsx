@@ -11,6 +11,7 @@ import {
   History,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Mic
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -29,6 +30,14 @@ const DEFAULT_NAV_ITEMS = [
   { id: 'cuenta', label: 'Mi Cuenta', icon: UserCog, href: '/cuenta' },
   { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/configuracion' },
 ];
+
+/** HU-17: evaluaciones de propuestas asignadas según rúbrica */
+const EVALUADOR_NAV_ITEM = {
+  id: 'evaluaciones',
+  label: 'Evaluaciones',
+  icon: ClipboardCheck,
+  href: '/evaluaciones',
+};
 
 const ADMIN_NAV_ITEM = {
   id: 'roles',
@@ -128,6 +137,21 @@ export default function Sidebar({
 
   if (esConferencista) {
     navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
+  }
+
+  const esEvaluador =
+    usuario?.modoIngreso === 'EVALUADOR' ||
+    usuario?.roles?.includes('EVALUADOR') ||
+    usuario?.roles?.includes('ROLE_EVALUADOR') ||
+    isAdmin;
+
+  if (esEvaluador) {
+    const eventosIndex = navItems.findIndex((item) => item.id === 'eventos');
+    if (eventosIndex !== -1) {
+      navItems.splice(eventosIndex, 0, EVALUADOR_NAV_ITEM);
+    } else {
+      navItems.push(EVALUADOR_NAV_ITEM);
+    }
   }
 
   if (isAdmin) {

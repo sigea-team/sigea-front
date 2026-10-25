@@ -14,6 +14,7 @@ import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
 import ConferencistasPublicosPage from './pages/ConferencistasPublicosPage';
 import MiPerfilConferencistaPage from './pages/MiPerfilConferencistaPage';
 import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
+import EvaluacionesPage from './pages/EvaluacionesPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 
@@ -39,6 +40,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/eventos" element={<EventosPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
+            <Route path="/evaluaciones" element={<EvaluacionesPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             <Route path="/configuracion" element={<CuentaPage />} />
