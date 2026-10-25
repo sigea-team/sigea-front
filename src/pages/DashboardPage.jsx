@@ -5,6 +5,7 @@
  * @module pages/DashboardPage
  */
 
+import { Link } from 'react-router-dom';
 import MainLayout from '../components/ui/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../store/authStore';
@@ -66,12 +67,12 @@ export default function DashboardPage() {
                 página pública de los eventos en los que participas.
               </p>
             </div>
-            <a
-              href={`#${RUTA_MI_PERFIL_CONFERENCISTA}`}
+            <Link
+              to={RUTA_MI_PERFIL_CONFERENCISTA}
               className="inline-flex items-center justify-center px-4 py-2.5 bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-xs font-semibold rounded-[8px] transition-colors shrink-0 shadow-xs"
             >
               Ir a mi perfil de conferencista
-            </a>
+            </Link>
           </div>
         )}
 

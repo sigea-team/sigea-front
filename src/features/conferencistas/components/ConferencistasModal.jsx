@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ArrowLeft, Clock, Copy, ExternalLink, Lock, Mic, Pencil, RotateCw, UserMinus, UserPlus, XCircle } from 'lucide-react';
 import Button from '../../../components/ui/Button';
@@ -371,15 +372,15 @@ function ListaConferencistas({
         </div>
         <div className="flex items-center gap-3">
           {publico && (
-            <a
-              href={`#/eventos/${evento.id}/conferencistas-publicos`}
+            <Link
+              to={`/eventos/${evento.id}/conferencistas-publicos`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] underline-offset-2 hover:underline"
             >
               <ExternalLink className="w-4 h-4" />
               Ver vista pública
-            </a>
+            </Link>
           )}
           {modificable && (
             <Button type="button" variant="primary" onClick={onAgregar}>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Info, Mic, RotateCw, UserX } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import { conferencistaService } from '../api/conferencistaService';
@@ -139,16 +140,16 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-[#5b5f66]">Así te ven en:</span>
                 {publicos.map((p) => (
-                  <a
+                  <Link
                     key={p.participacionId}
-                    href={`#/eventos/${p.eventoId}/conferencistas-publicos`}
+                    to={`/eventos/${p.eventoId}/conferencistas-publicos`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#a6192e] bg-white border border-[#a6192e]/25 hover:bg-[#fdecec] transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     {p.eventoNombre}
-                  </a>
+                  </Link>
                 ))}
               </div>
             )}

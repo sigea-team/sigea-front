@@ -83,13 +83,13 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           {completado.vistaPublicaDisponible && (
-            <a
-              href={`#/eventos/${completado.eventoId}/conferencistas-publicos`}
+            <Link
+              to={`/eventos/${completado.eventoId}/conferencistas-publicos`}
               className="h-10 px-4 rounded-[8px] bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Ver cómo aparezco en el evento
-            </a>
+            </Link>
           )}
           <Link
             to="/login"
