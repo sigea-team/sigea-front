@@ -24,7 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
- * @property {'ASISTENTE'|'PONENTE'|'EVALUADOR'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
+ * @property {'ASISTENTE'|'PONENTE'|'CONFERENCISTA'|'EVALUADOR'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  * @property {string} [avatarUrl]
  * @property {string} [telefono]
  * @property {string} [afiliacion]
@@ -106,7 +106,7 @@ export const useAuthStore = create(
       },
 
       /**
-       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE' o 'ADMINISTRADOR').
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE', 'CONFERENCISTA', 'ADMINISTRADOR O EVALUADOR').
        * @param {string} modo
        */
       setModoIngreso: (modo) => {
@@ -164,6 +164,17 @@ const RUTA_POR_ROL = {
   EVALUADOR: '/evaluaciones',
   PARTICIPANTE: '/dashboard',
 };
+
+/** HU-12: página a la que entra quien ingresa con el perfil «Conferencista». */
+export const RUTA_MI_PERFIL_CONFERENCISTA = '/mi-perfil-conferencista';
+
+/**
+ * @param {{ modoIngreso?: string }} usuario - Usuario de la sesión.
+ * @returns {boolean} true si la sesión entró con el perfil «Conferencista».
+ */
+export function esModoConferencista(usuario) {
+  return usuario?.modoIngreso === 'CONFERENCISTA';
+}
 
 /**
  * Determina a qué ruta redirigir tras un login exitoso según los roles del usuario.

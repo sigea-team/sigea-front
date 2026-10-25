@@ -3,6 +3,7 @@ import { crearApiMock, crearApisEnlazadas, apiMockConError } from '../features/e
 import { crearApiTiposEventoMock, apiTiposEventoConError } from '../features/eventos/mocks/tiposEventoMock';
 import { crearApiParametrosMock } from '../features/eventos/mocks/parametrosMock';
 import { crearComiteApiMock } from '../features/comite/mocks/comiteMock';
+import { crearConferencistasApiMock } from '../features/conferencistas/mocks/conferencistasMock';
 import { crearPresupuestoApiMock } from '../features/presupuesto/mocks/presupuestoMock';
 import { crearPresupuestoAprobadoApiMock } from '../features/presupuesto/mocks/presupuestoAprobadoMock';
 import { crearEjecucionApiMock } from '../features/presupuesto/mocks/ejecucionMock';
@@ -26,6 +27,7 @@ export const FlujoCompleto = {
     apiTiposEvento: enlazadas.apiTipos,
     apiParametros: crearApiParametrosMock(),
     apiComite: crearComiteApiMock(),
+    apiConferencistas: crearConferencistasApiMock(),
     apiPresupuesto: crearPresupuestoApiMock(),
     apiPresupuestoAprobado: crearPresupuestoAprobadoApiMock(),
     apiEjecucion: crearEjecucionApiMock(),

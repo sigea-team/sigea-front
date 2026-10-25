@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -10,6 +10,7 @@ import MenuAcciones from '../components/ui/MenuAcciones';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
+import { conferencistaService } from '../api/conferencistaService';
 import { presupuestoService } from '../api/presupuestoService';
 import { tipoEventoService } from '../api/tipoEventoService';
 import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
@@ -22,6 +23,7 @@ import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal'
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
 import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
+import ConferencistasModal from '../features/conferencistas/components/ConferencistasModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
@@ -88,6 +90,7 @@ const ALERTA_EXITO = {
  * @param {typeof eventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {typeof parametroEventoService} [props.apiParametros] - Cliente de la API de parámetros (HU-05).
  * @param {typeof comiteService} [props.apiComite] - Cliente de la API del comité (HU-06); Storybook inyecta una versión simulada.
+ * @param {typeof conferencistaService} [props.apiConferencistas] - Cliente de la API de conferencistas (HU-12); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoService} [props.apiPresupuesto] - Cliente de la API del presupuesto preliminar (HU-07); Storybook inyecta una versión simulada.
  * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
  * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
@@ -99,6 +102,7 @@ export default function EventosPage({
   api = eventoService,
   apiParametros = parametroEventoService,
   apiComite = comiteService,
+  apiConferencistas = conferencistaService,
   apiPresupuesto = presupuestoService,
   apiTiposEvento = tipoEventoService,
   apiPresupuestoAprobado = presupuestoAprobadoService,
@@ -118,7 +122,7 @@ export default function EventosPage({
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'presupuesto'|'presupuestoAprobado'|'ejecucion', evento }
+  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'conferencistas'|'presupuesto'|'presupuestoAprobado'|'ejecucion', evento }
   const [modal, setModal] = useState(null);
 
   // Catálogo de tipos de evento para el combobox del formulario (null mientras carga). La ventana de
@@ -457,6 +461,7 @@ export default function EventosPage({
                                     acciones: [
                                       { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
                                       { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
+                                      { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
                                     ],
                                   },
                                   {
@@ -558,6 +563,16 @@ export default function EventosPage({
           isOpen
           evento={modal.evento}
           api={apiComite}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'conferencistas' && (
+        <ConferencistasModal
+          key={`conferencistas-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiConferencistas}
           onClose={cerrarModal}
         />
       )}

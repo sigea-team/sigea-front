@@ -1,4 +1,4 @@
-import { User, Rocket, Shield, ClipboardCheck } from 'lucide-react';
+import { User, Rocket, Mic, ClipboardCheck, Shield } from 'lucide-react';
 
 /**
  * @file SelectorPerfilAcceso.jsx
@@ -7,14 +7,48 @@ import { User, Rocket, Shield, ClipboardCheck } from 'lucide-react';
  * Permite alternar entre los modos de acceso:
  * - Asistente: vista estándar de participante/eventos.
  * - Ponente / Autor: habilita el módulo de convocatorias abiertas y postulación de ponencias.
+ * - Conferencista: conferencista invitado; consulta y actualiza su trayectoria (HU-12).
  * - Evaluador: registro de evaluaciones y cálculo ponderado según rúbrica (HU-17).
  * - Administrador: acceso exclusivo para cuentas con rol de administrador (gestión integral).
  * @module features/auth/components/SelectorPerfilAcceso
  */
 
 /**
- * @typedef {'asistente' | 'ponente' | 'evaluador' | 'administrador'} ModoAcceso
+ * @typedef {'asistente' | 'ponente' | 'conferencista' | 'evaluador' | 'administrador'} ModoAcceso
  */
+
+/** Perfiles de ingreso disponibles, en el orden en que se muestran. */
+const PERFILES = [
+  { modo: 'asistente', etiqueta: 'Asistente', titulo: 'Ingresar como Asistente', icono: User },
+  {
+    modo: 'ponente',
+    etiqueta: 'Ponente',
+    titulo: 'Ingresar como Ponente / Autor de propuestas',
+    icono: Rocket,
+    insignia: 'AUTOR',
+  },
+  {
+    modo: 'conferencista',
+    etiqueta: 'Conferencista',
+    titulo: 'Ingresar como Conferencista invitado para actualizar tu trayectoria',
+    icono: Mic,
+    insignia: 'CONFERENCISTA',
+  },
+  {
+    modo: 'evaluador',
+    etiqueta: 'Evaluador',
+    titulo: 'Ingresar como Evaluador de propuestas académicas',
+    icono: ClipboardCheck,
+    insignia: 'EVALUADOR',
+  },
+  {
+    modo: 'administrador',
+    etiqueta: 'Admin',
+    titulo: 'Ingresar como Administrador del sistema',
+    icono: Shield,
+    insignia: 'GESTIÓN',
+  },
+];
 
 /**
  * @param {Object} props
@@ -32,111 +66,39 @@ export default function SelectorPerfilAcceso({
       <p className="text-center text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider mb-2.5">
         Selecciona tu perfil de ingreso
       </p>
-      <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-md mx-auto">
-        {/* Perfil: Asistente */}
-        <button
-          type="button"
-          onClick={() => onChangeModo && onChangeModo('asistente')}
-          disabled={disabled}
-          title="Ingresar como Asistente"
-          className={`group flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed ${
-            modoAcceso === 'asistente'
-              ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-              : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-          }`}
-        >
-          <div
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border transition-all ${
-              modoAcceso === 'asistente'
-                ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-            }`}
-          >
-            <User className="w-5 h-5" />
-          </div>
-          <span className="text-[11px] sm:text-xs">Asistente</span>
-        </button>
-
-        {/* Perfil: Ponente */}
-        <button
-          type="button"
-          onClick={() => onChangeModo && onChangeModo('ponente')}
-          disabled={disabled}
-          title="Ingresar como Ponente / Autor de propuestas"
-          className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed ${
-            modoAcceso === 'ponente'
-              ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-              : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-          }`}
-        >
-          <div
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border transition-all ${
-              modoAcceso === 'ponente'
-                ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-            }`}
-          >
-            <Rocket className="w-5 h-5" />
-          </div>
-          <span className="text-[11px] sm:text-xs">Ponente</span>
-          <span className="absolute -top-1 right-0 px-1 py-0.2 bg-[#a6192e] text-white text-[8px] font-bold rounded-full shadow-xs">
-            AUTOR
-          </span>
-        </button>
-
-        {/* Perfil: Evaluador (HU-17) */}
-        <button
-          type="button"
-          onClick={() => onChangeModo && onChangeModo('evaluador')}
-          disabled={disabled}
-          title="Ingresar como Evaluador de propuestas académicas"
-          className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed ${
-            modoAcceso === 'evaluador'
-              ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-              : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-          }`}
-        >
-          <div
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border transition-all ${
-              modoAcceso === 'evaluador'
-                ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-            }`}
-          >
-            <ClipboardCheck className="w-5 h-5" />
-          </div>
-          <span className="text-[11px] sm:text-xs">Evaluador</span>
-          <span className="absolute -top-1 right-0 px-1 py-0.2 bg-[#a6192e] text-white text-[8px] font-bold rounded-full shadow-xs">
-            HU-17
-          </span>
-        </button>
-
-        {/* Perfil: Administrador */}
-        <button
-          type="button"
-          onClick={() => onChangeModo && onChangeModo('administrador')}
-          disabled={disabled}
-          title="Ingresar como Administrador del sistema"
-          className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer p-2 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed ${
-            modoAcceso === 'administrador'
-              ? 'text-[#a6192e] bg-[#fdecec] font-bold'
-              : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
-          }`}
-        >
-          <div
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border transition-all ${
-              modoAcceso === 'administrador'
-                ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
-                : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
-            }`}
-          >
-            <Shield className="w-5 h-5" />
-          </div>
-          <span className="text-[11px] sm:text-xs">Admin</span>
-          <span className="absolute -top-1 right-0 px-1 py-0.2 bg-[#a6192e] text-white text-[8px] font-bold rounded-full shadow-xs">
-            GESTIÓN
-          </span>
-        </button>
+      <div className="grid grid-cols-5 gap-1 sm:gap-2 max-w-md mx-auto">
+        {PERFILES.map(({ modo, etiqueta, titulo, icono: Icono, insignia }) => {
+          const activo = modoAcceso === modo;
+          return (
+            <button
+              key={modo}
+              type="button"
+              onClick={() => onChangeModo && onChangeModo(modo)}
+              disabled={disabled}
+              title={titulo}
+              aria-pressed={activo}
+              className={`group relative flex flex-col items-center gap-1 transition-all cursor-pointer px-1 py-2 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed ${
+                activo ? 'text-[#a6192e] bg-[#fdecec] font-bold' : 'text-[#5b5f66] hover:text-[#a6192e] hover:bg-white'
+              }`}
+            >
+              <div
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border transition-all ${
+                  activo
+                    ? 'border-[#a6192e] bg-white shadow-xs text-[#a6192e]'
+                    : 'border-[#e5e7ea] bg-white text-[#5b5f66] group-hover:border-[#a6192e]/40 group-hover:text-[#a6192e]'
+                }`}
+              >
+                <Icono className="w-5 h-5" />
+              </div>
+              <span className="text-[11px] sm:text-xs">{etiqueta}</span>
+              {insignia && (
+                <span className="absolute -top-1 right-0 px-1 py-0.2 bg-[#a6192e] text-white text-[8px] font-bold rounded-full shadow-xs">
+                  {insignia}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

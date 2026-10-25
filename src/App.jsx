@@ -11,6 +11,9 @@ import EventosPage from './pages/EventosPage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
 import CuentaPage from './pages/CuentaPage';
 import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
+import ConferencistasPublicosPage from './pages/ConferencistasPublicosPage';
+import MiPerfilConferencistaPage from './pages/MiPerfilConferencistaPage';
+import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
 import EvaluacionesPage from './pages/EvaluacionesPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
@@ -28,6 +31,10 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           {/* HU-11 (Criterio 1): convocatorias publicadas, visibles sin iniciar sesión */}
           <Route path="/convocatorias-publicas" element={<ConvocatoriasPublicasPage />} />
+          {/* HU-12 (Criterio 4): conferencistas de un evento publicado, visibles sin iniciar sesión */}
+          <Route path="/eventos/:eventoId/conferencistas-publicos" element={<ConferencistasPublicosPage />} />
+          {/* HU-12: el conferencista invitado registra sus datos desde el enlace del correo (sin sesión) */}
+          <Route path="/conferencista/invitacion" element={<ConferencistaInvitacionPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -37,6 +44,8 @@ function App() {
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             <Route path="/configuracion" element={<CuentaPage />} />
+            {/* HU-12: perfil de ingreso «Conferencista»: el conferencista actualiza su trayectoria */}
+            <Route path="/mi-perfil-conferencista" element={<MiPerfilConferencistaPage />} />
 
             {/* Solo administradores (la API también lo valida y responde 403) */}
             <Route element={<AdminRoute />}>
