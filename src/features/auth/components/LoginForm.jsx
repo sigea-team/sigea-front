@@ -29,13 +29,6 @@ import { tieneRolAdministrador } from '../../../utils/permisos';
 import AvisoBloqueo from './AvisoBloqueo';
 import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
-/** Texto del botón de ingreso según el perfil seleccionado. */
-const TEXTO_BOTON_INGRESO = {
-  ponente: 'Ingresar como Ponente',
-  conferencista: 'Ingresar como Conferencista',
-  administrador: 'Ingresar como Administrador',
-};
-
 const INITIAL_FORM = { correo: '', contrasena: '' };
 
 /**
@@ -122,7 +115,7 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'conferencista' | 'administrador'
+  const [modoAcceso, setModoAcceso] = useState('asistente'); // 'asistente' | 'ponente' | 'conferencista' | 'evaluador' | 'administrador'
 
   const handleSubmit = async (e, modoForzado) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -162,6 +155,12 @@ export default function LoginForm() {
           });
           return;
         }
+      }
+
+      // Si ingresó expresamente como Evaluador, redirigir al panel de Evaluaciones (HU-17)
+      if (modoFinal === 'evaluador') {
+        navigate('/evaluaciones', { replace: true });
+        return;
       }
 
       // HU-12: el conferencista entra directo a su perfil para ver y actualizar su trayectoria.
@@ -343,7 +342,15 @@ export default function LoginForm() {
 
         <div className="pt-2">
           <Button type="submit" variant="primary" loading={loading} disabled={Boolean(bloqueo)} className="w-full">
-            {TEXTO_BOTON_INGRESO[modoAcceso] || 'Ingresar a SIGEA'}
+            {modoAcceso === 'administrador'
+              ? 'Ingresar como Administrador'
+              : modoAcceso === 'ponente'
+                ? 'Ingresar como Ponente'
+                : modoAcceso === 'evaluador'
+                  ? 'Ingresar como Evaluador'
+                  : modoAcceso === 'conferencista'
+                    ? 'Ingresar como Conferencista'
+                    : 'Ingresar a SIGEA'}
           </Button>
         </div>
 

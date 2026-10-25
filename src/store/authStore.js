@@ -24,7 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
- * @property {'ASISTENTE'|'PONENTE'|'CONFERENCISTA'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
+ * @property {'ASISTENTE'|'PONENTE'|'CONFERENCISTA'|'EVALUADOR'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  * @property {string} [avatarUrl]
  * @property {string} [telefono]
  * @property {string} [afiliacion]
@@ -106,7 +106,7 @@ export const useAuthStore = create(
       },
 
       /**
-       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE', 'CONFERENCISTA' o 'ADMINISTRADOR').
+       * Cambia el modo de ingreso de la sesión activa ('ASISTENTE', 'PONENTE', 'CONFERENCISTA', 'ADMINISTRADOR O EVALUADOR').
        * @param {string} modo
        */
       setModoIngreso: (modo) => {
@@ -161,7 +161,7 @@ if (typeof window !== 'undefined') {
 const RUTA_POR_ROL = {
   ADMIN: '/dashboard',
   ADMINISTRADOR: '/dashboard',
-  EVALUADOR: '/dashboard',
+  EVALUADOR: '/evaluaciones',
   PARTICIPANTE: '/dashboard',
 };
 

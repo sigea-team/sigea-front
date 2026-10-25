@@ -9,6 +9,7 @@ import MainLayout from '../components/ui/MainLayout';
 import { useAuth } from '../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../store/authStore';
 import BannerModoPonente from '../features/convocatorias/components/BannerModoPonente';
+import BannerModoEvaluador from '../features/evaluaciones/components/BannerModoEvaluador';
 
 export default function DashboardPage() {
   const { usuario: contextUser } = useAuth();
@@ -25,6 +26,11 @@ export default function DashboardPage() {
     usuario?.roles?.includes('PONENTE') ||
     usuario?.roles?.includes('AUTOR');
   const esConferencista = esModoConferencista(usuario);
+
+  const esEvaluador =
+    usuario?.modoIngreso === 'EVALUADOR' ||
+    usuario?.roles?.includes('EVALUADOR') ||
+    usuario?.roles?.includes('ROLE_EVALUADOR');
 
   return (
     <MainLayout title="Dashboard Principal" activeNav="dashboard">
@@ -43,6 +49,9 @@ export default function DashboardPage() {
 
         {/* Banner destacado para modo Ponente */}
         {esPonente && <BannerModoPonente enlaceConvocatorias="#/convocatorias" />}
+
+        {/* Banner destacado para modo Evaluador (HU-17) */}
+        {esEvaluador && <BannerModoEvaluador enlaceEvaluaciones="/evaluaciones" />}
 
         {/* HU-12: acceso directo a la trayectoria del conferencista invitado */}
         {esConferencista && (
@@ -85,7 +94,7 @@ export default function DashboardPage() {
           <h3 className="font-semibold text-[#1f2023] text-base mb-2">Información de la Sesión Actual</h3>
           <p><strong className="text-[#1f2023]">Nombre Completo:</strong> {nombreCompleto}</p>
           <p><strong className="text-[#1f2023]">Correo Electrónico:</strong> {email}</p>
-          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esConferencista ? 'Conferencista invitado' : esPonente ? 'Ponente / Autor de Convocatorias' : 'Asistente General'}</p>
+          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esConferencista ? 'Conferencista invitado' : esEvaluador ? 'Evaluador de Propuestas (HU-17)' : esPonente ? 'Ponente / Autor de Convocatorias' : 'Asistente General'}</p>
           <p><strong className="text-[#1f2023]">Rol del Sistema:</strong> {rol}</p>
           {afiliacion && <p><strong className="text-[#1f2023]">Afiliación Institucional:</strong> {afiliacion}</p>}
         </div>
