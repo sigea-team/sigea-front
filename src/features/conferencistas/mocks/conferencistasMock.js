@@ -126,6 +126,13 @@ function errorApi(status, message, extra = {}) {
 
 const nombreCompleto = (p) => `${p.nombres} ${p.apellidos}`.trim();
 const copiar = (v) => JSON.parse(JSON.stringify(v));
+/** Igual que DatosRegistradosResponse.enmascararCorreo del backend: «an•••@unal.edu.co». */
+const enmascararCorreo = (correo) => {
+  const limpio = String(correo ?? '').trim();
+  const arroba = limpio.indexOf('@');
+  if (arroba <= 0) return limpio || null;
+  return limpio.slice(0, Math.min(2, arroba - 1)) + '•••' + limpio.slice(arroba);
+};
 /** Igual que DatosRegistradosResponse.enmascarar del backend: solo los 3 últimos caracteres visibles. */
 const enmascarar = (valor) => {
   const limpio = String(valor ?? '').trim();
@@ -418,7 +425,8 @@ export function crearConferencistasApiMock({
         fechaInicio: evento.fechaInicio,
         fechaFin: evento.fechaFin,
         nombre: inv.nombre,
-        correo: inv.correo,
+        // Como el backend: el enlace no exige sesión, así que el correo va enmascarado.
+        correo: enmascararCorreo(inv.correo),
         fechaExpiracion: inv.fechaExpiracion,
         datosRegistrados: persona
           ? {
