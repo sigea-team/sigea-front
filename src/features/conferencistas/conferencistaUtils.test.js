@@ -20,6 +20,7 @@ import {
   validarConferencista,
   validarInvitacion,
 } from './conferencistaUtils';
+import { MENSAJE_POLITICA_CONTRASENA } from '../auth/recuperacionUtils';
 
 const ANIO = 2026;
 
@@ -246,7 +247,9 @@ describe('invitación a conferencistas nuevos', () => {
 
     const base = { ...formularioCompleto(), requiereContrasena: true };
     expect(validarConferencista({ ...base, contrasena: '', confirmarContrasena: '' }, { modo: 'invitacion' }).contrasena).toBeDefined();
-    expect(validarConferencista({ ...base, contrasena: 'clave', confirmarContrasena: 'clave' }, { modo: 'invitacion' }).contrasena).toBeDefined();
+    // Misma política y mismo mensaje que el registro y la recuperación de contraseña.
+    expect(validarConferencista({ ...base, contrasena: 'clave', confirmarContrasena: 'clave' }, { modo: 'invitacion' }).contrasena)
+      .toBe(MENSAJE_POLITICA_CONTRASENA);
     expect(validarConferencista({ ...base, contrasena: 'Clave123*', confirmarContrasena: 'Clave123' }, { modo: 'invitacion' }).confirmarContrasena).toBeDefined();
     const valido = { ...base, contrasena: 'Clave123*', confirmarContrasena: 'Clave123*' };
     expect(validarConferencista(valido, { modo: 'invitacion' }).contrasena).toBeUndefined();

@@ -451,9 +451,9 @@ export function crearConferencistasApiMock({
       // Como el backend: sin cuenta, la contraseña es obligatoria y se crea la cuenta al completar.
       const cuentaCreada = !persona?.tieneCuenta;
       if (cuentaCreada && !datos.contrasena) {
-        throw errorApi(400, 'Crea una contraseña para tu cuenta en SIGEA.', {
+        throw errorApi(400, 'La contraseña es obligatoria', {
           codigo: 'VALIDACION_FALLIDA',
-          erroresValidacion: { contrasena: 'Crea una contraseña para ingresar a SIGEA con el perfil «Conferencista».' },
+          erroresValidacion: { contrasena: 'La contraseña es obligatoria' },
         });
       }
       // Como el backend: documento y teléfono vacíos conservan los ya registrados.

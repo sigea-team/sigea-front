@@ -6,6 +6,7 @@
  * @module features/conferencistas/conferencistaUtils
  */
 
+import { MENSAJE_POLITICA_CONTRASENA, PATRON_CONTRASENA } from '../auth/recuperacionUtils';
 import { ESTADOS_EVENTO, extraerError } from '../eventos/eventoUtils';
 
 /** Mismos tipos de documento que el registro de usuarios. */
@@ -201,9 +202,6 @@ export function dividirNombre(nombre) {
   return { nombres: partes.slice(0, cantidadNombres).join(' '), apellidos: partes.slice(cantidadNombres).join(' ') };
 }
 
-/** Misma política de contraseña que el registro de usuarios (RegistroRequest / CompletarInvitacionRequest). */
-export const PATRON_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,64}$/;
-
 /** Si el invitado aún no tiene cuenta en SIGEA, el formulario le pide crear una contraseña. */
 function camposCuenta(invitacion) {
   return { requiereContrasena: Boolean(invitacion?.requiereContrasena), contrasena: '', confirmarContrasena: '' };
@@ -380,13 +378,11 @@ export function validarConferencista(form, { modo = 'invitacion', conTrayectoria
 
   // Invitado sin cuenta: crea su contraseña para ingresar luego con el perfil «Conferencista».
   if (modo === 'invitacion' && form.requiereContrasena) {
-    if (!form.contrasena) errores.contrasena = 'Crea una contraseña para ingresar a SIGEA.';
-    else if (!PATRON_CONTRASENA.test(form.contrasena)) {
-      errores.contrasena =
-        'Debe tener entre 8 y 64 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo (@$!%*?&._-#).';
-    }
-    if (!form.confirmarContrasena) errores.confirmarContrasena = 'Confirma la contraseña.';
-    else if (form.contrasena !== form.confirmarContrasena) errores.confirmarContrasena = 'Las contraseñas no coinciden.';
+    // Misma política y mismos mensajes que el registro (RegisterForm) y la recuperación de contraseña.
+    if (!form.contrasena) errores.contrasena = 'La contraseña es obligatoria';
+    else if (!PATRON_CONTRASENA.test(form.contrasena)) errores.contrasena = MENSAJE_POLITICA_CONTRASENA;
+    if (!form.confirmarContrasena) errores.confirmarContrasena = 'Confirme su contraseña';
+    else if (form.contrasena !== form.confirmarContrasena) errores.confirmarContrasena = 'Las contraseñas no coinciden';
   }
 
   if (modo === 'asociar' && !form.tipoParticipacion) {
