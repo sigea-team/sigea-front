@@ -3,6 +3,7 @@ import {
   calcularPuntuacionPonderada,
   determinarClasificacion,
 } from '../features/evaluaciones/evaluacionUtils';
+import { normalizarAsignacionBandeja } from '../features/asignaciones/asignacionUtils';
 
 /**
  * @file evaluacionService.js
@@ -206,8 +207,9 @@ function guardarAsignacionesLocales(lista) {
 
 export const evaluacionService = {
   /**
-   * Lista las asignaciones de propuestas para el evaluador autenticado.
-   * Backend endpoint: GET /api/v1/evaluaciones/asignaciones
+   * Lista las asignaciones de propuestas para el evaluador autenticado (bandeja, HU-16 Criterio 1).
+   * Backend endpoint: GET /api/v1/asignaciones/mis-asignaciones?incluirCompletadas=true
+   * (se piden también las completadas porque esta vista las filtra con sus propias pestañas).
    *
    * @param {Object} [filtros]
    * @param {number|string} [filtros.propuestaId]
@@ -216,13 +218,18 @@ export const evaluacionService = {
    */
   async listarAsignaciones(filtros = {}) {
     try {
-      const params = {};
-      if (filtros.propuestaId) params.propuestaId = filtros.propuestaId;
-      if (filtros.estado) params.estado = filtros.estado;
-
-      const { data } = await httpClient.get('/evaluaciones/asignaciones', { params });
+      const { data } = await httpClient.get('/asignaciones/mis-asignaciones', {
+        params: { incluirCompletadas: true },
+      });
       if (Array.isArray(data) && data.length > 0) {
-        return data;
+        let reales = data.map((a) => normalizarAsignacionBandeja(a, RUBRICA_DEMO));
+        if (filtros.propuestaId) {
+          reales = reales.filter((a) => String(a.propuestaId) === String(filtros.propuestaId));
+        }
+        if (filtros.estado && filtros.estado !== 'todos') {
+          reales = reales.filter((a) => a.estado === filtros.estado);
+        }
+        return reales;
       }
     } catch (err) {
       // Si el endpoint responde 404 o el backend no está disponible en este momento,

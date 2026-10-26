@@ -1,3 +1,4 @@
+import { expect, fn, userEvent, within } from 'storybook/test';
 import ConvocatoriasTable from './ConvocatoriasTable';
 
 export default {
@@ -46,6 +47,25 @@ export const ModoAdmin = {
     onPublicar: (item) => console.log('Publicar:', item),
     onModificarFechaCierre: (item) => console.log('Modificar fecha límite:', item),
     onEliminar: (item) => console.log('Eliminar:', item),
+    onGestionarPropuestas: (item) => console.log('Propuestas y evaluadores:', item),
+  },
+};
+
+/**
+ * HU-16: el botón «Propuestas y evaluadores» está deshabilitado en borrador y, en una convocatoria
+ * publicada, llama a onGestionarPropuestas con la convocatoria de la fila.
+ */
+export const GestionarPropuestas = {
+  args: { ...ModoAdmin.args, onGestionarPropuestas: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: /está en borrador/i })).toBeDisabled();
+
+    const botones = canvas.getAllByRole('button', { name: 'Propuestas y evaluadores' });
+    await expect(botones).toHaveLength(2);
+    await userEvent.click(botones[0]);
+    await expect(args.onGestionarPropuestas).toHaveBeenCalledTimes(1);
+    await expect(args.onGestionarPropuestas).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }));
   },
 };
 

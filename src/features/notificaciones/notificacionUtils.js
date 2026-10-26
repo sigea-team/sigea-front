@@ -39,6 +39,10 @@ export function rutaDeNotificacion(notificacion) {
   if (notificacion?.entidad === 'convocatorias' && notificacion.entidadId) {
     return `/convocatorias-publicas?convocatoria=${notificacion.entidadId}`;
   }
+  // HU-16: propuesta asignada o reasignada → bandeja de evaluaciones del evaluador
+  if (notificacion?.entidad === 'asignaciones_evaluacion') {
+    return '/evaluaciones';
+  }
   return null;
 }
 

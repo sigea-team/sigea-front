@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Pencil, Trash2, Send, Lock, Globe, CalendarClock } from 'lucide-react';
+import { Pencil, Trash2, Send, Lock, Globe, CalendarClock, ClipboardList } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import BotonAccion from '../../../components/ui/BotonAccion';
 import EstadoConvocatoriaBadge from './EstadoConvocatoriaBadge';
@@ -9,6 +9,7 @@ import {
   puedeEnviarPropuesta,
   puedeModificarFechaCierre,
 } from '../convocatoriaUtils';
+import { puedeGestionarPropuestas } from '../../asignaciones/asignacionUtils';
 
 /**
  * @file ConvocatoriasTable.jsx
@@ -31,6 +32,7 @@ import {
  * @param {Function} [props.onModificarFechaCierre] - Callback para modificar la fecha límite (HU-11).
  * @param {Function} props.onEliminar - Callback para eliminar una convocatoria en borrador.
  * @param {Function} props.onIntentarEnviar - Callback para simular envío de propuesta (Criterio 4).
+ * @param {Function} [props.onGestionarPropuestas] - Abre las propuestas y su asignación a evaluadores (HU-16).
  */
 export default function ConvocatoriasTable({
   convocatorias = [],
@@ -41,6 +43,7 @@ export default function ConvocatoriasTable({
   onModificarFechaCierre,
   onEliminar,
   onIntentarEnviar,
+  onGestionarPropuestas,
   isAdmin = true,
 }) {
   const columnasTotales = 4;
@@ -90,6 +93,7 @@ export default function ConvocatoriasTable({
               const editable = esBorradorEditable(convocatoria);
               const validacionEnvio = !isAdmin ? puedeEnviarPropuesta(convocatoria) : null;
               const validacionFecha = puedeModificarFechaCierre(convocatoria);
+              const validacionPropuestas = puedeGestionarPropuestas(convocatoria);
 
               return (
                 <tr key={convocatoria.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
@@ -157,6 +161,17 @@ export default function ConvocatoriasTable({
                   {isAdmin && (
                     <td className="py-4 px-5 align-middle">
                       <div className="flex items-center justify-end gap-2">
+                        {/* HU-16: propuestas recibidas y su asignación a evaluadores */}
+                        {onGestionarPropuestas && (
+                          <BotonAccion
+                            icono={ClipboardList}
+                            etiqueta="Propuestas y evaluadores"
+                            onClick={() => onGestionarPropuestas(convocatoria)}
+                            disabled={!validacionPropuestas.permitido}
+                            motivo={validacionPropuestas.motivo}
+                          />
+                        )}
+
                         {/* Publicar convocatoria en borrador */}
                         <BotonAccion
                           icono={Globe}
@@ -217,5 +232,6 @@ ConvocatoriasTable.propTypes = {
   onModificarFechaCierre: PropTypes.func,
   onEliminar: PropTypes.func,
   onIntentarEnviar: PropTypes.func,
+  onGestionarPropuestas: PropTypes.func,
   isAdmin: PropTypes.bool,
 };

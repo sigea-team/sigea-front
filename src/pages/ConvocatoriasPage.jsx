@@ -9,10 +9,12 @@ import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import { convocatoriaService } from '../api/convocatoriaService';
 import { eventoService } from '../api/eventoService';
+import { asignacionService } from '../api/asignacionService';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
 import FechaCierreModal from '../features/convocatorias/components/FechaCierreModal';
 import PropuestaFormModal from '../features/propuestas/components/PropuestaFormModal';
+import PropuestasEvaluadoresModal from '../features/asignaciones/components/PropuestasEvaluadoresModal';
 import {
   formatearFechaHora,
   listarCamposFaltantes,
@@ -58,12 +60,14 @@ const ALERTA_EXITO = {
  * @param {Object} props
  * @param {typeof convocatoriaService} [props.api] - Cliente de API para convocatorias.
  * @param {typeof eventoService} [props.apiEventos] - Cliente de API para eventos.
+ * @param {typeof asignacionService} [props.apiAsignaciones] - Cliente de API de asignación a evaluadores (HU-16).
  * @param {Object} [props.usuarioProp] - Usuario autenticado opcional (para Storybook o pruebas).
  * @param {Function} [props.onSelectNav] - Callback para navegación de ítems de menú.
  */
 export default function ConvocatoriasPage({
   api = convocatoriaService,
   apiEventos = eventoService,
+  apiAsignaciones = asignacionService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -81,6 +85,8 @@ export default function ConvocatoriasPage({
   const [modal, setModal] = useState(null);
   // Modal de propuesta de ponencia (HU Registro de autores y ponentes)
   const [modalPropuesta, setModalPropuesta] = useState(null);
+  // HU-16: propuestas de la convocatoria y su asignación a evaluadores
+  const [modalAsignacion, setModalAsignacion] = useState(null);
 
   const auth = useAuth();
   const usuarioActual = usuarioProp || auth?.usuario;
@@ -464,6 +470,7 @@ export default function ConvocatoriasPage({
           onModificarFechaCierre={(conv) => setModal({ tipo: 'fecha', convocatoria: conv })}
           onEliminar={eliminar}
           onIntentarEnviar={intentarEnviarPropuesta}
+          onGestionarPropuestas={(conv) => setModalAsignacion(conv)}
           isAdmin={isAdmin}
         />
       </div>
@@ -487,6 +494,17 @@ export default function ConvocatoriasPage({
           eventosDisponibles={eventosDisponibles}
           onClose={cerrarModal}
           onSubmit={modal.tipo === 'crear' ? crear : editar}
+        />
+      )}
+
+      {/* HU-16: propuestas de la convocatoria y asignación a evaluadores */}
+      {modalAsignacion && (
+        <PropuestasEvaluadoresModal
+          key={`modal-asignacion-${modalAsignacion.id}`}
+          isOpen={Boolean(modalAsignacion)}
+          convocatoria={modalAsignacion}
+          api={apiAsignaciones}
+          onClose={() => setModalAsignacion(null)}
         />
       )}
 
