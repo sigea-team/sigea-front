@@ -6,6 +6,7 @@
  * @module features/conferencistas/conferencistaUtils
  */
 
+import { MENSAJE_POLITICA_CONTRASENA, PATRON_CONTRASENA } from '../auth/recuperacionUtils';
 import { ESTADOS_EVENTO, extraerError } from '../eventos/eventoUtils';
 
 /** Mismos tipos de documento que el registro de usuarios. */
@@ -201,6 +202,11 @@ export function dividirNombre(nombre) {
   return { nombres: partes.slice(0, cantidadNombres).join(' '), apellidos: partes.slice(cantidadNombres).join(' ') };
 }
 
+/** Si el invitado aún no tiene cuenta en SIGEA, el formulario le pide crear una contraseña. */
+function camposCuenta(invitacion) {
+  return { requiereContrasena: Boolean(invitacion?.requiereContrasena), contrasena: '', confirmarContrasena: '' };
+}
+
 /**
  * Formulario del invitado precargado con la invitación: si SIGEA ya tiene sus datos (p. ej. es un
  * participante con cuenta) se usan; si no, se separa el nombre con el que fue invitado.
@@ -217,6 +223,7 @@ export function formularioDesdeInvitacion(invitacion) {
       tipoDocumento: registrados.tipoDocumento || 'CC',
       documentoRegistrado: registrados.documentoEnmascarado || null,
       telefonoRegistrado: registrados.telefonoEnmascarado || null,
+      ...camposCuenta(invitacion),
     };
   }
   return {
@@ -225,6 +232,7 @@ export function formularioDesdeInvitacion(invitacion) {
     correo: invitacion?.correo || '',
     documentoRegistrado: null,
     telefonoRegistrado: null,
+    ...camposCuenta(invitacion),
   };
 }
 
@@ -368,6 +376,15 @@ export function validarConferencista(form, { modo = 'invitacion', conTrayectoria
     if (errorCorreo) errores.correo = errorCorreo;
   }
 
+  // Invitado sin cuenta: crea su contraseña para ingresar luego con el perfil «Conferencista».
+  if (modo === 'invitacion' && form.requiereContrasena) {
+    // Misma política y mismos mensajes que el registro (RegisterForm) y la recuperación de contraseña.
+    if (!form.contrasena) errores.contrasena = 'La contraseña es obligatoria';
+    else if (!PATRON_CONTRASENA.test(form.contrasena)) errores.contrasena = MENSAJE_POLITICA_CONTRASENA;
+    if (!form.confirmarContrasena) errores.confirmarContrasena = 'Confirme su contraseña';
+    else if (form.contrasena !== form.confirmarContrasena) errores.confirmarContrasena = 'Las contraseñas no coinciden';
+  }
+
   if (modo === 'asociar' && !form.tipoParticipacion) {
     errores.tipoParticipacion = 'Selecciona el tipo de participación.';
   }
@@ -470,6 +487,8 @@ export function aCompletarRequest(form) {
     telefono: datos.telefono,
     tema: textoONulo(form.tema),
     trayectoria: aTrayectoriaRequest(form),
+    // Solo si aún no tiene cuenta; si ya la tiene, el backend no la necesita.
+    contrasena: form.requiereContrasena ? form.contrasena : null,
   };
 }
 

@@ -197,6 +197,46 @@ export default function ConferencistaForm({
         </section>
       )}
 
+      {/* ----- Cuenta en SIGEA (solo el invitado que aún no tiene cuenta) ----- */}
+      {esInvitacion && form.requiereContrasena && (
+        <section className="space-y-4">
+          <div>
+            <h3 className={SECCION}>Tu cuenta en SIGEA</h3>
+            <p className="text-xs text-[#5b5f66] mt-1">
+              Con tu correo y esta contraseña podrás ingresar con el perfil «Conferencista» para actualizar tu
+              trayectoria cuando quieras.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              id="conf-contrasena"
+              type="password"
+              label="Contraseña"
+              value={form.contrasena}
+              onChange={campo('contrasena')}
+              error={errores.contrasena}
+              helperText="Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo."
+              maxLength={64}
+              required
+              disabled={guardando}
+              autoComplete="new-password"
+            />
+            <Input
+              id="conf-confirmar-contrasena"
+              type="password"
+              label="Confirmar contraseña"
+              value={form.confirmarContrasena}
+              onChange={campo('confirmarContrasena')}
+              error={errores.confirmarContrasena}
+              maxLength={64}
+              required
+              disabled={guardando}
+              autoComplete="new-password"
+            />
+          </div>
+        </section>
+      )}
+
       {/* ----- Trayectoria ----- */}
       <section className="space-y-4">
         <h3 className={SECCION}>Trayectoria académica y profesional</h3>

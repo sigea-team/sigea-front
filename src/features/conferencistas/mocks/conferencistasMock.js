@@ -427,6 +427,7 @@ export function crearConferencistasApiMock({
         nombre: inv.nombre,
         // Como el backend: el enlace no exige sesión, así que el correo va enmascarado.
         correo: enmascararCorreo(inv.correo),
+        requiereContrasena: !persona?.tieneCuenta,
         fechaExpiracion: inv.fechaExpiracion,
         datosRegistrados: persona
           ? {
@@ -447,6 +448,14 @@ export function crearConferencistasApiMock({
       const evento = buscarEvento(inv.eventoId);
       validarAnios(datos.trayectoria);
       let persona = db.personas.find((p) => p.correo.toLowerCase() === inv.correo.toLowerCase());
+      // Como el backend: sin cuenta, la contraseña es obligatoria y se crea la cuenta al completar.
+      const cuentaCreada = !persona?.tieneCuenta;
+      if (cuentaCreada && !datos.contrasena) {
+        throw errorApi(400, 'La contraseña es obligatoria', {
+          codigo: 'VALIDACION_FALLIDA',
+          erroresValidacion: { contrasena: 'La contraseña es obligatoria' },
+        });
+      }
       // Como el backend: documento y teléfono vacíos conservan los ya registrados.
       const numeroDocumento = datos.numeroDocumento || persona?.numeroDocumento || null;
       const telefono = datos.telefono || persona?.telefono || null;
@@ -485,12 +494,14 @@ export function crearConferencistasApiMock({
           fechaRegistro: new Date().toISOString().slice(0, 19),
         });
       }
+      if (cuentaCreada) persona.tieneCuenta = true;
       inv.estado = 'completada';
       return {
         eventoId: evento.id,
         eventoNombre: evento.nombre,
         nombreCompleto: nombreCompleto(persona),
         vistaPublicaDisponible: ESTADOS_EVENTO_PUBLICO.includes(evento.estado),
+        cuentaCreada,
       };
     },
 
