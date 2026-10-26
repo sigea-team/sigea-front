@@ -22,6 +22,10 @@ describe('notificacionUtils (HU-11)', () => {
     );
     expect(rutaDeNotificacion({ entidad: 'otra', entidadId: 1 })).toBeNull();
   });
+
+  it('HU-16: lleva las notificaciones de asignación a la bandeja de evaluaciones', () => {
+    expect(rutaDeNotificacion({ entidad: 'asignaciones_evaluacion', entidadId: 12 })).toBe('/evaluaciones');
+  });
 });
 
 describe('contrato de la API de notificaciones (mock usado por la campana)', () => {
