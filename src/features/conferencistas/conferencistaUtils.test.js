@@ -240,6 +240,23 @@ describe('invitación a conferencistas nuevos', () => {
     });
   });
 
+  it('pide contraseña solo a quien aún no tiene cuenta, con la misma política del registro', () => {
+    const sinCuenta = formularioDesdeInvitacion({ nombre: 'Ana Pérez', correo: 'an•••@unal.edu.co', requiereContrasena: true });
+    expect(sinCuenta).toMatchObject({ requiereContrasena: true, contrasena: '', confirmarContrasena: '' });
+
+    const base = { ...formularioCompleto(), requiereContrasena: true };
+    expect(validarConferencista({ ...base, contrasena: '', confirmarContrasena: '' }, { modo: 'invitacion' }).contrasena).toBeDefined();
+    expect(validarConferencista({ ...base, contrasena: 'clave', confirmarContrasena: 'clave' }, { modo: 'invitacion' }).contrasena).toBeDefined();
+    expect(validarConferencista({ ...base, contrasena: 'Clave123*', confirmarContrasena: 'Clave123' }, { modo: 'invitacion' }).confirmarContrasena).toBeDefined();
+    const valido = { ...base, contrasena: 'Clave123*', confirmarContrasena: 'Clave123*' };
+    expect(validarConferencista(valido, { modo: 'invitacion' }).contrasena).toBeUndefined();
+    expect(aCompletarRequest(valido).contrasena).toBe('Clave123*');
+
+    const conCuenta = { ...formularioCompleto(), requiereContrasena: false, contrasena: '' };
+    expect(validarConferencista(conCuenta, { modo: 'invitacion' }).contrasena).toBeUndefined();
+    expect(aCompletarRequest(conCuenta).contrasena).toBeNull();
+  });
+
   it('no exige de nuevo el documento ya registrado y lo envía vacío para que el backend lo conserve', () => {
     const form = { ...formularioCompleto(), numeroDocumento: '', documentoRegistrado: '••••••456' };
     expect(validarConferencista(form, { modo: 'invitacion' }).numeroDocumento).toBeUndefined();

@@ -201,6 +201,14 @@ export function dividirNombre(nombre) {
   return { nombres: partes.slice(0, cantidadNombres).join(' '), apellidos: partes.slice(cantidadNombres).join(' ') };
 }
 
+/** Misma política de contraseña que el registro de usuarios (RegistroRequest / CompletarInvitacionRequest). */
+export const PATRON_CONTRASENA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,64}$/;
+
+/** Si el invitado aún no tiene cuenta en SIGEA, el formulario le pide crear una contraseña. */
+function camposCuenta(invitacion) {
+  return { requiereContrasena: Boolean(invitacion?.requiereContrasena), contrasena: '', confirmarContrasena: '' };
+}
+
 /**
  * Formulario del invitado precargado con la invitación: si SIGEA ya tiene sus datos (p. ej. es un
  * participante con cuenta) se usan; si no, se separa el nombre con el que fue invitado.
@@ -217,6 +225,7 @@ export function formularioDesdeInvitacion(invitacion) {
       tipoDocumento: registrados.tipoDocumento || 'CC',
       documentoRegistrado: registrados.documentoEnmascarado || null,
       telefonoRegistrado: registrados.telefonoEnmascarado || null,
+      ...camposCuenta(invitacion),
     };
   }
   return {
@@ -225,6 +234,7 @@ export function formularioDesdeInvitacion(invitacion) {
     correo: invitacion?.correo || '',
     documentoRegistrado: null,
     telefonoRegistrado: null,
+    ...camposCuenta(invitacion),
   };
 }
 
@@ -368,6 +378,17 @@ export function validarConferencista(form, { modo = 'invitacion', conTrayectoria
     if (errorCorreo) errores.correo = errorCorreo;
   }
 
+  // Invitado sin cuenta: crea su contraseña para ingresar luego con el perfil «Conferencista».
+  if (modo === 'invitacion' && form.requiereContrasena) {
+    if (!form.contrasena) errores.contrasena = 'Crea una contraseña para ingresar a SIGEA.';
+    else if (!PATRON_CONTRASENA.test(form.contrasena)) {
+      errores.contrasena =
+        'Debe tener entre 8 y 64 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo (@$!%*?&._-#).';
+    }
+    if (!form.confirmarContrasena) errores.confirmarContrasena = 'Confirma la contraseña.';
+    else if (form.contrasena !== form.confirmarContrasena) errores.confirmarContrasena = 'Las contraseñas no coinciden.';
+  }
+
   if (modo === 'asociar' && !form.tipoParticipacion) {
     errores.tipoParticipacion = 'Selecciona el tipo de participación.';
   }
@@ -470,6 +491,8 @@ export function aCompletarRequest(form) {
     telefono: datos.telefono,
     tema: textoONulo(form.tema),
     trayectoria: aTrayectoriaRequest(form),
+    // Solo si aún no tiene cuenta; si ya la tiene, el backend no la necesita.
+    contrasena: form.requiereContrasena ? form.contrasena : null,
   };
 }
 

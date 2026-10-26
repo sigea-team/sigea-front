@@ -99,8 +99,10 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
             Ir a SIGEA
           </Link>
         </div>
-        <p className="text-xs text-[#9ca0a6]">
-          Si tienes cuenta en SIGEA, podrás actualizar tu trayectoria ingresando con el perfil «Conferencista».
+        <p className="text-xs text-[#5b5f66] max-w-lg mx-auto">
+          {completado.cuentaCreada
+            ? 'Tu cuenta quedó creada. Para actualizar tu trayectoria, ingresa a SIGEA con tu correo y la contraseña que acabas de crear, eligiendo el perfil «Conferencista».'
+            : 'Para actualizar tu trayectoria, ingresa a SIGEA con tu cuenta eligiendo el perfil «Conferencista».'}
         </p>
       </div>
     );
