@@ -16,13 +16,13 @@
  * @module features/auth/components/LoginForm
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
-import { reenviarVerificacion } from '../../../api/authService';
+import { reenviarVerificacion, despertarServidor } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, rutaSegunRoles, useAuthStore } from '../../../store/authStore';
 import { tieneRolAdministrador } from '../../../utils/permisos';
@@ -88,6 +88,16 @@ export default function LoginForm() {
   // Criterio 3: { mensaje, desbloqueoEn } mientras la cuenta está bloqueada.
   const [bloqueo, setBloqueo] = useState(null);
   const finalizarBloqueo = useCallback(() => setBloqueo(null), []);
+
+  /**
+   * Al montar el formulario se envía una petición ligera al backend para "despertar"
+   * el servidor de Render (plan gratuito) antes de que el usuario haga clic en Ingresar.
+   * Render duerme el servicio tras ~15 min de inactividad y el cold start puede tardar
+   * 30-50 s. Este ping adelanta ese tiempo para que el login sea más fluido.
+   */
+  useEffect(() => {
+    despertarServidor();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -196,8 +206,10 @@ export default function LoginForm() {
           errorData.message || `No fue posible iniciar sesión (código ${status}). Intente nuevamente.`
         );
       } else if (err.request) {
-        // Sin respuesta: servidor apagado, sin conexión o tiempo de espera agotado.
-        setGeneralError('No fue posible conectarse con el servidor. Verifique su conexión o que el servicio esté activo.');
+        // Sin respuesta: servidor en cold start (Render), sin conexión o timeout agotado.
+        setGeneralError(
+          'El servidor está tardando en responder. Si es la primera conexión del día, puede tardar hasta 30 segundos en iniciarse. Por favor intente de nuevo en un momento.'
+        );
       } else {
         setGeneralError('Ocurrió un error inesperado al iniciar sesión.');
       }

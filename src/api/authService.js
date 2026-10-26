@@ -1,13 +1,39 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://sigea-backend-production.up.railway.app';
+
+/**
+ * Tiempo de espera para las peticiones de autenticación (ms).
+ * Se usa 35 s en lugar de 10 s para tolerar el "cold start" del servidor
+ * en Render (plan gratuito/starter): el servicio puede tardar hasta ~50 s
+ * en despertar tras un período de inactividad. Si la petición de login
+ * supera ese tiempo, el mensaje de error indica que el servicio está iniciando.
+ */
+const AUTH_TIMEOUT_MS = 35000;
+
 export const authApi = axios.create({
   baseURL: `${API_BASE_URL}/api/v1/auth`,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  timeout: AUTH_TIMEOUT_MS,
 });
+
+/**
+ * Despierta el servidor de Render enviando una petición ligera al endpoint raíz.
+ * Render (plan gratuito) duerme el servicio tras ~15 min de inactividad; el primer
+ * request puede tardar 30-50 s. Llamar a esta función al cargar la página de login
+ * reduce la espera que nota el usuario cuando finalmente hace clic en «Ingresar».
+ *
+ * No lanza excepciones: si el servidor no responde en 40 s, simplemente se ignora.
+ */
+export async function despertarServidor() {
+  try {
+    await axios.get(`${API_BASE_URL}/`, { timeout: 40000 });
+  } catch {
+    // Se ignora cualquier error: el objetivo es solo iniciar el cold start.
+  }
+}
 
 /**
  * Autentica un usuario mediante email y password (o correo y contrasena).

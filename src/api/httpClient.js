@@ -20,7 +20,9 @@ export const httpClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  // 35 s: tolera el "cold start" de Render (plan gratuito), que puede tardar ~30-50 s
+  // en despertar tras un período de inactividad.
+  timeout: 35000,
 });
 
 /** Ruta del login; desde ella nunca se redirige otra vez (evita bucles). */
