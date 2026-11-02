@@ -3,7 +3,8 @@ import { autorFrontToBackend, autorBackendToFront } from '../features/propuestas
 
 /**
  * @file propuestaService.js
- * @description Servicio de API para el envío y consulta de propuestas de ponencia (HU Registro de Autores y Ponentes).
+ * @description Servicio de API para el envío y consulta de propuestas de ponencia (HU-13 autores y ponentes;
+ * HU-14 envío con documentos y versiones).
  * Conecta directamente con el backend REST en /api/v1/propuestas.
  * @module api/propuestaService
  */
@@ -75,16 +76,106 @@ export const propuestaService = {
   },
 
   /**
-   * Obtiene las propuestas enviadas por el autor/usuario actual.
-   * @returns {Promise<Array<Object>>}
+   * HU-14: propuestas del usuario autenticado (como autor o como quien las envió) con el resumen
+   * de sus versiones. Los errores se propagan para que la página pueda mostrarlos.
+   * Backend endpoint: GET /api/v1/propuestas/mis-propuestas
+   * @returns {Promise<Array<{ propuesta: Object, versionActual: number, totalVersiones: number,
+   *   tieneVersionDefinitiva: boolean, edicionAutorizada: boolean, convocatoriaEstado: string,
+   *   convocatoriaFechaCierre: string }>>}
    */
   async listarMisPropuestas() {
-    try {
-      const { data } = await httpClient.get('/propuestas/mis-propuestas');
-      return Array.isArray(data) ? data.map(normalizarPropuestaResponse) : [];
-    } catch {
-      return [];
-    }
+    const { data } = await httpClient.get('/propuestas/mis-propuestas');
+    return Array.isArray(data)
+      ? data.map((mia) => ({ ...mia, propuesta: normalizarPropuestaResponse(mia.propuesta) }))
+      : [];
+  },
+
+  /**
+   * HU-14, Criterios 1 y 2: envía la propuesta con sus documentos y crea la versión 1.
+   * Backend endpoint: POST /api/v1/propuestas/envio (multipart: `datos` JSON + `documentos`).
+   * @param {Object} datos - Datos de la propuesta (formato frontend, igual que `enviarPropuesta`).
+   * @param {Array<File>} archivos - Documentos adjuntos.
+   * @returns {Promise<{ mensaje: string, propuesta: Object, version: Object }>}
+   */
+  async enviarPropuestaConDocumentos(datos, archivos) {
+    const payload = {
+      convocatoriaId: Number(datos.convocatoriaId),
+      titulo: datos.titulo,
+      resumen: datos.resumen,
+      palabrasClave: datos.ejeTematico || null,
+      lineaTematicaId: datos.lineaTematicaId || null,
+      autores: (datos.autores || []).map((autor, index) => autorFrontToBackend(autor, index + 1)),
+    };
+    const { data } = await httpClient.post(
+      '/propuestas/envio',
+      crearFormulario(payload, archivos),
+      CONFIG_MULTIPART
+    );
+    return { ...data, propuesta: normalizarPropuestaResponse(data?.propuesta) };
+  },
+
+  /**
+   * HU-14, Criterios 3 y 5: modifica la propuesta y crea una nueva versión.
+   * Backend endpoint: POST /api/v1/propuestas/{id}/versiones (multipart: `datos` JSON opcional + `documentos`).
+   * @param {number} propuestaId
+   * @param {{ titulo?: string|null, resumen?: string|null, palabrasClave?: string|null,
+   *   lineaTematicaId?: number|null, notaCambio?: string|null, documentosConservados?: Array<number>|null }} cambios
+   * @param {Array<File>} archivos - Documentos nuevos.
+   * @returns {Promise<{ mensaje: string, propuesta: Object, version: Object }>}
+   */
+  async crearNuevaVersion(propuestaId, cambios, archivos) {
+    const { data } = await httpClient.post(
+      `/propuestas/${propuestaId}/versiones`,
+      crearFormulario(cambios, archivos),
+      CONFIG_MULTIPART
+    );
+    return { ...data, propuesta: normalizarPropuestaResponse(data?.propuesta) };
+  },
+
+  /**
+   * HU-14, Criterio 4: historial de versiones con fecha y autor del cambio.
+   * Backend endpoint: GET /api/v1/propuestas/{id}/versiones
+   * @param {number} propuestaId
+   * @returns {Promise<Array<Object>>} Versiones de la más antigua a la más reciente.
+   */
+  async listarVersiones(propuestaId) {
+    const { data } = await httpClient.get(`/propuestas/${propuestaId}/versiones`);
+    return Array.isArray(data) ? data : [];
+  },
+
+  /**
+   * HU-14: descarga un documento de cualquier versión. Se pide con el token (no sirve un enlace directo)
+   * y se entrega al navegador con su nombre original.
+   * Backend endpoint: GET /api/v1/propuestas/{id}/documentos/{documentoId}
+   * @param {number} propuestaId
+   * @param {{ id: number, nombreOriginal: string }} documento
+   * @returns {Promise<void>}
+   */
+  async descargarDocumento(propuestaId, documento) {
+    const { data } = await httpClient.get(`/propuestas/${propuestaId}/documentos/${documento.id}`, {
+      responseType: 'blob',
+    });
+    const url = URL.createObjectURL(data);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = documento.nombreOriginal || `documento-${documento.id}`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
+
+  /**
+   * HU-14, Criterio 5: el administrador concede una autorización de un solo uso para modificar
+   * una propuesta con versión definitiva.
+   * Backend endpoint: PATCH /api/v1/propuestas/{id}/autorizar-edicion
+   * @param {number} propuestaId
+   * @param {string} motivo
+   * @returns {Promise<{ propuestaId: number, edicionAutorizada: boolean, motivo: string, mensaje: string }>}
+   */
+  async autorizarEdicion(propuestaId, motivo) {
+    const { data } = await httpClient.patch(`/propuestas/${propuestaId}/autorizar-edicion`, { motivo });
+    return data;
   },
 
   /**
@@ -138,6 +229,28 @@ export const propuestaService = {
     await httpClient.delete(`/propuestas/${propuestaId}/autores/${personaId}`);
   },
 };
+
+/**
+ * El cliente compartido envía JSON por defecto; con este encabezado axios deja el FormData tal cual
+ * y el navegador agrega el `boundary` del multipart.
+ */
+const CONFIG_MULTIPART = { headers: { 'Content-Type': 'multipart/form-data' } };
+
+/**
+ * Arma el cuerpo multipart que esperan los endpoints de HU-14: la parte `datos` como JSON
+ * (Content-Type application/json, necesario para @RequestPart) y una parte `documentos` por archivo.
+ * @param {Object|null} datos
+ * @param {Array<File>} archivos
+ * @returns {FormData}
+ */
+function crearFormulario(datos, archivos) {
+  const formulario = new FormData();
+  if (datos) {
+    formulario.append('datos', new Blob([JSON.stringify(datos)], { type: 'application/json' }));
+  }
+  (archivos || []).forEach((archivo) => formulario.append('documentos', archivo, archivo.name));
+  return formulario;
+}
 
 /**
  * Normaliza la respuesta PropuestaResponse del backend al formato que consume el frontend.

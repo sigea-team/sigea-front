@@ -17,6 +17,7 @@ import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
 import EvaluacionesPage from './pages/EvaluacionesPage';
 import SalasPage from './pages/SalasPage';
 import AgendaPage from './pages/AgendaPage';
+import MisPropuestasPage from './pages/MisPropuestasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
@@ -51,6 +52,8 @@ function App() {
             <Route element={<EvaluadorRoute />}>
               <Route path="/evaluaciones" element={<EvaluacionesPage />} />
             </Route>
+            {/* HU-14: propuestas del autor, sus versiones y modificación */}
+            <Route path="/mis-propuestas" element={<MisPropuestasPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             <Route path="/configuracion" element={<CuentaPage />} />

@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   FileText,
   AlertTriangle,
+  History,
 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import {
@@ -27,6 +28,7 @@ import {
  *  - Criterio 1: Visualización de calificaciones por criterio y estado ponderado.
  *  - Criterio 3: Identificación de propuestas con evaluaciones pendientes.
  *  - Criterio 4: Indicación clara de periodo cerrado y deshabilitación de edición.
+ * HU-14 (Criterio 4): si se pasa `onVerVersiones`, cada fila permite consultar el historial de versiones.
  * @module features/evaluaciones/components/EvaluacionesTable
  */
 
@@ -36,6 +38,7 @@ export default function EvaluacionesTable({
   hayFiltros = false,
   onAbrirEvaluacion,
   onVerResultado,
+  onVerVersiones,
 }) {
   const columnasTotales = 5;
 
@@ -222,6 +225,21 @@ export default function EvaluacionesTable({
                         <Award className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">Resultado</span>
                       </Button>
+
+                      {/* HU-14, Criterio 4: historial de versiones de la propuesta */}
+                      {onVerVersiones && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onVerVersiones(asignacion)}
+                          title="Consultar el historial de versiones de la propuesta (HU-14)"
+                          className="text-xs text-[#5b5f66] hover:text-[#a6192e]"
+                        >
+                          <History className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Versiones</span>
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -240,4 +258,5 @@ EvaluacionesTable.propTypes = {
   hayFiltros: PropTypes.bool,
   onAbrirEvaluacion: PropTypes.func.isRequired,
   onVerResultado: PropTypes.func.isRequired,
+  onVerVersiones: PropTypes.func,
 };
