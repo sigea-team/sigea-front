@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../store/authStore';
 import BannerModoPonente from '../features/convocatorias/components/BannerModoPonente';
 import BannerModoEvaluador from '../features/evaluaciones/components/BannerModoEvaluador';
+import { puedeEvaluar } from '../utils/permisos';
 
 export default function DashboardPage() {
   const { usuario: contextUser } = useAuth();
@@ -28,10 +29,8 @@ export default function DashboardPage() {
     usuario?.roles?.includes('AUTOR');
   const esConferencista = esModoConferencista(usuario);
 
-  const esEvaluador =
-    usuario?.modoIngreso === 'EVALUADOR' ||
-    usuario?.roles?.includes('EVALUADOR') ||
-    usuario?.roles?.includes('ROLE_EVALUADOR');
+  // Solo cuentas habilitadas como evaluador (permiso PROPUESTAS_EVALUAR) ingresan en ese perfil
+  const esEvaluador = usuario?.modoIngreso === 'EVALUADOR' && puedeEvaluar(usuario);
 
   return (
     <MainLayout title="Dashboard Principal" activeNav="dashboard">

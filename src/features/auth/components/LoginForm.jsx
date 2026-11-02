@@ -25,7 +25,7 @@ import Button from '../../../components/ui/Button';
 import { reenviarVerificacion, despertarServidor } from '../../../api/authService';
 import { useAuth } from '../../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, rutaSegunRoles, useAuthStore } from '../../../store/authStore';
-import { tieneRolAdministrador } from '../../../utils/permisos';
+import { puedeEvaluar, tieneRolAdministrador } from '../../../utils/permisos';
 import AvisoBloqueo from './AvisoBloqueo';
 import SelectorPerfilAcceso from './SelectorPerfilAcceso';
 
@@ -167,8 +167,23 @@ export default function LoginForm() {
         }
       }
 
-      // Si ingresó expresamente como Evaluador, redirigir al panel de Evaluaciones (HU-17)
+      // Perfil Evaluador: solo cuentas a las que el administrador asignó un rol con PROPUESTAS_EVALUAR
       if (modoFinal === 'evaluador') {
+        if (!puedeEvaluar(sesion?.usuario)) {
+          useAuthStore.getState().cerrarSesion();
+          setGeneralError(
+            'Acceso denegado: esta cuenta no está habilitada como evaluador. Si debes evaluar propuestas, pide al administrador que te asigne el rol de evaluador.'
+          );
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'Esta cuenta no tiene permiso de evaluador. Solo las cuentas que el administrador habilitó como evaluador pueden ingresar en este perfil.',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: { popup: 'rounded-[16px]' },
+          });
+          return;
+        }
         navigate('/evaluaciones', { replace: true });
         return;
       }

@@ -18,6 +18,7 @@ import EvaluacionesPage from './pages/EvaluacionesPage';
 import SalasPage from './pages/SalasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
+import EvaluadorRoute from './routes/EvaluadorRoute';
 
 function App() {
   return (
@@ -43,7 +44,10 @@ function App() {
             <Route path="/salas" element={<SalasPage />} />
             <Route path="/eventos/:eventoId/salas" element={<SalasPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
-            <Route path="/evaluaciones" element={<EvaluacionesPage />} />
+            {/* HU-17: solo cuentas con el permiso PROPUESTAS_EVALUAR (la API también lo valida) */}
+            <Route element={<EvaluadorRoute />}>
+              <Route path="/evaluaciones" element={<EvaluacionesPage />} />
+            </Route>
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             <Route path="/configuracion" element={<CuentaPage />} />
