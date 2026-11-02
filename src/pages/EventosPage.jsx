@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -15,6 +15,7 @@ import { presupuestoService } from '../api/presupuestoService';
 import { tipoEventoService } from '../api/tipoEventoService';
 import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
 import { ejecucionPresupuestalService } from '../api/ejecucionPresupuestalService';
+import { salaService } from '../api/salaService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
@@ -24,6 +25,7 @@ import ParametrosEventoModal from '../features/eventos/components/ParametrosEven
 import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import ConferencistasModal from '../features/conferencistas/components/ConferencistasModal';
+import SalasModal from '../features/salas/components/SalasModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
@@ -107,6 +109,7 @@ export default function EventosPage({
   apiTiposEvento = tipoEventoService,
   apiPresupuestoAprobado = presupuestoAprobadoService,
   apiEjecucion = ejecucionPresupuestalService,
+  apiSalas = salaService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -462,6 +465,7 @@ export default function EventosPage({
                                       { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
                                       { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
                                       { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
+                                      { id: 'salas', etiqueta: 'Salas y espacios', icono: Building, onClick: () => setModal({ tipo: 'salas', evento }) },
                                     ],
                                   },
                                   {
@@ -573,6 +577,16 @@ export default function EventosPage({
           isOpen
           evento={modal.evento}
           api={apiConferencistas}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'salas' && (
+        <SalasModal
+          key={`salas-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiSalas}
           onClose={cerrarModal}
         />
       )}
