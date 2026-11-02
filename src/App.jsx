@@ -16,6 +16,7 @@ import MiPerfilConferencistaPage from './pages/MiPerfilConferencistaPage';
 import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
 import EvaluacionesPage from './pages/EvaluacionesPage';
 import SalasPage from './pages/SalasPage';
+import AgendaPage from './pages/AgendaPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
@@ -41,6 +42,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/eventos" element={<EventosPage />} />
+            <Route path="/agenda" element={<AgendaPage />} />
+            <Route path="/eventos/:eventoId/agenda" element={<AgendaPage />} />
             <Route path="/salas" element={<SalasPage />} />
             <Route path="/eventos/:eventoId/salas" element={<SalasPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
