@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
-  Mic
+  Mic,
+  Building,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -60,6 +61,14 @@ const MI_PERFIL_CONFERENCISTA_NAV_ITEM = {
   label: 'Mi trayectoria',
   icon: Mic,
   href: RUTA_MI_PERFIL_CONFERENCISTA,
+};
+
+/** HU-20: Crear y configurar salas y disponibilidad */
+const SALAS_NAV_ITEM = {
+  id: 'salas',
+  label: 'Salas y Espacios',
+  icon: Building,
+  href: '/salas',
 };
 
 /**
@@ -155,6 +164,12 @@ export default function Sidebar({
   }
 
   if (isAdmin) {
+    const evIdx = navItems.findIndex((item) => item.id === 'eventos');
+    if (evIdx !== -1) {
+      navItems.splice(evIdx + 1, 0, SALAS_NAV_ITEM);
+    } else {
+      navItems.push(SALAS_NAV_ITEM);
+    }
     const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
     if (cuentaIndex !== -1) {
       navItems.splice(cuentaIndex, 0, ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);

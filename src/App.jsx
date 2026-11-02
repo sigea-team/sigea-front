@@ -15,6 +15,7 @@ import ConferencistasPublicosPage from './pages/ConferencistasPublicosPage';
 import MiPerfilConferencistaPage from './pages/MiPerfilConferencistaPage';
 import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
 import EvaluacionesPage from './pages/EvaluacionesPage';
+import SalasPage from './pages/SalasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 
@@ -39,6 +40,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/eventos" element={<EventosPage />} />
+            <Route path="/salas" element={<SalasPage />} />
+            <Route path="/eventos/:eventoId/salas" element={<SalasPage />} />
             <Route path="/convocatorias" element={<ConvocatoriasPage />} />
             <Route path="/evaluaciones" element={<EvaluacionesPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
