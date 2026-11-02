@@ -131,7 +131,6 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   });
 
   // Métricas de infraestructura
-  const totalAforo = todasLasSalas.reduce((acc, s) => acc + (Number(s.aforoMaximo) || 0), 0);
   const cantFisicas = todasLasSalas.filter((s) => s.tipo === 'fisica').length;
   const cantVirtuales = todasLasSalas.filter((s) => s.tipo === 'virtual').length;
 
@@ -271,21 +270,13 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         </div>
 
         {/* Tarjetas de Resumen de Infraestructura */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
             <span className="text-[11px] font-semibold text-[#5b5f66] uppercase tracking-wider block">
               Salas disponibles
             </span>
             <span className="text-2xl font-bold text-[#1f2023] mt-0.5 block">
               {todasLasSalas.length}
-            </span>
-          </div>
-          <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
-            <span className="text-[11px] font-semibold text-[#5b5f66] uppercase tracking-wider block">
-              Aforo total
-            </span>
-            <span className="text-2xl font-bold text-[#a6192e] mt-0.5 block">
-              {totalAforo} <span className="text-xs font-normal text-[#5b5f66]">personas</span>
             </span>
           </div>
           <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
