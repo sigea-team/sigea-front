@@ -151,18 +151,18 @@ export function crearSalasApiMock({
   let actividades = structuredClone(actividadesIniciales);
 
   return {
-    /**
-     * Lista salas. Si eventoId es null o no se envía, retorna TODAS las salas del catálogo institucional.
-     * Si se envía eventoId, retorna todas las salas disponibles para ese evento.
-     */
+    /** El mock sí simula la programación de actividades (el backend real todavía no la tiene). */
+    soportaActividades: true,
+
+    /** Lista las salas de un evento (sin evento no hay salas, como en el backend). */
     async listarSalas(eventoId = null) {
       if (!eventoId) {
-        return structuredClone(salas);
+        return [];
       }
       return salas.filter((s) => s.eventoId === null || Number(s.eventoId) === Number(eventoId));
     },
 
-    async obtenerSala(salaId) {
+    async obtenerSala(eventoId, salaId) {
       const encontrada = salas.find((s) => Number(s.id) === Number(salaId));
       if (!encontrada) throw new Error('Sala no encontrada');
       return structuredClone(encontrada);
@@ -198,7 +198,7 @@ export function crearSalasApiMock({
       return structuredClone(nuevaSala);
     },
 
-    async actualizarSala(salaId, datos) {
+    async actualizarSala(eventoId, salaId, datos) {
       const index = salas.findIndex((s) => Number(s.id) === Number(salaId));
       if (index === -1) throw new Error('Sala no encontrada');
 
@@ -230,7 +230,7 @@ export function crearSalasApiMock({
       return structuredClone(salaActualizada);
     },
 
-    async eliminarSala(salaId) {
+    async eliminarSala(eventoId, salaId) {
       const idNum = Number(salaId);
       const vinculada = actividades.some((a) => Number(a.salaId) === idNum);
       if (vinculada) {
@@ -239,12 +239,12 @@ export function crearSalasApiMock({
       salas = salas.filter((s) => Number(s.id) !== idNum);
     },
 
-    async guardarDisponibilidadSala(salaId, franjas) {
+    async guardarDisponibilidadSala(eventoId, salaId, franjas) {
       const sala = salas.find((s) => Number(s.id) === Number(salaId));
       if (!sala) throw new Error('Sala no encontrada');
 
       sala.disponibilidad = structuredClone(franjas);
-      return structuredClone(sala.disponibilidad);
+      return { disponibilidad: structuredClone(sala.disponibilidad), conflictos: [], tieneConflictos: false };
     },
 
     async listarPonentesEvento() {
@@ -256,7 +256,7 @@ export function crearSalasApiMock({
       if (!ponente) throw new Error('Ponente no encontrado');
 
       ponente.disponibilidad = structuredClone(franjas);
-      return structuredClone(ponente.disponibilidad);
+      return { disponibilidad: structuredClone(ponente.disponibilidad), conflictos: [], tieneConflictos: false };
     },
 
     async listarActividades(eventoId = null) {

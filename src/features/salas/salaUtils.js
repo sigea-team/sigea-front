@@ -284,3 +284,88 @@ export function verificarConflictosCambioDisponibilidad(nuevasFranjas = [], acti
   };
 }
 
+
+// ──────────────────────────────────────────────────────────────────────────
+// Traducción entre la API del backend (HU-20) y el formato de la interfaz
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * Recorta una hora del backend ("08:00:00") al formato de la interfaz ("08:00").
+ * @param {string|null|undefined} hora
+ * @returns {string}
+ */
+export function normalizarHoraApi(hora) {
+  return typeof hora === 'string' ? hora.slice(0, 5) : '';
+}
+
+/**
+ * Convierte las franjas de la interfaz al cuerpo que espera el backend.
+ * @param {Array<{ fecha: string, horaInicio: string, horaFin: string }>} franjas
+ * @returns {Array<{ fecha: string, horaInicio: string, horaFin: string }>}
+ */
+export function aFranjasApi(franjas = []) {
+  return (Array.isArray(franjas) ? franjas : []).map((f) => ({
+    fecha: f.fecha,
+    horaInicio: normalizarHoraApi(f.horaInicio),
+    horaFin: normalizarHoraApi(f.horaFin),
+  }));
+}
+
+/**
+ * Convierte franjas del backend ({ id, fecha, horaInicio: "08:00:00", ... }) al formato de la interfaz.
+ * @param {Array<Object>} franjas
+ */
+export function normalizarFranjasApi(franjas = []) {
+  return (Array.isArray(franjas) ? franjas : []).map((f) => ({
+    id: f.id,
+    fecha: f.fecha,
+    horaInicio: normalizarHoraApi(f.horaInicio),
+    horaFin: normalizarHoraApi(f.horaFin),
+  }));
+}
+
+/**
+ * Convierte una SalaResponse del backend al formato de la interfaz (usa `disponibilidad`).
+ * @param {Object} sala
+ */
+export function normalizarSalaApi(sala) {
+  if (!sala) return sala;
+  return {
+    id: sala.id,
+    eventoId: sala.eventoId,
+    nombre: sala.nombre,
+    ubicacion: sala.ubicacion || '',
+    tipo: sala.tipo ? String(sala.tipo).toLowerCase() : '',
+    aforoMaximo: sala.aforoMaximo,
+    disponibilidad: normalizarFranjasApi(sala.disponibilidades),
+  };
+}
+
+/**
+ * Construye el SalaRequest del backend a partir de los datos del formulario.
+ * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, disponibilidad?: Array }} datos
+ */
+export function aSalaRequest(datos = {}) {
+  return {
+    nombre: (datos.nombre || '').trim(),
+    ubicacion: datos.ubicacion ? String(datos.ubicacion).trim() : null,
+    tipo: datos.tipo ? String(datos.tipo).toLowerCase() : null,
+    aforoMaximo: Number(datos.aforoMaximo),
+    disponibilidades: aFranjasApi(datos.disponibilidad),
+  };
+}
+
+/**
+ * Convierte un conferencista del evento y su disponibilidad al formato de ponente de la interfaz.
+ * @param {{ personaId: number, nombreCompleto: string, correo?: string }} conferencista
+ * @param {Array<Object>} disponibilidad - DisponibilidadPonenteResponse[]
+ */
+export function normalizarPonenteApi(conferencista, disponibilidad = []) {
+  return {
+    personaId: conferencista.personaId,
+    nombres: conferencista.nombreCompleto || '',
+    apellidos: '',
+    correo: conferencista.correo || '',
+    disponibilidad: normalizarFranjasApi(disponibilidad),
+  };
+}
