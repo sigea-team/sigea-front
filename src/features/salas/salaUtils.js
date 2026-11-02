@@ -214,7 +214,8 @@ export function verificarConflictoAforo(nuevoAforo, actividadesSala = []) {
  *
  * @param {{ fecha: string, horaInicio: string, horaFin: string }} actividad
  * @param {Array<Object>} franjasSala - Disponibilidad de la sala elegida
- * @param {Array<Object>} [franjasPonente] - Disponibilidad del ponente asignado (opcional si no tiene ponente)
+ * @param {Array<Object>|null} [franjasPonente] - Disponibilidad del ponente asignado. `null`/`undefined` = la
+ *   actividad no tiene ponente; un arreglo vacío = el ponente no registró disponibilidad (se trata como conflicto).
  * @returns {{
  *   hayConflicto: boolean,
  *   conflictoSala: boolean,
@@ -226,28 +227,32 @@ export function verificarConflictoProgramacionActividad(actividad, franjasSala =
   const motivos = [];
   let conflictoSala = false;
   let conflictoPonente = false;
+  const horario = `(${formatearHora(actividad.horaInicio)} – ${formatearHora(actividad.horaFin)}) en la fecha ${
+    actividad.fecha
+  }`;
 
-  // Revisar disponibilidad de la sala
-  const salaCubierta = estaCubiertoPorDisponibilidad(actividad, franjasSala);
-  if (!salaCubierta) {
+  // Revisar disponibilidad de la sala. Sin franjas registradas (null, undefined o vacío) también es conflicto.
+  const salaSinDisponibilidad = !Array.isArray(franjasSala) || franjasSala.length === 0;
+  if (salaSinDisponibilidad) {
     conflictoSala = true;
-    motivos.push(
-      `El horario de la actividad (${formatearHora(actividad.horaInicio)} – ${formatearHora(
-        actividad.horaFin
-      )}) en la fecha ${actividad.fecha} está fuera de la disponibilidad horaria registrada para la sala.`
-    );
+    motivos.push(`La sala no tiene disponibilidad horaria registrada, así que la actividad ${horario} está fuera de la disponibilidad.`);
+  } else if (!estaCubiertoPorDisponibilidad(actividad, franjasSala)) {
+    conflictoSala = true;
+    motivos.push(`El horario de la actividad ${horario} está fuera de la disponibilidad horaria registrada para la sala.`);
   }
 
-  // Revisar disponibilidad del ponente si aplica
-  if (Array.isArray(franjasPonente) && franjasPonente.length > 0) {
-    const ponenteCubierto = estaCubiertoPorDisponibilidad(actividad, franjasPonente);
-    if (!ponenteCubierto) {
+  // Revisar disponibilidad del ponente si hay uno asignado (null/undefined = actividad sin ponente).
+  // Un ponente asignado sin franjas registradas es conflicto, no un caso válido (Criterios 2, 4 y 5).
+  if (franjasPonente !== null && franjasPonente !== undefined) {
+    const ponenteSinDisponibilidad = !Array.isArray(franjasPonente) || franjasPonente.length === 0;
+    if (ponenteSinDisponibilidad) {
       conflictoPonente = true;
       motivos.push(
-        `El ponente asignado no tiene disponibilidad registrada para el horario (${formatearHora(
-          actividad.horaInicio
-        )} – ${formatearHora(actividad.horaFin)}) en la fecha ${actividad.fecha}.`
+        `El ponente asignado no tiene disponibilidad registrada en este evento, así que la actividad ${horario} queda fuera de su disponibilidad.`
       );
+    } else if (!estaCubiertoPorDisponibilidad(actividad, franjasPonente)) {
+      conflictoPonente = true;
+      motivos.push(`El ponente asignado no tiene disponibilidad registrada para el horario ${horario}.`);
     }
   }
 

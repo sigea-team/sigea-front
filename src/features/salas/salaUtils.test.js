@@ -152,6 +152,47 @@ describe('salaUtils - HU-20 Crear y configurar salas', () => {
       expect(resultado.motivos[0]).toContain('ponente asignado no tiene disponibilidad');
     });
 
+    it('trata como conflicto a un ponente asignado sin disponibilidad registrada', () => {
+      const franjasSala = [{ fecha: '2026-10-21', horaInicio: '08:00', horaFin: '18:00' }];
+      const actividad = { fecha: '2026-10-21', horaInicio: '10:00', horaFin: '11:00' };
+
+      for (const sinFranjas of [[], 'no-es-arreglo']) {
+        const resultado = verificarConflictoProgramacionActividad(actividad, franjasSala, sinFranjas);
+        expect(resultado.hayConflicto).toBe(true);
+        expect(resultado.conflictoSala).toBe(false);
+        expect(resultado.conflictoPonente).toBe(true);
+        expect(resultado.motivos).toHaveLength(1);
+        expect(resultado.motivos[0]).toContain('no tiene disponibilidad registrada en este evento');
+      }
+    });
+
+    it('trata como conflicto una sala sin disponibilidad (null, undefined o vacía)', () => {
+      const actividad = { fecha: '2026-10-21', horaInicio: '10:00', horaFin: '11:00' };
+
+      for (const sinFranjas of [null, undefined, []]) {
+        const resultado = verificarConflictoProgramacionActividad(actividad, sinFranjas);
+        expect(resultado.hayConflicto).toBe(true);
+        expect(resultado.conflictoSala).toBe(true);
+        expect(resultado.motivos[0]).toContain('La sala no tiene disponibilidad horaria registrada');
+      }
+    });
+
+    it('sin ponente asignado (null o undefined) solo evalúa la sala', () => {
+      const franjasSala = [{ fecha: '2026-10-21', horaInicio: '08:00', horaFin: '18:00' }];
+      const actividad = { fecha: '2026-10-21', horaInicio: '10:00', horaFin: '11:00' };
+
+      expect(verificarConflictoProgramacionActividad(actividad, franjasSala, null).hayConflicto).toBe(false);
+      expect(verificarConflictoProgramacionActividad(actividad, franjasSala).hayConflicto).toBe(false);
+    });
+
+    it('si fallan sala y ponente, reporta ambos motivos', () => {
+      const actividad = { fecha: '2026-10-21', horaInicio: '10:00', horaFin: '11:00' };
+      const resultado = verificarConflictoProgramacionActividad(actividad, [], []);
+      expect(resultado.conflictoSala).toBe(true);
+      expect(resultado.conflictoPonente).toBe(true);
+      expect(resultado.motivos).toHaveLength(2);
+    });
+
     it('permite programar si la actividad está completamente dentro del horario disponible', () => {
       const franjasSala = [{ fecha: '2026-10-21', horaInicio: '08:00', horaFin: '18:00' }];
       const franjasPonente = [{ fecha: '2026-10-21', horaInicio: '09:00', horaFin: '13:00' }];
