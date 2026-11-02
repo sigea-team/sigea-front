@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   Mic,
   Building,
+  CalendarClock,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -69,6 +70,14 @@ const SALAS_NAV_ITEM = {
   label: 'Salas y Espacios',
   icon: Building,
   href: '/salas',
+};
+
+/** HU-21: Programar actividades de la agenda controlando conflictos y simultáneas */
+const AGENDA_NAV_ITEM = {
+  id: 'agenda',
+  label: 'Agenda de Actividades',
+  icon: CalendarClock,
+  href: '/agenda',
 };
 
 /**
@@ -163,9 +172,9 @@ export default function Sidebar({
   if (isAdmin) {
     const evIdx = navItems.findIndex((item) => item.id === 'eventos');
     if (evIdx !== -1) {
-      navItems.splice(evIdx + 1, 0, SALAS_NAV_ITEM);
+      navItems.splice(evIdx + 1, 0, AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
     } else {
-      navItems.push(SALAS_NAV_ITEM);
+      navItems.push(AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
     }
     const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
     if (cuentaIndex !== -1) {

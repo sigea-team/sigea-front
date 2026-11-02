@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building } from 'lucide-react';
+import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -26,6 +26,7 @@ import TiposEventoModal from '../features/eventos/components/TiposEventoModal';
 import ComiteOrganizadorModal from '../features/comite/components/ComiteOrganizadorModal';
 import ConferencistasModal from '../features/conferencistas/components/ConferencistasModal';
 import SalasModal from '../features/salas/components/SalasModal';
+import AgendaModal from '../features/agenda/components/AgendaModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
@@ -466,6 +467,7 @@ export default function EventosPage({
                                       { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
                                       { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
                                       { id: 'salas', etiqueta: 'Salas y espacios', icono: Building, onClick: () => setModal({ tipo: 'salas', evento }) },
+                                      { id: 'agenda', etiqueta: 'Agenda y actividades', icono: CalendarClock, onClick: () => setModal({ tipo: 'agenda', evento }) },
                                     ],
                                   },
                                   {
@@ -587,6 +589,15 @@ export default function EventosPage({
           isOpen
           evento={modal.evento}
           api={apiSalas}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'agenda' && (
+        <AgendaModal
+          key={`agenda-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
           onClose={cerrarModal}
         />
       )}
