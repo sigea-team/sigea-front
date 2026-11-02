@@ -18,7 +18,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../../store/authStore';
-import { esAdministrador } from '../../utils/permisos';
+import { esAdministrador, puedeEvaluar } from '../../utils/permisos';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -148,11 +148,8 @@ export default function Sidebar({
     navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
   }
 
-  const esEvaluador =
-    usuario?.modoIngreso === 'EVALUADOR' ||
-    usuario?.roles?.includes('EVALUADOR') ||
-    usuario?.roles?.includes('ROLE_EVALUADOR') ||
-    isAdmin;
+  // El menú de evaluaciones depende del permiso real, no del perfil elegido al iniciar sesión
+  const esEvaluador = puedeEvaluar(usuario);
 
   if (esEvaluador) {
     const eventosIndex = navItems.findIndex((item) => item.id === 'eventos');

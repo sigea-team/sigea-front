@@ -46,3 +46,28 @@ export function esAdministrador(usuario) {
   return true;
 }
 
+
+/** Permiso que habilita evaluar propuestas e ingresar con el perfil «Evaluador» (HU-17). */
+export const PERMISO_EVALUAR = 'PROPUESTAS_EVALUAR';
+
+/**
+ * Indica si la cuenta tiene un permiso concreto, obtenido de sus roles (lo envía el backend al iniciar sesión).
+ * @param {{ permisos?: string[] } | null | undefined} usuario
+ * @param {string} codigo - Código del permiso, por ejemplo 'PROPUESTAS_EVALUAR'.
+ * @returns {boolean}
+ */
+export function tienePermiso(usuario, codigo) {
+  if (!usuario || !Array.isArray(usuario.permisos)) return false;
+  const buscado = String(codigo).trim().toUpperCase();
+  return usuario.permisos.some((p) => String(p).trim().toUpperCase() === buscado);
+}
+
+/**
+ * Indica si la cuenta puede evaluar propuestas: el administrador le asignó un rol con el permiso
+ * PROPUESTAS_EVALUAR, o es administrador. Elegir el perfil «Evaluador» al iniciar sesión no basta.
+ * @param {{ roles?: string[], permisos?: string[] } | null | undefined} usuario
+ * @returns {boolean}
+ */
+export function puedeEvaluar(usuario) {
+  return tienePermiso(usuario, PERMISO_EVALUAR) || tieneRolAdministrador(usuario);
+}

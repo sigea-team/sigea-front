@@ -28,14 +28,15 @@ import DisponibilidadSalaModal from '../features/salas/components/Disponibilidad
 import DisponibilidadPonenteModal from '../features/salas/components/DisponibilidadPonenteModal';
 import ProgramarActividadModal from '../features/salas/components/ProgramarActividadModal';
 import { formatearHora } from '../features/salas/salaUtils';
+import { avisarDisponibilidad, conMensajeApi, mensajeApi } from '../features/salas/salaAvisos';
 import { useAuth } from '../context/AuthContext';
 
 /**
  * @file SalasPage.jsx
- * @description Módulo de Infraestructura: Catálogo institucional de Salas y Espacios (HU-20).
- * La creación de salas es independiente de los eventos: permite registrar y configurar
- * espacios físicos o virtuales para dejarlos disponibles y usarlos en eventos futuros.
- * Además, permite seleccionar eventos para programar actividades y gestionar la disponibilidad de ponentes.
+ * @description Módulo de Infraestructura: Salas y Espacios de cada evento (HU-20).
+ * En el backend toda sala pertenece a un evento (salas.evento_id es obligatorio), por eso la vista trabaja
+ * siempre sobre el evento seleccionado: sus salas, la disponibilidad de sus ponentes y su programación.
+ * Todos los datos vienen del backend; los errores se muestran tal como los responde.
  */
 export default function SalasPage({ api = salaService, apiEventos = eventoService }) {
   const { eventoId: eventoIdParam } = useParams();
@@ -92,9 +93,9 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
     let activo = true;
 
     const promesas = [
-      api.listarSalas(null), // Traer todas las salas del catálogo institucional
-      idEventoActivo ? api.listarPonentesEvento(idEventoActivo).catch(() => []) : Promise.resolve([]),
-      idEventoActivo ? api.listarActividades(idEventoActivo).catch(() => []) : Promise.resolve([]),
+      api.listarSalas(idEventoActivo),
+      api.listarPonentesEvento(idEventoActivo),
+      api.listarActividades(idEventoActivo),
     ];
 
     Promise.all(promesas)
@@ -108,7 +109,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       })
       .catch((err) => {
         if (activo) {
-          setErrorCarga(err.message || 'Error al cargar información de salas.');
+          setErrorCarga(mensajeApi(err, 'Error al cargar la información de salas.'));
           setCargando(false);
         }
       });
@@ -137,17 +138,18 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   // Operaciones de salas
   const handleGuardarSala = async (datos) => {
     if (modalSala?.tipo === 'crear') {
-      // Si se crea en la pestaña del catálogo o sin evento, eventoId es null (independiente)
-      const evId = modalSala.eventoId || null;
-      await api.crearSala(evId, datos);
+      await conMensajeApi(() => api.crearSala(idEventoActivo, datos), 'No fue posible registrar la sala.');
       Swal.fire({
         icon: 'success',
         title: 'Sala registrada',
-        text: `La sala «${datos.nombre}» quedó guardada en el catálogo y disponible para futuros eventos.`,
+        text: `La sala «${datos.nombre}» quedó registrada en ${eventoActual?.nombre || 'el evento'}.`,
         confirmButtonColor: '#a6192e',
       });
     } else if (modalSala?.tipo === 'editar') {
-      await api.actualizarSala(modalSala.sala.id, datos);
+      await conMensajeApi(
+        () => api.actualizarSala(modalSala.sala.eventoId || idEventoActivo, modalSala.sala.id, datos),
+        'No fue posible actualizar la sala.'
+      );
       Swal.fire({
         icon: 'success',
         title: 'Sala actualizada',
@@ -162,7 +164,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
     const confirm = await Swal.fire({
       icon: 'question',
       title: `¿Eliminar la sala «${sala.nombre}»?`,
-      text: 'Esta acción eliminará la sala del catálogo de infraestructura.',
+      text: 'Esta acción eliminará la sala y su disponibilidad horaria del evento.',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
@@ -172,7 +174,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
 
     if (confirm.isConfirmed) {
       try {
-        await api.eliminarSala(sala.id);
+        await api.eliminarSala(sala.eventoId || idEventoActivo, sala.id);
         Swal.fire({
           icon: 'success',
           title: 'Sala eliminada',
@@ -184,7 +186,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         Swal.fire({
           icon: 'error',
           title: 'No se pudo eliminar',
-          text: err.message || 'La sala tiene actividades programadas o no pudo eliminarse.',
+          text: mensajeApi(err, 'La sala tiene actividades programadas o no pudo eliminarse.'),
           confirmButtonColor: '#a6192e',
         });
       }
@@ -192,29 +194,29 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   };
 
   const handleGuardarDisponibilidadSala = async (salaId, franjas) => {
-    await api.guardarDisponibilidadSala(salaId, franjas);
-    Swal.fire({
-      icon: 'success',
-      title: 'Disponibilidad actualizada',
-      text: 'Las franjas horarias de la sala se guardaron exitosamente.',
-      confirmButtonColor: '#a6192e',
-    });
+    const resultado = await conMensajeApi(
+      () => api.guardarDisponibilidadSala(idEventoActivo, salaId, franjas),
+      'No fue posible guardar la disponibilidad de la sala.'
+    );
+    avisarDisponibilidad(resultado, 'Disponibilidad actualizada', 'Las franjas horarias de la sala se guardaron exitosamente.');
     recargar();
   };
 
   const handleGuardarDisponibilidadPonente = async (personaId, franjas) => {
-    await api.guardarDisponibilidadPonente(idEventoActivo, personaId, franjas);
-    Swal.fire({
-      icon: 'success',
-      title: 'Disponibilidad del ponente guardada',
-      text: 'Los rangos de disponibilidad horaria se guardaron como referencia para la programación.',
-      confirmButtonColor: '#a6192e',
-    });
+    const resultado = await conMensajeApi(
+      () => api.guardarDisponibilidadPonente(idEventoActivo, personaId, franjas),
+      'No fue posible guardar la disponibilidad del ponente.'
+    );
+    avisarDisponibilidad(
+      resultado,
+      'Disponibilidad del ponente guardada',
+      'Los rangos de disponibilidad horaria se guardaron como referencia para la programación.'
+    );
     recargar();
   };
 
   const handleProgramarActividad = async (datos) => {
-    await api.programarActividad(idEventoActivo, datos);
+    await conMensajeApi(() => api.programarActividad(idEventoActivo, datos), 'No fue posible programar la actividad.');
     Swal.fire({
       icon: 'success',
       title: 'Actividad agendada',
@@ -248,11 +250,11 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               SIGEA — Infraestructura Institucional (HU-20)
             </span>
             <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
-              Catálogo de salas y espacios
+              Salas y espacios por evento
             </h2>
             <p className="text-sm text-[#5b5f66] mt-1 max-w-3xl">
-              Registra y configura auditorios, aulas físicas y salas de videoconferencia independientes
-              de los eventos para disponer de la infraestructura necesaria y programar actividades en eventos cuando lo requieras.
+              Selecciona un evento para registrar sus auditorios, aulas físicas y salas de videoconferencia, con su
+              aforo y su disponibilidad horaria, y para configurar la disponibilidad de sus ponentes.
             </p>
           </div>
 
@@ -261,7 +263,9 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             <Button
               type="button"
               variant="primary"
-              onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: null })}
+              onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: idEventoActivo })}
+              disabled={!idEventoActivo}
+              title={idEventoActivo ? undefined : 'Selecciona primero un evento'}
             >
               <Plus className="w-4 h-4" />
               <span>Registrar nueva sala</span>
@@ -310,7 +314,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               }`}
             >
               <Building className="w-4 h-4" />
-              <span>Catálogo General ({todasLasSalas.length})</span>
+              <span>Salas del evento ({todasLasSalas.length})</span>
             </button>
 
             <button
@@ -346,7 +350,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             size="sm"
             onClick={recargar}
             disabled={cargando}
-            title="Refrescar catálogo"
+            title="Refrescar datos del evento"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${cargando ? 'animate-spin' : ''}`} />
           </Button>
@@ -364,10 +368,19 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         {/* ======================================================== */}
         {pestanaActiva === 'catalogo' && (
           <div className="space-y-4">
-            {/* Filtros del Catálogo */}
+            {/* Filtros: evento y búsqueda */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3 w-full sm:max-w-md">
-                <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-3 w-full sm:max-w-2xl">
+                <div className="w-full sm:w-64">
+                  <Select
+                    id="selector-evento-salas"
+                    value={idEventoActivo}
+                    onChange={(e) => setEventoSeleccionadoId(e.target.value)}
+                    options={opcionesEventos}
+                    disabled={Boolean(eventoIdParam)}
+                  />
+                </div>
+                <div className="flex-1 min-w-[12rem]">
                   <Input
                     id="buscar-salas-catalogo"
                     placeholder="Buscar por nombre o ubicación..."
@@ -399,22 +412,25 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
                 <Building className="w-12 h-12 text-[#9ca0a6] mx-auto mb-2" />
                 <h3 className="font-serif-title text-base font-semibold text-[#1f2023]">
-                  No se encontraron salas en el catálogo
+                  {idEventoActivo ? 'No hay salas para mostrar' : 'Selecciona un evento'}
                 </h3>
                 <p className="text-xs text-[#5b5f66] mt-1 max-w-md mx-auto">
-                  {busqueda || filtroTipo !== 'todos'
-                    ? 'Ninguna sala coincide con los filtros aplicados. Intenta con otros términos.'
-                    : 'Crea auditorios, aulas y salas virtuales que quedarán disponibles para ser usadas en cualquier evento.'}
+                  {!idEventoActivo
+                    ? 'Las salas se registran por evento. Elige uno en el selector para ver y registrar sus salas.'
+                    : busqueda || filtroTipo !== 'todos'
+                      ? 'Ninguna sala coincide con los filtros aplicados. Intenta con otros términos.'
+                      : 'Registra los auditorios, aulas y salas virtuales que usará este evento.'}
                 </p>
                 <div className="mt-4">
                   <Button
                     type="button"
                     variant="primary"
                     size="sm"
-                    onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: null })}
+                    onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: idEventoActivo })}
+                    disabled={!idEventoActivo}
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Registrar sala en catálogo</span>
+                    <span>Registrar sala</span>
                   </Button>
                 </div>
               </div>
@@ -628,13 +644,24 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                   type="button"
                   variant="primary"
                   onClick={() => setModalProgramar(true)}
-                  disabled={!idEventoActivo || todasLasSalas.length === 0}
+                  disabled={!api.soportaActividades || !idEventoActivo || todasLasSalas.length === 0}
+                  title={api.soportaActividades ? undefined : 'El backend todavía no tiene la programación de actividades'}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Programar actividad</span>
                 </Button>
               </div>
             </div>
+
+            {!api.soportaActividades && (
+              <div role="status" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
+                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                <p className="text-xs">
+                  La programación de actividades todavía no está disponible: el backend aún no tiene este servicio.
+                  Por ahora puedes registrar las salas y la disponibilidad horaria de salas y ponentes.
+                </p>
+              </div>
+            )}
 
             {!idEventoActivo ? (
               <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">

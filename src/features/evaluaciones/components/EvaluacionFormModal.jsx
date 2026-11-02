@@ -4,7 +4,6 @@ import {
   X,
   ClipboardCheck,
   AlertTriangle,
-  Info,
   Calendar,
   User,
   BookOpen,
@@ -42,14 +41,15 @@ export default function EvaluacionFormModal({
   onClose,
   onGuardadoExitoso,
 }) {
-  if (!isOpen || !asignacion) return null;
-
   // Criterio 4: verificar si el periodo de evaluación está cerrado para una evaluación ya completada
   const estadoEdicion = puedeModificarEvaluacion(asignacion);
-  const esSoloLectura = !estadoEdicion.puedeEditar;
 
-  // Inicializar estado de calificaciones a partir de las evaluaciones de la asignación
-  const criterios = asignacion.evaluaciones || [];
+  // Criterios reales de la rúbrica activa, con las calificaciones ya registradas
+  const criterios = useMemo(() => asignacion?.evaluaciones || [], [asignacion]);
+
+  // Sin rúbrica (o sin detalle) no hay nada que calificar: el backend rechazaría el envío
+  const sinRubrica = criterios.length === 0;
+  const esSoloLectura = !estadoEdicion.puedeEditar || sinRubrica;
 
   const [calificaciones, setCalificaciones] = useState(() => {
     return criterios.map((c) => ({
@@ -105,6 +105,8 @@ export default function EvaluacionFormModal({
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+
+    if (sinRubrica) return;
 
     // Criterio 4: Si el periodo está cerrado, bloquear operación
     if (esSoloLectura) {
@@ -244,6 +246,8 @@ export default function EvaluacionFormModal({
     }
   };
 
+  if (!isOpen || !asignacion) return null;
+
   return (
     <div
       role="dialog"
@@ -279,8 +283,22 @@ export default function EvaluacionFormModal({
 
         {/* Cuerpo con scroll */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-[#1f2023]">
+          {sinRubrica && (
+            <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">No hay criterios para calificar</p>
+                <p className="text-xs mt-0.5">
+                  {asignacion.errorDetalle
+                    ? 'No fue posible cargar la rúbrica de esta asignación. Cierra el formulario y pulsa «Actualizar».'
+                    : 'La convocatoria de esta propuesta no tiene una rúbrica de evaluación activa. Contacta al organizador.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Advertencia de Criterio 4: Periodo Cerrado */}
-          {esSoloLectura && (
+          {!estadoEdicion.puedeEditar && (
             <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e]">
               <Lock className="w-5 h-5 shrink-0 mt-0.5 text-[#a6192e]" />
               <div>
@@ -513,7 +531,9 @@ export default function EvaluacionFormModal({
         {/* Pie del modal con acciones */}
         <div className="bg-[#f7f7f8] border-t border-[#e5e7ea] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-[#5b5f66]">
-            {esSoloLectura ? (
+            {sinRubrica ? (
+              <span className="text-[#b54708] font-semibold">Sin rúbrica activa</span>
+            ) : esSoloLectura ? (
               <span className="inline-flex items-center gap-1 text-[#b42318] font-semibold">
                 <Lock className="w-3.5 h-3.5" />
                 Periodo de evaluación cerrado

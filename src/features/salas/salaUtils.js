@@ -214,7 +214,8 @@ export function verificarConflictoAforo(nuevoAforo, actividadesSala = []) {
  *
  * @param {{ fecha: string, horaInicio: string, horaFin: string }} actividad
  * @param {Array<Object>} franjasSala - Disponibilidad de la sala elegida
- * @param {Array<Object>} [franjasPonente] - Disponibilidad del ponente asignado (opcional si no tiene ponente)
+ * @param {Array<Object>|null} [franjasPonente] - Disponibilidad del ponente asignado. `null`/`undefined` = la
+ *   actividad no tiene ponente; un arreglo vacío = el ponente no registró disponibilidad (se trata como conflicto).
  * @returns {{
  *   hayConflicto: boolean,
  *   conflictoSala: boolean,
@@ -226,28 +227,32 @@ export function verificarConflictoProgramacionActividad(actividad, franjasSala =
   const motivos = [];
   let conflictoSala = false;
   let conflictoPonente = false;
+  const horario = `(${formatearHora(actividad.horaInicio)} – ${formatearHora(actividad.horaFin)}) en la fecha ${
+    actividad.fecha
+  }`;
 
-  // Revisar disponibilidad de la sala
-  const salaCubierta = estaCubiertoPorDisponibilidad(actividad, franjasSala);
-  if (!salaCubierta) {
+  // Revisar disponibilidad de la sala. Sin franjas registradas (null, undefined o vacío) también es conflicto.
+  const salaSinDisponibilidad = !Array.isArray(franjasSala) || franjasSala.length === 0;
+  if (salaSinDisponibilidad) {
     conflictoSala = true;
-    motivos.push(
-      `El horario de la actividad (${formatearHora(actividad.horaInicio)} – ${formatearHora(
-        actividad.horaFin
-      )}) en la fecha ${actividad.fecha} está fuera de la disponibilidad horaria registrada para la sala.`
-    );
+    motivos.push(`La sala no tiene disponibilidad horaria registrada, así que la actividad ${horario} está fuera de la disponibilidad.`);
+  } else if (!estaCubiertoPorDisponibilidad(actividad, franjasSala)) {
+    conflictoSala = true;
+    motivos.push(`El horario de la actividad ${horario} está fuera de la disponibilidad horaria registrada para la sala.`);
   }
 
-  // Revisar disponibilidad del ponente si aplica
-  if (Array.isArray(franjasPonente) && franjasPonente.length > 0) {
-    const ponenteCubierto = estaCubiertoPorDisponibilidad(actividad, franjasPonente);
-    if (!ponenteCubierto) {
+  // Revisar disponibilidad del ponente si hay uno asignado (null/undefined = actividad sin ponente).
+  // Un ponente asignado sin franjas registradas es conflicto, no un caso válido (Criterios 2, 4 y 5).
+  if (franjasPonente !== null && franjasPonente !== undefined) {
+    const ponenteSinDisponibilidad = !Array.isArray(franjasPonente) || franjasPonente.length === 0;
+    if (ponenteSinDisponibilidad) {
       conflictoPonente = true;
       motivos.push(
-        `El ponente asignado no tiene disponibilidad registrada para el horario (${formatearHora(
-          actividad.horaInicio
-        )} – ${formatearHora(actividad.horaFin)}) en la fecha ${actividad.fecha}.`
+        `El ponente asignado no tiene disponibilidad registrada en este evento, así que la actividad ${horario} queda fuera de su disponibilidad.`
       );
+    } else if (!estaCubiertoPorDisponibilidad(actividad, franjasPonente)) {
+      conflictoPonente = true;
+      motivos.push(`El ponente asignado no tiene disponibilidad registrada para el horario ${horario}.`);
     }
   }
 
@@ -284,3 +289,88 @@ export function verificarConflictosCambioDisponibilidad(nuevasFranjas = [], acti
   };
 }
 
+
+// ──────────────────────────────────────────────────────────────────────────
+// Traducción entre la API del backend (HU-20) y el formato de la interfaz
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * Recorta una hora del backend ("08:00:00") al formato de la interfaz ("08:00").
+ * @param {string|null|undefined} hora
+ * @returns {string}
+ */
+export function normalizarHoraApi(hora) {
+  return typeof hora === 'string' ? hora.slice(0, 5) : '';
+}
+
+/**
+ * Convierte las franjas de la interfaz al cuerpo que espera el backend.
+ * @param {Array<{ fecha: string, horaInicio: string, horaFin: string }>} franjas
+ * @returns {Array<{ fecha: string, horaInicio: string, horaFin: string }>}
+ */
+export function aFranjasApi(franjas = []) {
+  return (Array.isArray(franjas) ? franjas : []).map((f) => ({
+    fecha: f.fecha,
+    horaInicio: normalizarHoraApi(f.horaInicio),
+    horaFin: normalizarHoraApi(f.horaFin),
+  }));
+}
+
+/**
+ * Convierte franjas del backend ({ id, fecha, horaInicio: "08:00:00", ... }) al formato de la interfaz.
+ * @param {Array<Object>} franjas
+ */
+export function normalizarFranjasApi(franjas = []) {
+  return (Array.isArray(franjas) ? franjas : []).map((f) => ({
+    id: f.id,
+    fecha: f.fecha,
+    horaInicio: normalizarHoraApi(f.horaInicio),
+    horaFin: normalizarHoraApi(f.horaFin),
+  }));
+}
+
+/**
+ * Convierte una SalaResponse del backend al formato de la interfaz (usa `disponibilidad`).
+ * @param {Object} sala
+ */
+export function normalizarSalaApi(sala) {
+  if (!sala) return sala;
+  return {
+    id: sala.id,
+    eventoId: sala.eventoId,
+    nombre: sala.nombre,
+    ubicacion: sala.ubicacion || '',
+    tipo: sala.tipo ? String(sala.tipo).toLowerCase() : '',
+    aforoMaximo: sala.aforoMaximo,
+    disponibilidad: normalizarFranjasApi(sala.disponibilidades),
+  };
+}
+
+/**
+ * Construye el SalaRequest del backend a partir de los datos del formulario.
+ * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, disponibilidad?: Array }} datos
+ */
+export function aSalaRequest(datos = {}) {
+  return {
+    nombre: (datos.nombre || '').trim(),
+    ubicacion: datos.ubicacion ? String(datos.ubicacion).trim() : null,
+    tipo: datos.tipo ? String(datos.tipo).toLowerCase() : null,
+    aforoMaximo: Number(datos.aforoMaximo),
+    disponibilidades: aFranjasApi(datos.disponibilidad),
+  };
+}
+
+/**
+ * Convierte un conferencista del evento y su disponibilidad al formato de ponente de la interfaz.
+ * @param {{ personaId: number, nombreCompleto: string, correo?: string }} conferencista
+ * @param {Array<Object>} disponibilidad - DisponibilidadPonenteResponse[]
+ */
+export function normalizarPonenteApi(conferencista, disponibilidad = []) {
+  return {
+    personaId: conferencista.personaId,
+    nombres: conferencista.nombreCompleto || '',
+    apellidos: '',
+    correo: conferencista.correo || '',
+    disponibilidad: normalizarFranjasApi(disponibilidad),
+  };
+}

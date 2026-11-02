@@ -24,6 +24,7 @@ export const CLAVE_SESION = 'sigea-auth';
  * @property {string} correo
  * @property {string} nombreCompleto
  * @property {string[]} roles
+ * @property {string[]} permisos - Códigos de permiso que el usuario obtiene por sus roles.
  * @property {'ASISTENTE'|'PONENTE'|'CONFERENCISTA'|'EVALUADOR'|'ADMINISTRADOR'} [modoIngreso='ASISTENTE'] - Perfil institucional de ingreso activo.
  * @property {string} [avatarUrl]
  * @property {string} [telefono]
@@ -66,6 +67,10 @@ export function normalizarSesion(data, modoIngreso = 'ASISTENTE') {
     .filter((r) => typeof r === 'string' && r.trim() !== '')
     .map((r) => r.trim().toUpperCase());
 
+  const permisos = (Array.isArray(origen.permisos) ? origen.permisos : [])
+    .filter((p) => typeof p === 'string' && p.trim() !== '')
+    .map((p) => p.trim().toUpperCase());
+
   const modo = (origen.modoIngreso || modoIngreso || 'ASISTENTE').toUpperCase();
 
   return {
@@ -75,6 +80,7 @@ export function normalizarSesion(data, modoIngreso = 'ASISTENTE') {
       correo: origen.correo ?? origen.email ?? '',
       nombreCompleto: origen.nombreCompleto ?? origen.nombre ?? origen.name ?? '',
       roles,
+      permisos,
       modoIngreso: modo,
       avatarUrl: origen.avatarUrl ?? origen.foto ?? '',
       telefono: origen.telefono ?? '',

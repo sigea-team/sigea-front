@@ -1,95 +1,31 @@
-import React, { useState } from 'react';
-import RolesPage, { INITIAL_ROLES } from './RolesPage';
-import RoleFormModal from '../features/roles/components/RoleFormModal';
-import RoleDeleteModal from '../features/roles/components/RoleDeleteModal';
+import { MemoryRouter } from 'react-router-dom';
+import RolesPage from './RolesPage';
+import { crearRolesApiMock } from '../features/roles/mocks/rolesMock';
 
 export default {
   title: 'Pages/RolesPage',
   component: RolesPage,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'fullscreen',
-  },
+  parameters: { layout: 'fullscreen' },
+  decorators: [
+    (Story) => (
+      <MemoryRouter initialEntries={['/roles']}>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
-export const DefaultView = {
-  args: {
-    usuarioProp: { nombreCompleto: 'Admin SIGEA', rol: 'ADMIN' },
-    initialRoles: INITIAL_ROLES,
-  },
+/** Roles y usuarios servidos por una API en memoria con el mismo contrato que el backend. */
+export const ConDatos = {
+  render: () => <RolesPage api={crearRolesApiMock()} />,
 };
 
-export const ModalCrearRolAbierto = {
+/** Error del backend al cargar. */
+export const ErrorDeCarga = {
   render: () => {
-    return (
-      <div>
-        <RolesPage initialRoles={INITIAL_ROLES} />
-        <RoleFormModal
-          isOpen={true}
-          role={null}
-          onClose={() => {}}
-          onSave={() => {}}
-        />
-      </div>
-    );
-  },
-};
-
-export const ModalEditarRolConPropagacion = {
-  render: () => {
-    const roleConUsuarios = INITIAL_ROLES.find((r) => r.usuariosAsignados > 0);
-    return (
-      <div>
-        <RolesPage initialRoles={INITIAL_ROLES} />
-        <RoleFormModal
-          isOpen={true}
-          role={roleConUsuarios}
-          onClose={() => {}}
-          onSave={() => {}}
-        />
-      </div>
-    );
-  },
-};
-
-export const AdvertenciaBloqueanteEliminacion = {
-  render: () => {
-    const roleConUsuarios = INITIAL_ROLES.find((r) => r.usuariosAsignados > 0);
-    return (
-      <div>
-        <RolesPage initialRoles={INITIAL_ROLES} />
-        <RoleDeleteModal
-          isOpen={true}
-          role={roleConUsuarios}
-          onClose={() => {}}
-          onConfirmDelete={() => {}}
-          onNavigateToUsers={() => alert('Navegando a reasignación de usuarios...')}
-        />
-      </div>
-    );
-  },
-};
-
-export const ConfirmacionEliminacionPermitida = {
-  render: () => {
-    const roleSinUsuarios = INITIAL_ROLES.find((r) => r.usuariosAsignados === 0);
-    return (
-      <div>
-        <RolesPage initialRoles={INITIAL_ROLES} />
-        <RoleDeleteModal
-          isOpen={true}
-          role={roleSinUsuarios}
-          onClose={() => {}}
-          onConfirmDelete={(role) => alert(`Eliminando ${role.label}`)}
-          onNavigateToUsers={() => {}}
-        />
-      </div>
-    );
-  },
-};
-
-export const InteractiveFullFlow = {
-  render: () => {
-    return <RolesPage initialRoles={INITIAL_ROLES} />;
+    const falla = () => Promise.reject({ response: { status: 500, data: { message: 'Error interno del servidor.' } } });
+    const api = { ...crearRolesApiMock(), listarRoles: falla };
+    return <RolesPage api={api} />;
   },
 };

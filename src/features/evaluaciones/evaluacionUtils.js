@@ -224,3 +224,45 @@ export function formatearPuntuacion(valor) {
   }
   return Number(valor).toFixed(2);
 }
+
+/**
+ * Combina una fila de la bandeja con el detalle real de la asignación
+ * (GET /evaluaciones/asignaciones/{id}): un elemento por criterio de la rúbrica activa,
+ * con la calificación y las observaciones ya registradas por el evaluador, si existen.
+ *
+ * @param {Object} base - Fila de la bandeja ya normalizada.
+ * @param {Object} detalle - AsignacionEvaluacionResponse del backend.
+ * @returns {Object} Asignación en el formato de la vista de evaluaciones.
+ */
+export function combinarDetalleAsignacion(base, detalle) {
+  if (!detalle) return base;
+
+  const registradas = new Map(
+    (detalle.evaluaciones || []).map((ev) => [String(ev.criterioId), ev])
+  );
+
+  const evaluaciones = (detalle.criterios || []).map((c) => {
+    const ev = registradas.get(String(c.criterioId));
+    return {
+      evaluacionId: ev?.evaluacionId ?? null,
+      asignacionId: detalle.asignacionId,
+      criterioId: c.criterioId,
+      nombreCriterio: c.nombre,
+      pesoPorcentual: Number(c.pesoPorcentual),
+      calificacion: ev?.calificacion ?? null,
+      observaciones: ev?.observaciones || '',
+      fechaEvaluacion: ev?.fechaEvaluacion ?? null,
+    };
+  });
+
+  return {
+    ...base,
+    propuestaTitulo: detalle.propuestaTitulo ?? base.propuestaTitulo,
+    propuestaResumen: detalle.propuestaResumen ?? base.propuestaResumen ?? null,
+    autores: Array.isArray(detalle.autores) ? detalle.autores : base.autores || [],
+    convocatoriaTitulo: detalle.convocatoriaTitulo ?? base.convocatoriaTitulo,
+    fechaCierre: detalle.fechaCierre ?? null,
+    estado: detalle.estado ?? base.estado,
+    evaluaciones,
+  };
+}

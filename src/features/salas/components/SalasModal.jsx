@@ -24,6 +24,7 @@ import DisponibilidadSalaModal from './DisponibilidadSalaModal';
 import DisponibilidadPonenteModal from './DisponibilidadPonenteModal';
 import ProgramarActividadModal from './ProgramarActividadModal';
 import { formatearHora } from '../salaUtils';
+import { avisarDisponibilidad, conMensajeApi, mensajeApi } from '../salaAvisos';
 
 /**
  * @file SalasModal.jsx
@@ -74,7 +75,7 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
       })
       .catch((err) => {
         if (activo) {
-          setErrorCarga(err.message || 'No se pudieron cargar los datos del módulo de salas.');
+          setErrorCarga(mensajeApi(err, 'No se pudieron cargar los datos del módulo de salas.'));
           setCargando(false);
         }
       });
@@ -99,7 +100,7 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   // Operaciones de salas
   const handleGuardarSala = async (datos) => {
     if (modalSala?.tipo === 'crear') {
-      await api.crearSala(eventoId, datos);
+      await conMensajeApi(() => api.crearSala(eventoId, datos), 'No fue posible registrar la sala.');
       Swal.fire({
         icon: 'success',
         title: 'Sala registrada',
@@ -107,7 +108,10 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
         confirmButtonColor: '#a6192e',
       });
     } else if (modalSala?.tipo === 'editar') {
-      await api.actualizarSala(modalSala.sala.id, datos);
+      await conMensajeApi(
+        () => api.actualizarSala(eventoId, modalSala.sala.id, datos),
+        'No fue posible actualizar la sala.'
+      );
       Swal.fire({
         icon: 'success',
         title: 'Sala actualizada',
@@ -132,7 +136,7 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
 
     if (confirm.isConfirmed) {
       try {
-        await api.eliminarSala(sala.id);
+        await api.eliminarSala(eventoId, sala.id);
         Swal.fire({
           icon: 'success',
           title: 'Sala eliminada',
@@ -144,7 +148,7 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
         Swal.fire({
           icon: 'error',
           title: 'No se pudo eliminar',
-          text: err.message || 'La sala no pudo ser eliminada.',
+          text: mensajeApi(err, 'La sala no pudo ser eliminada.'),
           confirmButtonColor: '#a6192e',
         });
       }
@@ -152,29 +156,29 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   };
 
   const handleGuardarDisponibilidadSala = async (salaId, franjas) => {
-    await api.guardarDisponibilidadSala(salaId, franjas);
-    Swal.fire({
-      icon: 'success',
-      title: 'Disponibilidad actualizada',
-      text: 'Las franjas horarias de la sala se guardaron como referencia.',
-      confirmButtonColor: '#a6192e',
-    });
+    const resultado = await conMensajeApi(
+      () => api.guardarDisponibilidadSala(eventoId, salaId, franjas),
+      'No fue posible guardar la disponibilidad de la sala.'
+    );
+    avisarDisponibilidad(resultado, 'Disponibilidad actualizada', 'Las franjas horarias de la sala se guardaron como referencia.');
     recargar();
   };
 
   const handleGuardarDisponibilidadPonente = async (personaId, franjas) => {
-    await api.guardarDisponibilidadPonente(eventoId, personaId, franjas);
-    Swal.fire({
-      icon: 'success',
-      title: 'Disponibilidad del ponente guardada',
-      text: 'Los rangos horarios se guardaron como referencia para la programación.',
-      confirmButtonColor: '#a6192e',
-    });
+    const resultado = await conMensajeApi(
+      () => api.guardarDisponibilidadPonente(eventoId, personaId, franjas),
+      'No fue posible guardar la disponibilidad del ponente.'
+    );
+    avisarDisponibilidad(
+      resultado,
+      'Disponibilidad del ponente guardada',
+      'Los rangos horarios se guardaron como referencia para la programación.'
+    );
     recargar();
   };
 
   const handleProgramarActividad = async (datos) => {
-    await api.programarActividad(eventoId, datos);
+    await conMensajeApi(() => api.programarActividad(eventoId, datos), 'No fue posible programar la actividad.');
     Swal.fire({
       icon: 'success',
       title: 'Actividad programada',
@@ -480,6 +484,15 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
           {/* ======================================================== */}
           {pestanaActiva === 'actividades' && (
             <div className="space-y-4">
+              {!api.soportaActividades && (
+                <div role="status" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
+                  <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <p className="text-xs">
+                    La programación de actividades todavía no está disponible: el backend aún no tiene este servicio.
+                    Por ahora puedes registrar las salas y la disponibilidad horaria de salas y ponentes.
+                  </p>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider">
@@ -493,7 +506,8 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
                   type="button"
                   variant="primary"
                   onClick={() => setModalProgramar(true)}
-                  disabled={salas.length === 0}
+                  disabled={!api.soportaActividades || salas.length === 0}
+                  title={api.soportaActividades ? undefined : 'El backend todavía no tiene la programación de actividades'}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Programar actividad</span>
