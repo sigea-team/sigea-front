@@ -7,7 +7,7 @@ import {
   Clock,
   Award,
   RefreshCw,
-  RotateCcw,
+  AlertTriangle,
 } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
@@ -32,6 +32,7 @@ import { calcularPuntuacionPonderada } from '../features/evaluaciones/evaluacion
 export default function EvaluacionesPage() {
   const [asignaciones, setAsignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos'); // 'todos' | 'pendiente' | 'completada'
 
@@ -45,11 +46,16 @@ export default function EvaluacionesPage() {
   // Carga de datos
   const cargarAsignaciones = useCallback(async () => {
     setCargando(true);
+    setErrorCarga(null);
     try {
       const data = await evaluacionService.listarAsignaciones();
       setAsignaciones(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error al cargar asignaciones de evaluación:', err);
+      setAsignaciones([]);
+      setErrorCarga(
+        err?.response?.data?.message || 'No fue posible cargar tus asignaciones de evaluación. Intenta de nuevo.'
+      );
     } finally {
       setCargando(false);
     }
@@ -84,11 +90,6 @@ export default function EvaluacionesPage() {
   };
 
   const handleGuardadoExitoso = () => {
-    cargarAsignaciones();
-  };
-
-  const handleRestablecerDemo = () => {
-    evaluacionService.restablecerDatosDemo();
     cargarAsignaciones();
   };
 
@@ -155,18 +156,6 @@ export default function EvaluacionesPage() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={handleRestablecerDemo}
-              title="Restablecer datos de prueba para verificar los 4 criterios de aceptación"
-              className="text-xs text-[#5b5f66]"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Restablecer demo</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
               onClick={cargarAsignaciones}
               loading={cargando}
               title="Actualizar listado de asignaciones"
@@ -177,6 +166,13 @@ export default function EvaluacionesPage() {
             </Button>
           </div>
         </div>
+
+        {errorCarga && (
+          <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e]">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#a6192e]" />
+            <p className="text-sm">{errorCarga}</p>
+          </div>
+        )}
 
         {/* Tarjetas de métricas rápidas */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -283,12 +279,15 @@ export default function EvaluacionesPage() {
         />
 
         {/* Modales */}
-        <EvaluacionFormModal
-          isOpen={modalEvaluacionAbierto}
-          asignacion={asignacionSeleccionada}
-          onClose={handleCerrarEvaluacion}
-          onGuardadoExitoso={handleGuardadoExitoso}
-        />
+        {modalEvaluacionAbierto && asignacionSeleccionada && (
+          <EvaluacionFormModal
+            key={asignacionSeleccionada.asignacionId}
+            isOpen
+            asignacion={asignacionSeleccionada}
+            onClose={handleCerrarEvaluacion}
+            onGuardadoExitoso={handleGuardadoExitoso}
+          />
+        )}
 
         <ResultadoEvaluacionModal
           isOpen={modalResultadoAbierto}

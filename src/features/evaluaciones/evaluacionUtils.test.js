@@ -6,6 +6,7 @@ import {
   esPeriodoCerrado,
   puedeModificarEvaluacion,
   formatearPuntuacion,
+  combinarDetalleAsignacion,
 } from './evaluacionUtils';
 
 describe('HU-17 - evaluacionUtils', () => {
@@ -136,6 +137,36 @@ describe('HU-17 - evaluacionUtils', () => {
       expect(esPeriodoCerrado(new Date(Date.now() - 10000))).toBe(true);
       expect(esPeriodoCerrado(new Date(Date.now() + 10000))).toBe(false);
       expect(esPeriodoCerrado(null)).toBe(false);
+    });
+  });
+
+  describe('combinarDetalleAsignacion: datos reales del backend', () => {
+    const base = { asignacionId: 7, propuestaId: 3, propuestaTitulo: 'P', estado: 'pendiente', autores: [], evaluaciones: [] };
+
+    it('crea un elemento por criterio real y conserva las calificaciones ya registradas', () => {
+      const fila = combinarDetalleAsignacion(base, {
+        asignacionId: 7,
+        estado: 'completada',
+        autores: ['Ana Pérez'],
+        convocatoriaTitulo: 'Conv',
+        fechaCierre: '2026-12-01T23:59:00',
+        criterios: [
+          { criterioId: 11, nombre: 'Originalidad', pesoPorcentual: 60 },
+          { criterioId: 12, nombre: 'Pertinencia', pesoPorcentual: 40 },
+        ],
+        evaluaciones: [{ evaluacionId: 90, criterioId: 11, calificacion: 8.5, observaciones: 'Bien' }],
+      });
+
+      expect(fila.estado).toBe('completada');
+      expect(fila.autores).toEqual(['Ana Pérez']);
+      expect(fila.fechaCierre).toBe('2026-12-01T23:59:00');
+      expect(fila.evaluaciones).toHaveLength(2);
+      expect(fila.evaluaciones[0]).toMatchObject({ criterioId: 11, nombreCriterio: 'Originalidad', pesoPorcentual: 60, calificacion: 8.5, observaciones: 'Bien' });
+      expect(fila.evaluaciones[1]).toMatchObject({ criterioId: 12, calificacion: null, observaciones: '' });
+    });
+
+    it('sin rúbrica activa devuelve la lista de criterios vacía', () => {
+      expect(combinarDetalleAsignacion(base, { asignacionId: 7, criterios: [], evaluaciones: [] }).evaluaciones).toEqual([]);
     });
   });
 });
