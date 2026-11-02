@@ -1,5 +1,6 @@
 import { httpClient } from './httpClient';
 import { autorFrontToBackend, autorBackendToFront } from '../features/propuestas/propuestaUtils';
+import { crearFormularioPropuesta } from '../features/propuestas/documentoUtils';
 
 /**
  * @file propuestaService.js
@@ -108,7 +109,7 @@ export const propuestaService = {
     };
     const { data } = await httpClient.post(
       '/propuestas/envio',
-      crearFormulario(payload, archivos),
+      crearFormularioPropuesta(payload, archivos),
       CONFIG_MULTIPART
     );
     return { ...data, propuesta: normalizarPropuestaResponse(data?.propuesta) };
@@ -126,7 +127,7 @@ export const propuestaService = {
   async crearNuevaVersion(propuestaId, cambios, archivos) {
     const { data } = await httpClient.post(
       `/propuestas/${propuestaId}/versiones`,
-      crearFormulario(cambios, archivos),
+      crearFormularioPropuesta(cambios, archivos),
       CONFIG_MULTIPART
     );
     return { ...data, propuesta: normalizarPropuestaResponse(data?.propuesta) };
@@ -235,22 +236,6 @@ export const propuestaService = {
  * y el navegador agrega el `boundary` del multipart.
  */
 const CONFIG_MULTIPART = { headers: { 'Content-Type': 'multipart/form-data' } };
-
-/**
- * Arma el cuerpo multipart que esperan los endpoints de HU-14: la parte `datos` como JSON
- * (Content-Type application/json, necesario para @RequestPart) y una parte `documentos` por archivo.
- * @param {Object|null} datos
- * @param {Array<File>} archivos
- * @returns {FormData}
- */
-function crearFormulario(datos, archivos) {
-  const formulario = new FormData();
-  if (datos) {
-    formulario.append('datos', new Blob([JSON.stringify(datos)], { type: 'application/json' }));
-  }
-  (archivos || []).forEach((archivo) => formulario.append('documentos', archivo, archivo.name));
-  return formulario;
-}
 
 /**
  * Normaliza la respuesta PropuestaResponse del backend al formato que consume el frontend.

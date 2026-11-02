@@ -38,6 +38,8 @@ export default function HistorialVersionesModal({ propuesta, api, esAdmin = fals
   const [versiones, setVersiones] = useState(null);
   const [error, setError] = useState(null);
   const [version, setVersion] = useState(0);
+  // Criterio 5: tras autorizar, se oculta el botón para no conceder otra autorización mientras esta no se use.
+  const [autorizacionConcedida, setAutorizacionConcedida] = useState(false);
 
   const propuestaId = propuesta?.id;
 
@@ -84,15 +86,19 @@ export default function HistorialVersionesModal({ propuesta, api, esAdmin = fals
 
     try {
       const respuesta = await api.autorizarEdicion(propuestaId, motivo.trim());
+      setAutorizacionConcedida(true);
       await Swal.fire({ ...ESTILO_ALERTA, icon: 'success', title: 'Modificación autorizada', text: respuesta?.mensaje });
       if (onAutorizada) onAutorizada();
     } catch (err) {
-      const { titulo, mensaje } = interpretarErrorPropuesta(err);
+      const { codigo, titulo, mensaje } = interpretarErrorPropuesta(err);
+      // Si ya había una autorización pendiente, la interfaz lo refleja igual que tras concederla.
+      if (codigo === 'OPERACION_NO_PERMITIDA' && /pendiente/i.test(mensaje)) setAutorizacionConcedida(true);
       Swal.fire({ ...ESTILO_ALERTA, icon: 'error', title: titulo, text: mensaje, confirmButtonText: 'Entendido' });
     }
   };
 
-  const mostrarAutorizar = esAdmin && versiones && puedeAutorizarEdicion(versiones, propuesta?.estado);
+  const puedeAutorizar = esAdmin && versiones && puedeAutorizarEdicion(versiones, propuesta?.estado);
+  const mostrarAutorizar = puedeAutorizar && !autorizacionConcedida;
 
   return (
     <ModalShell
@@ -134,6 +140,12 @@ export default function HistorialVersionesModal({ propuesta, api, esAdmin = fals
       {!error && !versiones && (
         <p className="py-10 text-center text-[#5b5f66]" role="status">
           Cargando versiones...
+        </p>
+      )}
+
+      {!error && versiones && puedeAutorizar && autorizacionConcedida && (
+        <p className="mb-4 text-xs text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3" role="status">
+          Autorización concedida: el autor puede crear una nueva versión. Se podrá conceder otra después de que la use.
         </p>
       )}
 

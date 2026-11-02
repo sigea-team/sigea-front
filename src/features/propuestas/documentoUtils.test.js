@@ -3,6 +3,7 @@ import {
   MAXIMO_DOCUMENTOS,
   clasificarArchivos,
   construirCambiosVersion,
+  crearFormularioPropuesta,
   extensionDe,
   formatearTamano,
   interpretarErrorPropuesta,
@@ -103,6 +104,27 @@ describe('documentoUtils (HU-14)', () => {
     expect(errores.titulo).toBeDefined();
     expect(errores.documentos).toContain('al menos un documento');
     expect(validarNuevaVersion({ titulo: 'IA' }, MAXIMO_DOCUMENTOS + 1).documentos).toContain('máximo');
+  });
+
+  it('arma el multipart que espera el backend: datos como JSON y un campo documentos por archivo', async () => {
+    const datos = { convocatoriaId: 1, titulo: 'IA en la educación' };
+    const pdf = new File(['%PDF-1.7'], 'ponencia.pdf', { type: 'application/pdf' });
+    const docx = new File(['PK'], 'anexo.docx');
+    const formulario = crearFormularioPropuesta(datos, [pdf, docx]);
+
+    const parteDatos = formulario.get('datos');
+    expect(parteDatos.type).toBe('application/json');
+    expect(JSON.parse(await parteDatos.text())).toEqual(datos);
+
+    const documentos = formulario.getAll('documentos');
+    expect(documentos).toHaveLength(2);
+    expect(documentos.map((d) => d.name)).toEqual(['ponencia.pdf', 'anexo.docx']);
+  });
+
+  it('omite la parte datos cuando no hay cambios de datos (nueva versión solo con documentos)', () => {
+    const formulario = crearFormularioPropuesta(null, [new File(['%PDF'], 'v2.pdf')]);
+    expect(formulario.has('datos')).toBe(false);
+    expect(formulario.getAll('documentos')).toHaveLength(1);
   });
 
   it('envía solo los campos que cambiaron', () => {

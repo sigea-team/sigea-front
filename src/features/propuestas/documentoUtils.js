@@ -236,6 +236,24 @@ export function validarNuevaVersion(cambios, totalDocumentos) {
 }
 
 /**
+ * Arma el cuerpo multipart que esperan los endpoints de HU-14 (`/propuestas/envio` y `/propuestas/{id}/versiones`):
+ * - parte `datos`: JSON con Content-Type `application/json` (lo exige `@RequestPart` en el backend);
+ * - una parte `documentos` por archivo, con su nombre original.
+ * Si `datos` es null, la parte se omite (el backend la acepta como opcional al crear una versión).
+ * @param {Object|null} datos
+ * @param {Array<File>} archivos
+ * @returns {FormData}
+ */
+export function crearFormularioPropuesta(datos, archivos) {
+  const formulario = new FormData();
+  if (datos) {
+    formulario.append('datos', new Blob([JSON.stringify(datos)], { type: 'application/json' }));
+  }
+  (archivos || []).forEach((archivo) => formulario.append('documentos', archivo, archivo.name));
+  return formulario;
+}
+
+/**
  * Arma el cuerpo de `ActualizarPropuestaRequest` enviando solo los campos que cambiaron.
  * @param {{ titulo: string, resumen: string, palabrasClave: string, notaCambio: string }} form
  * @param {{ titulo?: string, resumen?: string, palabrasClave?: string }} original - Propuesta actual.
