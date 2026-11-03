@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { Send, FileText, Calendar, AlertCircle } from 'lucide-react';
 import ModalShell from '../../eventos/components/ModalShell';
 import TextArea from '../../eventos/components/TextArea';
@@ -7,7 +8,9 @@ import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import AutorFormSection from './AutorFormSection';
 import AutoresList from './AutoresList';
+import DocumentosUploader from './DocumentosUploader';
 import { validarPropuesta } from '../propuestaUtils';
+import { interpretarErrorPropuesta } from '../documentoUtils';
 import { propuestaService } from '../../../api/propuestaService';
 import { formatearFechaHora } from '../../convocatorias/convocatoriaUtils';
 
@@ -18,8 +21,15 @@ import { formatearFechaHora } from '../../convocatorias/convocatoriaUtils';
  * - Criterio 1: Dado que estoy enviando una propuesta, cuando registro mis datos como autor o ponente, entonces el sistema los asocia a la propuesta enviada.
  * - Criterio 2: Dado que una propuesta tiene varios autores, cuando registro cada uno con su rol específico (autor principal, coautor, ponente), entonces el sistema los guarda diferenciadamente.
  * - Criterio 3: Dado que intento registrar un autor sin datos obligatorios (nombre, correo, filiación), cuando confirmo el registro, entonces el sistema rechaza la operación y señala los campos faltantes.
+ * HU-14 (Postular propuesta con documentos):
+ * - Criterio 1: la propuesta se envía con sus documentos (POST /propuestas/envio) y el sistema confirma la recepción (versión 1).
+ * - Criterio 2: si la convocatoria cerró o un archivo tiene formato o tamaño no permitido, o faltan datos o documentos,
+ *   se rechaza el envío indicando el motivo (por archivo cuando aplica).
  * @module features/propuestas/components/PropuestaFormModal
  */
+
+/** SweetAlert2 con contenido React: los textos (títulos, nombres de archivo) se escapan solos. */
+const SwalReact = withReactContent(Swal);
 
 const ALERTA_EXITO = {
   icon: 'success',
@@ -56,7 +66,9 @@ export default function PropuestaFormModal({
 
   const [autores, setAutores] = useState([]);
   const [autorEnEdicion, setAutorEnEdicion] = useState(null);
+  const [archivos, setArchivos] = useState([]);
   const [errores, setErrores] = useState({});
+  const [errorEnvio, setErrorEnvio] = useState(null);
   const [enviando, setEnviando] = useState(false);
 
   if (!isOpen) return null;
@@ -111,12 +123,16 @@ export default function PropuestaFormModal({
     };
 
     const errs = validarPropuesta(datosPropuesta);
+    // HU-14, Criterio 2: los documentos son obligatorios.
+    if (archivos.length === 0) {
+      errs.documentos = 'Debe adjuntar al menos un documento de la propuesta.';
+    }
     if (Object.keys(errs).length > 0) {
       setErrores(errs);
       Swal.fire({
         icon: 'error',
         title: 'Verifique los campos requeridos',
-        text: errs.autores || errs.titulo || errs.resumen || 'Por favor complete todos los datos requeridos antes de enviar la propuesta.',
+        text: errs.autores || errs.titulo || errs.resumen || errs.documentos || 'Por favor complete todos los datos requeridos antes de enviar la propuesta.',
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',
         customClass: {
@@ -128,30 +144,33 @@ export default function PropuestaFormModal({
     }
 
     setEnviando(true);
+    setErrorEnvio(null);
     try {
-      // Criterio 1: Se asocian los datos de los autores y ponentes a la propuesta enviada
-      const respuesta = await api.enviarPropuesta(datosPropuesta);
+      // HU-13 Criterio 1 y HU-14 Criterio 1: la propuesta se registra con sus autores y documentos (versión 1).
+      const respuesta = await api.enviarPropuestaConDocumentos(datosPropuesta, archivos);
 
-      // Mapear roles a etiquetas legibles para el mensaje de éxito
       const rolesLegibles = {
         autor_principal: 'Autor Principal',
         coautor: 'Coautor',
         ponente: 'Ponente',
       };
 
-      Swal.fire({
+      SwalReact.fire({
         ...ALERTA_EXITO,
-        title: '¡Propuesta enviada con éxito!',
-        html: `
-          <p class="text-sm text-[#5b5f66] mb-3">
-            La propuesta <strong>«${datosPropuesta.titulo}»</strong> ha sido registrada con <strong>${autores.length} autor(es)/ponente(s)</strong> vinculados correctamente.
-          </p>
-          <div class="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3 text-left text-xs space-y-1">
-            <p><strong>Convocatoria:</strong> ${convocatoria?.titulo || 'Convocatoria académica'}</p>
-            <p><strong>Evento:</strong> ${convocatoria?.eventoNombre || 'Evento UFPS'}</p>
-            <p><strong>Autores asociados:</strong> ${autores.map((a) => `${a.nombreCompleto} (${rolesLegibles[a.rol] || a.rol})`).join(', ')}</p>
+        title: '¡Propuesta recibida!',
+        html: (
+          <div className="text-left">
+            <p className="text-sm text-[#5b5f66] mb-3">
+              {respuesta?.mensaje || `La propuesta «${datosPropuesta.titulo}» fue recibida correctamente.`}
+            </p>
+            <div className="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3 text-xs space-y-1">
+              <p><strong>Convocatoria:</strong> {convocatoria?.titulo || 'Convocatoria académica'}</p>
+              <p><strong>Autores:</strong> {autores.map((a) => `${a.nombreCompleto} (${rolesLegibles[a.rol] || a.rol})`).join(', ')}</p>
+              <p><strong>Documentos:</strong> {archivos.map((a) => a.name).join(', ')}</p>
+              <p>Puedes consultar sus versiones y modificarla desde «Mis propuestas».</p>
+            </div>
           </div>
-        `,
+        ),
       });
 
       if (onPropuestaEnviada) {
@@ -159,30 +178,24 @@ export default function PropuestaFormModal({
       }
       onClose();
     } catch (err) {
-      const status = err?.response?.status;
-      const data = err?.response?.data;
-
-      // Extraer mensaje de error del backend
-      let titulo = 'Error al enviar propuesta';
-      let msg = 'Ocurrió un error al enviar la propuesta. Intente nuevamente.';
-
-      if (status === 400) {
-        titulo = 'Datos inválidos';
-        msg = data?.mensaje || data?.message || 'Verifique que todos los campos obligatorios estén completos y sean válidos.';
-      } else if (status === 404) {
-        titulo = 'Recurso no encontrado';
-        msg = data?.mensaje || data?.message || 'La convocatoria seleccionada no fue encontrada o ya no está disponible.';
-      } else if (status === 409) {
-        titulo = 'Conflicto detectado';
-        msg = data?.mensaje || data?.message || 'Un autor ya se encuentra registrado en esta propuesta con los mismos datos.';
-      } else {
-        msg = data?.mensaje || data?.message || err?.message || msg;
-      }
-
-      Swal.fire({
+      // HU-14, Criterio 2: se indica el motivo del rechazo (convocatoria cerrada, archivo inválido, datos faltantes).
+      const error = interpretarErrorPropuesta(err);
+      setErrorEnvio(error);
+      SwalReact.fire({
         icon: 'error',
-        title: titulo,
-        text: msg,
+        title: error.titulo,
+        html: (
+          <div className="text-left text-sm text-[#5b5f66]">
+            <p>{error.mensaje}</p>
+            {error.detalles.length > 0 && (
+              <ul className="list-disc pl-5 mt-2 text-[13px] text-[#1f2023] space-y-1">
+                {error.detalles.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ),
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#a6192e',
         customClass: {
@@ -280,6 +293,43 @@ export default function PropuestaFormModal({
             value={form.ejeTematico}
             onChange={(e) => handleChange('ejeTematico', e.target.value)}
             placeholder="Ej. Ingeniería de Software, Ciencia de Datos, Telecomunicaciones"
+          />
+        </div>
+
+        {errorEnvio && (
+          <div className="flex items-start gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] p-3" role="alert">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold">{errorEnvio.titulo}</p>
+              <p>{errorEnvio.mensaje}</p>
+              {errorEnvio.detalles.length > 0 && (
+                <ul className="list-disc pl-5 mt-1 text-xs space-y-0.5">
+                  {errorEnvio.detalles.map((d) => (
+                    <li key={d}>{d}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* HU-14: documentos de la propuesta (versión 1) */}
+        <div className="pt-2 border-t border-[#e5e7ea]">
+          <DocumentosUploader
+            archivos={archivos}
+            onChange={(lista) => {
+              setArchivos(lista);
+              if (errores.documentos) {
+                setErrores((prev) => {
+                  const copia = { ...prev };
+                  delete copia.documentos;
+                  return copia;
+                });
+              }
+            }}
+            error={errores.documentos}
+            obligatorio
+            deshabilitado={enviando}
           />
         </div>
 

@@ -4,6 +4,7 @@ import {
   crearAsignacionesApiMock,
   asignacionesApiMockConError,
 } from '../mocks/asignacionesMock';
+import { crearPropuestasApiMock } from '../../propuestas/mocks/propuestasMock';
 
 export default {
   title: 'Features/Asignaciones/PropuestasEvaluadoresModal',
@@ -17,7 +18,13 @@ export default {
  * Elige «Asignar» para abrir el panel de asignación de la propuesta.
  */
 export const ConPropuestas = {
-  args: { isOpen: true, convocatoria: CONVOCATORIA_MOCK, api: crearAsignacionesApiMock(), onClose: () => {} },
+  args: {
+    isOpen: true,
+    convocatoria: CONVOCATORIA_MOCK,
+    api: crearAsignacionesApiMock(),
+    apiPropuestas: crearPropuestasApiMock(),
+    onClose: () => {},
+  },
 };
 
 /** Convocatoria publicada que todavía no recibe propuestas. */

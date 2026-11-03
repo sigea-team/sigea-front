@@ -15,6 +15,7 @@ import {
   Mic,
   Building,
   CalendarClock,
+  FileStack,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +33,14 @@ const DEFAULT_NAV_ITEMS = [
   { id: 'cuenta', label: 'Mi Cuenta', icon: UserCog, href: '/cuenta' },
   { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/configuracion' },
 ];
+
+/** HU-14: propuestas del autor, sus versiones y modificación. */
+const MIS_PROPUESTAS_NAV_ITEM = {
+  id: 'mis-propuestas',
+  label: 'Mis propuestas',
+  icon: FileStack,
+  href: '/mis-propuestas',
+};
 
 /** HU-17: evaluaciones de propuestas asignadas según rúbrica */
 const EVALUADOR_NAV_ITEM = {
@@ -152,6 +161,11 @@ export default function Sidebar({
     }
     return item;
   });
+
+  if (esPonente || isAdmin) {
+    const convocatoriasIndex = navItems.findIndex((item) => item.id === 'convocatorias');
+    navItems.splice(convocatoriasIndex !== -1 ? convocatoriasIndex + 1 : 1, 0, MIS_PROPUESTAS_NAV_ITEM);
+  }
 
   if (esConferencista) {
     navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);

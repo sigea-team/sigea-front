@@ -14,7 +14,9 @@ import Button from '../components/ui/Button';
 import EvaluacionesTable from '../features/evaluaciones/components/EvaluacionesTable';
 import EvaluacionFormModal from '../features/evaluaciones/components/EvaluacionFormModal';
 import ResultadoEvaluacionModal from '../features/evaluaciones/components/ResultadoEvaluacionModal';
+import HistorialVersionesModal from '../features/propuestas/components/HistorialVersionesModal';
 import { evaluacionService } from '../api/evaluacionService';
+import { propuestaService } from '../api/propuestaService';
 import { calcularPuntuacionPonderada } from '../features/evaluaciones/evaluacionUtils';
 
 /**
@@ -26,15 +28,22 @@ import { calcularPuntuacionPonderada } from '../features/evaluaciones/evaluacion
  *  - Calificar cada criterio de la rúbrica con retroalimentación (Criterio 1 y 2).
  *  - Verificación en vivo de completitud y restricción de periodo cerrado (Criterio 4).
  *  - Consultar el dictamen consolidado y alerta de incompletitud (Criterio 3).
+ *  - HU-14, Criterio 4: consultar el historial de versiones de las propuestas asignadas.
  * @module pages/EvaluacionesPage
  */
 
-export default function EvaluacionesPage() {
+/**
+ * @param {Object} props
+ * @param {typeof propuestaService} [props.apiPropuestas] - API de propuestas para el historial de versiones (HU-14).
+ */
+export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
   const [asignaciones, setAsignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos'); // 'todos' | 'pendiente' | 'completada'
+  // HU-14: propuesta cuyo historial de versiones se consulta
+  const [historialPropuesta, setHistorialPropuesta] = useState(null);
 
   // Estados de modales
   const [asignacionSeleccionada, setAsignacionSeleccionada] = useState(null);
@@ -276,6 +285,9 @@ export default function EvaluacionesPage() {
           hayFiltros={Boolean(terminoBusqueda) || filtroEstado !== 'todos'}
           onAbrirEvaluacion={handleAbrirEvaluacion}
           onVerResultado={handleVerResultado}
+          onVerVersiones={(asignacion) =>
+            setHistorialPropuesta({ id: asignacion.propuestaId, titulo: asignacion.propuestaTitulo })
+          }
         />
 
         {/* Modales */}
@@ -295,6 +307,16 @@ export default function EvaluacionesPage() {
           propuestaTitulo={propuestaResultado?.titulo}
           onClose={handleCerrarResultado}
         />
+
+        {/* HU-14, Criterio 4: el evaluador asignado consulta las versiones de la propuesta */}
+        {historialPropuesta && (
+          <HistorialVersionesModal
+            key={`historial-${historialPropuesta.id}`}
+            propuesta={historialPropuesta}
+            api={apiPropuestas}
+            onClose={() => setHistorialPropuesta(null)}
+          />
+        )}
       </div>
     </MainLayout>
   );

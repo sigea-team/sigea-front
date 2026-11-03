@@ -1,4 +1,5 @@
 import PropuestaFormModal from './PropuestaFormModal';
+import { crearPropuestasApiMock } from '../mocks/propuestasMock';
 
 export default {
   title: 'Features/Propuestas/PropuestaFormModal',
@@ -17,11 +18,24 @@ const convocatoriaMock = {
   estado: 'PUBLICADA',
 };
 
+const base = {
+  isOpen: true,
+  convocatoria: convocatoriaMock,
+  onClose: () => console.log('Cerrar modal'),
+  onPropuestaEnviada: (data) => console.log('Propuesta enviada:', data),
+};
+
+/** HU-14, Criterio 1: envío con autores y documentos; el sistema confirma la recepción (versión 1). */
 export const Abierto = {
-  args: {
-    isOpen: true,
-    convocatoria: convocatoriaMock,
-    onClose: () => console.log('Cerrar modal'),
-    onPropuestaEnviada: (data) => console.log('Propuesta enviada:', data),
-  },
+  args: { ...base, api: crearPropuestasApiMock() },
+};
+
+/** HU-14, Criterio 2: el backend rechaza un archivo cuyo contenido no corresponde a su formato. */
+export const ArchivoRechazado = {
+  args: { ...base, api: crearPropuestasApiMock({ fallarEnvio: 'ARCHIVO_INVALIDO' }) },
+};
+
+/** HU-14, Criterio 2: la convocatoria cerró mientras el autor llenaba el formulario. */
+export const ConvocatoriaCerrada = {
+  args: { ...base, api: crearPropuestasApiMock({ fallarEnvio: 'CONVOCATORIA_CERRADA' }) },
 };
