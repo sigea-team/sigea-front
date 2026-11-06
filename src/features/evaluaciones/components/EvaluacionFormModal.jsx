@@ -24,6 +24,7 @@ import {
   normalizarADiez,
   notaEnEscala,
   notasRapidas,
+  pasoDeEscala,
 } from '../evaluacionUtils';
 import { evaluacionService } from '../../../api/evaluacionService';
 
@@ -475,7 +476,7 @@ export default function EvaluacionFormModal({
                         <div className="relative">
                           <input
                             type="number"
-                            step="0.1"
+                            step={pasoDeEscala(escala)}
                             min={escala.minima}
                             max={escala.maxima}
                             value={criterio.calificacion}

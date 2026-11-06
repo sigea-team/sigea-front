@@ -10,6 +10,7 @@ import {
   escalaDeCriterio,
   normalizarADiez,
   notasRapidas,
+  pasoDeEscala,
 } from './evaluacionUtils';
 
 describe('HU-17 - evaluacionUtils', () => {
@@ -212,6 +213,22 @@ describe('HU-17 - evaluacionUtils', () => {
     it('propone notas rápidas proporcionales a la escala', () => {
       expect(notasRapidas({ minima: 0, maxima: 10 })).toEqual([0, 5, 7, 8.5, 10]);
       expect(notasRapidas({ minima: 1, maxima: 5 })).toEqual([1, 3, 3.8, 4.4, 5]);
+      expect(notasRapidas({ minima: 0, maxima: 5 })).toEqual([0, 2.5, 3.5, 4.3, 5]);
+    });
+
+    it('con escalas de dos decimales las notas rápidas no se salen de la escala', () => {
+      const escala = { minima: 0.25, maxima: 4.75 };
+      const notas = notasRapidas(escala);
+      expect(notas[0]).toBe(0.25);
+      expect(notas[notas.length - 1]).toBe(4.75);
+      expect(notas.every((n) => n >= 0.25 && n <= 4.75)).toBe(true);
+    });
+
+    it('usa un paso compatible con la escala para que el navegador no rechace notas válidas', () => {
+      expect(pasoDeEscala({ minima: 0, maxima: 10 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 1, maxima: 5 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 2.5, maxima: 7.5 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 0.25, maxima: 4.75 })).toBe('0.01');
     });
 
     it('combinarDetalleAsignacion conserva la escala de cada criterio', () => {

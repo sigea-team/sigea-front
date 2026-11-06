@@ -57,17 +57,44 @@ export function formatearEscala(escala) {
   return `${escala.minima.toFixed(1)} – ${escala.maxima.toFixed(1)}`;
 }
 
+/** Indica si un número tiene como máximo un decimal (2.5 sí, 0.25 no). */
+const tieneUnDecimal = (n) => Math.abs(Math.round(n * 10) - n * 10) < 1e-9;
+
+/**
+ * Decimales con que se trabaja la escala: 1 si sus extremos tienen como máximo un decimal (0 - 10, 1 - 5,
+ * 2.5 - 7.5) y 2 si alguno tiene dos (0.25 - 4.75). El backend admite hasta 2 decimales.
+ *
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {1|2}
+ */
+export function decimalesDeEscala(escala) {
+  return tieneUnDecimal(escala.minima) && tieneUnDecimal(escala.maxima) ? 1 : 2;
+}
+
+/**
+ * Paso del input de calificación. El navegador cuenta los pasos desde `min`, así que con una escala
+ * 0.25 - 4.75 un paso de 0.1 rechazaría notas como 3; en ese caso se usa 0.01.
+ *
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {string}
+ */
+export function pasoDeEscala(escala) {
+  return decimalesDeEscala(escala) === 1 ? '0.1' : '0.01';
+}
+
 /**
  * Notas rápidas proporcionales a la escala del criterio (mínimo, 50 %, 70 %, 85 % y máximo).
- * En la escala 0 - 10 son 0, 5, 7, 8.5 y 10.
+ * En la escala 0 - 10 son 0, 5, 7, 8.5 y 10. Los extremos se usan exactos y los intermedios se
+ * redondean a los decimales de la escala, así nunca quedan fuera de ella.
  *
  * @param {{ minima: number, maxima: number }} escala
  * @returns {number[]}
  */
 export function notasRapidas(escala) {
+  const factor = 10 ** decimalesDeEscala(escala);
   const rango = escala.maxima - escala.minima;
-  const valores = [0, 0.5, 0.7, 0.85, 1].map((p) => Math.round((escala.minima + rango * p) * 10) / 10);
-  return [...new Set(valores)];
+  const intermedios = [0.5, 0.7, 0.85].map((p) => Math.round((escala.minima + rango * p) * factor) / factor);
+  return [...new Set([escala.minima, ...intermedios, escala.maxima])];
 }
 
 /**
