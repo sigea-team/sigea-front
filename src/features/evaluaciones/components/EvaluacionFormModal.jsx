@@ -19,8 +19,11 @@ import {
   validarEvaluacionCompleta,
   puedeModificarEvaluacion,
   formatearPuntuacion,
-  ESCALA_MINIMA,
-  ESCALA_MAXIMA,
+  escalaDeCriterio,
+  formatearEscala,
+  normalizarADiez,
+  notaEnEscala,
+  notasRapidas,
 } from '../evaluacionUtils';
 import { evaluacionService } from '../../../api/evaluacionService';
 
@@ -56,6 +59,9 @@ export default function EvaluacionFormModal({
       criterioId: c.criterioId || c.id,
       nombre: c.nombreCriterio || c.nombre,
       pesoPorcentual: Number(c.pesoPorcentual || 0),
+      // HU-15: escala propia del criterio (0 - 10 si no la trae)
+      escalaMinima: c.escalaMinima,
+      escalaMaxima: c.escalaMaxima,
       calificacion: c.calificacion !== null && c.calificacion !== undefined ? String(c.calificacion) : '',
       observaciones: c.observaciones || '',
     }));
@@ -405,7 +411,7 @@ export default function EvaluacionFormModal({
                 Criterios de la Rúbrica ({calificaciones.length})
               </h4>
               <span className="text-xs text-[#5b5f66]">
-                Todos los criterios son de calificación obligatoria (0.0 a 10.0)
+                Todos los criterios son de calificación obligatoria, cada uno en su escala
               </span>
             </div>
 
@@ -414,9 +420,11 @@ export default function EvaluacionFormModal({
                 const cid = String(criterio.criterioId);
                 const tieneError = Boolean(errores[cid]);
                 const notaNum = Number(criterio.calificacion);
+                // HU-15: la nota se califica en la escala del criterio y aporta sobre 0 - 10 al ponderar
+                const escala = escalaDeCriterio(criterio);
                 const ponderacionCriterio =
-                  !isNaN(notaNum) && notaNum >= 0 && notaNum <= 10
-                    ? ((notaNum * criterio.pesoPorcentual) / 100).toFixed(2)
+                  criterio.calificacion !== '' && notaEnEscala(notaNum, escala)
+                    ? ((normalizarADiez(notaNum, escala) * criterio.pesoPorcentual) / 100).toFixed(2)
                     : null;
 
                 return (
@@ -462,18 +470,18 @@ export default function EvaluacionFormModal({
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 pl-0 sm:pl-8">
                       <div className="sm:col-span-4">
                         <label className="block text-xs font-semibold text-[#1f2023] mb-1">
-                          Calificación (0.0 – 10.0) *
+                          Calificación ({formatearEscala(escala)}) *
                         </label>
                         <div className="relative">
                           <input
                             type="number"
                             step="0.1"
-                            min={ESCALA_MINIMA}
-                            max={ESCALA_MAXIMA}
+                            min={escala.minima}
+                            max={escala.maxima}
                             value={criterio.calificacion}
                             onChange={(e) => handleCambioCalificacion(criterio.criterioId, e.target.value)}
                             disabled={esSoloLectura || guardando}
-                            placeholder="Ej: 8.5"
+                            placeholder={`${escala.minima} a ${escala.maxima}`}
                             className={`w-full rounded-[8px] border px-3 py-2 text-sm font-semibold outline-hidden transition-all ${
                               tieneError
                                 ? 'border-[#b42318] bg-white text-[#b42318] focus:border-[#b42318] focus:ring-2 focus:ring-[#b42318]/20'
@@ -485,7 +493,7 @@ export default function EvaluacionFormModal({
                         {/* Botones de calificación rápida */}
                         {!esSoloLectura && (
                           <div className="flex items-center gap-1 mt-1.5">
-                            {[0, 5, 7, 8.5, 10].map((v) => (
+                            {notasRapidas(escala).map((v) => (
                               <button
                                 key={v}
                                 type="button"

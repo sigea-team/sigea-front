@@ -18,6 +18,59 @@ export const ESCALA_MINIMA = 0.0;
 export const ESCALA_MAXIMA = 10.0;
 
 /**
+ * HU-15: escala de calificación de un criterio. Cada criterio de la rúbrica puede tener la suya
+ * (por ejemplo 1 a 5); si no la trae, se usa la escala general 0 a 10.
+ *
+ * @param {{ escalaMinima?: number|string, escalaMaxima?: number|string }|null|undefined} criterio
+ * @returns {{ minima: number, maxima: number }}
+ */
+export function escalaDeCriterio(criterio) {
+  const min = Number(criterio?.escalaMinima);
+  const max = Number(criterio?.escalaMaxima);
+  const valida =
+    criterio?.escalaMinima !== null && criterio?.escalaMinima !== undefined && criterio?.escalaMinima !== '' &&
+    criterio?.escalaMaxima !== null && criterio?.escalaMaxima !== undefined && criterio?.escalaMaxima !== '' &&
+    !isNaN(min) && !isNaN(max) && max > min;
+  return valida ? { minima: min, maxima: max } : { minima: ESCALA_MINIMA, maxima: ESCALA_MAXIMA };
+}
+
+/**
+ * HU-15: lleva una nota de la escala de su criterio a la escala 0 - 10, igual que el backend al ponderar.
+ * Con la escala 0 - 10 la nota no cambia.
+ *
+ * @param {number} nota
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {number}
+ */
+export function normalizarADiez(nota, escala) {
+  if (escala.minima === ESCALA_MINIMA && escala.maxima === ESCALA_MAXIMA) return nota;
+  return ((nota - escala.minima) * ESCALA_MAXIMA) / (escala.maxima - escala.minima);
+}
+
+/** Indica si una nota está dentro de la escala de su criterio. */
+export function notaEnEscala(nota, escala) {
+  return !isNaN(nota) && nota >= escala.minima && nota <= escala.maxima;
+}
+
+/** Escala en formato de una cifra decimal: { 1, 5 } → "1.0 – 5.0". */
+export function formatearEscala(escala) {
+  return `${escala.minima.toFixed(1)} – ${escala.maxima.toFixed(1)}`;
+}
+
+/**
+ * Notas rápidas proporcionales a la escala del criterio (mínimo, 50 %, 70 %, 85 % y máximo).
+ * En la escala 0 - 10 son 0, 5, 7, 8.5 y 10.
+ *
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {number[]}
+ */
+export function notasRapidas(escala) {
+  const rango = escala.maxima - escala.minima;
+  const valores = [0, 0.5, 0.7, 0.85, 1].map((p) => Math.round((escala.minima + rango * p) * 10) / 10);
+  return [...new Set(valores)];
+}
+
+/**
  * Umbrales de clasificación de propuestas evaluadas.
  */
 export const UMBRAL_APROBADA = 7.0;
@@ -80,7 +133,8 @@ export function obtenerConfiguracionClasificacion(clasificacion) {
 
 /**
  * Calcula la puntuación ponderada a partir de las calificaciones y los criterios de la rúbrica (Criterio 1).
- * Formula: sum(calificacion_i * (pesoPorcentual_i / 100))
+ * Formula: sum(calificacion_i * (pesoPorcentual_i / 100)), con cada calificación llevada a 0 - 10 si su
+ * criterio usa otra escala (HU-15).
  *
  * @param {Array<{ criterioId: number|string, calificacion: number|string }>} calificaciones
  * @param {Array<{ id: number|string, pesoPorcentual: number|string }>} criterios
@@ -91,7 +145,10 @@ export function calcularPuntuacionPonderada(calificaciones = [], criterios = [])
   if (!Array.isArray(criterios) || criterios.length === 0) return null;
 
   const criteriosPorId = new Map(
-    criterios.map((c) => [String(c.id || c.criterioId), Number(c.pesoPorcentual || 0)])
+    criterios.map((c) => [
+      String(c.id || c.criterioId),
+      { peso: Number(c.pesoPorcentual || 0), escala: escalaDeCriterio(c) },
+    ])
   );
 
   let sumaPonderada = 0;
@@ -101,11 +158,11 @@ export function calcularPuntuacionPonderada(calificaciones = [], criterios = [])
     const cid = String(cal.criterioId);
     if (!criteriosPorId.has(cid)) continue;
 
+    const { peso, escala } = criteriosPorId.get(cid);
     const nota = Number(cal.calificacion);
-    if (isNaN(nota) || nota < ESCALA_MINIMA || nota > ESCALA_MAXIMA) continue;
+    if (cal.calificacion === '' || cal.calificacion === null || !notaEnEscala(nota, escala)) continue;
 
-    const peso = criteriosPorId.get(cid);
-    sumaPonderada += nota * (peso / 100);
+    sumaPonderada += normalizarADiez(nota, escala) * (peso / 100);
     sumaPesos += peso;
   }
 
@@ -141,17 +198,18 @@ export function validarEvaluacionCompleta(calificaciones = [], criterios = []) {
     const cid = String(criterio.id || criterio.criterioId);
     const nombre = criterio.nombre || `Criterio #${cid}`;
     const valor = califsMap.get(cid);
+    const escala = escalaDeCriterio(criterio);
 
     if (valor === undefined || valor === null || valor === '' || isNaN(Number(valor))) {
       criteriosFaltantes.push(nombre);
-      errores[cid] = 'Debe asignar una calificación entre 0.0 y 10.0 para este criterio.';
+      errores[cid] = `Debe asignar una calificación entre ${escala.minima.toFixed(1)} y ${escala.maxima.toFixed(1)} para este criterio.`;
       continue;
     }
 
-    const num = Number(valor);
-    if (num < ESCALA_MINIMA || num > ESCALA_MAXIMA) {
+    // HU-15: cada criterio se califica dentro de su propia escala
+    if (!notaEnEscala(Number(valor), escala)) {
       criteriosFaltantes.push(nombre);
-      errores[cid] = `La calificación debe estar entre ${ESCALA_MINIMA} y ${ESCALA_MAXIMA}.`;
+      errores[cid] = `La calificación debe estar entre ${escala.minima} y ${escala.maxima}.`;
     }
   }
 
@@ -249,6 +307,9 @@ export function combinarDetalleAsignacion(base, detalle) {
       criterioId: c.criterioId,
       nombreCriterio: c.nombre,
       pesoPorcentual: Number(c.pesoPorcentual),
+      // HU-15: escala propia del criterio (si el backend no la envía se usa 0 - 10)
+      escalaMinima: c.escalaMinima ?? ESCALA_MINIMA,
+      escalaMaxima: c.escalaMaxima ?? ESCALA_MAXIMA,
       calificacion: ev?.calificacion ?? null,
       observaciones: ev?.observaciones || '',
       fechaEvaluacion: ev?.fechaEvaluacion ?? null,
