@@ -220,7 +220,7 @@ export function calcularPuntuacionPonderada(calificaciones = [], criterios = [])
  * Valida que todos los criterios de la rúbrica se encuentren calificados (Criterio 2).
  *
  * @param {Array<{ criterioId: number|string, calificacion: any }>} calificaciones
- * @param {Array<{ id: number|string, nombre: string }>} criterios
+ * @param {Array<{ id: number|string, nombre?: string, nombreCriterio?: string }>} criterios
  * @returns {{ valido: boolean, criteriosFaltantes: string[], errores: Record<string, string> }}
  */
 export function validarEvaluacionCompleta(calificaciones = [], criterios = []) {
@@ -240,7 +240,8 @@ export function validarEvaluacionCompleta(calificaciones = [], criterios = []) {
 
   for (const criterio of criterios) {
     const cid = String(criterio.id || criterio.criterioId);
-    const nombre = criterio.nombre || `Criterio #${cid}`;
+    // Los criterios del formulario traen el nombre en `nombreCriterio` (combinarDetalleAsignacion)
+    const nombre = criterio.nombre || criterio.nombreCriterio || `Criterio #${cid}`;
     const valor = califsMap.get(cid);
     const escala = escalaDeCriterio(criterio);
 

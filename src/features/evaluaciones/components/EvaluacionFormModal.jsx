@@ -26,6 +26,7 @@ import {
   notasRapidas,
   pasoDeEscala,
 } from '../evaluacionUtils';
+import { escaparHtml } from '../../../utils/html';
 import { evaluacionService } from '../../../api/evaluacionService';
 
 /**
@@ -139,7 +140,7 @@ export default function EvaluacionFormModal({
             Todos los criterios de la rúbrica deben ser calificados obligatoriamente antes de enviar la evaluación (Criterio 2):
           </p>
           <ul class="text-xs text-left list-disc pl-5 space-y-1 font-semibold text-[#b42318]">
-            ${validacion.criteriosFaltantes.map((c) => `<li>${c}</li>`).join('')}
+            ${validacion.criteriosFaltantes.map((c) => `<li>${escaparHtml(c)}</li>`).join('')}
           </ul>
         `,
         confirmButtonText: 'Completar criterios',
@@ -202,7 +203,7 @@ export default function EvaluacionFormModal({
               resultadoPropuesta?.completo
                 ? `<div class="p-3 bg-[#ecfdf3] border border-[#a6f4c5] text-[#027a48] rounded-[8px] text-xs">
                      <strong>✓ Todas las evaluaciones están completas (Criterio 1):</strong>
-                     El sistema calculó la puntuación ponderada final de la propuesta (${formatearPuntuacion(resultadoPropuesta.puntuacionPonderada)}) con clasificación <strong>${resultadoPropuesta.clasificacion}</strong>.
+                     El sistema calculó la puntuación ponderada final de la propuesta (${formatearPuntuacion(resultadoPropuesta.puntuacionPonderada)}) con clasificación <strong>${escaparHtml(resultadoPropuesta.clasificacion)}</strong>.
                    </div>`
                 : `<div class="p-3 bg-[#fffaeb] border border-[#fedf89] text-[#b54708] rounded-[8px] text-xs">
                      <strong>⏳ Evaluaciones pendientes (Criterio 3):</strong>

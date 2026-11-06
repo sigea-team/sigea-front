@@ -232,6 +232,11 @@ describe('HU-17 - evaluacionUtils', () => {
       expect(formatearEscala({ minima: 0.5, maxima: 4.25 })).toBe('0.50 – 4.25');
     });
 
+    it('lista los criterios faltantes por su nombre aunque venga en nombreCriterio', () => {
+      const criterios = [{ criterioId: 11, nombreCriterio: 'Originalidad', pesoPorcentual: 100 }];
+      expect(validarEvaluacionCompleta([], criterios).criteriosFaltantes).toEqual(['Originalidad']);
+    });
+
     it('el mensaje de criterio sin calificar usa los extremos reales de la escala', () => {
       const criterios = [{ id: 14, nombre: 'Claridad', pesoPorcentual: 100, escalaMinima: 0.25, escalaMaxima: 4.75 }];
       const validacion = validarEvaluacionCompleta([], criterios);

@@ -111,7 +111,8 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
     const { isConfirmed } = await Swal.fire({
       ...ESTILO_SWAL,
       icon: 'question',
-      title: `¿Retirar a ${nombre} del comité?`,
+      // titleText muestra texto plano: el nombre lo escribe el usuario y `title` se interpretaría como HTML
+      titleText: `¿Retirar a ${nombre} del comité?`,
       text: 'Dejará de estar disponible para asignarle propuestas de esta convocatoria.',
       showCancelButton: true,
       confirmButtonText: 'Retirar del comité',
