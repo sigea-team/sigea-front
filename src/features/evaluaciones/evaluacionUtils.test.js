@@ -7,6 +7,11 @@ import {
   puedeModificarEvaluacion,
   formatearPuntuacion,
   combinarDetalleAsignacion,
+  escalaDeCriterio,
+  normalizarADiez,
+  notasRapidas,
+  pasoDeEscala,
+  formatearEscala,
 } from './evaluacionUtils';
 
 describe('HU-17 - evaluacionUtils', () => {
@@ -167,6 +172,90 @@ describe('HU-17 - evaluacionUtils', () => {
 
     it('sin rúbrica activa devuelve la lista de criterios vacía', () => {
       expect(combinarDetalleAsignacion(base, { asignacionId: 7, criterios: [], evaluaciones: [] }).evaluaciones).toEqual([]);
+    });
+  });
+
+  describe('HU-15: escala propia de cada criterio', () => {
+    const criteriosConEscala = [
+      { id: 1, nombre: 'Originalidad', pesoPorcentual: 60, escalaMinima: 0, escalaMaxima: 10 },
+      { id: 2, nombre: 'Impacto', pesoPorcentual: 40, escalaMinima: 1, escalaMaxima: 5 },
+    ];
+
+    it('usa 0 - 10 si el criterio no trae escala o es inválida', () => {
+      expect(escalaDeCriterio({})).toEqual({ minima: 0, maxima: 10 });
+      expect(escalaDeCriterio({ escalaMinima: 5, escalaMaxima: 5 })).toEqual({ minima: 0, maxima: 10 });
+      expect(escalaDeCriterio({ escalaMinima: '1', escalaMaxima: '5' })).toEqual({ minima: 1, maxima: 5 });
+    });
+
+    it('lleva la nota a 0 - 10 como el backend', () => {
+      expect(normalizarADiez(4, { minima: 1, maxima: 5 })).toBe(7.5);
+      expect(normalizarADiez(8, { minima: 0, maxima: 10 })).toBe(8);
+    });
+
+    it('pondera cada criterio en su escala: 8 (0-10) y 4 (1-5) dan 7.8', () => {
+      // 8 * 0.60 + 7.5 * 0.40 = 4.8 + 3.0 = 7.8
+      const calificaciones = [
+        { criterioId: 1, calificacion: 8 },
+        { criterioId: 2, calificacion: 4 },
+      ];
+      expect(calcularPuntuacionPonderada(calificaciones, criteriosConEscala)).toBe(7.8);
+    });
+
+    it('rechaza una nota fuera de la escala de su criterio', () => {
+      const calificaciones = [
+        { criterioId: 1, calificacion: 8 },
+        { criterioId: 2, calificacion: 8 },
+      ];
+      const validacion = validarEvaluacionCompleta(calificaciones, criteriosConEscala);
+      expect(validacion.valido).toBe(false);
+      expect(validacion.errores['2']).toContain('entre 1 y 5');
+    });
+
+    it('propone notas rápidas proporcionales a la escala', () => {
+      expect(notasRapidas({ minima: 0, maxima: 10 })).toEqual([0, 5, 7, 8.5, 10]);
+      expect(notasRapidas({ minima: 1, maxima: 5 })).toEqual([1, 3, 3.8, 4.4, 5]);
+      expect(notasRapidas({ minima: 0, maxima: 5 })).toEqual([0, 2.5, 3.5, 4.3, 5]);
+    });
+
+    it('con escalas de dos decimales las notas rápidas no se salen de la escala', () => {
+      const escala = { minima: 0.25, maxima: 4.75 };
+      const notas = notasRapidas(escala);
+      expect(notas[0]).toBe(0.25);
+      expect(notas[notas.length - 1]).toBe(4.75);
+      expect(notas.every((n) => n >= 0.25 && n <= 4.75)).toBe(true);
+    });
+
+    it('muestra la escala sin redondear sus extremos', () => {
+      expect(formatearEscala({ minima: 0, maxima: 10 })).toBe('0.0 – 10.0');
+      expect(formatearEscala({ minima: 1, maxima: 5 })).toBe('1.0 – 5.0');
+      expect(formatearEscala({ minima: 0.25, maxima: 4.75 })).toBe('0.25 – 4.75');
+      expect(formatearEscala({ minima: 0.5, maxima: 4.25 })).toBe('0.50 – 4.25');
+    });
+
+    it('lista los criterios faltantes por su nombre aunque venga en nombreCriterio', () => {
+      const criterios = [{ criterioId: 11, nombreCriterio: 'Originalidad', pesoPorcentual: 100 }];
+      expect(validarEvaluacionCompleta([], criterios).criteriosFaltantes).toEqual(['Originalidad']);
+    });
+
+    it('el mensaje de criterio sin calificar usa los extremos reales de la escala', () => {
+      const criterios = [{ id: 14, nombre: 'Claridad', pesoPorcentual: 100, escalaMinima: 0.25, escalaMaxima: 4.75 }];
+      const validacion = validarEvaluacionCompleta([], criterios);
+      expect(validacion.errores['14']).toContain('entre 0.25 y 4.75');
+    });
+
+    it('usa un paso compatible con la escala para que el navegador no rechace notas válidas', () => {
+      expect(pasoDeEscala({ minima: 0, maxima: 10 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 1, maxima: 5 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 2.5, maxima: 7.5 })).toBe('0.1');
+      expect(pasoDeEscala({ minima: 0.25, maxima: 4.75 })).toBe('0.01');
+    });
+
+    it('combinarDetalleAsignacion conserva la escala de cada criterio', () => {
+      const r = combinarDetalleAsignacion(
+        { asignacionId: 9 },
+        { asignacionId: 9, criterios: [{ criterioId: 2, nombre: 'Impacto', pesoPorcentual: 40, escalaMinima: 1, escalaMaxima: 5 }], evaluaciones: [] }
+      );
+      expect(r.evaluaciones[0]).toMatchObject({ escalaMinima: 1, escalaMaxima: 5 });
     });
   });
 });

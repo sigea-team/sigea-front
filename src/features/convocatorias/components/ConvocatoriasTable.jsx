@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Pencil, Trash2, Send, Lock, Globe, CalendarClock, ClipboardList } from 'lucide-react';
+import { Pencil, Trash2, Send, Lock, Globe, CalendarClock, ClipboardList, ListChecks } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import BotonAccion from '../../../components/ui/BotonAccion';
 import EstadoConvocatoriaBadge from './EstadoConvocatoriaBadge';
@@ -33,6 +33,7 @@ import { puedeGestionarPropuestas } from '../../asignaciones/asignacionUtils';
  * @param {Function} props.onEliminar - Callback para eliminar una convocatoria en borrador.
  * @param {Function} props.onIntentarEnviar - Callback para simular envío de propuesta (Criterio 4).
  * @param {Function} [props.onGestionarPropuestas] - Abre las propuestas y su asignación a evaluadores (HU-16).
+ * @param {Function} [props.onConfigurarEvaluacion] - Abre la rúbrica y el comité evaluador (HU-15).
  */
 export default function ConvocatoriasTable({
   convocatorias = [],
@@ -44,6 +45,7 @@ export default function ConvocatoriasTable({
   onEliminar,
   onIntentarEnviar,
   onGestionarPropuestas,
+  onConfigurarEvaluacion,
   isAdmin = true,
 }) {
   const columnasTotales = 4;
@@ -161,6 +163,15 @@ export default function ConvocatoriasTable({
                   {isAdmin && (
                     <td className="py-4 px-5 align-middle">
                       <div className="flex items-center justify-end gap-2">
+                        {/* HU-15: rúbrica y comité evaluador (se puede preparar desde el borrador) */}
+                        {onConfigurarEvaluacion && (
+                          <BotonAccion
+                            icono={ListChecks}
+                            etiqueta="Rúbrica y comité evaluador"
+                            onClick={() => onConfigurarEvaluacion(convocatoria)}
+                          />
+                        )}
+
                         {/* HU-16: propuestas recibidas y su asignación a evaluadores */}
                         {onGestionarPropuestas && (
                           <BotonAccion
@@ -233,5 +244,6 @@ ConvocatoriasTable.propTypes = {
   onEliminar: PropTypes.func,
   onIntentarEnviar: PropTypes.func,
   onGestionarPropuestas: PropTypes.func,
+  onConfigurarEvaluacion: PropTypes.func,
   isAdmin: PropTypes.bool,
 };
