@@ -355,7 +355,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
                   inputMode="decimal"
                   min={ESCALA_LIMITE_MINIMO}
                   max={ESCALA_LIMITE_MAXIMO}
-                  step="0.5"
+                  step="0.01"
                   value={criterio.escalaMinima}
                   onChange={cambiarCriterio(i, 'escalaMinima')}
                   error={errores[`criterios[${i}].escalaMinima`]}
@@ -368,7 +368,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
                   inputMode="decimal"
                   min={ESCALA_LIMITE_MINIMO}
                   max={ESCALA_LIMITE_MAXIMO}
-                  step="0.5"
+                  step="0.01"
                   value={criterio.escalaMaxima}
                   onChange={cambiarCriterio(i, 'escalaMaxima')}
                   error={errores[`criterios[${i}].escalaMaxima`]}
