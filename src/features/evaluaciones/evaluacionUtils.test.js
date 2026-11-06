@@ -11,6 +11,7 @@ import {
   normalizarADiez,
   notasRapidas,
   pasoDeEscala,
+  formatearEscala,
 } from './evaluacionUtils';
 
 describe('HU-17 - evaluacionUtils', () => {
@@ -222,6 +223,19 @@ describe('HU-17 - evaluacionUtils', () => {
       expect(notas[0]).toBe(0.25);
       expect(notas[notas.length - 1]).toBe(4.75);
       expect(notas.every((n) => n >= 0.25 && n <= 4.75)).toBe(true);
+    });
+
+    it('muestra la escala sin redondear sus extremos', () => {
+      expect(formatearEscala({ minima: 0, maxima: 10 })).toBe('0.0 – 10.0');
+      expect(formatearEscala({ minima: 1, maxima: 5 })).toBe('1.0 – 5.0');
+      expect(formatearEscala({ minima: 0.25, maxima: 4.75 })).toBe('0.25 – 4.75');
+      expect(formatearEscala({ minima: 0.5, maxima: 4.25 })).toBe('0.50 – 4.25');
+    });
+
+    it('el mensaje de criterio sin calificar usa los extremos reales de la escala', () => {
+      const criterios = [{ id: 14, nombre: 'Claridad', pesoPorcentual: 100, escalaMinima: 0.25, escalaMaxima: 4.75 }];
+      const validacion = validarEvaluacionCompleta([], criterios);
+      expect(validacion.errores['14']).toContain('entre 0.25 y 4.75');
     });
 
     it('usa un paso compatible con la escala para que el navegador no rechace notas válidas', () => {

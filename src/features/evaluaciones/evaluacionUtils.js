@@ -52,11 +52,6 @@ export function notaEnEscala(nota, escala) {
   return !isNaN(nota) && nota >= escala.minima && nota <= escala.maxima;
 }
 
-/** Escala en formato de una cifra decimal: { 1, 5 } → "1.0 – 5.0". */
-export function formatearEscala(escala) {
-  return `${escala.minima.toFixed(1)} – ${escala.maxima.toFixed(1)}`;
-}
-
 /** Indica si un número tiene como máximo un decimal (2.5 sí, 0.25 no). */
 const tieneUnDecimal = (n) => Math.abs(Math.round(n * 10) - n * 10) < 1e-9;
 
@@ -69,6 +64,28 @@ const tieneUnDecimal = (n) => Math.abs(Math.round(n * 10) - n * 10) < 1e-9;
  */
 export function decimalesDeEscala(escala) {
   return tieneUnDecimal(escala.minima) && tieneUnDecimal(escala.maxima) ? 1 : 2;
+}
+
+/**
+ * Un extremo de la escala con los decimales de la escala: 1 → "1.0", 0.25 → "0.25".
+ *
+ * @param {number} valor
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {string}
+ */
+export function formatearValorEscala(valor, escala) {
+  return valor.toFixed(decimalesDeEscala(escala));
+}
+
+/**
+ * Escala para mostrar al evaluador, sin redondear sus extremos: { 1, 5 } → "1.0 – 5.0",
+ * { 0.25, 4.75 } → "0.25 – 4.75".
+ *
+ * @param {{ minima: number, maxima: number }} escala
+ * @returns {string}
+ */
+export function formatearEscala(escala) {
+  return `${formatearValorEscala(escala.minima, escala)} – ${formatearValorEscala(escala.maxima, escala)}`;
 }
 
 /**
@@ -229,7 +246,7 @@ export function validarEvaluacionCompleta(calificaciones = [], criterios = []) {
 
     if (valor === undefined || valor === null || valor === '' || isNaN(Number(valor))) {
       criteriosFaltantes.push(nombre);
-      errores[cid] = `Debe asignar una calificación entre ${escala.minima.toFixed(1)} y ${escala.maxima.toFixed(1)} para este criterio.`;
+      errores[cid] = `Debe asignar una calificación entre ${formatearValorEscala(escala.minima, escala)} y ${formatearValorEscala(escala.maxima, escala)} para este criterio.`;
       continue;
     }
 
