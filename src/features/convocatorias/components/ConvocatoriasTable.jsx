@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Pencil, Trash2, Send, Lock, Globe, CalendarClock, ClipboardList, ListChecks } from 'lucide-react';
+import { Pencil, Trash2, Send, Lock, Globe, CalendarClock, ClipboardList, ListChecks, Award } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import BotonAccion from '../../../components/ui/BotonAccion';
 import EstadoConvocatoriaBadge from './EstadoConvocatoriaBadge';
@@ -10,6 +10,7 @@ import {
   puedeModificarFechaCierre,
 } from '../convocatoriaUtils';
 import { puedeGestionarPropuestas } from '../../asignaciones/asignacionUtils';
+import { puedeGestionarClasificacion } from '../../clasificacion/clasificacionUtils';
 
 /**
  * @file ConvocatoriasTable.jsx
@@ -34,6 +35,7 @@ import { puedeGestionarPropuestas } from '../../asignaciones/asignacionUtils';
  * @param {Function} props.onIntentarEnviar - Callback para simular envío de propuesta (Criterio 4).
  * @param {Function} [props.onGestionarPropuestas] - Abre las propuestas y su asignación a evaluadores (HU-16).
  * @param {Function} [props.onConfigurarEvaluacion] - Abre la rúbrica y el comité evaluador (HU-15).
+ * @param {Function} [props.onClasificarPropuestas] - Abre la clasificación de las propuestas evaluadas (HU-18).
  */
 export default function ConvocatoriasTable({
   convocatorias = [],
@@ -46,6 +48,7 @@ export default function ConvocatoriasTable({
   onIntentarEnviar,
   onGestionarPropuestas,
   onConfigurarEvaluacion,
+  onClasificarPropuestas,
   isAdmin = true,
 }) {
   const columnasTotales = 4;
@@ -96,6 +99,7 @@ export default function ConvocatoriasTable({
               const validacionEnvio = !isAdmin ? puedeEnviarPropuesta(convocatoria) : null;
               const validacionFecha = puedeModificarFechaCierre(convocatoria);
               const validacionPropuestas = puedeGestionarPropuestas(convocatoria);
+              const validacionClasificacion = puedeGestionarClasificacion(convocatoria);
 
               return (
                 <tr key={convocatoria.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
@@ -183,6 +187,17 @@ export default function ConvocatoriasTable({
                           />
                         )}
 
+                        {/* HU-18: clasificar las propuestas evaluadas según su resultado */}
+                        {onClasificarPropuestas && (
+                          <BotonAccion
+                            icono={Award}
+                            etiqueta="Clasificación de propuestas"
+                            onClick={() => onClasificarPropuestas(convocatoria)}
+                            disabled={!validacionClasificacion.permitido}
+                            motivo={validacionClasificacion.motivo}
+                          />
+                        )}
+
                         {/* Publicar convocatoria en borrador */}
                         <BotonAccion
                           icono={Globe}
@@ -245,5 +260,6 @@ ConvocatoriasTable.propTypes = {
   onIntentarEnviar: PropTypes.func,
   onGestionarPropuestas: PropTypes.func,
   onConfigurarEvaluacion: PropTypes.func,
+  onClasificarPropuestas: PropTypes.func,
   isAdmin: PropTypes.bool,
 };

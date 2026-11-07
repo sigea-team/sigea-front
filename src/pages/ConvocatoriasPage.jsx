@@ -12,12 +12,14 @@ import { eventoService } from '../api/eventoService';
 import { asignacionService } from '../api/asignacionService';
 import { rubricaService } from '../api/rubricaService';
 import { comiteEvaluadorService } from '../api/comiteEvaluadorService';
+import { clasificacionService } from '../api/clasificacionService';
 import ConvocatoriaFormModal from '../features/convocatorias/components/ConvocatoriaFormModal';
 import ConvocatoriasTable from '../features/convocatorias/components/ConvocatoriasTable';
 import FechaCierreModal from '../features/convocatorias/components/FechaCierreModal';
 import PropuestaFormModal from '../features/propuestas/components/PropuestaFormModal';
 import PropuestasEvaluadoresModal from '../features/asignaciones/components/PropuestasEvaluadoresModal';
 import ConfiguracionEvaluacionModal from '../features/rubricas/components/ConfiguracionEvaluacionModal';
+import ClasificacionPropuestasModal from '../features/clasificacion/components/ClasificacionPropuestasModal';
 import {
   formatearFechaHora,
   listarCamposFaltantes,
@@ -66,6 +68,7 @@ const ALERTA_EXITO = {
  * @param {typeof asignacionService} [props.apiAsignaciones] - Cliente de API de asignación a evaluadores (HU-16).
  * @param {typeof rubricaService} [props.apiRubricas] - Cliente de API de la rúbrica de evaluación (HU-15).
  * @param {typeof comiteEvaluadorService} [props.apiComiteEvaluador] - Cliente de API del comité evaluador (HU-15).
+ * @param {typeof clasificacionService} [props.apiClasificacion] - Cliente de API de clasificación de propuestas (HU-18).
  * @param {Object} [props.usuarioProp] - Usuario autenticado opcional (para Storybook o pruebas).
  * @param {Function} [props.onSelectNav] - Callback para navegación de ítems de menú.
  */
@@ -75,6 +78,7 @@ export default function ConvocatoriasPage({
   apiAsignaciones = asignacionService,
   apiRubricas = rubricaService,
   apiComiteEvaluador = comiteEvaluadorService,
+  apiClasificacion = clasificacionService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -96,6 +100,8 @@ export default function ConvocatoriasPage({
   const [modalAsignacion, setModalAsignacion] = useState(null);
   // HU-15: rúbrica y comité evaluador de la convocatoria
   const [modalEvaluacion, setModalEvaluacion] = useState(null);
+  // HU-18: clasificación de las propuestas evaluadas
+  const [modalClasificacion, setModalClasificacion] = useState(null);
 
   const auth = useAuth();
   const usuarioActual = usuarioProp || auth?.usuario;
@@ -481,6 +487,7 @@ export default function ConvocatoriasPage({
           onIntentarEnviar={intentarEnviarPropuesta}
           onGestionarPropuestas={(conv) => setModalAsignacion(conv)}
           onConfigurarEvaluacion={(conv) => setModalEvaluacion(conv)}
+          onClasificarPropuestas={(conv) => setModalClasificacion(conv)}
           isAdmin={isAdmin}
         />
       </div>
@@ -516,6 +523,17 @@ export default function ConvocatoriasPage({
           apiRubricas={apiRubricas}
           apiComite={apiComiteEvaluador}
           onClose={() => setModalEvaluacion(null)}
+        />
+      )}
+
+      {/* HU-18: clasificación de las propuestas evaluadas según su resultado */}
+      {modalClasificacion && (
+        <ClasificacionPropuestasModal
+          key={`modal-clasificacion-${modalClasificacion.id}`}
+          isOpen={Boolean(modalClasificacion)}
+          convocatoria={modalClasificacion}
+          api={apiClasificacion}
+          onClose={() => setModalClasificacion(null)}
         />
       )}
 
