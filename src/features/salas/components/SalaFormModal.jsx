@@ -36,6 +36,7 @@ export default function SalaFormModal({
     ubicacion: sala?.ubicacion || '',
     tipo: sala?.tipo || 'fisica',
     aforoMaximo: sala?.aforoMaximo !== undefined ? String(sala.aforoMaximo) : '',
+    permiteSimultaneidad: Boolean(sala?.permiteSimultaneidad),
   });
 
   const [franjas, setFranjas] = useState(
@@ -241,6 +242,25 @@ export default function SalaFormModal({
               onChange={(e) => handleFieldChange('ubicacion', e.target.value)}
               error={errores.ubicacion}
             />
+          </div>
+
+          {/* HU-21 Criterio 3: sala que puede alojar actividades simultáneas */}
+          <div className="sm:col-span-2">
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="permite-simultaneidad-sala"
+                checked={form.permiteSimultaneidad}
+                onChange={(e) => handleFieldChange('permiteSimultaneidad', e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-[#d8dadf] text-[#a6192e] focus:ring-[#a6192e]"
+              />
+              <span className="text-xs">
+                <span className="font-semibold text-[#1f2023]">Admite actividades simultáneas</span>
+                <span className="block text-[#5b5f66] mt-0.5">
+                  Permite varias actividades a la misma hora en esta sala si todas están marcadas como simultáneas.
+                </span>
+              </span>
+            </label>
           </div>
         </div>
 

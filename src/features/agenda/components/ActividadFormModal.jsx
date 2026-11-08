@@ -14,6 +14,7 @@ import {
   detectarConflictosActividad,
   MODALIDADES_ACTIVIDAD,
 } from '../agendaUtils';
+import { htmlConflictosProgramacion, htmlConfirmacionAdvertencias } from '../agendaAvisos';
 
 /**
  * @file ActividadFormModal.jsx
@@ -157,85 +158,36 @@ export default function ActividadFormModal({
       return;
     }
 
-    // Criterio 2 y 5: Si genera conflicto, notificar antes de guardar
-    if (chequeoConflicto.hayConflicto) {
-      const resultadoAlerta = await Swal.fire({
-        icon: 'warning',
-        title: '¡Conflicto de programación detectado!',
-        html: `
-          <div class="text-left text-xs text-[#1f2023] space-y-2.5">
-            <p class="font-medium text-sm text-[#a6192e]">
-              La actividad genera los siguientes cruces no planificados:
-            </p>
-            <ul class="list-disc list-inside space-y-1.5 bg-[#fdf2f2] p-3 rounded-lg border border-red-200 text-[#7a0c1e]">
-              ${chequeoConflicto.motivos.map((m) => `<li>${m}</li>`).join('')}
-            </ul>
-            <div class="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-[11px]">
-              <span class="font-semibold">💡 Nota de ayuda (Criterio 3):</span>
-              Si se trata de actividades paralelas intencionales (ej. talleres simultáneos),
-              márquelas como simultáneas y asegúrese de que utilicen salas y ponentes diferentes.
-            </div>
-            <p class="text-xs text-[#5b5f66] mt-2">
-              ¿Deseas guardar de todos modos con esta advertencia o prefieres corregir los datos?
-            </p>
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Sí, guardar con advertencia',
-        cancelButtonText: 'Revisar y corregir',
-        confirmButtonColor: '#a6192e',
-        cancelButtonColor: '#5b5f66',
-        customClass: {
-          popup: 'rounded-[16px]',
-          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-          cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-        },
-      });
+    const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
+    const construirPayload = (confirmarAdvertencias) => ({
+      ...form,
+      nombre: form.nombre.trim(),
+      salaId: Number(form.salaId),
+      salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
+      tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
+      tipoActividadNombre: tipoObj?.nombre || '',
+      ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
+      ponenteNombre: ponenteSeleccionado
+        ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
+        : null,
+      permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
+      simultanea: Boolean(form.permiteSimultaneidad),
+      confirmarAdvertencias,
+      asistentesEsperados: form.asistentesEsperados ? Number(form.asistentesEsperados) : null,
+    });
 
-      if (!resultadoAlerta.isConfirmed) {
-        return;
-      }
-    }
-
+    // Criterios 2 y 5: decide el backend. Un cruce se rechaza con su detalle y sin opción de guardar;
+    // las advertencias de disponibilidad son lo único que el usuario puede aceptar.
     try {
       setGuardando(true);
-      const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
-
-      const payload = {
-        ...form,
-        nombre: form.nombre.trim(),
-        salaId: Number(form.salaId),
-        salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
-        tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
-        tipoActividadNombre: tipoObj?.nombre || '',
-        ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-        ponenteNombre: ponenteSeleccionado
-          ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
-          : null,
-        permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
-        simultanea: Boolean(form.permiteSimultaneidad),
-        confirmarAdvertencias: Boolean(chequeoConflicto.hayConflicto),
-        asistentesEsperados: form.asistentesEsperados ? Number(form.asistentesEsperados) : null,
-        tieneAdvertencia: chequeoConflicto.hayConflicto,
-        motivosAdvertencia: chequeoConflicto.motivos,
-      };
-
-      await onSubmit(payload);
+      await onSubmit(construirPayload(false));
       onClose();
     } catch (error) {
       if (error.codigo === 'CONFIRMACION_REQUERIDA') {
         const confirmar = await Swal.fire({
           icon: 'warning',
           title: 'Advertencia de disponibilidad horaria',
-          html: `
-            <div class="text-left text-xs text-[#1f2023] space-y-2">
-              <p class="font-medium text-amber-900">${error.message}</p>
-              <ul class="list-disc list-inside text-amber-800 space-y-1 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-                ${(error.advertencias || []).map((a) => `<li>${a.mensaje}</li>`).join('')}
-              </ul>
-              <p class="mt-2 text-[#5b5f66]">¿Deseas confirmar la programación de la actividad aceptando estas advertencias?</p>
-            </div>
-          `,
+          html: htmlConfirmacionAdvertencias(error),
           showCancelButton: true,
           confirmButtonText: 'Sí, confirmar y guardar',
           cancelButtonText: 'Revisar datos',
@@ -249,20 +201,8 @@ export default function ActividadFormModal({
         });
 
         if (confirmar.isConfirmed) {
-          const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
           try {
-            await onSubmit({
-              ...form,
-              nombre: form.nombre.trim(),
-              salaId: Number(form.salaId),
-              salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
-              tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
-              tipoActividadNombre: tipoObj?.nombre || '',
-              ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-              simultanea: Boolean(form.permiteSimultaneidad),
-              permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
-              confirmarAdvertencias: true,
-            });
+            await onSubmit(construirPayload(true));
             onClose();
           } catch (errorConfirmado) {
             mostrarErrorGuardado(errorConfirmado);
@@ -283,14 +223,7 @@ export default function ActividadFormModal({
       Swal.fire({
         icon: 'error',
         title: 'Cruce no planificado en la agenda',
-        html: `
-          <div class="text-left text-xs text-[#1f2023] space-y-2">
-            <p class="font-medium text-red-600">${error.message}</p>
-            <ul class="list-disc list-inside text-red-800 space-y-1 bg-red-50 p-2.5 rounded-lg border border-red-200">
-              ${(error.conflictos || []).map((c) => `<li><strong>${c.tipo}:</strong> ${c.mensaje}</li>`).join('')}
-            </ul>
-          </div>
-        `,
+        html: htmlConflictosProgramacion(error),
         confirmButtonColor: '#a6192e',
         customClass: {
           popup: 'rounded-[16px]',
@@ -491,7 +424,7 @@ export default function ActividadFormModal({
               </span>
               <p className="text-[#5b5f66] text-[11px] mt-0.5 leading-relaxed">
                 Marca esta opción si esta actividad se realiza en paralelo con otras (p. ej. sesiones simultáneas o talleres temáticos al mismo tiempo).
-                El sistema no alertará de cruce de horario entre actividades marcadas como simultáneas, validando que no compartan sala ni ponente.
+                El sistema no alertará de cruce de horario entre actividades marcadas como simultáneas, validando que no compartan ponente ni sala, salvo que la sala esté configurada para ello.
               </p>
             </div>
           </label>

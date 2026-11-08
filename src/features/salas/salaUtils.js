@@ -342,13 +342,15 @@ export function normalizarSalaApi(sala) {
     ubicacion: sala.ubicacion || '',
     tipo: sala.tipo ? String(sala.tipo).toLowerCase() : '',
     aforoMaximo: sala.aforoMaximo,
+    permiteSimultaneidad: Boolean(sala.permiteSimultaneidad),
     disponibilidad: normalizarFranjasApi(sala.disponibilidades),
   };
 }
 
 /**
  * Construye el SalaRequest del backend a partir de los datos del formulario.
- * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, disponibilidad?: Array }} datos
+ * Si `permiteSimultaneidad` no viene, no se envía y el backend conserva el valor actual de la sala.
+ * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, permiteSimultaneidad?: boolean, disponibilidad?: Array }} datos
  */
 export function aSalaRequest(datos = {}) {
   return {
@@ -356,6 +358,7 @@ export function aSalaRequest(datos = {}) {
     ubicacion: datos.ubicacion ? String(datos.ubicacion).trim() : null,
     tipo: datos.tipo ? String(datos.tipo).toLowerCase() : null,
     aforoMaximo: Number(datos.aforoMaximo),
+    permiteSimultaneidad: datos.permiteSimultaneidad,
     disponibilidades: aFranjasApi(datos.disponibilidad),
   };
 }

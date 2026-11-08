@@ -28,8 +28,18 @@ describe('HU-20 - traducción entre backend e interfaz', () => {
       ubicacion: '',
       tipo: 'fisica',
       aforoMaximo: 200,
+      permiteSimultaneidad: false,
       disponibilidad: [{ id: 10, fecha: '2026-11-15', horaInicio: '08:00', horaFin: '12:00' }],
     });
+    expect(normalizarSalaApi({ id: 3, permiteSimultaneidad: true }).permiteSimultaneidad).toBe(true);
+  });
+
+  it('envía permiteSimultaneidad solo cuando viene definido, para no cambiarlo sin querer', () => {
+    const base = { nombre: 'Sala 1', tipo: 'virtual', aforoMaximo: 50 };
+
+    expect(aSalaRequest({ ...base, permiteSimultaneidad: true }).permiteSimultaneidad).toBe(true);
+    expect(aSalaRequest({ ...base, permiteSimultaneidad: false }).permiteSimultaneidad).toBe(false);
+    expect(JSON.stringify(aSalaRequest(base))).not.toContain('permiteSimultaneidad');
   });
 
   it('construye el SalaRequest con el tipo en minúsculas y las franjas como disponibilidades', () => {

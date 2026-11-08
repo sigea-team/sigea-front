@@ -242,6 +242,68 @@ describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', (
       expect(resultado.conflictosHorario).toHaveLength(0);
     });
 
+    describe('misma sala configurada para simultaneidad', () => {
+      const salaCompartible = { id: 1, nombre: 'Sala Virtual', permiteSimultaneidad: true };
+      const tallerParalelo = {
+        nombre: 'Taller Paralelo E',
+        fecha: '2026-10-21',
+        horaInicio: '14:00',
+        horaFin: '16:00',
+        salaId: 1,
+        ponenteId: 20,
+        permiteSimultaneidad: true,
+      };
+
+      it('permite compartirla si ambas actividades son simultáneas', () => {
+        const resultado = detectarConflictosActividad(tallerParalelo, agendaConSimultanea, {
+          salas: [salaCompartible],
+          ponentes: ponentesMock,
+        });
+
+        expect(resultado.hayConflicto).toBe(false);
+      });
+
+      it('sigue reportando conflicto de sala si una de las dos no es simultánea', () => {
+        const resultado = detectarConflictosActividad(
+          { ...tallerParalelo, permiteSimultaneidad: false },
+          agendaConSimultanea,
+          { salas: [salaCompartible], ponentes: ponentesMock }
+        );
+
+        expect(resultado.conflictosSala).toHaveLength(1);
+      });
+
+      it('sigue reportando conflicto de ponente aunque la sala se pueda compartir', () => {
+        const resultado = detectarConflictosActividad(
+          { ...tallerParalelo, ponenteId: 10 },
+          agendaConSimultanea,
+          { salas: [salaCompartible], ponentes: ponentesMock }
+        );
+
+        expect(resultado.conflictosSala).toHaveLength(0);
+        expect(resultado.conflictosPonente).toHaveLength(1);
+      });
+    });
+
+    it('no reporta cruces con una actividad cancelada', () => {
+      const cancelada = [{ ...agendaConSimultanea[0], estado: 'CANCELADA', permiteSimultaneidad: false }];
+      const actividad = {
+        nombre: 'Usa el horario liberado',
+        fecha: '2026-10-21',
+        horaInicio: '14:00',
+        horaFin: '16:00',
+        salaId: 1,
+        ponenteId: 10,
+      };
+
+      const resultado = detectarConflictosActividad(actividad, cancelada, {
+        salas: salasMock,
+        ponentes: ponentesMock,
+      });
+
+      expect(resultado.hayConflicto).toBe(false);
+    });
+
     it('alerta de conflicto de ponente si dos actividades simultáneas intentan asignar al mismo ponente', () => {
       const tallerMismoPonente = {
         nombre: 'Taller Paralelo D: Mismo Ponente',

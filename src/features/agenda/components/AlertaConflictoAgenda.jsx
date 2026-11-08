@@ -31,7 +31,8 @@ export default function AlertaConflictoAgenda({ resultadoConflicto, permiteSimul
             </p>
             <p className="text-blue-800 mt-0.5">
               Se permite desarrollarse en el mismo horario que otras actividades paralelas,
-              verificando que utilicen salas diferentes y cuenten con ponentes independientes.
+              verificando que cuenten con ponentes independientes y que utilicen salas diferentes,
+              salvo que la sala esté configurada para actividades simultáneas.
             </p>
           </div>
         </div>

@@ -212,6 +212,8 @@ export function detectarConflictosActividad(
     if (idExcluir !== null && idExcluir !== undefined) {
       if (String(otra.id) === String(idExcluir)) return false;
     }
+    // Una actividad cancelada ya no ocupa la agenda, igual que en el backend
+    if (String(otra.estado || '').toLowerCase() === 'cancelada') return false;
     // Solo interesan actividades del mismo día
     return otra.fecha === actividad.fecha;
   });
@@ -245,10 +247,12 @@ export function detectarConflictosActividad(
     const mismoHorarioRango = `${formatearHora(otra.horaInicio)} a ${formatearHora(otra.horaFin)}`;
 
     // Conflicto de SALA (Criterio 2 y 3)
-    // Dos actividades NUNCA pueden ocupar la misma sala en horario solapado,
-    // incluso si se marcaron como simultáneas (salvo configuración especial inexistente).
+    // Dos actividades no pueden ocupar la misma sala en horario solapado,
+    // salvo que ambas sean simultáneas y la sala esté configurada para ello.
     const mismaSala = String(otra.salaId) === String(actividad.salaId);
-    if (mismaSala) {
+    const salaCompartible =
+      esSimultanea && otraEsSimultanea && Boolean(salaSeleccionada?.permiteSimultaneidad);
+    if (mismaSala && !salaCompartible) {
       const detalle = {
         actividadConflictiva: otra,
         tipo: 'sala',
