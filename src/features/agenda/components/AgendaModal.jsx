@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CalendarClock, Plus, RefreshCw, LayoutList, Calendar } from 'lucide-react';
+import { AlertCircle, CalendarClock, Plus, RefreshCw, RotateCw, LayoutList, Calendar } from 'lucide-react';
 import Swal from 'sweetalert2';
 import ModalShell from '../../eventos/components/ModalShell';
 import Button from '../../../components/ui/Button';
@@ -30,6 +30,7 @@ export default function AgendaModal({
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [errorAgenda, setErrorAgenda] = useState(null);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
 
   // Filtros
@@ -44,6 +45,10 @@ export default function AgendaModal({
 
   const eventoId = evento?.id;
   const recargar = () => setVersion((v) => v + 1);
+  const reintentarCarga = () => {
+    setCargando(true);
+    recargar();
+  };
 
   useEffect(() => {
     if (!isOpen || !eventoId) return;
@@ -58,7 +63,13 @@ export default function AgendaModal({
     ]).then(([resAct, resSalas, resPonentes, resTipos]) => {
       if (!activo) return;
 
-      if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
+      if (resAct.status === 'fulfilled') {
+        setActividades(resAct.value || []);
+        setErrorAgenda(null);
+      } else {
+        setActividades([]);
+        setErrorAgenda(resAct.reason?.message || 'No fue posible cargar la agenda del evento.');
+      }
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
@@ -131,7 +142,17 @@ export default function AgendaModal({
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await apiActividades.eliminarActividad(eventoId, act.id);
+        try {
+          await apiActividades.eliminarActividad(eventoId, act.id);
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se eliminó la actividad',
+            text: err.message,
+            confirmButtonColor: '#a6192e',
+          });
+          return;
+        }
         recargar();
         Swal.fire({
           icon: 'success',
@@ -228,6 +249,21 @@ export default function AgendaModal({
             <div className="py-16 text-center text-xs text-[#5b5f66]">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#a6192e]" />
               Cargando cronograma del evento...
+            </div>
+          ) : errorAgenda ? (
+            <div role="alert" className="flex items-start gap-3 p-4 rounded-xl bg-[#fdecec] border border-[#a6192e]/30 text-[#a6192e] text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p>{errorAgenda}</p>
+                <button
+                  type="button"
+                  onClick={reintentarCarga}
+                  className="mt-2 inline-flex items-center gap-1 font-semibold underline cursor-pointer"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  Reintentar
+                </button>
+              </div>
             </div>
           ) : vista === 'timeline' ? (
             <AgendaTimeline

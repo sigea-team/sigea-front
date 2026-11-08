@@ -1,6 +1,6 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AgendaPage from './AgendaPage';
-import { actividadService } from '../api/actividadService';
+import { crearActividadesApiMock } from '../features/agenda/mocks/agendaMock';
 import { crearEventosApiMock } from '../features/eventos/mocks/eventosMock';
 import { crearSalasApiMock } from '../features/salas/mocks/salasMock';
 
@@ -18,7 +18,7 @@ export const VistaPrincipal = () => (
         path="/agenda"
         element={
           <AgendaPage
-            apiActividades={actividadService}
+            apiActividades={crearActividadesApiMock()}
             apiEventos={crearEventosApiMock()}
             apiSalas={crearSalasApiMock()}
           />
@@ -35,7 +35,28 @@ export const ConEventoSeleccionado = () => (
         path="/eventos/:eventoId/agenda"
         element={
           <AgendaPage
-            apiActividades={actividadService}
+            apiActividades={crearActividadesApiMock()}
+            apiEventos={crearEventosApiMock()}
+            apiSalas={crearSalasApiMock()}
+          />
+        }
+      />
+    </Routes>
+  </MemoryRouter>
+);
+
+/** El backend no responde: se muestra el error con «Reintentar», no una agenda vacía. */
+export const ErrorAlCargar = () => (
+  <MemoryRouter initialEntries={['/eventos/3/agenda']}>
+    <Routes>
+      <Route
+        path="/eventos/:eventoId/agenda"
+        element={
+          <AgendaPage
+            apiActividades={{
+              listarActividades: () =>
+                Promise.reject(new Error('No fue posible cargar la agenda del evento.')),
+            }}
             apiEventos={crearEventosApiMock()}
             apiSalas={crearSalasApiMock()}
           />

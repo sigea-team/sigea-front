@@ -1,12 +1,10 @@
 /**
  * @file agendaMock.js
- * @description Datos iniciales simulados y motor de almacenamiento local para la agenda de actividades (HU-21).
- * Permite que el frontend funcione de inmediato sin necesidad de backend desplegado,
- * persistiendo en localStorage para pruebas interactivas en desarrollo.
+ * @description Datos y API simulada en memoria de la agenda de actividades (HU-21), solo para Storybook.
+ * La aplicación trabaja siempre con el backend real.
  * @module features/agenda/mocks/agendaMock
  */
-
-const STORAGE_KEY = 'sigea_agenda_actividades_mock';
+import { ordenarCronologicamente } from '../agendaUtils';
 
 export const ACTIVIDADES_INICIALES_MOCK = [
   {
@@ -117,39 +115,34 @@ export const ACTIVIDADES_INICIALES_MOCK = [
 ];
 
 /**
- * Carga las actividades desde localStorage o los datos iniciales por defecto.
- * @returns {Array<Object>}
+ * Crea una API simulada en memoria con la misma forma que `actividadService`, para Storybook.
+ * @returns {Object}
  */
-export function obtenerActividadesMock() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(ACTIVIDADES_INICIALES_MOCK));
-      return structuredClone(ACTIVIDADES_INICIALES_MOCK);
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : structuredClone(ACTIVIDADES_INICIALES_MOCK);
-  } catch {
-    return structuredClone(ACTIVIDADES_INICIALES_MOCK);
-  }
-}
+export function crearActividadesApiMock() {
+  let actividades = structuredClone(ACTIVIDADES_INICIALES_MOCK);
 
-/**
- * Guarda la lista de actividades en localStorage.
- * @param {Array<Object>} lista
- */
-export function guardarActividadesMock(lista) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
-  } catch (e) {
-    console.error('Error al guardar actividades mock en localStorage:', e);
-  }
-}
-
-/**
- * Restablece las actividades mock a su estado original inicial.
- */
-export function reiniciarActividadesMock() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ACTIVIDADES_INICIALES_MOCK));
-  return structuredClone(ACTIVIDADES_INICIALES_MOCK);
+  return {
+    async listarActividades(eventoId, fecha = null) {
+      const delEvento = actividades.filter(
+        (a) => String(a.eventoId) === String(eventoId) && (!fecha || a.fecha === fecha)
+      );
+      return ordenarCronologicamente(delEvento);
+    },
+    async crearActividad(eventoId, datos) {
+      const id = Math.max(0, ...actividades.map((a) => Number(a.id) || 0)) + 1;
+      const nueva = { ...datos, id, eventoId: Number(eventoId), estado: 'programada' };
+      actividades = [...actividades, nueva];
+      return nueva;
+    },
+    async actualizarActividad(eventoId, actividadId, datos) {
+      const actual = actividades.find((a) => String(a.id) === String(actividadId));
+      const actualizada = { ...actual, ...datos, id: Number(actividadId), eventoId: Number(eventoId) };
+      actividades = actividades.map((a) => (a === actual ? actualizada : a));
+      return actualizada;
+    },
+    async eliminarActividad(eventoId, actividadId) {
+      actividades = actividades.filter((a) => String(a.id) !== String(actividadId));
+      return { ok: true };
+    },
+  };
 }

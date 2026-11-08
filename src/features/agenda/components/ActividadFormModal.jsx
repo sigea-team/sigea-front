@@ -250,58 +250,66 @@ export default function ActividadFormModal({
 
         if (confirmar.isConfirmed) {
           const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
-          await onSubmit({
-            ...form,
-            nombre: form.nombre.trim(),
-            salaId: Number(form.salaId),
-            salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
-            tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
-            tipoActividadNombre: tipoObj?.nombre || '',
-            ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-            simultanea: Boolean(form.permiteSimultaneidad),
-            permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
-            confirmarAdvertencias: true,
-          });
-          onClose();
-          return;
+          try {
+            await onSubmit({
+              ...form,
+              nombre: form.nombre.trim(),
+              salaId: Number(form.salaId),
+              salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
+              tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
+              tipoActividadNombre: tipoObj?.nombre || '',
+              ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
+              simultanea: Boolean(form.permiteSimultaneidad),
+              permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
+              confirmarAdvertencias: true,
+            });
+            onClose();
+          } catch (errorConfirmado) {
+            mostrarErrorGuardado(errorConfirmado);
+          }
         }
         return;
       }
 
-      if (error.codigo === 'CONFLICTO_PROGRAMACION') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Cruce no planificado en la agenda',
-          html: `
-            <div class="text-left text-xs text-[#1f2023] space-y-2">
-              <p class="font-medium text-red-600">${error.message}</p>
-              <ul class="list-disc list-inside text-red-800 space-y-1 bg-red-50 p-2.5 rounded-lg border border-red-200">
-                ${(error.conflictos || []).map((c) => `<li><strong>${c.tipo}:</strong> ${c.mensaje}</li>`).join('')}
-              </ul>
-            </div>
-          `,
-          confirmButtonColor: '#a6192e',
-          customClass: {
-            popup: 'rounded-[16px]',
-            confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-          },
-        });
-        return;
-      }
+      mostrarErrorGuardado(error);
+    } finally {
+      setGuardando(false);
+    }
+  };
 
+  /** Informa que la actividad no se guardó: los cruces con su detalle y cualquier otro error con su mensaje. */
+  const mostrarErrorGuardado = (error) => {
+    if (error.codigo === 'CONFLICTO_PROGRAMACION') {
       Swal.fire({
         icon: 'error',
-        title: 'Error al registrar la actividad',
-        text: error.message || 'Ocurrió un error inesperado al procesar la solicitud.',
+        title: 'Cruce no planificado en la agenda',
+        html: `
+          <div class="text-left text-xs text-[#1f2023] space-y-2">
+            <p class="font-medium text-red-600">${error.message}</p>
+            <ul class="list-disc list-inside text-red-800 space-y-1 bg-red-50 p-2.5 rounded-lg border border-red-200">
+              ${(error.conflictos || []).map((c) => `<li><strong>${c.tipo}:</strong> ${c.mensaje}</li>`).join('')}
+            </ul>
+          </div>
+        `,
         confirmButtonColor: '#a6192e',
         customClass: {
           popup: 'rounded-[16px]',
           confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
         },
       });
-    } finally {
-      setGuardando(false);
+      return;
     }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'No se guardó la actividad',
+      text: error.message || 'Ocurrió un error inesperado al procesar la solicitud.',
+      confirmButtonColor: '#a6192e',
+      customClass: {
+        popup: 'rounded-[16px]',
+        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      },
+    });
   };
 
   return (

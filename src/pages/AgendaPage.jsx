@@ -11,7 +11,7 @@ import {
   User,
   Layers,
   AlertCircle,
-  RotateCcw,
+  RotateCw,
 } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
@@ -36,7 +36,7 @@ import ActividadFormModal from '../features/agenda/components/ActividadFormModal
  *   pero validando que no compartan sala ni ponente (Criterio 3).
  * - Validar obligatoriedad de nombre, fecha, horario y sala (Criterio 4).
  * - Modificar actividades ya programadas revalidando conflictos con el resto de la agenda (Criterio 5).
- * - Indicador claro para integrar endpoints del backend cuando estén disponibles.
+ * Los datos vienen solo del backend; si falla, se muestra el error.
  */
 export default function AgendaPage({
   apiActividades = actividadService,
@@ -55,7 +55,8 @@ export default function AgendaPage({
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
 
-  const [cargando, setCargando] = useState(false);
+  const [cargando, setCargando] = useState(true);
+  const [errorAgenda, setErrorAgenda] = useState(null);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
   const [version, setVersion] = useState(0);
 
@@ -70,6 +71,10 @@ export default function AgendaPage({
 
   const idEventoActivo = eventoIdParam || eventoSeleccionadoId;
   const recargar = () => setVersion((v) => v + 1);
+  const reintentarCarga = () => {
+    setCargando(true);
+    recargar();
+  };
 
   // 1. Cargar lista de eventos disponibles
   useEffect(() => {
@@ -107,7 +112,13 @@ export default function AgendaPage({
     ]).then(([resAct, resSalas, resPonentes, resTipos]) => {
       if (!activo) return;
 
-      if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
+      if (resAct.status === 'fulfilled') {
+        setActividades(resAct.value || []);
+        setErrorAgenda(null);
+      } else {
+        setActividades([]);
+        setErrorAgenda(resAct.reason?.message || 'No fue posible cargar la agenda del evento.');
+      }
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
@@ -209,7 +220,17 @@ export default function AgendaPage({
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await apiActividades.eliminarActividad(idEventoActivo, act.id);
+        try {
+          await apiActividades.eliminarActividad(idEventoActivo, act.id);
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se eliminó la actividad',
+            text: err.message,
+            confirmButtonColor: '#a6192e',
+          });
+          return;
+        }
         recargar();
         Swal.fire({
           icon: 'success',
@@ -221,55 +242,9 @@ export default function AgendaPage({
     });
   };
 
-  const handleReiniciarMock = () => {
-    Swal.fire({
-      title: '¿Restablecer datos de prueba?',
-      text: 'Se restablecerán las actividades de demostración con conferencias y talleres simultáneos.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, restablecer',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#a6192e',
-      cancelButtonColor: '#5b5f66',
-    }).then((res) => {
-      if (res.isConfirmed) {
-        apiActividades.reiniciarMock();
-        recargar();
-      }
-    });
-  };
-
   return (
     <MainLayout title="Agenda y Cronograma de Actividades" activeNav="agenda">
       <div className="space-y-6">
-        {/* Banner informativo de arquitectura e integración de endpoints */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
-          <div className="flex items-start gap-3">
-            <CalendarClock className="w-5 h-5 shrink-0 mt-0.5 text-[#b54708]" />
-            <div className="text-xs">
-              <span className="font-bold text-[#b54708] uppercase tracking-wide">
-                Módulo HU-21: Programación de Actividades y Control de Conflictos
-              </span>
-              <p className="mt-0.5 text-[#7a2e0e]">
-                Gestiona el cronograma asignando sala, horario y ponente con detección de cruces y soporte para actividades simultáneas.
-                <span className="font-semibold block sm:inline sm:ml-1">
-                  [BACKEND_ENDPOINT]: La capa API en <code>src/api/actividadService.js</code> tiene la marca lista para conectar los endpoints cuando se desplieguen.
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleReiniciarMock}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-[#7a2e0e] bg-white border border-[#fedf89] hover:bg-[#fef0c7] rounded-lg transition-colors cursor-pointer shrink-0"
-            title="Restablecer actividades de demostración"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Datos Demo</span>
-          </button>
-        </div>
-
         {/* Encabezado con selector de evento y botón de acción */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
           <div className="space-y-1">
@@ -450,6 +425,21 @@ export default function AgendaPage({
               <div className="py-20 text-center text-xs text-[#5b5f66]">
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-[#a6192e]" />
                 Cargando agenda cronológica...
+              </div>
+            ) : errorAgenda ? (
+              <div role="alert" className="flex items-start gap-3 p-4 rounded-xl bg-[#fdecec] border border-[#a6192e]/30 text-[#a6192e] text-sm">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div>
+                  <p>{errorAgenda}</p>
+                  <button
+                    type="button"
+                    onClick={reintentarCarga}
+                    className="mt-2 inline-flex items-center gap-1 font-semibold underline cursor-pointer"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    Reintentar
+                  </button>
+                </div>
               </div>
             ) : vista === 'timeline' ? (
               <AgendaTimeline

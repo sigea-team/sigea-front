@@ -220,4 +220,77 @@ describe('HU-21: Cliente API de Actividades y Agenda (actividadService)', () => 
       });
     });
   });
+
+  describe('Errores del backend: nunca se simula un resultado', () => {
+    const actividad = {
+      nombre: 'Prueba',
+      tipoActividadId: 1,
+      fecha: '2026-10-21',
+      horaInicio: '09:00',
+      horaFin: '10:00',
+      salaId: 1,
+    };
+    const error500 = { response: { status: 500, data: { message: 'Error interno del servidor' } } };
+
+    it('crearActividad rechaza un 500 con el mensaje del backend', async () => {
+      httpClient.post.mockRejectedValueOnce(error500);
+
+      await expect(actividadService.crearActividad(5, actividad)).rejects.toMatchObject({
+        message: 'Error interno del servidor',
+        status: 500,
+      });
+    });
+
+    it('crearActividad rechaza un 403 aunque el backend no envíe mensaje', async () => {
+      httpClient.post.mockRejectedValueOnce({ response: { status: 403 } });
+
+      await expect(actividadService.crearActividad(5, actividad)).rejects.toThrow(
+        'No tienes permiso para realizar esta operación.'
+      );
+    });
+
+    it('crearActividad avisa que no se guardó si no hay conexión', async () => {
+      httpClient.post.mockRejectedValueOnce(new Error('Network Error'));
+
+      await expect(actividadService.crearActividad(5, actividad)).rejects.toThrow(
+        'No fue posible programar la actividad. No se pudo conectar con el servidor.'
+      );
+    });
+
+    it('actualizarActividad rechaza un 500', async () => {
+      httpClient.put.mockRejectedValueOnce(error500);
+
+      await expect(actividadService.actualizarActividad(5, 15, actividad)).rejects.toThrow(
+        'Error interno del servidor'
+      );
+    });
+
+    it('eliminarActividad rechaza un 500 y no informa éxito', async () => {
+      httpClient.delete.mockRejectedValueOnce(error500);
+
+      await expect(actividadService.eliminarActividad(5, 15)).rejects.toThrow(
+        'Error interno del servidor'
+      );
+    });
+
+    it('listarActividades rechaza el error en lugar de devolver actividades simuladas', async () => {
+      httpClient.get.mockRejectedValueOnce(new Error('Network Error'));
+
+      await expect(actividadService.listarActividades(5)).rejects.toThrow(
+        'No fue posible cargar la agenda del evento.'
+      );
+    });
+
+    it('obtenerActividad y validarEnBackend también propagan el error', async () => {
+      httpClient.get.mockRejectedValueOnce(error500);
+      httpClient.post.mockRejectedValueOnce(error500);
+
+      await expect(actividadService.obtenerActividad(5, 15)).rejects.toThrow(
+        'Error interno del servidor'
+      );
+      await expect(actividadService.validarEnBackend(5, actividad)).rejects.toThrow(
+        'Error interno del servidor'
+      );
+    });
+  });
 });
