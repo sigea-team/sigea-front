@@ -1,13 +1,14 @@
 /**
  * @file salaService.js
- * @description Cliente de la API de salas y disponibilidad horaria (HU-20).
+ * @description Cliente de la API de salas y disponibilidad horaria (HU-20) y programación (HU-21).
  * Trabaja solo con el backend real; los errores se propagan para que la vista los muestre.
- * Base: /api/v1/eventos/{eventoId}/salas y /api/v1/eventos/{eventoId}/ponentes/{personaId}/disponibilidad.
- * Toda sala pertenece a un evento (salas.evento_id es obligatorio), por eso cada operación recibe el evento.
+ * Base: /api/v1/eventos/{eventoId}/salas, /api/v1/eventos/{eventoId}/ponentes/{personaId}/disponibilidad
+ * y /api/v1/eventos/{eventoId}/actividades.
  * @module api/salaService
  */
 import { httpClient } from './httpClient';
 import { listarConferencistas } from './conferencistaService';
+import { actividadService } from './actividadService';
 import {
   aFranjasApi,
   aSalaRequest,
@@ -15,13 +16,6 @@ import {
   normalizarPonenteApi,
   normalizarSalaApi,
 } from '../features/salas/salaUtils';
-
-/** Error para funciones que la interfaz ofrece pero el backend todavía no implementa. */
-function noDisponible(funcion) {
-  const err = new Error(`${funcion} aún no está disponible: el backend no tiene este servicio.`);
-  err.codigo = 'NO_DISPONIBLE';
-  return err;
-}
 
 /** Convierte la respuesta de actualización de disponibilidad al formato de la interfaz. */
 function normalizarActualizacion(data) {
@@ -33,8 +27,8 @@ function normalizarActualizacion(data) {
 }
 
 export const salaService = {
-  /** El backend todavía no tiene endpoints de actividades (programación). */
-  soportaActividades: false,
+  /** Soporta programación y consumo de actividades mediante ActividadController (HU-21). */
+  soportaActividades: true,
 
   /**
    * Lista las salas de un evento.
@@ -48,6 +42,30 @@ export const salaService = {
   },
 
   /**
+   * Consulta todas las salas registradas a través de los eventos del sistema.
+   * Permite reutilizarlas en el catálogo institucional para añadir a un evento.
+   */
+  async listarTodasLasSalas(eventos = []) {
+    if (!eventos || eventos.length === 0) return [];
+    const resultados = await Promise.allSettled(
+      eventos.map((e) => this.listarSalas(e.id))
+    );
+    const todas = [];
+    const idsVistos = new Set();
+    resultados.forEach((res) => {
+      if (res.status === 'fulfilled' && Array.isArray(res.value)) {
+        res.value.forEach((sala) => {
+          if (!idsVistos.has(sala.id)) {
+            idsVistos.add(sala.id);
+            todas.push(sala);
+          }
+        });
+      }
+    });
+    return todas;
+  },
+
+  /**
    * Detalle de una sala.
    * GET /api/v1/eventos/{eventoId}/salas/{salaId}
    */
@@ -57,7 +75,7 @@ export const salaService = {
   },
 
   /**
-   * Registra una sala en el evento, con su disponibilidad inicial.
+   * Registra una sala en el evento, con su disponibilidad inicial (Criterio 1).
    * POST /api/v1/eventos/{eventoId}/salas
    */
   async crearSala(eventoId, datos = {}) {
@@ -123,16 +141,25 @@ export const salaService = {
     return normalizarActualizacion(data);
   },
 
-  /** Sin backend todavía: no hay actividades que listar. */
-  async listarActividades() {
-    return [];
+  /**
+   * Conectado con ActividadController (GET /api/v1/eventos/{eventoId}/actividades).
+   */
+  async listarActividades(eventoId, fecha = null) {
+    if (!eventoId) return [];
+    return actividadService.listarActividades(eventoId, fecha);
   },
 
-  async programarActividad() {
-    throw noDisponible('La programación de actividades');
+  /**
+   * Conectado con ActividadController (POST /api/v1/eventos/{eventoId}/actividades).
+   */
+  async programarActividad(eventoId, datos) {
+    return actividadService.crearActividad(eventoId, datos);
   },
 
-  async eliminarActividad() {
-    throw noDisponible('La eliminación de actividades');
+  /**
+   * Conectado con ActividadController (DELETE /api/v1/eventos/{eventoId}/actividades/{actividadId}).
+   */
+  async eliminarActividad(eventoId, actividadId) {
+    return actividadService.eliminarActividad(eventoId, actividadId);
   },
 };

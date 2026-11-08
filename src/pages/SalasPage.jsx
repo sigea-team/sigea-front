@@ -10,6 +10,7 @@ import {
   MapPin,
   Pencil,
   Plus,
+  CopyPlus,
   RefreshCw,
   Search,
   Trash2,
@@ -27,6 +28,7 @@ import SalaFormModal from '../features/salas/components/SalaFormModal';
 import DisponibilidadSalaModal from '../features/salas/components/DisponibilidadSalaModal';
 import DisponibilidadPonenteModal from '../features/salas/components/DisponibilidadPonenteModal';
 import ProgramarActividadModal from '../features/salas/components/ProgramarActividadModal';
+import AsignarSalaEventoModal from '../features/salas/components/AsignarSalaEventoModal';
 import { formatearHora } from '../features/salas/salaUtils';
 import { avisarDisponibilidad, conMensajeApi, mensajeApi } from '../features/salas/salaAvisos';
 import { useAuth } from '../context/AuthContext';
@@ -63,6 +65,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   const [modalDisponibilidadSala, setModalDisponibilidadSala] = useState(null);
   const [modalDisponibilidadPonente, setModalDisponibilidadPonente] = useState(null);
   const [modalProgramar, setModalProgramar] = useState(false);
+  const [modalAsignarSala, setModalAsignarSala] = useState(false);
+  const [salasCatalogo, setSalasCatalogo] = useState([]);
 
   const idEventoActivo = eventoIdParam || eventoSeleccionadoId;
   const recargar = () => setVersion((v) => v + 1);
@@ -87,6 +91,22 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   }, [apiEventos, eventoIdParam]);
 
   const eventoActual = eventos.find((e) => String(e.id) === String(idEventoActivo));
+
+  // Cargar catálogo de todas las salas existentes en el sistema para poder añadirlas a eventos
+  useEffect(() => {
+    if (eventos.length === 0) return;
+    let activo = true;
+    if (typeof api.listarTodasLasSalas === 'function') {
+      api.listarTodasLasSalas(eventos)
+        .then((lista) => {
+          if (activo) setSalasCatalogo(Array.isArray(lista) ? lista : []);
+        })
+        .catch(() => {});
+    }
+    return () => {
+      activo = false;
+    };
+  }, [eventos, api, version]);
 
   // Carga general de datos (Salas independientes del catálogo + datos del evento activo si hay)
   useEffect(() => {
@@ -137,26 +157,59 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
 
   // Operaciones de salas
   const handleGuardarSala = async (datos) => {
+    const eventoIdTarget = datos.eventoId || modalSala?.eventoId || idEventoActivo;
     if (modalSala?.tipo === 'crear') {
-      await conMensajeApi(() => api.crearSala(idEventoActivo, datos), 'No fue posible registrar la sala.');
+      const nuevaSala = await conMensajeApi(
+        () => api.crearSala(eventoIdTarget, datos),
+        'No fue posible registrar la sala.'
+      );
+      if (Array.isArray(datos.disponibilidad) && datos.disponibilidad.length > 0 && nuevaSala?.id) {
+        try {
+          await api.guardarDisponibilidadSala(eventoIdTarget, nuevaSala.id, datos.disponibilidad);
+        } catch (e) {
+          console.warn('Disponibilidad guardada parcialmente:', e);
+        }
+      }
       Swal.fire({
         icon: 'success',
-        title: 'Sala registrada',
-        text: `La sala «${datos.nombre}» quedó registrada en ${eventoActual?.nombre || 'el evento'}.`,
+        title: 'Sala guardada en la base de datos',
+        text: `La sala «${datos.nombre}» y su disponibilidad horaria quedaron guardadas exitosamente.`,
         confirmButtonColor: '#a6192e',
       });
     } else if (modalSala?.tipo === 'editar') {
       await conMensajeApi(
-        () => api.actualizarSala(modalSala.sala.eventoId || idEventoActivo, modalSala.sala.id, datos),
+        () => api.actualizarSala(modalSala.sala.eventoId || eventoIdTarget, modalSala.sala.id, datos),
         'No fue posible actualizar la sala.'
       );
       Swal.fire({
         icon: 'success',
         title: 'Sala actualizada',
-        text: `Se actualizaron los datos de «${datos.nombre}».`,
+        text: `Se actualizaron los datos y la disponibilidad de «${datos.nombre}».`,
         confirmButtonColor: '#a6192e',
       });
     }
+    recargar();
+  };
+
+  const handleAsignarSalaEvento = async ({ sala, eventoDestinoId, eventoDestino }) => {
+    await conMensajeApi(
+      () =>
+        api.crearSala(eventoDestinoId, {
+          nombre: sala.nombre,
+          ubicacion: sala.ubicacion,
+          tipo: sala.tipo,
+          aforoMaximo: sala.aforoMaximo,
+          disponibilidad: sala.disponibilidad || [],
+        }),
+      'No fue posible añadir la sala al evento.'
+    );
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Sala añadida al evento',
+      text: `La sala «${sala.nombre}» fue vinculada y añadida exitosamente a «${eventoDestino?.nombre || 'el evento'}».`,
+      confirmButtonColor: '#a6192e',
+    });
     recargar();
   };
 
@@ -227,8 +280,26 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
   };
 
   const handleEliminarActividad = async (actividadId) => {
-    await api.eliminarActividad(actividadId);
-    recargar();
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar actividad?',
+      text: 'Se removerá esta actividad de la programación y de la sala.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+    });
+    if (confirmacion.isConfirmed) {
+      await api.eliminarActividad(idEventoActivo, actividadId);
+      Swal.fire({
+        icon: 'success',
+        title: 'Actividad eliminada',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+      recargar();
+    }
   };
 
   const opcionesEventos = [
@@ -253,22 +324,31 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               Salas y espacios por evento
             </h2>
             <p className="text-sm text-[#5b5f66] mt-1 max-w-3xl">
-              Selecciona un evento para registrar sus auditorios, aulas físicas y salas de videoconferencia, con su
-              aforo y su disponibilidad horaria, y para configurar la disponibilidad de sus ponentes.
+              Gestiona auditorios, aulas físicas y salas de videoconferencia con su disponibilidad horaria.
+              Crea salas nuevas en el sistema o añade salas existentes a un evento específico.
             </p>
           </div>
 
-          {/* Botón de acción principal: Registrar sala en cualquier momento */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Dos acciones separadas: 1. Crear una sala / 2. Añadirla a un evento */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Button
               type="button"
               variant="primary"
-              onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: idEventoActivo })}
-              disabled={!idEventoActivo}
-              title={idEventoActivo ? undefined : 'Selecciona primero un evento'}
+              onClick={() => setModalSala({ tipo: 'crear', sala: null, eventoId: idEventoActivo || (eventos[0]?.id ? String(eventos[0].id) : '') })}
             >
               <Plus className="w-4 h-4" />
-              <span>Registrar nueva sala</span>
+              <span>Crear sala</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setModalAsignarSala(true)}
+              disabled={eventos.length === 0}
+              title="Añadir una sala existente a un evento específico"
+            >
+              <CopyPlus className="w-4 h-4 text-[#a6192e]" />
+              <span>Añadir a un evento</span>
             </Button>
           </div>
         </div>
@@ -644,24 +724,20 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                   type="button"
                   variant="primary"
                   onClick={() => setModalProgramar(true)}
-                  disabled={!api.soportaActividades || !idEventoActivo || todasLasSalas.length === 0}
-                  title={api.soportaActividades ? undefined : 'El backend todavía no tiene la programación de actividades'}
+                  disabled={!idEventoActivo || todasLasSalas.length === 0}
+                  title={
+                    !idEventoActivo
+                      ? 'Selecciona un evento'
+                      : todasLasSalas.length === 0
+                      ? 'El evento no tiene salas registradas todavía'
+                      : undefined
+                  }
                 >
                   <Plus className="w-4 h-4" />
                   <span>Programar actividad</span>
                 </Button>
               </div>
             </div>
-
-            {!api.soportaActividades && (
-              <div role="status" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
-                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                <p className="text-xs">
-                  La programación de actividades todavía no está disponible: el backend aún no tiene este servicio.
-                  Por ahora puedes registrar las salas y la disponibilidad horaria de salas y ponentes.
-                </p>
-              </div>
-            )}
 
             {!idEventoActivo ? (
               <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
@@ -767,6 +843,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
           isOpen
           sala={modalSala.sala}
           evento={eventoActual}
+          eventos={eventos}
+          eventoId={modalSala.eventoId || idEventoActivo}
           salasExistentes={todasLasSalas}
           actividadesSala={
             modalSala.sala
@@ -810,6 +888,17 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
           ponentes={ponentes}
           onClose={() => setModalProgramar(false)}
           onSubmit={handleProgramarActividad}
+        />
+      )}
+
+      {modalAsignarSala && (
+        <AsignarSalaEventoModal
+          isOpen
+          salasDisponibles={salasCatalogo.length > 0 ? salasCatalogo : todasLasSalas}
+          eventos={eventos}
+          eventoActualId={idEventoActivo}
+          onClose={() => setModalAsignarSala(false)}
+          onAsignar={handleAsignarSalaEvento}
         />
       )}
     </MainLayout>

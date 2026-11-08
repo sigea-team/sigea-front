@@ -109,8 +109,18 @@ describe('HU-20 - salaService usa las rutas reales del backend', () => {
     await expect(salaService.listarSalas(1)).rejects.toEqual({ response: { status: 404 } });
   });
 
-  it('la programación de actividades avisa que no está disponible', async () => {
-    expect(salaService.soportaActividades).toBe(false);
-    await expect(salaService.programarActividad(1, {})).rejects.toMatchObject({ codigo: 'NO_DISPONIBLE' });
+  it('la programación de actividades está habilitada y conectada a ActividadController', async () => {
+    expect(salaService.soportaActividades).toBe(true);
+    httpClient.post.mockResolvedValueOnce({
+      data: { id: 101, nombre: 'Sesión Inaugural', fecha: '2026-11-15', horaInicio: '08:00:00', horaFin: '10:00:00', salaId: 3 },
+    });
+    const act = await salaService.programarActividad(1, {
+      nombre: 'Sesión Inaugural',
+      fecha: '2026-11-15',
+      horaInicio: '08:00',
+      horaFin: '10:00',
+      salaId: 3,
+    });
+    expect(act.id).toBe(101);
   });
 });

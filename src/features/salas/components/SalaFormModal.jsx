@@ -24,12 +24,18 @@ export default function SalaFormModal({
   isOpen,
   sala = null,
   evento,
+  eventos = [],
+  eventoId: eventoIdProp = '',
   salasExistentes = [],
   actividadesSala = [],
   onClose,
   onSubmit,
 }) {
   const esEdicion = Boolean(sala?.id);
+
+  const [eventoSeleccionadoId, setEventoSeleccionadoId] = useState(
+    eventoIdProp || (evento?.id ? String(evento.id) : '')
+  );
 
   const [form, setForm] = useState({
     nombre: sala?.nombre || '',
@@ -138,6 +144,7 @@ export default function SalaFormModal({
       setGuardando(true);
       await onSubmit({
         ...form,
+        eventoId: eventoSeleccionadoId,
         aforoMaximo: Number(form.aforoMaximo),
         disponibilidad: franjas,
       });
@@ -177,6 +184,23 @@ export default function SalaFormModal({
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Selección de evento para el guardado en base de datos si no es edición */}
+        {eventos.length > 0 && !esEdicion && (
+          <div>
+            <Select
+              id="evento-sala-crear"
+              label="Evento donde se registrará la sala *"
+              value={eventoSeleccionadoId}
+              onChange={(e) => setEventoSeleccionadoId(e.target.value)}
+              options={eventos.map((ev) => ({
+                value: String(ev.id),
+                label: `${ev.nombre} (${ev.semestre || ev.estado || 'Activo'})`,
+              }))}
+              helperText="La sala quedará guardada en la base de datos asociada a este evento con su disponibilidad."
+            />
+          </div>
+        )}
+
         {/* Conflicto de aforo advertencia en tiempo real (Criterio 4) */}
         {conflictoAforo && (
           <AlertaConflicto

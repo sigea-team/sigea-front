@@ -188,6 +188,12 @@ export default function LoginForm() {
         return;
       }
 
+      // Perfil Ponente: entra directo a la gestión y envío de propuestas
+      if (modoFinal === 'ponente') {
+        navigate('/mis-propuestas', { replace: true });
+        return;
+      }
+
       // HU-12: el conferencista entra directo a su perfil para ver y actualizar su trayectoria.
       const destino = modoFinal === 'conferencista' ? RUTA_MI_PERFIL_CONFERENCISTA : rutaSegunRoles(sesion?.usuario?.roles);
       navigate(destino, { replace: true });

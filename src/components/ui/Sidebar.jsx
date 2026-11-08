@@ -149,52 +149,63 @@ export default function Sidebar({
     usuario?.roles?.includes('AUTOR');
   const esConferencista = esModoConferencista(usuario);
 
-  // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
-  const navItems = DEFAULT_NAV_ITEMS.filter((item) => {
-    if (item.id === 'convocatorias') {
-      return isAdmin || esPonente;
+  let navItems;
+
+  // Criterio Ponente: Si la persona ingresa como ponente, únicamente le sale en el sidebar
+  // las opciones para gestión y envío de propuestas.
+  if (esPonente && !isAdmin) {
+    navItems = [
+      MIS_PROPUESTAS_NAV_ITEM,
+      { id: 'convocatorias', label: 'Enviar propuesta', icon: FileText, href: '/convocatorias' },
+    ];
+  } else {
+    // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
+    navItems = DEFAULT_NAV_ITEMS.filter((item) => {
+      if (item.id === 'convocatorias') {
+        return isAdmin || esPonente;
+      }
+      return true;
+    }).map((item) => {
+      if (item.id === 'convocatorias' && esPonente && !isAdmin) {
+        return { ...item, label: 'Convocatorias Abiertas' };
+      }
+      return item;
+    });
+
+    if (esPonente || isAdmin) {
+      const convocatoriasIndex = navItems.findIndex((item) => item.id === 'convocatorias');
+      navItems.splice(convocatoriasIndex !== -1 ? convocatoriasIndex + 1 : 1, 0, MIS_PROPUESTAS_NAV_ITEM);
     }
-    return true;
-  }).map((item) => {
-    if (item.id === 'convocatorias' && esPonente && !isAdmin) {
-      return { ...item, label: 'Convocatorias Abiertas' };
+
+    if (esConferencista) {
+      navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
     }
-    return item;
-  });
 
-  if (esPonente || isAdmin) {
-    const convocatoriasIndex = navItems.findIndex((item) => item.id === 'convocatorias');
-    navItems.splice(convocatoriasIndex !== -1 ? convocatoriasIndex + 1 : 1, 0, MIS_PROPUESTAS_NAV_ITEM);
-  }
+    // El menú de evaluaciones depende del permiso real, no del perfil elegido al iniciar sesión
+    const esEvaluador = puedeEvaluar(usuario);
 
-  if (esConferencista) {
-    navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
-  }
-
-  // El menú de evaluaciones depende del permiso real, no del perfil elegido al iniciar sesión
-  const esEvaluador = puedeEvaluar(usuario);
-
-  if (esEvaluador) {
-    const eventosIndex = navItems.findIndex((item) => item.id === 'eventos');
-    if (eventosIndex !== -1) {
-      navItems.splice(eventosIndex, 0, EVALUADOR_NAV_ITEM);
-    } else {
-      navItems.push(EVALUADOR_NAV_ITEM);
+    if (esEvaluador) {
+      const eventosIndex = navItems.findIndex((item) => item.id === 'eventos');
+      if (eventosIndex !== -1) {
+        navItems.splice(eventosIndex, 0, EVALUADOR_NAV_ITEM);
+      } else {
+        navItems.push(EVALUADOR_NAV_ITEM);
+      }
     }
-  }
 
-  if (isAdmin) {
-    const evIdx = navItems.findIndex((item) => item.id === 'eventos');
-    if (evIdx !== -1) {
-      navItems.splice(evIdx + 1, 0, AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
-    } else {
-      navItems.push(AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
-    }
-    const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
-    if (cuentaIndex !== -1) {
-      navItems.splice(cuentaIndex, 0, ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
-    } else {
-      navItems.push(ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
+    if (isAdmin) {
+      const evIdx = navItems.findIndex((item) => item.id === 'eventos');
+      if (evIdx !== -1) {
+        navItems.splice(evIdx + 1, 0, AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
+      } else {
+        navItems.push(AGENDA_NAV_ITEM, SALAS_NAV_ITEM);
+      }
+      const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
+      if (cuentaIndex !== -1) {
+        navItems.splice(cuentaIndex, 0, ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
+      } else {
+        navItems.push(ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
+      }
     }
   }
 
