@@ -159,23 +159,17 @@ export default function Sidebar({
       { id: 'convocatorias', label: 'Enviar propuesta', icon: FileText, href: '/convocatorias' },
     ];
   } else {
-    // Solo ponentes y administradores tienen acceso a la vista de convocatorias abiertas (HU-Propuestas)
+    // Para administradores y otros roles:
     navItems = DEFAULT_NAV_ITEMS.filter((item) => {
+      // Convocatorias solo visible para administradores en este flujo (los ponentes van por el flujo dedicado de arriba)
       if (item.id === 'convocatorias') {
-        return isAdmin || esPonente;
+        return isAdmin;
       }
       return true;
-    }).map((item) => {
-      if (item.id === 'convocatorias' && esPonente && !isAdmin) {
-        return { ...item, label: 'Convocatorias Abiertas' };
-      }
-      return item;
     });
 
-    if (esPonente || isAdmin) {
-      const convocatoriasIndex = navItems.findIndex((item) => item.id === 'convocatorias');
-      navItems.splice(convocatoriasIndex !== -1 ? convocatoriasIndex + 1 : 1, 0, MIS_PROPUESTAS_NAV_ITEM);
-    }
+    // Las propuestas SOLO se muestran a quien ingrese expresamente como ponente (manejado arriba).
+    // Un administrador o asistente nunca ve "Mis propuestas" ni opciones de envío de propuestas.
 
     if (esConferencista) {
       navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);

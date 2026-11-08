@@ -154,6 +154,74 @@ export function crearSalasApiMock({
     /** El mock sí simula la programación de actividades (el backend real todavía no la tiene). */
     soportaActividades: true,
 
+    /** Consulta todas las salas del catálogo institucional. */
+    async listarSalasGlobales() {
+      return salas.map((s) => ({
+        ...structuredClone(s),
+        ocupaciones: actividades
+          .filter((a) => Number(a.salaId) === Number(s.id))
+          .map((a) => ({
+            actividadId: a.id,
+            actividadNombre: a.nombre,
+            eventoId: a.eventoId,
+            eventoNombre: `Evento ${a.eventoId}`,
+            fecha: a.fecha,
+            horaInicio: a.horaInicio,
+            horaFin: a.horaFin,
+          })),
+        eventosVinculados: s.eventosVinculados || [],
+      }));
+    },
+
+    async crearSalaGlobal(datos) {
+      return this.crearSala(null, datos);
+    },
+
+    async actualizarSalaGlobal(salaId, datos) {
+      return this.actualizarSala(null, salaId, datos);
+    },
+
+    async eliminarSalaGlobal(salaId) {
+      return this.eliminarSala(null, salaId);
+    },
+
+    async guardarDisponibilidadSalaGlobal(salaId, franjas) {
+      return this.guardarDisponibilidadSala(null, salaId, franjas);
+    },
+
+    async obtenerOcupacionesSala(salaId) {
+      return actividades
+        .filter((a) => Number(a.salaId) === Number(salaId))
+        .map((a) => ({
+          actividadId: a.id,
+          actividadNombre: a.nombre,
+          eventoId: a.eventoId,
+          eventoNombre: `Evento ${a.eventoId}`,
+          fecha: a.fecha,
+          horaInicio: a.horaInicio,
+          horaFin: a.horaFin,
+        }));
+    },
+
+    async vincularSalaEvento(eventoId, salaId) {
+      const sala = salas.find((s) => Number(s.id) === Number(salaId));
+      if (!sala) throw new Error('Sala no encontrada');
+      if (!sala.eventosVinculados) sala.eventosVinculados = [];
+      const evIdNum = Number(eventoId);
+      if (!sala.eventosVinculados.some((e) => Number(e.id) === evIdNum)) {
+        sala.eventosVinculados.push({ id: evIdNum, nombre: `Evento ${evIdNum}` });
+      }
+      return structuredClone(sala);
+    },
+
+    async desvincularSalaEvento(eventoId, salaId) {
+      const sala = salas.find((s) => Number(s.id) === Number(salaId));
+      if (!sala) throw new Error('Sala no encontrada');
+      if (sala.eventosVinculados) {
+        sala.eventosVinculados = sala.eventosVinculados.filter((e) => Number(e.id) !== Number(eventoId));
+      }
+    },
+
     /** Lista las salas de un evento (sin evento no hay salas, como en el backend). */
     async listarSalas(eventoId = null) {
       if (!eventoId) {

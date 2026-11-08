@@ -1,4 +1,3 @@
-import React from 'react';
 import AsignarSalaEventoModal from './AsignarSalaEventoModal';
 
 export default {

@@ -11,7 +11,7 @@ import { Link, Navigate } from 'react-router-dom';
 import {
   Calendar,
   FileText,
-  FileStack,
+  Building,
   ArrowRight,
   RefreshCw,
   Clock,
@@ -249,23 +249,27 @@ export default function DashboardPage({
             </div>
           </Link>
 
-          {/* Tarjeta 3: Propuestas o Registro */}
-          <div className="p-5 rounded-[16px] bg-white border border-[#e5e7ea]">
+          {/* Tarjeta 3: Salas e Infraestructura */}
+          <Link
+            to="/salas"
+            className="group block p-5 rounded-[16px] bg-white border border-[#e5e7ea] hover:border-[#a6192e]/40 hover:shadow-sm transition-all"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">
-                Propuestas Vinculadas
+                Salas y Espacios
               </span>
               <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <FileStack className="w-4 h-4" />
+                <Building className="w-4 h-4" />
               </span>
             </div>
             <p className="font-serif-title text-3xl font-bold text-[#1f2023] mt-3">
-              {cargando ? '—' : totalPropuestas}
+              Infraestructura
             </p>
-            <div className="mt-2 text-xs text-[#5b5f66]">
-              <span>{totalPropuestas === 0 ? 'Sin propuestas registradas' : `${totalPropuestas} en seguimiento`}</span>
+            <div className="mt-2 flex items-center justify-between text-xs text-[#5b5f66]">
+              <span>Auditorios y aulas institucionales</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#a6192e] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Sección de Resúmenes en Tiempo Real */}

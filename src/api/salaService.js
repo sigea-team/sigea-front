@@ -31,6 +31,86 @@ export const salaService = {
   soportaActividades: true,
 
   /**
+   * Consulta todas las salas institucionales globales del catálogo (desvinculadas o reutilizables).
+   * GET /api/v1/salas
+   */
+  async listarSalasGlobales() {
+    const { data } = await httpClient.get('/salas');
+    return (Array.isArray(data) ? data : []).map(normalizarSalaApi);
+  },
+
+  /**
+   * Crea una nueva sala institucional independiente en el catálogo.
+   * POST /api/v1/salas
+   */
+  async crearSalaGlobal(datos = {}) {
+    const { data } = await httpClient.post('/salas', aSalaRequest(datos));
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Detalle de una sala institucional por ID.
+   * GET /api/v1/salas/{salaId}
+   */
+  async obtenerSalaGlobal(salaId) {
+    const { data } = await httpClient.get(`/salas/${salaId}`);
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Actualiza una sala institucional independiente.
+   * PUT /api/v1/salas/{salaId}
+   */
+  async actualizarSalaGlobal(salaId, datos) {
+    const { data } = await httpClient.put(`/salas/${salaId}`, aSalaRequest(datos));
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Elimina una sala del catálogo institucional (si no tiene actividades programadas).
+   * DELETE /api/v1/salas/{salaId}
+   */
+  async eliminarSalaGlobal(salaId) {
+    await httpClient.delete(`/salas/${salaId}`);
+  },
+
+  /**
+   * Actualiza la disponibilidad de una sala institucional.
+   * PUT /api/v1/salas/{salaId}/disponibilidad
+   */
+  async guardarDisponibilidadSalaGlobal(salaId, franjas) {
+    const { data } = await httpClient.put(`/salas/${salaId}/disponibilidad`, aFranjasApi(franjas));
+    return normalizarActualizacion(data);
+  },
+
+  /**
+   * Consulta los horarios ocupados por actividades o eventos en una sala.
+   * GET /api/v1/salas/{salaId}/ocupaciones
+   */
+  async obtenerOcupacionesSala(salaId, fecha = null) {
+    const params = fecha ? { fecha } : {};
+    const { data } = await httpClient.get(`/salas/${salaId}/ocupaciones`, { params });
+    return Array.isArray(data) ? data : [];
+  },
+
+  /**
+   * Vincula una sala existente del catálogo institucional a un evento.
+   * POST /api/v1/eventos/{eventoId}/salas/vincular/{salaId}
+   */
+  async vincularSalaEvento(eventoId, salaId) {
+    const { data } = await httpClient.post(`/eventos/${eventoId}/salas/vincular/${salaId}`);
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Desvincula una sala de un evento específico sin eliminarla del catálogo general.
+   * DELETE /api/v1/eventos/{eventoId}/salas/{salaId}/desvincular
+   */
+  async desvincularSalaEvento(eventoId, salaId) {
+    await httpClient.delete(`/eventos/${eventoId}/salas/${salaId}/desvincular`);
+  },
+
+  /**
    * Lista las salas de un evento.
    * GET /api/v1/eventos/{eventoId}/salas
    * @param {number|string} eventoId
@@ -42,10 +122,17 @@ export const salaService = {
   },
 
   /**
-   * Consulta todas las salas registradas a través de los eventos del sistema.
-   * Permite reutilizarlas en el catálogo institucional para añadir a un evento.
+   * Consulta todas las salas registradas en el catálogo institucional.
    */
   async listarTodasLasSalas(eventos = []) {
+    try {
+      const globales = await this.listarSalasGlobales();
+      if (Array.isArray(globales) && globales.length > 0) {
+        return globales;
+      }
+    } catch {
+      // Continuar con fallback si el backend no tuviera el endpoint disponible
+    }
     if (!eventos || eventos.length === 0) return [];
     const resultados = await Promise.allSettled(
       eventos.map((e) => this.listarSalas(e.id))
