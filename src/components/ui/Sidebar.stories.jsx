@@ -49,6 +49,17 @@ export const ConvocatoriasActivas = {
   },
 };
 
+export const ModoPonente = {
+  args: {
+    activeItem: 'mis-propuestas',
+    usuario: {
+      modoIngreso: 'PONENTE',
+      roles: ['PARTICIPANTE'],
+      nombreCompleto: 'Autor / Ponente',
+    },
+  },
+};
+
 export const Interactive = {
   render: () => {
     const [active, setActive] = useState('dashboard');

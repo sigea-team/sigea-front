@@ -15,6 +15,16 @@ export const ETIQUETAS_TIPO_SALA = {
   virtual: 'Virtual',
 };
 
+export const DIAS_SEMANA = [
+  { id: 1, codigo: 'LUN', nombre: 'Lunes' },
+  { id: 2, codigo: 'MAR', nombre: 'Martes' },
+  { id: 3, codigo: 'MIE', nombre: 'Miércoles' },
+  { id: 4, codigo: 'JUE', nombre: 'Jueves' },
+  { id: 5, codigo: 'VIE', nombre: 'Viernes' },
+  { id: 6, codigo: 'SAB', nombre: 'Sábado' },
+  { id: 0, codigo: 'DOM', nombre: 'Domingo' },
+];
+
 /**
  * Convierte "HH:mm" a minutos desde medianoche para comparaciones seguras.
  * @param {string} hora - formato "HH:mm"
@@ -290,6 +300,168 @@ export function verificarConflictosCambioDisponibilidad(nuevasFranjas = [], acti
 }
 
 
+/**
+ * Genera franjas horarias para días específicos de la semana dentro de un rango de fechas.
+ * Permite asignar horarios de forma masiva e interactiva.
+ *
+ * @param {{
+ *   diasSemana: number[], // 0 = Domingo, 1 = Lunes, etc.
+ *   fechaInicio: string,  // YYYY-MM-DD
+ *   fechaFin: string,     // YYYY-MM-DD
+ *   horaInicio: string,   // HH:mm
+ *   horaFin: string,      // HH:mm
+ * }} params
+ * @param {Array<Object>} [franjasExistentes]
+ * @returns {Array<Object>}
+ */
+export function generarFranjasPorDiasSemana({ diasSemana = [], fechaInicio, fechaFin, horaInicio, horaFin }, franjasExistentes = []) {
+  if (!Array.isArray(diasSemana) || diasSemana.length === 0 || !fechaInicio || !fechaFin || !horaInicio || !horaFin) {
+    return [];
+  }
+  if (horaAMinutos(horaFin) <= horaAMinutos(horaInicio)) return [];
+
+  const ini = new Date(`${fechaInicio}T00:00:00`);
+  const fin = new Date(`${fechaFin}T00:00:00`);
+  if (Number.isNaN(ini.getTime()) || Number.isNaN(fin.getTime()) || ini > fin) return [];
+
+  const franjasNuevas = [];
+  const actual = new Date(ini);
+
+  while (actual <= fin) {
+    const diaSem = actual.getDay();
+    if (diasSemana.includes(diaSem)) {
+      const fechaStr = actual.toISOString().slice(0, 10);
+      const nueva = {
+        fecha: fechaStr,
+        horaInicio,
+        horaFin,
+      };
+      const error = validarFranjaDisponibilidad(nueva, [...franjasExistentes, ...franjasNuevas]);
+      if (Object.keys(error).length === 0) {
+        franjasNuevas.push({
+          id: Date.now() + Math.floor(Math.random() * 100000),
+          ...nueva,
+        });
+      }
+    }
+    actual.setDate(actual.getDate() + 1);
+  }
+
+  return franjasNuevas;
+}
+
+/**
+ * Verifica si una franja horaria que se quiere programar o reservar entra en conflicto
+ * con franjas ya ocupadas por actividades de eventos.
+ *
+ * @param {{ fecha: string, horaInicio: string, horaFin: string }} franja
+ * @param {Array<Object>} ocupaciones - Lista de actividades u ocupaciones de la sala
+ * @returns {{ hayConflicto: boolean, ocupacionesEnConflicto: Array<Object> }}
+ */
+export function verificarConflictoConOcupaciones(franja, ocupaciones = []) {
+  if (!franja || !franja.fecha || !franja.horaInicio || !franja.horaFin) {
+    return { hayConflicto: false, ocupacionesEnConflicto: [] };
+  }
+  if (!Array.isArray(ocupaciones) || ocupaciones.length === 0) {
+    return { hayConflicto: false, ocupacionesEnConflicto: [] };
+  }
+
+  const iniMin = horaAMinutos(franja.horaInicio);
+  const finMin = horaAMinutos(franja.horaFin);
+
+  const ocupacionesEnConflicto = ocupaciones.filter((oc) => {
+    if (oc.fecha !== franja.fecha) return false;
+    const ocIni = horaAMinutos(oc.horaInicio);
+    const ocFin = horaAMinutos(oc.horaFin);
+    return iniMin < ocFin && finMin > ocIni;
+  });
+
+  return {
+    hayConflicto: ocupacionesEnConflicto.length > 0,
+    ocupacionesEnConflicto,
+  };
+}
+
+/**
+ * Calcula las franjas horarias efectivas disponibles para una sala,
+ * restando de las franjas base registradas los intervalos ya asignados/ocupados por actividades en eventos.
+ * Esto hace que las horas ya asignadas dejen de figurar como disponibles para futuras asignaciones.
+ *
+ * @param {Array<Object>} disponibilidades - Franjas base configuradas
+ * @param {Array<Object>} ocupaciones - Franjas ocupadas por eventos
+ * @returns {Array<Object>}
+ */
+export function obtenerFranjasDisponiblesEfectivas(disponibilidades = [], ocupaciones = []) {
+  if (!Array.isArray(disponibilidades) || disponibilidades.length === 0) return [];
+  if (!Array.isArray(ocupaciones) || ocupaciones.length === 0) return [...disponibilidades];
+
+  const resultado = [];
+
+  disponibilidades.forEach((disp) => {
+    const ocupsDelDia = ocupaciones
+      .filter((oc) => oc.fecha === disp.fecha)
+      .map((oc) => ({
+        inicio: horaAMinutos(oc.horaInicio),
+        fin: horaAMinutos(oc.horaFin),
+        eventoNombre: oc.eventoNombre || '',
+        actividadNombre: oc.actividadNombre || '',
+      }))
+      .sort((a, b) => a.inicio - b.inicio);
+
+    if (ocupsDelDia.length === 0) {
+      resultado.push({ ...disp });
+      return;
+    }
+
+    let cursor = horaAMinutos(disp.horaInicio);
+    const finBase = horaAMinutos(disp.horaFin);
+
+    ocupsDelDia.forEach((oc) => {
+      if (oc.fin <= cursor || oc.inicio >= finBase) {
+        // No solapa con el intervalo actual
+        return;
+      }
+      if (oc.inicio > cursor) {
+        // Franja libre antes de la ocupación
+        const hIni = minutosAHora(cursor);
+        const hFin = minutosAHora(Math.min(oc.inicio, finBase));
+        resultado.push({
+          id: `${disp.id || disp.fecha}-${hIni}-${hFin}`,
+          fecha: disp.fecha,
+          horaInicio: hIni,
+          horaFin: hFin,
+        });
+      }
+      cursor = Math.max(cursor, oc.fin);
+    });
+
+    if (cursor < finBase) {
+      // Franja libre posterior
+      const hIni = minutosAHora(cursor);
+      const hFin = minutosAHora(finBase);
+      resultado.push({
+        id: `${disp.id || disp.fecha}-${hIni}-${hFin}`,
+        fecha: disp.fecha,
+        horaInicio: hIni,
+        horaFin: hFin,
+      });
+    }
+  });
+
+  return resultado;
+}
+
+/**
+ * Convierte minutos desde medianoche a formato "HH:mm".
+ * @param {number} minutos
+ * @returns {string}
+ */
+export function minutosAHora(minutos) {
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 // Traducción entre la API del backend (HU-20) y el formato de la interfaz
 // ──────────────────────────────────────────────────────────────────────────
@@ -330,34 +502,57 @@ export function normalizarFranjasApi(franjas = []) {
 }
 
 /**
- * Convierte una SalaResponse del backend al formato de la interfaz (usa `disponibilidad`).
+ * Convierte una SalaResponse del backend al formato de la interfaz.
+ * Soporta salas institucionales desvinculadas, eventos vinculados y ocupaciones.
  * @param {Object} sala
  */
 export function normalizarSalaApi(sala) {
   if (!sala) return sala;
-  return {
+  const res = {
     id: sala.id,
-    eventoId: sala.eventoId,
+    eventoId: sala.eventoId ?? null,
     nombre: sala.nombre,
     ubicacion: sala.ubicacion || '',
     tipo: sala.tipo ? String(sala.tipo).toLowerCase() : '',
     aforoMaximo: sala.aforoMaximo,
     disponibilidad: normalizarFranjasApi(sala.disponibilidades),
   };
+  if (sala.permiteSimultaneidad !== undefined) {
+    res.permiteSimultaneidad = Boolean(sala.permiteSimultaneidad);
+  }
+  if (sala.eventosVinculados !== undefined) {
+    res.eventosVinculados = Array.isArray(sala.eventosVinculados) ? sala.eventosVinculados : [];
+  }
+  if (sala.ocupaciones !== undefined) {
+    res.ocupaciones = (Array.isArray(sala.ocupaciones) ? sala.ocupaciones : []).map((o) => ({
+      actividadId: o.actividadId,
+      actividadNombre: o.actividadNombre || '',
+      eventoId: o.eventoId,
+      eventoNombre: o.eventoNombre || '',
+      fecha: o.fecha,
+      horaInicio: normalizarHoraApi(o.horaInicio),
+      horaFin: normalizarHoraApi(o.horaFin),
+    }));
+  }
+  return res;
 }
 
 /**
  * Construye el SalaRequest del backend a partir de los datos del formulario.
- * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, disponibilidad?: Array }} datos
+ * @param {{ nombre: string, ubicacion?: string, tipo: string, aforoMaximo: number, disponibilidad?: Array, permiteSimultaneidad?: boolean }} datos
  */
 export function aSalaRequest(datos = {}) {
-  return {
+  const req = {
     nombre: (datos.nombre || '').trim(),
     ubicacion: datos.ubicacion ? String(datos.ubicacion).trim() : null,
     tipo: datos.tipo ? String(datos.tipo).toLowerCase() : null,
     aforoMaximo: Number(datos.aforoMaximo),
     disponibilidades: aFranjasApi(datos.disponibilidad),
   };
+  if (datos.permiteSimultaneidad !== undefined) {
+    req.permiteSimultaneidad = Boolean(datos.permiteSimultaneidad);
+  }
+  return req;
 }
 
 /**

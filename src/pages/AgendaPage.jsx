@@ -11,7 +11,6 @@ import {
   User,
   Layers,
   AlertCircle,
-  RotateCcw,
 } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
@@ -98,6 +97,9 @@ export default function AgendaPage({
     if (!idEventoActivo) return;
 
     let activo = true;
+    Promise.resolve().then(() => {
+      if (activo) setCargando(true);
+    });
 
     Promise.allSettled([
       apiActividades.listarActividades(idEventoActivo),
@@ -221,55 +223,9 @@ export default function AgendaPage({
     });
   };
 
-  const handleReiniciarMock = () => {
-    Swal.fire({
-      title: '¿Restablecer datos de prueba?',
-      text: 'Se restablecerán las actividades de demostración con conferencias y talleres simultáneos.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, restablecer',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#a6192e',
-      cancelButtonColor: '#5b5f66',
-    }).then((res) => {
-      if (res.isConfirmed) {
-        apiActividades.reiniciarMock();
-        recargar();
-      }
-    });
-  };
-
   return (
     <MainLayout title="Agenda y Cronograma de Actividades" activeNav="agenda">
       <div className="space-y-6">
-        {/* Banner informativo de arquitectura e integración de endpoints */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
-          <div className="flex items-start gap-3">
-            <CalendarClock className="w-5 h-5 shrink-0 mt-0.5 text-[#b54708]" />
-            <div className="text-xs">
-              <span className="font-bold text-[#b54708] uppercase tracking-wide">
-                Módulo HU-21: Programación de Actividades y Control de Conflictos
-              </span>
-              <p className="mt-0.5 text-[#7a2e0e]">
-                Gestiona el cronograma asignando sala, horario y ponente con detección de cruces y soporte para actividades simultáneas.
-                <span className="font-semibold block sm:inline sm:ml-1">
-                  [BACKEND_ENDPOINT]: La capa API en <code>src/api/actividadService.js</code> tiene la marca lista para conectar los endpoints cuando se desplieguen.
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleReiniciarMock}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-[#7a2e0e] bg-white border border-[#fedf89] hover:bg-[#fef0c7] rounded-lg transition-colors cursor-pointer shrink-0"
-            title="Restablecer actividades de demostración"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Datos Demo</span>
-          </button>
-        </div>
-
         {/* Encabezado con selector de evento y botón de acción */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
           <div className="space-y-1">
@@ -284,6 +240,17 @@ export default function AgendaPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={recargar}
+              disabled={cargando}
+              title="Refrescar agenda desde el servidor"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${cargando ? 'animate-spin' : ''}`} />
+            </Button>
+
             <div className="w-72">
               <Select
                 id="selector-evento-agenda"

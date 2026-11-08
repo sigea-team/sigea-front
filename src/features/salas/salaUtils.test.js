@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   formatearFranja,
   formatearHora,
+  generarFranjasPorDiasSemana,
+  obtenerFranjasDisponiblesEfectivas,
   validarFranjaDisponibilidad,
   validarSala,
   verificarConflictoAforo,
+  verificarConflictoConOcupaciones,
   verificarConflictoProgramacionActividad,
   verificarConflictosCambioDisponibilidad,
 } from './salaUtils';
@@ -232,6 +235,77 @@ describe('salaUtils - HU-20 Crear y configurar salas', () => {
       const resultado = verificarConflictosCambioDisponibilidad(nuevasFranjas, actividadesProgramadas);
       expect(resultado.hayConflicto).toBe(false);
       expect(resultado.actividadesEnConflicto).toHaveLength(0);
+    });
+  });
+
+  describe('Asignación interactiva por calendario y días de semana', () => {
+    it('genera franjas para los días de semana seleccionados en un rango de fechas', () => {
+      // 2026-11-09 es Lunes, 2026-11-13 es Viernes
+      const franjas = generarFranjasPorDiasSemana({
+        diasSemana: [1, 3, 5], // Lunes, Miércoles, Viernes
+        fechaInicio: '2026-11-09',
+        fechaFin: '2026-11-13',
+        horaInicio: '08:00',
+        horaFin: '12:00',
+      });
+
+      expect(franjas).toHaveLength(3);
+      expect(franjas.map((f) => f.fecha)).toEqual(['2026-11-09', '2026-11-11', '2026-11-13']);
+      expect(franjas[0].horaInicio).toBe('08:00');
+      expect(franjas[0].horaFin).toBe('12:00');
+    });
+
+    it('no genera franjas duplicadas o si las horas son inválidas', () => {
+      const franjas = generarFranjasPorDiasSemana({
+        diasSemana: [1],
+        fechaInicio: '2026-11-09',
+        fechaFin: '2026-11-09',
+        horaInicio: '14:00',
+        horaFin: '10:00', // Inválido
+      });
+      expect(franjas).toHaveLength(0);
+    });
+  });
+
+  describe('Horas ocupadas por eventos y disponibilidad efectiva', () => {
+    it('detecta conflicto si un horario se solapa con una actividad u ocupación existente', () => {
+      const ocupaciones = [
+        { fecha: '2026-11-10', horaInicio: '09:00', horaFin: '11:00', eventoNombre: 'Congreso' },
+      ];
+
+      const conflicto1 = verificarConflictoConOcupaciones(
+        { fecha: '2026-11-10', horaInicio: '10:00', horaFin: '12:00' },
+        ocupaciones
+      );
+      expect(conflicto1.hayConflicto).toBe(true);
+
+      const sinConflicto = verificarConflictoConOcupaciones(
+        { fecha: '2026-11-10', horaInicio: '11:00', horaFin: '13:00' },
+        ocupaciones
+      );
+      expect(sinConflicto.hayConflicto).toBe(false);
+    });
+
+    it('resta las horas ocupadas de las franjas disponibles para no mostrarlas como disponibles', () => {
+      const disponibilidades = [
+        { id: 1, fecha: '2026-11-10', horaInicio: '08:00', horaFin: '18:00' },
+      ];
+      const ocupaciones = [
+        { fecha: '2026-11-10', horaInicio: '10:00', horaFin: '12:00', eventoNombre: 'Seminario' },
+      ];
+
+      const efectivas = obtenerFranjasDisponiblesEfectivas(disponibilidades, ocupaciones);
+      expect(efectivas).toHaveLength(2);
+      expect(efectivas[0]).toMatchObject({
+        fecha: '2026-11-10',
+        horaInicio: '08:00',
+        horaFin: '10:00',
+      });
+      expect(efectivas[1]).toMatchObject({
+        fecha: '2026-11-10',
+        horaInicio: '12:00',
+        horaFin: '18:00',
+      });
     });
   });
 });

@@ -1,13 +1,14 @@
 /**
  * @file salaService.js
- * @description Cliente de la API de salas y disponibilidad horaria (HU-20).
+ * @description Cliente de la API de salas y disponibilidad horaria (HU-20) y programación (HU-21).
  * Trabaja solo con el backend real; los errores se propagan para que la vista los muestre.
- * Base: /api/v1/eventos/{eventoId}/salas y /api/v1/eventos/{eventoId}/ponentes/{personaId}/disponibilidad.
- * Toda sala pertenece a un evento (salas.evento_id es obligatorio), por eso cada operación recibe el evento.
+ * Base: /api/v1/eventos/{eventoId}/salas, /api/v1/eventos/{eventoId}/ponentes/{personaId}/disponibilidad
+ * y /api/v1/eventos/{eventoId}/actividades.
  * @module api/salaService
  */
 import { httpClient } from './httpClient';
 import { listarConferencistas } from './conferencistaService';
+import { actividadService } from './actividadService';
 import {
   aFranjasApi,
   aSalaRequest,
@@ -15,13 +16,6 @@ import {
   normalizarPonenteApi,
   normalizarSalaApi,
 } from '../features/salas/salaUtils';
-
-/** Error para funciones que la interfaz ofrece pero el backend todavía no implementa. */
-function noDisponible(funcion) {
-  const err = new Error(`${funcion} aún no está disponible: el backend no tiene este servicio.`);
-  err.codigo = 'NO_DISPONIBLE';
-  return err;
-}
 
 /** Convierte la respuesta de actualización de disponibilidad al formato de la interfaz. */
 function normalizarActualizacion(data) {
@@ -33,8 +27,88 @@ function normalizarActualizacion(data) {
 }
 
 export const salaService = {
-  /** El backend todavía no tiene endpoints de actividades (programación). */
-  soportaActividades: false,
+  /** Soporta programación y consumo de actividades mediante ActividadController (HU-21). */
+  soportaActividades: true,
+
+  /**
+   * Consulta todas las salas institucionales globales del catálogo (desvinculadas o reutilizables).
+   * GET /api/v1/salas
+   */
+  async listarSalasGlobales() {
+    const { data } = await httpClient.get('/salas');
+    return (Array.isArray(data) ? data : []).map(normalizarSalaApi);
+  },
+
+  /**
+   * Crea una nueva sala institucional independiente en el catálogo.
+   * POST /api/v1/salas
+   */
+  async crearSalaGlobal(datos = {}) {
+    const { data } = await httpClient.post('/salas', aSalaRequest(datos));
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Detalle de una sala institucional por ID.
+   * GET /api/v1/salas/{salaId}
+   */
+  async obtenerSalaGlobal(salaId) {
+    const { data } = await httpClient.get(`/salas/${salaId}`);
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Actualiza una sala institucional independiente.
+   * PUT /api/v1/salas/{salaId}
+   */
+  async actualizarSalaGlobal(salaId, datos) {
+    const { data } = await httpClient.put(`/salas/${salaId}`, aSalaRequest(datos));
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Elimina una sala del catálogo institucional (si no tiene actividades programadas).
+   * DELETE /api/v1/salas/{salaId}
+   */
+  async eliminarSalaGlobal(salaId) {
+    await httpClient.delete(`/salas/${salaId}`);
+  },
+
+  /**
+   * Actualiza la disponibilidad de una sala institucional.
+   * PUT /api/v1/salas/{salaId}/disponibilidad
+   */
+  async guardarDisponibilidadSalaGlobal(salaId, franjas) {
+    const { data } = await httpClient.put(`/salas/${salaId}/disponibilidad`, aFranjasApi(franjas));
+    return normalizarActualizacion(data);
+  },
+
+  /**
+   * Consulta los horarios ocupados por actividades o eventos en una sala.
+   * GET /api/v1/salas/{salaId}/ocupaciones
+   */
+  async obtenerOcupacionesSala(salaId, fecha = null) {
+    const params = fecha ? { fecha } : {};
+    const { data } = await httpClient.get(`/salas/${salaId}/ocupaciones`, { params });
+    return Array.isArray(data) ? data : [];
+  },
+
+  /**
+   * Vincula una sala existente del catálogo institucional a un evento.
+   * POST /api/v1/eventos/{eventoId}/salas/vincular/{salaId}
+   */
+  async vincularSalaEvento(eventoId, salaId) {
+    const { data } = await httpClient.post(`/eventos/${eventoId}/salas/vincular/${salaId}`);
+    return normalizarSalaApi(data);
+  },
+
+  /**
+   * Desvincula una sala de un evento específico sin eliminarla del catálogo general.
+   * DELETE /api/v1/eventos/{eventoId}/salas/{salaId}/desvincular
+   */
+  async desvincularSalaEvento(eventoId, salaId) {
+    await httpClient.delete(`/eventos/${eventoId}/salas/${salaId}/desvincular`);
+  },
 
   /**
    * Lista las salas de un evento.
@@ -48,6 +122,37 @@ export const salaService = {
   },
 
   /**
+   * Consulta todas las salas registradas en el catálogo institucional.
+   */
+  async listarTodasLasSalas(eventos = []) {
+    try {
+      const globales = await this.listarSalasGlobales();
+      if (Array.isArray(globales) && globales.length > 0) {
+        return globales;
+      }
+    } catch {
+      // Continuar con fallback si el backend no tuviera el endpoint disponible
+    }
+    if (!eventos || eventos.length === 0) return [];
+    const resultados = await Promise.allSettled(
+      eventos.map((e) => this.listarSalas(e.id))
+    );
+    const todas = [];
+    const idsVistos = new Set();
+    resultados.forEach((res) => {
+      if (res.status === 'fulfilled' && Array.isArray(res.value)) {
+        res.value.forEach((sala) => {
+          if (!idsVistos.has(sala.id)) {
+            idsVistos.add(sala.id);
+            todas.push(sala);
+          }
+        });
+      }
+    });
+    return todas;
+  },
+
+  /**
    * Detalle de una sala.
    * GET /api/v1/eventos/{eventoId}/salas/{salaId}
    */
@@ -57,7 +162,7 @@ export const salaService = {
   },
 
   /**
-   * Registra una sala en el evento, con su disponibilidad inicial.
+   * Registra una sala en el evento, con su disponibilidad inicial (Criterio 1).
    * POST /api/v1/eventos/{eventoId}/salas
    */
   async crearSala(eventoId, datos = {}) {
@@ -123,16 +228,25 @@ export const salaService = {
     return normalizarActualizacion(data);
   },
 
-  /** Sin backend todavía: no hay actividades que listar. */
-  async listarActividades() {
-    return [];
+  /**
+   * Conectado con ActividadController (GET /api/v1/eventos/{eventoId}/actividades).
+   */
+  async listarActividades(eventoId, fecha = null) {
+    if (!eventoId) return [];
+    return actividadService.listarActividades(eventoId, fecha);
   },
 
-  async programarActividad() {
-    throw noDisponible('La programación de actividades');
+  /**
+   * Conectado con ActividadController (POST /api/v1/eventos/{eventoId}/actividades).
+   */
+  async programarActividad(eventoId, datos) {
+    return actividadService.crearActividad(eventoId, datos);
   },
 
-  async eliminarActividad() {
-    throw noDisponible('La eliminación de actividades');
+  /**
+   * Conectado con ActividadController (DELETE /api/v1/eventos/{eventoId}/actividades/{actividadId}).
+   */
+  async eliminarActividad(eventoId, actividadId) {
+    return actividadService.eliminarActividad(eventoId, actividadId);
   },
 };
