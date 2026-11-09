@@ -62,20 +62,20 @@ export default function ResultadoEvaluacionModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-resultado-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink-900/60 backdrop-blur-xs overflow-y-auto"
     >
-      <div className="bg-white rounded-[16px] border border-[#e5e7ea] shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-[16px] border border-border shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Encabezado */}
-        <div className="bg-[#f7f7f8] border-b border-[#e5e7ea] px-6 py-4 flex items-center justify-between">
+        <div className="bg-surface-muted border-b border-border px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#a6192e] block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
                 HU-17 • Resultado Consolidado
               </span>
-              <h2 id="modal-resultado-title" className="font-serif-title text-xl text-[#1f2023] leading-snug">
+              <h2 id="modal-resultado-title" className="font-serif-title text-xl text-ink-900 leading-snug">
                 Puntuación Ponderada
               </h2>
             </div>
@@ -84,33 +84,33 @@ export default function ResultadoEvaluacionModal({
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal"
-            className="p-1.5 rounded-lg text-[#5b5f66] hover:bg-white hover:text-[#1f2023] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-ink-600 hover:bg-white hover:text-ink-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Cuerpo */}
-        <div className="p-6 space-y-5 text-sm text-[#1f2023]">
+        <div className="p-6 space-y-5 text-sm text-ink-900">
           {/* Título de la propuesta */}
           <div>
-            <span className="text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-ink-600 uppercase tracking-wider block">
               Propuesta Académica Evaluada
             </span>
-            <p className="font-serif-title text-base text-[#1f2023] font-bold mt-0.5">
+            <p className="font-serif-title text-base text-ink-900 font-bold mt-0.5">
               {propuestaTitulo || resultado?.propuestaTitulo || `Propuesta #${propuestaId}`}
             </p>
           </div>
 
           {cargando && (
-            <div className="py-12 text-center text-[#5b5f66]">
-              <div className="w-8 h-8 border-3 border-[#a6192e] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="py-12 text-center text-ink-600">
+              <div className="w-8 h-8 border-3 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-xs font-semibold">Consultando estado de evaluaciones...</p>
             </div>
           )}
 
           {!cargando && error && (
-            <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-xs">
+            <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-xs">
               <p className="font-bold">Error al consultar resultado</p>
               <p className="mt-0.5">{error}</p>
             </div>
@@ -118,23 +118,23 @@ export default function ResultadoEvaluacionModal({
 
           {/* Criterio 3: Propuesta con evaluaciones pendientes */}
           {!cargando && !error && !estaCompleto && (
-            <div className="p-5 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] space-y-3">
+            <div className="p-5 rounded-[12px] bg-brand-100 border border-brand-600 space-y-3">
               <div className="flex items-start gap-3">
-                <Clock className="w-6 h-6 text-[#b54708] shrink-0 mt-0.5" />
+                <Clock className="w-6 h-6 text-brand-700 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-sm text-[#b54708]">
+                  <h4 className="font-bold text-sm text-brand-700">
                     Evaluación Incompleta (Criterio 3)
                   </h4>
-                  <p className="text-xs text-[#7a2e05] mt-1 leading-relaxed">
+                  <p className="text-xs text-brand-700 mt-1 leading-relaxed">
                     Esta propuesta tiene evaluaciones pendientes por parte de los demás miembros del comité asignados. El sistema no genera un resultado definitivo hasta que todas las evaluaciones hayan sido enviadas.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3 bg-white rounded-[8px] border border-[#fedf89]/60 text-xs text-[#5b5f66] flex items-center justify-between">
+              <div className="p-3 bg-white rounded-[8px] border border-border text-xs text-ink-600 flex items-center justify-between">
                 <span>Estado del dictamen:</span>
-                <span className="font-bold text-[#b54708] inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#b54708] animate-pulse" />
+                <span className="font-bold text-brand-700 inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-brand-600 animate-pulse" />
                   En proceso de arbitraje
                 </span>
               </div>
@@ -144,13 +144,13 @@ export default function ResultadoEvaluacionModal({
           {/* Criterio 1: Todas las evaluaciones completas y puntuación calculada */}
           {!cargando && !error && estaCompleto && (
             <div className="space-y-4">
-              <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea] text-center space-y-2">
-                <span className="text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider block">
+              <div className="p-5 rounded-[12px] bg-surface-muted border border-border text-center space-y-2">
+                <span className="text-[10px] font-bold text-ink-600 uppercase tracking-wider block">
                   Puntuación Ponderada Final (Rúbrica)
                 </span>
-                <p className="font-serif-title text-4xl text-[#a6192e] font-bold">
+                <p className="font-serif-title text-4xl text-brand-600 font-bold">
                   {formatearPuntuacion(resultado?.puntuacionPonderada)}
-                  <span className="text-base text-[#5b5f66] font-normal"> / 10.0</span>
+                  <span className="text-base text-ink-600 font-normal"> / 10.0</span>
                 </p>
 
                 <div className="pt-2">
@@ -163,7 +163,7 @@ export default function ResultadoEvaluacionModal({
                 </div>
               </div>
 
-              <div className="p-4 rounded-[12px] bg-[#ecfdf3] border border-[#a6f4c5] text-[#027a48] text-xs space-y-1">
+              <div className="p-4 rounded-[12px] bg-surface-muted border border-border text-ink-900 text-xs space-y-1">
                 <p className="font-bold flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>Proceso de evaluación completado (Criterio 1)</span>
@@ -174,7 +174,7 @@ export default function ResultadoEvaluacionModal({
               </div>
 
               {resultado?.fechaCalculo && (
-                <div className="flex items-center justify-between text-xs text-[#5b5f66] pt-1 border-t border-[#e5e7ea]">
+                <div className="flex items-center justify-between text-xs text-ink-600 pt-1 border-t border-border">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     Fecha de consolidación:
@@ -187,7 +187,7 @@ export default function ResultadoEvaluacionModal({
         </div>
 
         {/* Pie */}
-        <div className="bg-[#f7f7f8] border-t border-[#e5e7ea] px-6 py-4 flex justify-end">
+        <div className="bg-surface-muted border-t border-border px-6 py-4 flex justify-end">
           <Button type="button" variant="primary" size="sm" onClick={onClose}>
             Entendido
           </Button>

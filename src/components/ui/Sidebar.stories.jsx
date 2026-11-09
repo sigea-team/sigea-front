@@ -66,7 +66,7 @@ export const Interactive = {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
-      <div className="h-screen bg-[#edeeef] flex">
+      <div className="h-screen bg-surface-page flex">
         <Sidebar
           activeItem={active}
           onSelectNav={(id) => setActive(id)}

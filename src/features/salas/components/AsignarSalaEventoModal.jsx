@@ -178,7 +178,7 @@ export default function AsignarSalaEventoModal({
     >
       <form onSubmit={handleConfirmar} className="space-y-4">
         {error && (
-          <div className="p-3.5 rounded-[10px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-xs">
+          <div className="p-3.5 rounded-[10px] bg-brand-100 border border-brand-600 text-brand-700 text-xs">
             {error}
           </div>
         )}
@@ -194,7 +194,7 @@ export default function AsignarSalaEventoModal({
             required
           />
           {salasDisponibles.length === 0 && (
-            <p className="text-[11px] text-[#5b5f66] mt-1">
+            <p className="text-[11px] text-ink-600 mt-1">
               No hay salas registradas en el catálogo. Primero crea una sala con el botón «Crear sala».
             </p>
           )}
@@ -202,13 +202,13 @@ export default function AsignarSalaEventoModal({
 
         {/* 2. Detalle y Horarios de la Sala Elegida */}
         {salaSeleccionada && (
-          <div className="p-3.5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea] space-y-3">
+          <div className="p-3.5 rounded-[12px] bg-surface-muted border border-border space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h4 className="font-semibold text-sm text-[#1f2023]">{salaSeleccionada.nombre}</h4>
+                <h4 className="font-semibold text-sm text-ink-900">{salaSeleccionada.nombre}</h4>
                 {salaSeleccionada.ubicacion && (
-                  <p className="text-xs text-[#5b5f66] flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#a6192e] shrink-0" />
+                  <p className="text-xs text-ink-600 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3.5 h-3.5 text-brand-600 shrink-0" />
                     <span>{salaSeleccionada.ubicacion}</span>
                   </p>
                 )}
@@ -216,9 +216,9 @@ export default function AsignarSalaEventoModal({
               <TipoSalaBadge tipo={salaSeleccionada.tipo} />
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#e5e7ea]/60 text-xs">
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border text-xs">
               <AforoBadge aforo={salaSeleccionada.aforoMaximo} />
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-white border border-[#e5e7ea] text-[#5b5f66]">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-white border border-border text-ink-600">
                 <Clock className="w-3 h-3" />
                 {franjasEfectivas.length} franjas libres para asignación
               </span>
@@ -226,15 +226,15 @@ export default function AsignarSalaEventoModal({
 
             {/* Eventos a los que ya pertenece */}
             {salaSeleccionada.eventosVinculados?.length > 0 && (
-              <div className="pt-2 border-t border-[#e5e7ea]/60 text-xs text-[#5b5f66]">
-                <span className="font-medium text-[#1f2023] block mb-1">
+              <div className="pt-2 border-t border-border text-xs text-ink-600">
+                <span className="font-medium text-ink-900 block mb-1">
                   Eventos a los que ya está vinculada:
                 </span>
                 <div className="flex flex-wrap gap-1">
                   {salaSeleccionada.eventosVinculados.map((ev) => (
                     <span
                       key={ev.id}
-                      className="px-2 py-0.5 rounded bg-white border border-[#e5e7ea] text-[11px] text-[#1f2023]"
+                      className="px-2 py-0.5 rounded bg-white border border-border text-[11px] text-ink-900"
                     >
                       {ev.nombre}
                     </span>
@@ -245,7 +245,7 @@ export default function AsignarSalaEventoModal({
 
             {/* Aviso de horarios ocupados */}
             {salaSeleccionada.ocupaciones?.length > 0 && (
-              <div className="p-2.5 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/20 text-xs text-[#7a0c1e] space-y-1">
+              <div className="p-2.5 rounded-[8px] bg-brand-100 border border-brand-600 text-xs text-brand-700 space-y-1">
                 <span className="font-semibold flex items-center gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                   Horarios ya asignados a otros eventos (no disponibles):
@@ -275,15 +275,15 @@ export default function AsignarSalaEventoModal({
             required
           />
           {yaEstaVinculada && (
-            <p className="text-[11px] text-amber-700 mt-1 font-medium">
+            <p className="text-[11px] text-brand-700 mt-1 font-medium">
               Nota: La sala «{salaSeleccionada?.nombre}» ya está vinculada a este evento. Puedes reservar un nuevo horario a continuación.
             </p>
           )}
         </div>
 
         {/* 4. Reserva Opcional de Horario Inicial */}
-        <div className="p-3.5 rounded-[12px] bg-white border border-[#e5e7ea] space-y-3">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#1f2023]">
+        <div className="p-3.5 rounded-[12px] bg-white border border-border space-y-3">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-ink-900">
             <input
               type="checkbox"
               checked={reservarHorario}
@@ -295,13 +295,13 @@ export default function AsignarSalaEventoModal({
                   setHoraFinReserva(franjasEfectivas[0].horaFin);
                 }
               }}
-              className="rounded text-[#a6192e] focus:ring-[#a6192e]"
+              className="rounded text-brand-600 focus:ring-brand-600"
             />
             <span>Asignar fecha y horario específico de una vez para este evento (opcional)</span>
           </label>
 
           {reservarHorario && (
-            <div className="space-y-3 pt-2 border-t border-[#e5e7ea]">
+            <div className="space-y-3 pt-2 border-t border-border">
               <div>
                 <Input
                   id="reserva-nombre-actividad"
@@ -341,8 +341,8 @@ export default function AsignarSalaEventoModal({
 
               {/* Franjas sugeridas libres */}
               {franjasEfectivas.length > 0 && (
-                <div className="text-[11px] text-[#5b5f66]">
-                  <span className="font-medium text-[#1f2023] block mb-1">
+                <div className="text-[11px] text-ink-600">
+                  <span className="font-medium text-ink-900 block mb-1">
                     Franjas libres recomendadas de la sala:
                   </span>
                   <div className="flex flex-wrap gap-1">
@@ -355,7 +355,7 @@ export default function AsignarSalaEventoModal({
                           setHoraInicioReserva(f.horaInicio);
                           setHoraFinReserva(f.horaFin);
                         }}
-                        className="px-2 py-0.5 rounded bg-[#f7f7f8] border border-[#e5e7ea] hover:border-[#a6192e] hover:text-[#a6192e] transition-colors"
+                        className="px-2 py-0.5 rounded bg-surface-muted border border-border hover:border-brand-600 hover:text-brand-600 transition-colors"
                       >
                         {f.fecha} ({formatearHora(f.horaInicio)} - {formatearHora(f.horaFin)})
                       </button>

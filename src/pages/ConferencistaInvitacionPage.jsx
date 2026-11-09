@@ -72,12 +72,12 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
   let contenido;
   if (completado) {
     contenido = (
-      <div className="p-8 rounded-[16px] bg-white border border-[#e5e7ea] text-center space-y-3">
-        <div className="w-14 h-14 mx-auto rounded-full bg-[#e8f5ee] text-[#1d6b45] flex items-center justify-center">
+      <div className="p-8 rounded-[16px] bg-white border border-border text-center space-y-3">
+        <div className="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-600 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7" />
         </div>
-        <h2 className="font-serif-title text-2xl text-[#1f2023]">¡Listo, {completado.nombreCompleto}!</h2>
-        <p className="text-sm text-[#5b5f66] max-w-lg mx-auto leading-relaxed">
+        <h2 className="font-serif-title text-2xl text-ink-900">¡Listo, {completado.nombreCompleto}!</h2>
+        <p className="text-sm text-ink-600 max-w-lg mx-auto leading-relaxed">
           Tus datos quedaron registrados y ya eres conferencista de <strong>{completado.eventoNombre}</strong>. El
           organizador verá tu perfil y lo usará en la agenda, el material de difusión y la certificación.
         </p>
@@ -85,7 +85,7 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
           {completado.vistaPublicaDisponible && (
             <Link
               to={`/eventos/${completado.eventoId}/conferencistas-publicos`}
-              className="h-10 px-4 rounded-[8px] bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
+              className="h-10 px-4 rounded-[8px] bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Ver cómo aparezco en el evento
@@ -93,13 +93,13 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
           )}
           <Link
             to="/login"
-            className="h-10 px-4 rounded-[8px] border border-[#d8dadf] text-sm font-medium text-[#1f2023] hover:bg-[#f7f7f8] inline-flex items-center gap-2 transition-colors"
+            className="h-10 px-4 rounded-[8px] border border-field-border text-sm font-medium text-ink-900 hover:bg-surface-muted inline-flex items-center gap-2 transition-colors"
           >
             <LogIn className="w-4 h-4" />
             Ir a SIGEA
           </Link>
         </div>
-        <p className="text-xs text-[#5b5f66] max-w-lg mx-auto">
+        <p className="text-xs text-ink-600 max-w-lg mx-auto">
           {completado.cuentaCreada
             ? 'Tu cuenta quedó creada. Para actualizar tu trayectoria, ingresa a SIGEA con tu correo y la contraseña que acabas de crear, eligiendo el perfil «Conferencista».'
             : 'Para actualizar tu trayectoria, ingresa a SIGEA con tu cuenta eligiendo el perfil «Conferencista».'}
@@ -108,34 +108,34 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
     );
   } else if (!actual) {
     contenido = (
-      <p className="py-12 text-center text-sm text-[#5b5f66]" role="status">
+      <p className="py-12 text-center text-sm text-ink-600" role="status">
         Cargando tu invitación...
       </p>
     );
   } else if (actual.error) {
     contenido = (
-      <div className="p-8 rounded-[16px] bg-white border border-[#e5e7ea] text-center space-y-2" role="alert">
-        <div className="w-14 h-14 mx-auto rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center">
+      <div className="p-8 rounded-[16px] bg-white border border-border text-center space-y-2" role="alert">
+        <div className="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-600 flex items-center justify-center">
           <Link2Off className="w-6 h-6" />
         </div>
-        <h2 className="font-serif-title text-2xl text-[#1f2023]">{actual.error.titulo}</h2>
-        <p className="text-sm text-[#5b5f66] max-w-lg mx-auto leading-relaxed">{actual.error.detalle}</p>
+        <h2 className="font-serif-title text-2xl text-ink-900">{actual.error.titulo}</h2>
+        <p className="text-sm text-ink-600 max-w-lg mx-auto leading-relaxed">{actual.error.detalle}</p>
       </div>
     );
   } else {
     contenido = (
       <>
-        <div className="p-5 rounded-[16px] bg-[#fdecec] border border-[#a6192e]/20">
-          <p className="text-sm text-[#1f2023] leading-relaxed">
+        <div className="p-5 rounded-[16px] bg-brand-100 border border-brand-600">
+          <p className="text-sm text-ink-900 leading-relaxed">
             Hola <strong>{invitacion.nombre}</strong>, el Programa de Ingeniería de Sistemas te invitó como conferencista
             de <strong>{invitacion.eventoNombre}</strong>. Registra tus datos de contacto y tu trayectoria académica y
             profesional: se usarán en la agenda, el material de difusión y la certificación del evento.
           </p>
-          <p className="text-xs text-[#7a0c1e] mt-2">
+          <p className="text-xs text-brand-700 mt-2">
             Este enlace es personal y vence el {conPunto(formatoVencimiento.format(new Date(invitacion.fechaExpiracion)))}
           </p>
         </div>
-        <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-6">
+        <div className="bg-white rounded-[16px] border border-border p-6">
           <ConferencistaForm
             modo="invitacion"
             formInicial={formularioDesdeInvitacion(invitacion)}
@@ -153,30 +153,30 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#f7f7f8] text-[#1f2023] font-sans antialiased">
-      <header className="h-16 px-8 bg-white border-b border-[#e5e7ea] flex items-center shrink-0">
+    <div className="min-h-screen w-full flex flex-col bg-surface-muted text-ink-900 font-sans antialiased">
+      <header className="h-16 px-8 bg-white border-b border-border flex items-center shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#a6192e] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center">
             <span className="text-white font-bold text-[11px] tracking-tight">UFPS</span>
           </div>
           <div className="leading-tight">
-            <p className="text-base font-bold text-[#a6192e]">SIGEA</p>
-            <p className="text-[11px] text-[#5b5f66]">Sistema Integral de Gestión de Eventos Académicos</p>
+            <p className="text-base font-bold text-brand-600">SIGEA</p>
+            <p className="text-[11px] text-ink-600">Sistema Integral de Gestión de Eventos Académicos</p>
           </div>
         </div>
       </header>
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-8 py-10 space-y-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
             <Mic className="w-3.5 h-3.5" />
             Invitación como conferencista
           </span>
-          <h1 className="font-serif-title text-3xl text-[#1f2023] mt-1 tracking-tight">
+          <h1 className="font-serif-title text-3xl text-ink-900 mt-1 tracking-tight">
             {invitacion?.eventoNombre || completado?.eventoNombre || 'Registro de conferencista'}
           </h1>
           {invitacion && (
-            <p className="text-sm text-[#5b5f66] mt-1 flex items-center gap-1.5">
+            <p className="text-sm text-ink-600 mt-1 flex items-center gap-1.5">
               <CalendarDays className="w-4 h-4" />
               {formatearRango(invitacion.fechaInicio, invitacion.fechaFin)}
               {invitacion.semestre ? ` · Semestre ${invitacion.semestre}` : ''}

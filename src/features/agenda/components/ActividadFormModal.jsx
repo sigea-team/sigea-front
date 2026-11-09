@@ -163,19 +163,19 @@ export default function ActividadFormModal({
         icon: 'warning',
         title: '¡Conflicto de programación detectado!',
         html: `
-          <div class="text-left text-xs text-[#1f2023] space-y-2.5">
-            <p class="font-medium text-sm text-[#a6192e]">
+          <div class="text-left text-xs text-ink-900 space-y-2.5">
+            <p class="font-medium text-sm text-brand-600">
               La actividad genera los siguientes cruces no planificados:
             </p>
-            <ul class="list-disc list-inside space-y-1.5 bg-[#fdf2f2] p-3 rounded-lg border border-red-200 text-[#7a0c1e]">
+            <ul class="list-disc list-inside space-y-1.5 bg-brand-100 p-3 rounded-lg border border-brand-600 text-brand-700">
               ${chequeoConflicto.motivos.map((m) => `<li>${m}</li>`).join('')}
             </ul>
-            <div class="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-[11px]">
+            <div class="p-2.5 rounded-lg bg-surface-muted border border-border text-ink-900 text-[11px]">
               <span class="font-semibold">💡 Nota de ayuda (Criterio 3):</span>
               Si se trata de actividades paralelas intencionales (ej. talleres simultáneos),
               márquelas como simultáneas y asegúrese de que utilicen salas y ponentes diferentes.
             </div>
-            <p class="text-xs text-[#5b5f66] mt-2">
+            <p class="text-xs text-ink-600 mt-2">
               ¿Deseas guardar de todos modos con esta advertencia o prefieres corregir los datos?
             </p>
           </div>
@@ -228,12 +228,12 @@ export default function ActividadFormModal({
           icon: 'warning',
           title: 'Advertencia de disponibilidad horaria',
           html: `
-            <div class="text-left text-xs text-[#1f2023] space-y-2">
-              <p class="font-medium text-amber-900">${error.message}</p>
-              <ul class="list-disc list-inside text-amber-800 space-y-1 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+            <div class="text-left text-xs text-ink-900 space-y-2">
+              <p class="font-medium text-brand-700">${error.message}</p>
+              <ul class="list-disc list-inside text-brand-700 space-y-1 bg-brand-100 p-2.5 rounded-lg border border-brand-600">
                 ${(error.advertencias || []).map((a) => `<li>${a.mensaje}</li>`).join('')}
               </ul>
-              <p class="mt-2 text-[#5b5f66]">¿Deseas confirmar la programación de la actividad aceptando estas advertencias?</p>
+              <p class="mt-2 text-ink-600">¿Deseas confirmar la programación de la actividad aceptando estas advertencias?</p>
             </div>
           `,
           showCancelButton: true,
@@ -273,9 +273,9 @@ export default function ActividadFormModal({
           icon: 'error',
           title: 'Cruce no planificado en la agenda',
           html: `
-            <div class="text-left text-xs text-[#1f2023] space-y-2">
-              <p class="font-medium text-red-600">${error.message}</p>
-              <ul class="list-disc list-inside text-red-800 space-y-1 bg-red-50 p-2.5 rounded-lg border border-red-200">
+            <div class="text-left text-xs text-ink-900 space-y-2">
+              <p class="font-medium text-brand-700">${error.message}</p>
+              <ul class="list-disc list-inside text-brand-700 space-y-1 bg-brand-100 p-2.5 rounded-lg border border-brand-600">
                 ${(error.conflictos || []).map((c) => `<li><strong>${c.tipo}:</strong> ${c.mensaje}</li>`).join('')}
               </ul>
             </div>
@@ -379,7 +379,7 @@ export default function ActividadFormModal({
         {/* Fecha y Horario (Criterio 4) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Fecha de inicio *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Fecha de inicio *</label>
             <input
               type="date"
               value={form.fecha}
@@ -388,14 +388,14 @@ export default function ActividadFormModal({
                 if (errores.fecha) setErrores((prev) => ({ ...prev, fecha: null }));
               }}
               className={`w-full text-xs h-9 px-2.5 rounded-lg border ${
-                errores.fecha ? 'border-red-500 bg-red-50/30' : 'border-[#d8dadf] bg-white'
-              } focus:outline-none focus:ring-2 focus:ring-[#a6192e]`}
+                errores.fecha ? 'border-brand-600 bg-brand-100' : 'border-field-border bg-white'
+              } focus:outline-none focus:ring-2 focus:ring-brand-600`}
             />
-            {errores.fecha && <p className="text-xs text-red-600 mt-1">{errores.fecha}</p>}
+            {errores.fecha && <p className="text-xs text-brand-700 mt-1">{errores.fecha}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora de inicio *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Hora de inicio *</label>
             <input
               type="time"
               value={form.horaInicio}
@@ -404,14 +404,14 @@ export default function ActividadFormModal({
                 if (errores.horaInicio) setErrores((prev) => ({ ...prev, horaInicio: null }));
               }}
               className={`w-full text-xs h-9 px-2.5 rounded-lg border ${
-                errores.horaInicio ? 'border-red-500 bg-red-50/30' : 'border-[#d8dadf] bg-white'
-              } focus:outline-none focus:ring-2 focus:ring-[#a6192e]`}
+                errores.horaInicio ? 'border-brand-600 bg-brand-100' : 'border-field-border bg-white'
+              } focus:outline-none focus:ring-2 focus:ring-brand-600`}
             />
-            {errores.horaInicio && <p className="text-xs text-red-600 mt-1">{errores.horaInicio}</p>}
+            {errores.horaInicio && <p className="text-xs text-brand-700 mt-1">{errores.horaInicio}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora de fin *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Hora de fin *</label>
             <input
               type="time"
               value={form.horaFin}
@@ -420,10 +420,10 @@ export default function ActividadFormModal({
                 if (errores.horaFin) setErrores((prev) => ({ ...prev, horaFin: null }));
               }}
               className={`w-full text-xs h-9 px-2.5 rounded-lg border ${
-                errores.horaFin ? 'border-red-500 bg-red-50/30' : 'border-[#d8dadf] bg-white'
-              } focus:outline-none focus:ring-2 focus:ring-[#a6192e]`}
+                errores.horaFin ? 'border-brand-600 bg-brand-100' : 'border-field-border bg-white'
+              } focus:outline-none focus:ring-2 focus:ring-brand-600`}
             />
-            {errores.horaFin && <p className="text-xs text-red-600 mt-1">{errores.horaFin}</p>}
+            {errores.horaFin && <p className="text-xs text-brand-700 mt-1">{errores.horaFin}</p>}
           </div>
         </div>
 
@@ -442,7 +442,7 @@ export default function ActividadFormModal({
               error={errores.salaId}
             />
             {salaSeleccionada && (
-              <p className="text-[11px] text-[#5b5f66] mt-1">
+              <p className="text-[11px] text-ink-600 mt-1">
                 Ubicación: {salaSeleccionada.ubicacion || 'No especificada'} • Aforo: {salaSeleccionada.aforoMaximo || 'N/D'} personas.
               </p>
             )}
@@ -457,7 +457,7 @@ export default function ActividadFormModal({
               options={opcionesPonentes}
             />
             {ponenteSeleccionado && (
-              <p className="text-[11px] text-[#5b5f66] mt-1">
+              <p className="text-[11px] text-ink-600 mt-1">
                 {ponenteSeleccionado.especialidad
                   ? `Especialidad: ${ponenteSeleccionado.especialidad}`
                   : `Correo: ${ponenteSeleccionado.correo || 'Registrado'}`}
@@ -467,21 +467,21 @@ export default function ActividadFormModal({
         </div>
 
         {/* Casilla de Actividad Simultánea Intencional (Criterio 3) */}
-        <div className="p-3.5 rounded-xl border border-[#e5e7ea] bg-[#fafbfc] hover:bg-white transition-colors">
+        <div className="p-3.5 rounded-xl border border-border bg-surface-muted hover:bg-white transition-colors">
           <label className="flex items-start gap-3 cursor-pointer select-none">
             <input
               type="checkbox"
               id="permite-simultaneidad-check"
               checked={form.permiteSimultaneidad}
               onChange={(e) => setForm((p) => ({ ...p, permiteSimultaneidad: e.target.checked }))}
-              className="mt-1 w-4 h-4 rounded border-[#d8dadf] text-[#a6192e] focus:ring-[#a6192e]"
+              className="mt-1 w-4 h-4 rounded border-field-border text-brand-600 focus:ring-brand-600"
             />
             <div className="text-xs">
-              <span className="font-semibold text-[#1f2023] flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#a6192e]" />
+              <span className="font-semibold text-ink-900 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-brand-600" />
                 Permitir simultaneidad intencional (Criterio 3)
               </span>
-              <p className="text-[#5b5f66] text-[11px] mt-0.5 leading-relaxed">
+              <p className="text-ink-600 text-[11px] mt-0.5 leading-relaxed">
                 Marca esta opción si esta actividad se realiza en paralelo con otras (p. ej. sesiones simultáneas o talleres temáticos al mismo tiempo).
                 El sistema no alertará de cruce de horario entre actividades marcadas como simultáneas, validando que no compartan sala ni ponente.
               </p>
@@ -491,7 +491,7 @@ export default function ActividadFormModal({
 
         {/* Descripción o notas */}
         <div>
-          <label className="block text-xs font-semibold text-[#1f2023] mb-1">
+          <label className="block text-xs font-semibold text-ink-900 mb-1">
             Descripción o temario de la actividad (opcional)
           </label>
           <textarea
@@ -499,7 +499,7 @@ export default function ActividadFormModal({
             value={form.descripcion}
             onChange={(e) => setForm((p) => ({ ...p, descripcion: e.target.value }))}
             placeholder="Breve resumen de objetivos, requerimientos técnicos o público objetivo..."
-            className="w-full text-xs p-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+            className="w-full text-xs p-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
           />
         </div>
       </form>

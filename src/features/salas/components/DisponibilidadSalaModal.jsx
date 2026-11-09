@@ -39,13 +39,13 @@ export default function DisponibilidadSalaModal({
         icon: 'warning',
         title: '¿Confirmar cambio de disponibilidad?',
         html: `
-          <div class="text-left text-sm text-[#1f2023] space-y-2">
+          <div class="text-left text-sm text-ink-900 space-y-2">
             <p>
               Al actualizar la disponibilidad de <strong>${sala.nombre}</strong>,
               <strong>${conflictoActividades.actividadesEnConflicto.length} actividad(es)</strong>
               programada(s) quedarán fuera del horario disponible registrado.
             </p>
-            <ul class="list-disc list-inside text-xs text-[#a6192e] font-medium space-y-1">
+            <ul class="list-disc list-inside text-xs text-brand-600 font-medium space-y-1">
               ${conflictoActividades.actividadesEnConflicto
                 .map(
                   (a) =>
@@ -55,7 +55,7 @@ export default function DisponibilidadSalaModal({
                 )
                 .join('')}
             </ul>
-            <p class="text-xs text-[#5b5f66] mt-2">
+            <p class="text-xs text-ink-600 mt-2">
               ¿Deseas guardar los cambios de todas formas? Deberás reprogramar las actividades en conflicto.
             </p>
           </div>

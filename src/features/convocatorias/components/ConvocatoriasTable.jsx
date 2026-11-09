@@ -54,11 +54,11 @@ export default function ConvocatoriasTable({
   const columnasTotales = 4;
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
               <th scope="col" className="py-3.5 px-5">Convocatoria / Evento</th>
               <th scope="col" className="py-3.5 px-5">Periodo de recepción</th>
               <th scope="col" className="py-3.5 px-5">Estado</th>
@@ -66,10 +66,10 @@ export default function ConvocatoriasTable({
               {isAdmin && <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+          <tbody className="divide-y divide-border text-sm text-ink-900">
             {cargando && convocatorias.length === 0 && (
               <tr>
-                <td colSpan={columnasTotales} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
+                <td colSpan={columnasTotales} className="py-12 px-5 text-center text-ink-600" role="status">
                   Cargando convocatorias...
                 </td>
               </tr>
@@ -78,12 +78,12 @@ export default function ConvocatoriasTable({
             {!cargando && convocatorias.length === 0 && (
               <tr>
                 <td colSpan={columnasTotales} className="py-12 px-5 text-center">
-                  <p className="font-semibold text-base text-[#1f2023]">
+                  <p className="font-semibold text-base text-ink-900">
                     {hayFiltros
                       ? 'Ninguna convocatoria coincide con los criterios de búsqueda'
                       : 'Todavía no hay convocatorias registradas'}
                   </p>
-                  <p className="text-xs mt-1 text-[#5b5f66]">
+                  <p className="text-xs mt-1 text-ink-600">
                     {hayFiltros
                       ? 'Prueba con otros términos o cambia el filtro de estado.'
                       : isAdmin
@@ -102,27 +102,27 @@ export default function ConvocatoriasTable({
               const validacionClasificacion = puedeGestionarClasificacion(convocatoria);
 
               return (
-                <tr key={convocatoria.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                <tr key={convocatoria.id} className="hover:bg-surface-muted transition-colors">
                   {/* Convocatoria y evento */}
                   <td className="py-4 px-5 align-middle max-w-sm">
-                    <p className="font-semibold text-[#1f2023] leading-snug">{convocatoria.titulo}</p>
-                    <p className="text-xs text-[#a6192e] font-medium mt-1">
+                    <p className="font-semibold text-ink-900 leading-snug">{convocatoria.titulo}</p>
+                    <p className="text-xs text-brand-600 font-medium mt-1">
                       {convocatoria.eventoNombre}
                     </p>
-                    <p className="text-xs text-[#5b5f66] mt-1 line-clamp-2">
+                    <p className="text-xs text-ink-600 mt-1 line-clamp-2">
                       {convocatoria.descripcion}
                     </p>
                   </td>
 
                   {/* Periodo de recepción */}
-                  <td className="py-4 px-5 align-middle whitespace-nowrap text-xs text-[#1f2023]">
+                  <td className="py-4 px-5 align-middle whitespace-nowrap text-xs text-ink-900">
                     <div className="space-y-1">
                       <p>
-                        <span className="text-[#5b5f66]">Apertura:</span>{' '}
+                        <span className="text-ink-600">Apertura:</span>{' '}
                         <strong>{formatearFechaHora(convocatoria.fechaApertura)}</strong>
                       </p>
                       <p>
-                        <span className="text-[#5b5f66]">Cierre:</span>{' '}
+                        <span className="text-ink-600">Cierre:</span>{' '}
                         <strong>{formatearFechaHora(convocatoria.fechaCierre)}</strong>
                       </p>
                     </div>
@@ -155,7 +155,7 @@ export default function ConvocatoriasTable({
                           </>
                         ) : (
                           <>
-                            <Lock className="w-3.5 h-3.5 text-[#a6192e]" />
+                            <Lock className="w-3.5 h-3.5 text-brand-600" />
                             <span>Recepción cerrada</span>
                           </>
                         )}

@@ -24,8 +24,8 @@ import {
 function DatoHeredado({ etiqueta, valor }) {
   return (
     <div>
-      <dt className="text-xs text-[#5b5f66]">{etiqueta}</dt>
-      <dd className={`text-sm mt-0.5 ${valor ? 'text-[#1f2023]' : 'text-[#9ca0a6]'}`}>{valor || 'Sin registrar'}</dd>
+      <dt className="text-xs text-ink-600">{etiqueta}</dt>
+      <dd className={`text-sm mt-0.5 ${valor ? 'text-ink-900' : 'text-ink-300'}`}>{valor || 'Sin registrar'}</dd>
     </div>
   );
 }
@@ -106,8 +106,8 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
       }
     >
       <form id="nueva-edicion-form" onSubmit={guardar} noValidate className="space-y-5">
-        <section aria-labelledby="heredado-titulo" className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-          <h3 id="heredado-titulo" className="text-sm font-semibold text-[#1f2023]">
+        <section aria-labelledby="heredado-titulo" className="p-4 rounded-[12px] bg-surface-muted border border-border">
+          <h3 id="heredado-titulo" className="text-sm font-semibold text-ink-900">
             Se copia del evento origen
           </h3>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 mt-3">
@@ -120,7 +120,7 @@ export default function NuevaEdicionModal({ isOpen, origen, onClose, onSubmit })
               <DatoHeredado etiqueta="Descripción" valor={origen.descripcion} />
             </div>
           </dl>
-          <p className="text-xs text-[#5b5f66] mt-4 pt-3 border-t border-[#e5e7ea] leading-relaxed">
+          <p className="text-xs text-ink-600 mt-4 pt-3 border-t border-border leading-relaxed">
             El comité, el presupuesto, las convocatorias y demás información del evento origen no se copian.
             La edición queda en configuración, así que después puedes ajustar cualquiera de estos datos con Editar.
           </p>

@@ -27,7 +27,7 @@ import {
  * @module features/conferencistas/components/ConferencistaForm
  */
 
-const SECCION = 'text-xs font-bold uppercase tracking-wider text-[#5b5f66]';
+const SECCION = 'text-xs font-bold uppercase tracking-wider text-ink-600';
 
 /**
  * @param {Object} props
@@ -202,7 +202,7 @@ export default function ConferencistaForm({
         <section className="space-y-4">
           <div>
             <h3 className={SECCION}>Tu cuenta en SIGEA</h3>
-            <p className="text-xs text-[#5b5f66] mt-1">
+            <p className="text-xs text-ink-600 mt-1">
               Con tu correo y esta contraseña podrás ingresar con el perfil «Conferencista» para actualizar tu
               trayectoria cuando quieras.
             </p>
@@ -247,19 +247,19 @@ export default function ConferencistaForm({
       {!esInvitacion && perfil?.participaciones?.length > 0 && (
         <section className="space-y-3">
           <h3 className={SECCION}>Participaciones en eventos del Programa</h3>
-          <ul className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white">
+          <ul className="divide-y divide-border rounded-[12px] border border-border bg-white">
             {perfil.participaciones.map((p) => (
               <li key={p.participacionId} className="px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#1f2023] truncate">{p.eventoNombre}</p>
-                  <p className="text-xs text-[#5b5f66]">
+                  <p className="text-sm font-semibold text-ink-900 truncate">{p.eventoNombre}</p>
+                  <p className="text-xs text-ink-600">
                     {etiquetaParticipacion(p.tipoParticipacion)}
                     {p.tema ? ` · ${p.tema}` : ''} · {formatearFecha(p.fechaInicio)}
                   </p>
                 </div>
                 <EstadoEventoBadge estado={p.estadoEvento} />
                 {p.visiblePublicamente && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f5ee] text-[#1d6b45] border border-[#bfe3cf]">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 text-brand-600 border border-border">
                     <Globe className="w-3 h-3" />
                     En la vista pública
                   </span>
@@ -267,7 +267,7 @@ export default function ConferencistaForm({
               </li>
             ))}
           </ul>
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             La trayectoria es una sola por conferencista: al guardar, el cambio se refleja en la vista pública de
             todos los eventos marcados.
           </p>
@@ -275,12 +275,12 @@ export default function ConferencistaForm({
       )}
 
       {errorGeneral && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}
 
-      <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#e5e7ea]">
+      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
         {onCancelar && (
           <Button type="button" variant="outline" onClick={onCancelar} disabled={guardando}>
             Cancelar

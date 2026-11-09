@@ -52,7 +52,7 @@ Toda pantalla interna/autenticada de SIGEA se construye sobre un esqueleto de ap
 
 2. **Área Principal de Contenido (Derecha):**
    - **Barra Superior (Topbar):** Altura `64px`, fondo `surface`, borde inferior `border`. Muestra el título de la vista actual (en `Public Sans` 600) y controles rápidos de perfil/notificaciones.
-   - **Área Central (`<main>`):** Fondo `surface-muted`, padding de `32px`. Contiene las tarjetas blancas (`surface`, `radius-lg` 16px, borde `border`, padding `24px` a `48px`) propias de la historia de usuario.
+   - **Área Central (`<main>`):** Fondo `white` (`surface`), padding de `24px` a `32px` (`p-6 sm:p-8`). Muestra directamente el contenido de la pantalla sin envolverlo en un contenedor redondeado flotante con márgenes grises. Las tarjetas internas de contenido pueden usar `surface` con `radius-lg` 16px y borde `border`.
    - **Footer Global de Aplicación:** Ubicado en la parte inferior del área de contenido. Fondo `surface`, borde superior `border`, padding `16px 32px`. Texto en `ink-600` (`Public Sans` 14px): "Programa de Ingeniería de Sistemas — Universidad Francisco de Paula Santander (UFPS) Cúcuta ©".
 
 3. **Comportamiento Responsivo:**

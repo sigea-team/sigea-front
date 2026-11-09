@@ -195,7 +195,7 @@ export default function ConvocatoriaFormModal({
             value={form.fechaApertura}
             onChange={(e) => handleChange('fechaApertura', e.target.value)}
             error={errores.fechaApertura}
-            rightElement={<Calendar className="w-4 h-4 text-[#5b5f66]" />}
+            rightElement={<Calendar className="w-4 h-4 text-ink-600" />}
           />
 
           <Input
@@ -205,7 +205,7 @@ export default function ConvocatoriaFormModal({
             value={form.fechaCierre}
             onChange={(e) => handleChange('fechaCierre', e.target.value)}
             error={errores.fechaCierre}
-            rightElement={<Calendar className="w-4 h-4 text-[#5b5f66]" />}
+            rightElement={<Calendar className="w-4 h-4 text-ink-600" />}
             helperText="Debe ser posterior a la fecha de apertura."
           />
         </div>
@@ -234,8 +234,8 @@ export default function ConvocatoriaFormModal({
           error={errores.requisitos}
         />
 
-        <div className="bg-[#f7f7f8] rounded-[8px] p-3 border border-[#e5e7ea] flex items-start gap-2 text-xs text-[#5b5f66]">
-          <AlertCircle className="w-4 h-4 text-[#a6192e] shrink-0 mt-0.5" />
+        <div className="bg-surface-muted rounded-[8px] p-3 border border-border flex items-start gap-2 text-xs text-ink-600">
+          <AlertCircle className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
           <p>
             Al registrarse, la convocatoria se guardará en <strong>estado borrador</strong>. Podrás editarla
             libremente antes de su divulgación oficial.

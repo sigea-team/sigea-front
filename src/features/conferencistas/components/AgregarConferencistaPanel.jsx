@@ -102,8 +102,8 @@ export default function AgregarConferencistaPanel({ eventoId, api, onVincular, o
       {/* ----- Conferencistas registrados ----- */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-[#1f2023]">Conferencistas registrados</h3>
-          <p className="text-xs text-[#5b5f66] mt-0.5">
+          <h3 className="text-sm font-semibold text-ink-900">Conferencistas registrados</h3>
+          <p className="text-xs text-ink-600 mt-0.5">
             Si ya participó en otro evento, búscalo y vincúlalo: se usará su trayectoria registrada.
           </p>
         </div>
@@ -113,48 +113,48 @@ export default function AgregarConferencistaPanel({ eventoId, api, onVincular, o
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Nombre, documento o correo..."
-          rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+          rightElement={<Search className="w-4 h-4 text-ink-600" />}
           autoComplete="off"
         />
 
-        <div className="rounded-[12px] border border-[#e5e7ea] bg-white max-h-72 overflow-y-auto">
+        <div className="rounded-[12px] border border-border bg-white max-h-72 overflow-y-auto">
           {!actual && (
-            <p className="py-8 text-center text-sm text-[#5b5f66]" role="status">
+            <p className="py-8 text-center text-sm text-ink-600" role="status">
               Buscando conferencistas...
             </p>
           )}
           {actual?.error && (
             <div className="py-8 text-center text-sm">
-              <p className="font-semibold text-[#1f2023]">No se pudo cargar la lista</p>
+              <p className="font-semibold text-ink-900">No se pudo cargar la lista</p>
               <button
                 type="button"
                 onClick={() => setVersion((v) => v + 1)}
-                className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
               >
                 Reintentar
               </button>
             </div>
           )}
           {actual?.lista?.length === 0 && (
-            <p className="py-8 px-4 text-center text-sm text-[#5b5f66]">
+            <p className="py-8 px-4 text-center text-sm text-ink-600">
               {termino
                 ? `Ningún conferencista registrado coincide con «${termino}». Si es nuevo, invítalo abajo.`
                 : 'Todavía no hay conferencistas registrados. Invita al primero abajo.'}
             </p>
           )}
           {actual?.lista?.length > 0 && (
-            <ul className="divide-y divide-[#e5e7ea]">
+            <ul className="divide-y divide-border">
               {actual.lista.map((c) => (
                 <li key={c.personaId} className="px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#f7f7f8] border border-[#e5e7ea] text-[#5b5f66] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-surface-muted border border-border text-ink-600 flex items-center justify-center shrink-0">
                     <UserRound className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#1f2023] truncate">{c.nombreCompleto}</p>
-                    <p className="text-xs text-[#5b5f66] truncate">
+                    <p className="text-sm font-semibold text-ink-900 truncate">{c.nombreCompleto}</p>
+                    <p className="text-xs text-ink-600 truncate">
                       {[c.cargoActual, c.institucion].filter(Boolean).join(' · ') || c.correo}
                     </p>
-                    <p className="text-[11px] text-[#9ca0a6]">
+                    <p className="text-[11px] text-ink-300">
                       {c.tipoDocumento} {c.numeroDocumento}
                       {c.eventosPrevios > 0
                         ? ` · ${c.eventosPrevios} ${c.eventosPrevios === 1 ? 'evento' : 'eventos'}`
@@ -162,7 +162,7 @@ export default function AgregarConferencistaPanel({ eventoId, api, onVincular, o
                     </p>
                   </div>
                   {c.yaAsociadoAlEvento ? (
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#1d6b45] shrink-0">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 shrink-0">
                       <CheckCircle2 className="w-4 h-4" />
                       Ya está en el evento
                     </span>
@@ -180,14 +180,14 @@ export default function AgregarConferencistaPanel({ eventoId, api, onVincular, o
       </section>
 
       {/* ----- Invitar a uno nuevo ----- */}
-      <form onSubmit={invitar} noValidate className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8] space-y-3">
+      <form onSubmit={invitar} noValidate className="p-4 rounded-[12px] border border-border bg-surface-muted space-y-3">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
             <Mail className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-[#1f2023]">¿No está en la lista? Invítalo</h3>
-            <p className="text-xs text-[#5b5f66] mt-0.5">
+            <h3 className="text-sm font-semibold text-ink-900">¿No está en la lista? Invítalo</h3>
+            <p className="text-xs text-ink-600 mt-0.5">
               Solo escribe su nombre y correo. Le llegará un enlace (vigente 3 días) para que registre él mismo su
               documento, teléfono y trayectoria. Al completarlo queda vinculado a este evento.
             </p>
@@ -227,7 +227,7 @@ export default function AgregarConferencistaPanel({ eventoId, api, onVincular, o
         <AvisoCoincidencia coincidencia={coincidencia} onAsociar={coincidencia ? () => onVincular(coincidencia) : undefined} />
 
         {errorGeneral && (
-          <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+          <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
             {errorGeneral}
           </p>
         )}

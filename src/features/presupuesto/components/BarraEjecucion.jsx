@@ -30,17 +30,17 @@ export default function BarraEjecucion({ porcentaje, excedido = false, etiqueta,
         aria-valuemax={100}
         aria-valuenow={Math.round(ancho)}
         aria-valuetext={formatearPorcentaje(valor)}
-        className={`flex-1 ${alto} rounded-full bg-[#edeeef] overflow-hidden`}
+        className={`flex-1 ${alto} rounded-full bg-surface-page overflow-hidden`}
       >
         <div
-          className={`h-full rounded-full transition-[width] duration-500 ${excedido ? 'bg-[#7a0c1e]' : 'bg-[#a6192e]'}`}
+          className={`h-full rounded-full transition-[width] duration-500 ${excedido ? 'bg-brand-700' : 'bg-brand-600'}`}
           style={{ width: `${ancho}%` }}
         />
       </div>
       {mostrarValor && (
         <span
           className={`text-xs font-semibold tabular-nums whitespace-nowrap min-w-[52px] text-right ${
-            excedido ? 'text-[#7a0c1e]' : 'text-[#1f2023]'
+            excedido ? 'text-brand-700' : 'text-ink-900'
           }`}
         >
           {formatearPorcentaje(valor)}

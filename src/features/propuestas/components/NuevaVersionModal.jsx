@@ -140,14 +140,14 @@ export default function NuevaVersionModal({ mia, api, onClose, onCreada }) {
     >
       <div className="space-y-6">
         {mia?.edicionAutorizada && (
-          <p className="text-xs text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3">
+          <p className="text-xs text-ink-600 bg-surface-muted border border-border rounded-[8px] p-3">
             Esta propuesta está en versión definitiva. El administrador autorizó una modificación; la autorización se
             usará al guardar esta versión.
           </p>
         )}
 
         {errorEnvio && (
-          <div className="flex items-start gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] p-3" role="alert">
+          <div className="flex items-start gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] p-3" role="alert">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
             <div>
               <p className="font-semibold">{errorEnvio.titulo}</p>
@@ -164,7 +164,7 @@ export default function NuevaVersionModal({ mia, api, onClose, onCreada }) {
         )}
 
         <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">Datos de la propuesta</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">Datos de la propuesta</h3>
           <Input
             label="Título de la propuesta"
             name="titulo"
@@ -197,21 +197,21 @@ export default function NuevaVersionModal({ mia, api, onClose, onCreada }) {
           />
         </div>
 
-        <div className="space-y-3 pt-2 border-t border-[#e5e7ea]">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">Documentos de la versión actual</h3>
-          {errorCarga && <p className="text-sm text-[#7a0c1e]">{errorCarga}</p>}
+        <div className="space-y-3 pt-2 border-t border-border">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">Documentos de la versión actual</h3>
+          {errorCarga && <p className="text-sm text-brand-700">{errorCarga}</p>}
           {!errorCarga && !documentosActuales && (
-            <p className="text-sm text-[#5b5f66]" role="status">Cargando documentos...</p>
+            <p className="text-sm text-ink-600" role="status">Cargando documentos...</p>
           )}
           {documentosActuales?.length === 0 && (
-            <p className="text-sm text-[#5b5f66]">La versión actual no tiene documentos.</p>
+            <p className="text-sm text-ink-600">La versión actual no tiene documentos.</p>
           )}
           {documentosActuales?.length > 0 && (
             <>
-              <p className="text-xs text-[#5b5f66]">
+              <p className="text-xs text-ink-600">
                 Desmarca los documentos que quieras quitar. Para reemplazar uno, desmárcalo y adjunta el nuevo abajo.
               </p>
-              <ul className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white">
+              <ul className="divide-y divide-border rounded-[12px] border border-border bg-white">
                 {documentosActuales.map((doc) => (
                   <li key={doc.id}>
                     <label className="flex items-center gap-3 px-4 py-2.5 cursor-pointer">
@@ -220,14 +220,14 @@ export default function NuevaVersionModal({ mia, api, onClose, onCreada }) {
                         checked={conservados.includes(doc.id)}
                         onChange={() => alternarConservado(doc.id)}
                         disabled={enviando}
-                        className="w-4 h-4 accent-[#a6192e]"
+                        className="w-4 h-4 accent-brand-600"
                       />
-                      <FileText className="w-4 h-4 text-[#a6192e] shrink-0" aria-hidden="true" />
+                      <FileText className="w-4 h-4 text-brand-600 shrink-0" aria-hidden="true" />
                       <span className="min-w-0 flex-1">
-                        <span className={`block text-sm truncate ${conservados.includes(doc.id) ? 'text-[#1f2023]' : 'text-[#9ca0a6] line-through'}`}>
+                        <span className={`block text-sm truncate ${conservados.includes(doc.id) ? 'text-ink-900' : 'text-ink-300 line-through'}`}>
                           {doc.nombreOriginal}
                         </span>
-                        <span className="block text-xs text-[#5b5f66]">
+                        <span className="block text-xs text-ink-600">
                           {formatearTamano(doc.tamanoBytes)}
                           {doc.principal && ' · principal'}
                         </span>
@@ -251,7 +251,7 @@ export default function NuevaVersionModal({ mia, api, onClose, onCreada }) {
             etiqueta="Documentos nuevos"
           />
           {archivos.length > 0 && (
-            <p className="text-xs text-[#5b5f66]">El primer documento nuevo será el documento principal de la versión.</p>
+            <p className="text-xs text-ink-600">El primer documento nuevo será el documento principal de la versión.</p>
           )}
         </div>
       </div>

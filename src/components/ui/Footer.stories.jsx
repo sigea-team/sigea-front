@@ -7,7 +7,7 @@ export default {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="bg-[#a6192e] p-8 max-w-md rounded-lg">
+      <div className="bg-brand-600 p-8 max-w-md rounded-lg">
         <Story />
       </div>
     ),

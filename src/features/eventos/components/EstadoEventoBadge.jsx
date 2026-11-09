@@ -9,10 +9,10 @@ import { ESTADOS_EVENTO } from '../eventoUtils';
  */
 
 const PUNTO_POR_ESTADO = {
-  en_configuracion: 'bg-[#a6192e]',
-  habilitado: 'bg-[#1f2023]',
-  en_ejecucion: 'bg-[#5b5f66]',
-  cerrado: 'bg-[#9ca0a6]',
+  en_configuracion: 'bg-brand-600',
+  habilitado: 'bg-ink-900',
+  en_ejecucion: 'bg-ink-600',
+  cerrado: 'bg-ink-300',
 };
 
 /**
@@ -24,11 +24,11 @@ export default function EstadoEventoBadge({ estado }) {
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${
         cerrado
-          ? 'bg-[#edeeef] text-[#5b5f66] border-[#d8dadf]'
-          : 'bg-[#f7f7f8] text-[#1f2023] border-[#e5e7ea]'
+          ? 'bg-surface-page text-ink-600 border-field-border'
+          : 'bg-surface-muted text-ink-900 border-border'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${PUNTO_POR_ESTADO[estado] || 'bg-[#9ca0a6]'}`} aria-hidden="true" />
+      <span className={`w-1.5 h-1.5 rounded-full ${PUNTO_POR_ESTADO[estado] || 'bg-ink-300'}`} aria-hidden="true" />
       {ESTADOS_EVENTO[estado] || estado}
     </span>
   );

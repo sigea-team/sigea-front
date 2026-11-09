@@ -12,7 +12,7 @@ export default {
 export const Vacio = () => {
   const [franjas, setFranjas] = useState([]);
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white rounded-[16px] shadow-sm border border-[#e5e7ea]">
+    <div className="max-w-3xl mx-auto p-4 bg-white rounded-[16px] shadow-sm border border-border">
       <CalendarioDisponibilidad
         franjas={franjas}
         ocupaciones={[]}
@@ -53,7 +53,7 @@ export const ConDisponibilidadYOcupaciones = () => {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white rounded-[16px] shadow-sm border border-[#e5e7ea]">
+    <div className="max-w-3xl mx-auto p-4 bg-white rounded-[16px] shadow-sm border border-border">
       <CalendarioDisponibilidad
         franjas={franjas}
         ocupaciones={ocupaciones}

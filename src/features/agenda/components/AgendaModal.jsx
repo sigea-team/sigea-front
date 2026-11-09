@@ -166,8 +166,8 @@ export default function AgendaModal({
                 onClick={() => setVista('timeline')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                   vista === 'timeline'
-                    ? 'bg-[#a6192e] text-white'
-                    : 'bg-[#f2f4f7] text-[#5b5f66] hover:bg-[#e5e7ea]'
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-surface-muted text-ink-600 hover:bg-border'
                 }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -179,8 +179,8 @@ export default function AgendaModal({
                 onClick={() => setVista('tabla')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                   vista === 'tabla'
-                    ? 'bg-[#a6192e] text-white'
-                    : 'bg-[#f2f4f7] text-[#5b5f66] hover:bg-[#e5e7ea]'
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-surface-muted text-ink-600 hover:bg-border'
                 }`}
               >
                 <LayoutList className="w-3.5 h-3.5" />
@@ -225,8 +225,8 @@ export default function AgendaModal({
 
           {/* Contenido principal */}
           {cargando ? (
-            <div className="py-16 text-center text-xs text-[#5b5f66]">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#a6192e]" />
+            <div className="py-16 text-center text-xs text-ink-600">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-600" />
               Cargando cronograma del evento...
             </div>
           ) : vista === 'timeline' ? (

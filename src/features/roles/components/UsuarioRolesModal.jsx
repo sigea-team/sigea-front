@@ -42,19 +42,19 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-roles-usuario"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/60 backdrop-blur-xs"
     >
-      <div className="w-full max-w-lg bg-white rounded-[16px] shadow-2xl border border-[#e5e7ea] flex flex-col max-h-[90vh] overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#e5e7ea] flex items-center justify-between bg-[#f7f7f8]/50">
+      <div className="w-full max-w-lg bg-white rounded-[16px] shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-surface-muted">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
               <UserCog className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h2 id="titulo-roles-usuario" className="font-serif-title text-xl text-[#1f2023] leading-tight truncate">
+              <h2 id="titulo-roles-usuario" className="font-serif-title text-xl text-ink-900 leading-tight truncate">
                 Roles de {usuario.nombreCompleto}
               </h2>
-              <p className="text-xs text-[#5b5f66] mt-0.5 truncate">{usuario.correo}</p>
+              <p className="text-xs text-ink-600 mt-0.5 truncate">{usuario.correo}</p>
             </div>
           </div>
           <button
@@ -62,7 +62,7 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
             onClick={onClose}
             disabled={guardando}
             aria-label="Cerrar"
-            className="p-2 text-[#5b5f66] hover:text-[#1f2023] hover:bg-[#e5e7ea]/60 rounded-full cursor-pointer"
+            className="p-2 text-ink-600 hover:text-ink-900 hover:bg-border rounded-full cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -70,7 +70,7 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
 
         <div className="p-6 overflow-y-auto space-y-4">
           {(errorLocal || errorGuardado) && (
-            <div role="alert" className="p-3 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm">
+            <div role="alert" className="p-3 rounded-[8px] bg-brand-100 border border-brand-600 text-brand-700 text-sm">
               {errorLocal || errorGuardado}
             </div>
           )}
@@ -82,7 +82,7 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
                 <li key={rol.id}>
                   <label
                     className={`flex items-start gap-3 p-3 rounded-[10px] border cursor-pointer transition-colors ${
-                      activo ? 'border-[#a6192e]/40 bg-[#fdecec]/40' : 'border-[#e5e7ea] hover:bg-[#f7f7f8]'
+                      activo ? 'border-brand-600 bg-brand-100' : 'border-border hover:bg-surface-muted'
                     }`}
                   >
                     <input
@@ -95,22 +95,22 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
                     <span
                       aria-hidden="true"
                       className={`mt-0.5 w-5 h-5 shrink-0 rounded-[6px] border flex items-center justify-center ${
-                        activo ? 'bg-[#a6192e] border-[#a6192e] text-white' : 'bg-white border-[#d8dadf]'
+                        activo ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white border-field-border'
                       }`}
                     >
                       {activo && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </span>
                     <span className="min-w-0">
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-[#1f2023]">{rol.nombre}</span>
+                        <span className="text-sm font-semibold text-ink-900">{rol.nombre}</span>
                         {esRolEvaluador(rol) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ecfdf3] text-[#027a48] border border-[#a6f4c5]">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-600 text-surface">
                             <ClipboardCheck className="w-3 h-3" />
                             Habilita Evaluador
                           </span>
                         )}
                       </span>
-                      {rol.descripcion && <span className="block text-xs text-[#5b5f66] mt-0.5">{rol.descripcion}</span>}
+                      {rol.descripcion && <span className="block text-xs text-ink-600 mt-0.5">{rol.descripcion}</span>}
                     </span>
                   </label>
                 </li>
@@ -118,7 +118,7 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
             })}
           </ul>
 
-          <p className="text-xs text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3">
+          <p className="text-xs text-ink-600 bg-surface-muted border border-border rounded-[8px] p-3">
             {quedaraEvaluador
               ? 'Con estos roles el usuario podrá ingresar con el perfil Evaluador.'
               : 'Con estos roles el usuario NO podrá ingresar con el perfil Evaluador.'}{' '}
@@ -126,7 +126,7 @@ export default function UsuarioRolesModal({ usuario, roles = [], onClose, onSave
           </p>
         </div>
 
-        <div className="px-6 py-4 border-t border-[#e5e7ea] bg-[#f7f7f8]/50 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 border-t border-border bg-surface-muted flex items-center justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={guardando}>
             Cancelar
           </Button>

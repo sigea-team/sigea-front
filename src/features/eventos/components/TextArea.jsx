@@ -8,7 +8,7 @@ export default function TextArea({ label, id, value, onChange, placeholder, rows
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-[#1f2023]">
+        <label htmlFor={id} className="text-sm font-medium text-ink-900">
           {label}
         </label>
       )}
@@ -19,22 +19,22 @@ export default function TextArea({ label, id, value, onChange, placeholder, rows
         rows={rows}
         placeholder={placeholder}
         maxLength={maxLength}
-        className={`w-full p-3 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border outline-none transition-colors resize-y ${
+        className={`w-full p-3 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border outline-none transition-colors resize-y ${
           error
-            ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]'
-            : 'border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
+            ? 'border-brand-600 focus:border-brand-700 focus:ring-1 focus:ring-brand-700'
+            : 'border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600'
         }`}
       />
       <div className="flex justify-between gap-3">
         {error ? (
-          <p className="text-xs text-[#7a0c1e] font-medium mt-0.5">{error}</p>
+          <p className="text-xs text-brand-700 font-medium mt-0.5">{error}</p>
         ) : helperText ? (
-          <p className="text-xs text-[#5b5f66] mt-0.5">{helperText}</p>
+          <p className="text-xs text-ink-600 mt-0.5">{helperText}</p>
         ) : (
           <span />
         )}
         {maxLength && (
-          <p className="text-xs text-[#5b5f66] mt-0.5 shrink-0 tabular-nums">
+          <p className="text-xs text-ink-600 mt-0.5 shrink-0 tabular-nums">
             {(value || '').length}/{maxLength}
           </p>
         )}

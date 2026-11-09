@@ -162,14 +162,14 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
         <div
           className={`mb-4 p-3 rounded-[12px] border text-sm ${
             aviso.tipo === 'error'
-              ? 'bg-[#fdecec] border-[#a6192e]/20 text-[#7a0c1e]'
-              : 'bg-[#ecfdf3] border-[#a6f4c5] text-[#05603a]'
+              ? 'bg-brand-100 border-brand-600 text-brand-700'
+              : 'bg-surface-muted border border-border text-ink-900'
           }`}
           role={aviso.tipo === 'error' ? 'alert' : 'status'}
         >
           <p>{aviso.texto}</p>
           {aviso.omitidas?.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs text-[#93370d]" aria-label="Propuestas no clasificadas">
+            <ul className="mt-2 space-y-0.5 text-xs text-brand-700" aria-label="Propuestas no clasificadas">
               {aviso.omitidas.map((o) => (
                 <li key={o.propuestaId}>
                   <strong>{o.titulo}:</strong> {o.motivo}
@@ -188,7 +188,7 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
               setSeleccionadaId(null);
               setAviso(null);
             }}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Volver a las propuestas
@@ -204,12 +204,12 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
         <div className="space-y-5">
           {errorCarga && (
             <div className="py-10 text-center" role="alert">
-              <p className="font-semibold text-[#1f2023]">No se pudo cargar la clasificación</p>
-              <p className="text-xs text-[#5b5f66] mt-1">{errorCarga}</p>
+              <p className="font-semibold text-ink-900">No se pudo cargar la clasificación</p>
+              <p className="text-xs text-ink-600 mt-1">{errorCarga}</p>
               <button
                 type="button"
                 onClick={recargar}
-                className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+                className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
               >
                 Reintentar
               </button>
@@ -217,7 +217,7 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
           )}
 
           {!errorCarga && !datos && (
-            <p className="py-10 text-center text-sm text-[#5b5f66]" role="status">
+            <p className="py-10 text-center text-sm text-ink-600" role="status">
               Cargando clasificación...
             </p>
           )}
@@ -227,19 +227,19 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
               {/* Criterio 1: umbrales de la convocatoria */}
               <section
                 aria-labelledby="umbrales-titulo"
-                className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]/60 space-y-3"
+                className="p-4 rounded-[12px] border border-border bg-surface-muted space-y-3"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h3 id="umbrales-titulo" className="text-sm font-bold text-[#1f2023] flex items-center gap-1.5">
-                      <TrendingUp className="w-4 h-4 text-[#a6192e]" aria-hidden="true" />
+                    <h3 id="umbrales-titulo" className="text-sm font-bold text-ink-900 flex items-center gap-1.5">
+                      <TrendingUp className="w-4 h-4 text-brand-600" aria-hidden="true" />
                       Umbrales de clasificación
                     </h3>
                     {!editandoUmbrales && (
-                      <p className="text-xs text-[#5b5f66] mt-1">
-                        Aceptada desde <strong className="text-[#1f2023]">{formatearPuntuacion(umbrales.umbralAceptacion)}</strong>{' '}
+                      <p className="text-xs text-ink-600 mt-1">
+                        Aceptada desde <strong className="text-ink-900">{formatearPuntuacion(umbrales.umbralAceptacion)}</strong>{' '}
                         · Aceptada con modificaciones desde{' '}
-                        <strong className="text-[#1f2023]">{formatearPuntuacion(umbrales.umbralAjustes)}</strong> · Rechazada
+                        <strong className="text-ink-900">{formatearPuntuacion(umbrales.umbralAjustes)}</strong> · Rechazada
                         por debajo (puntuación de 0 a 10)
                       </p>
                     )}
@@ -299,29 +299,29 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
 
               {propuestas.length === 0 && (
                 <div className="py-10 text-center">
-                  <p className="font-semibold text-[#1f2023]">La convocatoria todavía no tiene propuestas</p>
-                  <p className="text-xs mt-1 text-[#5b5f66]">Aquí aparecerán cuando se envíen y se evalúen.</p>
+                  <p className="font-semibold text-ink-900">La convocatoria todavía no tiene propuestas</p>
+                  <p className="text-xs mt-1 text-ink-600">Aquí aparecerán cuando se envíen y se evalúen.</p>
                 </div>
               )}
 
               {propuestas.length > 0 && gruposVisibles.length === 0 && (
-                <p className="py-8 text-center text-sm text-[#5b5f66]">No hay propuestas en este grupo.</p>
+                <p className="py-8 text-center text-sm text-ink-600">No hay propuestas en este grupo.</p>
               )}
 
               {/* Listado agrupado por resultado */}
               {gruposVisibles.map((grupo) => (
                 <section key={grupo.id} aria-labelledby={`grupo-${grupo.id}`} className="space-y-2">
                   <div className="flex items-baseline gap-2">
-                    <h3 id={`grupo-${grupo.id}`} className="text-sm font-bold text-[#1f2023]">
+                    <h3 id={`grupo-${grupo.id}`} className="text-sm font-bold text-ink-900">
                       {grupo.titulo}
                     </h3>
-                    <span className="text-xs text-[#5b5f66]">{plural(grupo.propuestas.length, 'propuesta')}</span>
+                    <span className="text-xs text-ink-600">{plural(grupo.propuestas.length, 'propuesta')}</span>
                   </div>
-                  {grupo.descripcion && <p className="text-xs text-[#5b5f66]">{grupo.descripcion}</p>}
-                  <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+                  {grupo.descripcion && <p className="text-xs text-ink-600">{grupo.descripcion}</p>}
+                  <div className="overflow-hidden rounded-[12px] border border-border bg-white">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                        <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                           <th scope="col" className="py-2.5 px-4">Propuesta</th>
                           <th scope="col" className="py-2.5 px-4 text-right">Puntuación</th>
                           <th scope="col" className="py-2.5 px-4">Clasificación</th>
@@ -330,7 +330,7 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+                      <tbody className="divide-y divide-border text-sm text-ink-900">
                         {grupo.propuestas.map((p) => (
                           <FilaPropuesta
                             key={p.propuestaId}
@@ -361,10 +361,10 @@ function BotonFiltro({ activo, onClick, children }) {
       type="button"
       onClick={onClick}
       aria-pressed={activo}
-      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
+      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
         activo
-          ? 'bg-[#a6192e] border-[#a6192e] text-white'
-          : 'bg-white border-[#d8dadf] text-[#1f2023] hover:bg-[#f7f7f8]'
+          ? 'bg-brand-600 border-brand-600 text-white'
+          : 'bg-white border-field-border text-ink-900 hover:bg-surface-muted'
       }`}
     >
       {children}
@@ -382,12 +382,12 @@ BotonFiltro.propTypes = {
 function FilaPropuesta({ propuesta: p, onVer }) {
   const reclasificar = requiereReclasificar(p);
   return (
-    <tr className="hover:bg-[#f7f7f8]/50 transition-colors">
+    <tr className="hover:bg-surface-muted transition-colors">
       <td className="py-3 px-4 align-middle max-w-md">
         <p className="font-semibold leading-snug">{p.titulo}</p>
-        {!p.evaluacionCompleta && <p className="text-xs text-[#5b5f66] mt-1">{motivoIncompleta(p)}</p>}
+        {!p.evaluacionCompleta && <p className="text-xs text-ink-600 mt-1">{motivoIncompleta(p)}</p>}
         {reclasificar && (
-          <p className="inline-flex items-center gap-1 text-xs text-[#b54708] mt-1">
+          <p className="inline-flex items-center gap-1 text-xs text-brand-700 mt-1">
             <AlertTriangle className="w-3 h-3" aria-hidden="true" />
             Con los umbrales actuales cambiaría a otra clasificación
           </p>
@@ -401,19 +401,19 @@ function FilaPropuesta({ propuesta: p, onVer }) {
           {p.aplicada ? (
             <ClasificacionBadge clasificacion={p.clasificacion} />
           ) : p.evaluacionCompleta ? (
-            <span className="text-xs text-[#5b5f66]">
+            <span className="text-xs text-ink-600">
               Le corresponde: <ClasificacionBadge clasificacion={p.ajusteManual ? p.clasificacion : p.clasificacionPorUmbrales} />
             </span>
           ) : (
-            <span className="text-xs text-[#9ca0a6]">—</span>
+            <span className="text-xs text-ink-300">—</span>
           )}
           {p.ajusteManual && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#5b5f66]" title="Ajustada manualmente con un motivo">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink-600" title="Ajustada manualmente con un motivo">
               <Pencil className="w-3 h-3" aria-hidden="true" />
               Manual
             </span>
           )}
-          {p.aplicada && !reclasificar && <CheckCircle2 className="w-3.5 h-3.5 text-[#027a48]" aria-label="Aplicada" />}
+          {p.aplicada && !reclasificar && <CheckCircle2 className="w-3.5 h-3.5 text-brand-600" aria-label="Aplicada" />}
         </div>
       </td>
       <td className="py-3 px-4 align-middle text-right">

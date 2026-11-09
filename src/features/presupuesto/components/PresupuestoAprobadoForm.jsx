@@ -100,13 +100,13 @@ export default function PresupuestoAprobadoForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       {/* Criterio 1: Marco de referencia del Presupuesto Preliminar */}
-      <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8] space-y-3">
+      <div className="p-4 rounded-[12px] border border-border bg-surface-muted space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#5b5f66]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-ink-600">
               Referencia preliminar del evento
             </span>
-            <p className="text-sm font-semibold text-[#1f2023] mt-0.5">
+            <p className="text-sm font-semibold text-ink-900 mt-0.5">
               Presupuesto preliminar base: {formatearPesos(totalPreliminar)}
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function PresupuestoAprobadoForm({
             <button
               type="button"
               onClick={handleCopiarPreliminar}
-              className="text-xs font-semibold text-[#a6192e] hover:text-[#7a0c1e] hover:underline cursor-pointer flex items-center gap-1"
+              className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline cursor-pointer flex items-center gap-1"
               title="Copiar el monto total del preliminar en el campo de monto aprobado"
             >
               <Check className="w-3.5 h-3.5" />
@@ -128,10 +128,10 @@ export default function PresupuestoAprobadoForm({
           <div
             className={`text-xs px-3 py-1.5 rounded-[8px] flex items-center gap-2 ${
               comparativa.tipo === 'igual'
-                ? 'bg-[#e8f3ec] text-[#1e6b3a]'
+                ? 'bg-brand-600 text-surface'
                 : comparativa.tipo === 'mayor'
-                ? 'bg-[#fdecec] text-[#7a0c1e]'
-                : 'bg-[#edeeef] text-[#1f2023]'
+                ? 'bg-brand-100 text-brand-700'
+                : 'bg-surface-page text-ink-900'
             }`}
           >
             <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
@@ -141,7 +141,7 @@ export default function PresupuestoAprobadoForm({
       </div>
 
       {errores.general && (
-        <div className="p-3.5 rounded-[8px] bg-[#fdecec] text-[#7a0c1e] text-sm flex items-start gap-2.5">
+        <div className="p-3.5 rounded-[8px] bg-brand-100 text-brand-700 text-sm flex items-start gap-2.5">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{errores.general}</span>
         </div>
@@ -186,16 +186,16 @@ export default function PresupuestoAprobadoForm({
       {/* Criterio 3: Enlace / URL de la Evidencia de Aprobación (OBLIGATORIO) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label htmlFor="evidencia-url" className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+          <label htmlFor="evidencia-url" className="text-sm font-medium text-ink-900 flex items-center gap-1">
             Enlace o URL de la evidencia documental
-            <span className="text-[#a6192e] font-bold">*</span>
+            <span className="text-brand-600 font-bold">*</span>
           </label>
           {form.evidenciaUrl.trim() && (
             <a
               href={form.evidenciaUrl.trim()}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-semibold text-[#a6192e] hover:text-[#7a0c1e] hover:underline inline-flex items-center gap-1"
+              className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline inline-flex items-center gap-1"
               title="Abrir enlace en una pestaña nueva para verificarlo"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -212,16 +212,16 @@ export default function PresupuestoAprobadoForm({
           placeholder="https://archivos.ufps.edu.co/presupuestos/acta-aprobacion-2026.pdf"
           error={errores.evidenciaUrl}
           helperText="Enlace al documento oficial alojado en la nube (Google Drive institucional, OneDrive, SharePoint o repositorio UFPS; máx. 255 caracteres)."
-          rightElement={<LinkIcon className="w-4 h-4 text-[#5b5f66]" />}
+          rightElement={<LinkIcon className="w-4 h-4 text-ink-600" />}
           disabled={deshabilitado || enviando}
         />
       </div>
 
       {/* Criterio 2: Justificación / Motivo del cambio (resaltado en actualización) */}
       <div className="space-y-1.5">
-        <label htmlFor="justificacion-aprobado" className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+        <label htmlFor="justificacion-aprobado" className="text-sm font-medium text-ink-900 flex items-center gap-1">
           {esActualizacion ? 'Motivo o justificación de la actualización' : 'Observaciones o justificación'}
-          {esActualizacion && <span className="text-[#a6192e] font-bold">*</span>}
+          {esActualizacion && <span className="text-brand-600 font-bold">*</span>}
         </label>
         <textarea
           id="justificacion-aprobado"
@@ -234,14 +234,14 @@ export default function PresupuestoAprobadoForm({
               : 'Notas u observaciones adicionales sobre la aprobación formal'
           }
           disabled={deshabilitado || enviando}
-          className={`w-full rounded-[8px] border px-3 py-2 text-sm text-[#1f2023] placeholder-[#9ca0a6] focus:outline-none focus:ring-2 focus:ring-[#a6192e] transition-colors resize-none ${
-            errores.justificacion ? 'border-[#a6192e] bg-[#fdecec]/20' : 'border-[#d8dadf] bg-white'
+          className={`w-full rounded-[8px] border px-3 py-2 text-sm text-ink-900 placeholder-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-600 transition-colors resize-none ${
+            errores.justificacion ? 'border-brand-600 bg-brand-100' : 'border-field-border bg-white'
           }`}
         />
         {errores.justificacion ? (
-          <p className="text-xs text-[#a6192e] font-medium">{errores.justificacion}</p>
+          <p className="text-xs text-brand-600 font-medium">{errores.justificacion}</p>
         ) : (
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             {esActualizacion
               ? 'Este motivo quedará registrado en el historial de cambios vinculado a la nueva versión.'
               : 'Información complementaria visible en el registro de la versión oficial.'}
@@ -250,7 +250,7 @@ export default function PresupuestoAprobadoForm({
       </div>
 
       {/* Botones de acción */}
-      <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#e5e7ea]">
+      <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
         {onCancelar && (
           <Button type="button" variant="outline" onClick={onCancelar} disabled={enviando}>
             Cancelar

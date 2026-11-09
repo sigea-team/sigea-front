@@ -75,21 +75,21 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
   const abiertas = convocatorias.filter((c) => estadoRecepcion(c) === 'abierta').length;
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#f7f7f8] text-[#1f2023] font-sans antialiased">
+    <div className="min-h-screen w-full flex flex-col bg-surface-muted text-ink-900 font-sans antialiased">
       {/* Encabezado público */}
-      <header className="h-16 px-8 bg-white border-b border-[#e5e7ea] flex items-center justify-between shrink-0">
+      <header className="h-16 px-8 bg-white border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#a6192e] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center">
             <span className="text-white font-bold text-[11px] tracking-tight">UFPS</span>
           </div>
           <div className="leading-tight">
-            <p className="text-base font-bold text-[#a6192e]">SIGEA</p>
-            <p className="text-[11px] text-[#5b5f66]">Sistema Integral de Gestión de Eventos Académicos</p>
+            <p className="text-base font-bold text-brand-600">SIGEA</p>
+            <p className="text-[11px] text-ink-600">Sistema Integral de Gestión de Eventos Académicos</p>
           </div>
         </div>
         <Link
           to={conSesion ? '/dashboard' : '/login'}
-          className="h-10 px-4 rounded-[8px] border border-[#d8dadf] text-sm font-medium text-[#1f2023] hover:bg-[#f7f7f8] inline-flex items-center gap-2 transition-colors"
+          className="h-10 px-4 rounded-[8px] border border-field-border text-sm font-medium text-ink-900 hover:bg-surface-muted inline-flex items-center gap-2 transition-colors"
         >
           {conSesion ? <LayoutDashboard className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
           {conSesion ? 'Ir a mi panel' : 'Iniciar sesión'}
@@ -98,12 +98,12 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-8 py-10 space-y-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
             <FileText className="w-3.5 h-3.5" />
             Convocatorias abiertas a la comunidad
           </span>
-          <h1 className="font-serif-title text-3xl text-[#1f2023] mt-1 tracking-tight">Convocatorias académicas</h1>
-          <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+          <h1 className="font-serif-title text-3xl text-ink-900 mt-1 tracking-tight">Convocatorias académicas</h1>
+          <p className="text-sm text-ink-600 mt-1 max-w-2xl">
             Consulta las convocatorias publicadas por el Programa de Ingeniería de Sistemas, sus requisitos y
             fechas límite para el envío de ponencias, pósters y artículos.
           </p>
@@ -117,10 +117,10 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Título, evento o descripción..."
-              rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+              rightElement={<Search className="w-4 h-4 text-ink-600" />}
             />
           </div>
-          <p className="sm:ml-auto text-xs text-[#5b5f66] sm:pb-3">
+          <p className="sm:ml-auto text-xs text-ink-600 sm:pb-3">
             {cargando
               ? 'Cargando...'
               : `${abiertas} ${abiertas === 1 ? 'convocatoria recibiendo' : 'convocatorias recibiendo'} propuestas`}
@@ -128,9 +128,9 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
         </div>
 
         {error && (
-          <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#a6192e] shrink-0" />
+              <Info className="w-4 h-4 text-brand-600 shrink-0" />
               <span>{error}</span>
             </div>
             <button
@@ -145,17 +145,17 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
         )}
 
         {cargando && convocatorias.length === 0 && (
-          <p className="py-12 text-center text-sm text-[#5b5f66]" role="status">
+          <p className="py-12 text-center text-sm text-ink-600" role="status">
             Cargando convocatorias...
           </p>
         )}
 
         {!cargando && !error && visibles.length === 0 && (
-          <div className="py-12 text-center bg-white rounded-[16px] border border-[#e5e7ea]">
-            <p className="font-semibold text-base text-[#1f2023]">
+          <div className="py-12 text-center bg-white rounded-[16px] border border-border">
+            <p className="font-semibold text-base text-ink-900">
               {busqueda.trim() ? 'Ninguna convocatoria coincide con la búsqueda' : 'No hay convocatorias publicadas'}
             </p>
-            <p className="text-xs mt-1 text-[#5b5f66]">
+            <p className="text-xs mt-1 text-ink-600">
               {busqueda.trim() ? 'Prueba con otros términos.' : 'Vuelve pronto: aquí aparecerán las nuevas convocatorias.'}
             </p>
           </div>

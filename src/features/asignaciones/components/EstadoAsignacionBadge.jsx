@@ -8,9 +8,9 @@ import { ESTADOS_ASIGNACION } from '../asignacionUtils';
  */
 
 const ESTILOS = {
-  pendiente: { pill: 'bg-[#f7f7f8] text-[#5b5f66] border-[#d8dadf]', punto: 'bg-[#9ca0a6]' },
-  en_proceso: { pill: 'bg-white text-[#1f2023] border-[#d8dadf]', punto: 'bg-[#a6192e]' },
-  completada: { pill: 'bg-emerald-50 text-emerald-800 border-emerald-200', punto: 'bg-emerald-600' },
+  pendiente: { pill: 'bg-surface-muted text-ink-600 border-field-border', punto: 'bg-ink-300' },
+  en_proceso: { pill: 'bg-white text-ink-900 border-field-border', punto: 'bg-brand-600' },
+  completada: { pill: 'bg-brand-600 text-surface border-transparent', punto: 'bg-surface' },
 };
 
 /**

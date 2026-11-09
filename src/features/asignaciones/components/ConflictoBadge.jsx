@@ -22,7 +22,7 @@ export default function ConflictoBadge({ nivel, detalle }) {
     return (
       <span
         title={detalle || undefined}
-        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#fdecec] text-[#7a0c1e] border border-[#a6192e]/20"
+        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700 border border-brand-600"
       >
         <Ban className="w-3 h-3" aria-hidden="true" />
         Conflicto: no asignable
@@ -33,7 +33,7 @@ export default function ConflictoBadge({ nivel, detalle }) {
     return (
       <span
         title={detalle || undefined}
-        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-[#7a0c1e] border border-[#a6192e]/40"
+        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-brand-700 border border-brand-600"
       >
         <AlertTriangle className="w-3 h-3" aria-hidden="true" />
         Posible conflicto

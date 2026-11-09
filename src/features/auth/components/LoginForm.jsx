@@ -270,32 +270,32 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+    <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
       {/* Encabezado de la tarjeta */}
       <div className="mb-8">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-brand-600 inline-block mb-1.5">
           Bienvenido de nuevo
         </span>
-        <h2 className="font-serif-title text-3xl text-[#1f2023] tracking-tight">
+        <h2 className="font-serif-title text-3xl text-ink-900 tracking-tight">
           Iniciar Sesión
         </h2>
-        <p className="text-sm text-[#5b5f66] mt-1.5 font-normal">
+        <p className="text-sm text-ink-600 mt-1.5 font-normal">
           Ingresa tus credenciales para acceder a la plataforma SIGEA.
         </p>
       </div>
 
       {/* Aviso de sesión expirada o invalidada */}
       {sesionExpirada && !generalError && !bloqueo && (
-        <div className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
-          <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
+        <div className="mb-6 flex items-start gap-3 bg-surface-muted border border-border text-ink-900 text-sm rounded-[8px] px-4 py-3">
+          <Info className="w-5 h-5 text-ink-600 shrink-0 mt-0.5" />
           <p>Tu sesión se cerró porque expiró o porque cambiaron los permisos de tu rol. Inicia sesión nuevamente.</p>
         </div>
       )}
 
       {/* HU-32: contraseña restablecida */}
       {recuperacionExitosa && !sesionExpirada && !generalError && !bloqueo && (
-        <div role="status" className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
-          <Info className="w-5 h-5 text-[#5b5f66] shrink-0 mt-0.5" />
+        <div role="status" className="mb-6 flex items-start gap-3 bg-surface-muted border border-border text-ink-900 text-sm rounded-[8px] px-4 py-3">
+          <Info className="w-5 h-5 text-ink-600 shrink-0 mt-0.5" />
           <p>Tu contraseña fue actualizada. Inicia sesión con tu nueva contraseña.</p>
         </div>
       )}
@@ -307,14 +307,14 @@ export default function LoginForm() {
 
       {/* Alerta de error general / servidor */}
       {generalError && (
-        <div className="mb-6 flex flex-col gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] px-4 py-3">
+        <div className="mb-6 flex flex-col gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] px-4 py-3">
           <p>{generalError}</p>
           {correoPendienteVerificar && (
             <button
               type="button"
               onClick={handleReenviarVerificacion}
               disabled={reenviando}
-              className="self-start text-xs font-semibold text-[#a6192e] hover:underline disabled:opacity-50 cursor-pointer"
+              className="self-start text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50 cursor-pointer"
             >
               {reenviando ? 'Reenviando...' : 'Reenviar enlace de verificación'}
             </button>
@@ -349,7 +349,7 @@ export default function LoginForm() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="hover:text-[#1f2023] focus:outline-none cursor-pointer"
+              className="hover:text-ink-900 focus:outline-none cursor-pointer"
               title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
             >
               {showPassword ? (
@@ -368,7 +368,7 @@ export default function LoginForm() {
 
         {/* Criterio 4: redirección al flujo de recuperación de contraseña */}
         <div className="text-right -mt-2">
-          <Link to="/recuperar-password" className="text-xs font-semibold text-[#a6192e] hover:underline">
+          <Link to="/recuperar-password" className="text-xs font-semibold text-brand-600 hover:underline">
             ¿Olvidaste tu contraseña?
           </Link>
         </div>
@@ -388,9 +388,9 @@ export default function LoginForm() {
         </div>
 
         <div className="text-center pt-2">
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             ¿Aún no tienes una cuenta?{' '}
-            <Link to="/registro" className="text-[#a6192e] font-semibold hover:underline">
+            <Link to="/registro" className="text-brand-600 font-semibold hover:underline">
               Regístrate
             </Link>
           </p>
@@ -398,7 +398,7 @@ export default function LoginForm() {
 
         {/* HU-11 (Criterio 1): acceso a las convocatorias publicadas sin iniciar sesión */}
         <div className="text-center -mt-2">
-          <Link to="/convocatorias-publicas" className="text-xs font-semibold text-[#a6192e] hover:underline">
+          <Link to="/convocatorias-publicas" className="text-xs font-semibold text-brand-600 hover:underline">
             Ver convocatorias abiertas
           </Link>
         </div>

@@ -56,7 +56,6 @@ function App() {
             <Route path="/mis-propuestas" element={<MisPropuestasPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
-            <Route path="/configuracion" element={<CuentaPage />} />
             {/* HU-12: perfil de ingreso «Conferencista»: el conferencista actualiza su trayectoria */}
             <Route path="/mi-perfil-conferencista" element={<MiPerfilConferencistaPage />} />
 

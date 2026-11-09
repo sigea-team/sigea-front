@@ -20,14 +20,14 @@ export default function AvisoCoincidencia({ coincidencia, onAsociar }) {
 
   return (
     <div
-      className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-[12px] border border-[#e9c46a]/60 bg-[#fff8e6] text-[#5c4300]"
+      className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-[12px] border border-border bg-surface-muted text-ink-900"
       role="alert"
     >
-      <UserCheck className="w-5 h-5 shrink-0 text-[#b7791f]" />
+      <UserCheck className="w-5 h-5 shrink-0 text-brand-600" />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#3d2c00]">Este conferencista ya existe en SIGEA</p>
+        <p className="text-sm font-semibold text-ink-900">Este conferencista ya existe en SIGEA</p>
         <p className="text-sm leading-relaxed mt-0.5">{textoCoincidencia(coincidencia)}</p>
-        <p className="text-xs mt-1 text-[#7a5a00]">
+        <p className="text-xs mt-1 text-ink-600">
           {coincidencia.tipoDocumento} {coincidencia.numeroDocumento} · {coincidencia.correo}
         </p>
       </div>
@@ -35,7 +35,7 @@ export default function AvisoCoincidencia({ coincidencia, onAsociar }) {
         <button
           type="button"
           onClick={onAsociar}
-          className="h-10 px-4 shrink-0 rounded-[8px] bg-[#a6192e] text-white text-sm font-medium inline-flex items-center gap-2 hover:bg-[#7a0c1e] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#a6192e]"
+          className="h-10 px-4 shrink-0 rounded-[8px] bg-brand-600 text-white text-sm font-medium inline-flex items-center gap-2 hover:bg-brand-700 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-600"
         >
           <Link2 className="w-4 h-4" />
           Asociar a este evento

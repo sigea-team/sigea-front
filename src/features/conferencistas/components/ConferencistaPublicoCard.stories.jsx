@@ -5,7 +5,7 @@ export default {
   title: 'Features/Conferencistas/ConferencistaPublicoCard',
   component: ConferencistaPublicoCard,
   tags: ['autodocs'],
-  decorators: [(Story) => <div className="max-w-3xl p-6 bg-[#f7f7f8]"><Story /></div>],
+  decorators: [(Story) => <div className="max-w-3xl p-6 bg-surface-muted"><Story /></div>],
 };
 
 const perfil = PERFILES_MOCK[0];

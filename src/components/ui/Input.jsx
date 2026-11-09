@@ -51,9 +51,9 @@ export default function Input({
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id || name} className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+        <label htmlFor={id || name} className="text-sm font-medium text-ink-900 flex items-center gap-1">
           {label}
-          {required && <span className="text-[#a6192e] font-bold">*</span>}
+          {required && <span className="text-brand-600 font-bold">*</span>}
         </label>
       )}
       <div className="relative flex items-center">
@@ -66,26 +66,26 @@ export default function Input({
           onBlur={onBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full h-11 px-3.5 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border transition-colors outline-none
+          className={`w-full h-11 px-3.5 rounded-[8px] bg-surface text-sm text-ink-900 placeholder-ink-300 border transition-colors outline-none
             ${error
-              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]'
-              : 'border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
+              ? 'border-brand-600 focus:border-brand-700 focus:ring-1 focus:ring-brand-700'
+              : 'border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600'
             }
-            ${disabled ? 'bg-[#edeeef] text-[#9ca0a6] cursor-not-allowed' : ''}
+            ${disabled ? 'bg-surface-muted text-ink-300 cursor-not-allowed' : ''}
             ${rightElement ? 'pr-11' : ''}
           `}
           {...props}
         />
         {rightElement && (
-          <div className="absolute right-3 flex items-center text-[#5b5f66]">
+          <div className="absolute right-3 flex items-center text-ink-600">
             {rightElement}
           </div>
         )}
       </div>
       {error ? (
-        <p className="text-xs text-[#7a0c1e] font-medium mt-0.5">{error}</p>
+        <p className="text-xs text-brand-700 font-medium mt-0.5">{error}</p>
       ) : helperText ? (
-        <p className="text-xs text-[#5b5f66] mt-0.5">{helperText}</p>
+        <p className="text-xs text-ink-600 mt-0.5">{helperText}</p>
       ) : null}
     </div>
   );

@@ -151,26 +151,26 @@ export function obtenerConfiguracionClasificacion(clasificacion) {
     case 'aprobada':
       return {
         label: 'Aprobada',
-        color: '#107e3e',
-        badgeClass: 'bg-[#ecfdf3] text-[#027a48] border-[#a6f4c5]',
+        color: '#a6192e',
+        badgeClass: 'bg-brand-600 text-surface border-[#a6f4c5]',
       };
     case 'aprobada_con_ajustes':
       return {
         label: 'Aprobada con Ajustes',
-        color: '#b54708',
-        badgeClass: 'bg-[#fffaeb] text-[#b54708] border-[#fedf89]',
+        color: '#1f2023',
+        badgeClass: 'bg-[#fffaeb] text-brand-700 border-[#fedf89]',
       };
     case 'rechazada':
       return {
         label: 'Rechazada',
-        color: '#b42318',
-        badgeClass: 'bg-[#fef3f2] text-[#b42318] border-[#fecdca]',
+        color: '#7a0c1e',
+        badgeClass: 'bg-[#fef3f2] text-brand-700 border-[#fecdca]',
       };
     default:
       return {
         label: 'Pendiente de Evaluación',
         color: '#5b5f66',
-        badgeClass: 'bg-[#f7f7f8] text-[#5b5f66] border-[#e5e7ea]',
+        badgeClass: 'bg-surface-muted text-ink-600 border-border',
       };
   }
 }

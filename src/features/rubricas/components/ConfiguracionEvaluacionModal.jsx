@@ -66,7 +66,7 @@ export default function ConfiguracionEvaluacionModal({
       }
     >
       <div className="space-y-5">
-        <div role="tablist" aria-label="Configuración de la evaluación" className="flex gap-1 border-b border-[#e5e7ea]">
+        <div role="tablist" aria-label="Configuración de la evaluación" className="flex gap-1 border-b border-border">
           {PESTANAS.map(({ id, etiqueta, icono: Icono }) => {
             const activa = pestana === id;
             return (
@@ -80,10 +80,10 @@ export default function ConfiguracionEvaluacionModal({
                 tabIndex={activa ? 0 : -1}
                 onClick={() => setPestana(id)}
                 onKeyDown={moverConTeclado}
-                className={`-mb-px inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] rounded-t-[8px] ${
+                className={`-mb-px inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-t-[8px] ${
                   activa
-                    ? 'border-[#a6192e] text-[#a6192e]'
-                    : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                    ? 'border-brand-600 text-brand-600'
+                    : 'border-transparent text-ink-600 hover:text-ink-900'
                 }`}
               >
                 <Icono className="w-4 h-4" />

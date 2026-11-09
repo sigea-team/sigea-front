@@ -80,9 +80,9 @@ export default function ProgramarActividadModal({
         icon: 'warning',
         title: '¿Confirmar programación con advertencia?',
         html: `
-          <div class="text-left text-sm text-[#1f2023] space-y-2">
+          <div class="text-left text-sm text-ink-900 space-y-2">
             <p>Se detectaron los siguientes conflictos para esta actividad:</p>
-            <ul class="list-disc list-inside text-xs text-[#a6192e] font-medium space-y-1">
+            <ul class="list-disc list-inside text-xs text-brand-600 font-medium space-y-1">
               ${chequeoConflicto.motivos.map((m) => `<li>${m}</li>`).join('')}
               ${
                 aforoExcedido
@@ -90,7 +90,7 @@ export default function ProgramarActividadModal({
                   : ''
               }
             </ul>
-            <p class="text-xs text-[#5b5f66] mt-2">
+            <p class="text-xs text-ink-600 mt-2">
               ¿Deseas programarla de todas formas con la advertencia registrada?
             </p>
           </div>
@@ -208,7 +208,7 @@ export default function ProgramarActividadModal({
               error={errores.salaId}
             />
             {salaSeleccionada && (
-              <p className="text-[11px] text-[#5b5f66] mt-1">
+              <p className="text-[11px] text-ink-600 mt-1">
                 Disponibilidad: {salaSeleccionada.disponibilidad?.length || 0} franjas registradas.
               </p>
             )}
@@ -223,7 +223,7 @@ export default function ProgramarActividadModal({
               options={opcionesPonentes}
             />
             {ponenteSeleccionado && (
-              <p className="text-[11px] text-[#5b5f66] mt-1">
+              <p className="text-[11px] text-ink-600 mt-1">
                 {ponenteSeleccionado.disponibilidad?.length
                   ? `Disponibilidad: ${ponenteSeleccionado.disponibilidad.length} franjas.`
                   : 'Sin disponibilidad horaria registrada aún.'}
@@ -234,36 +234,36 @@ export default function ProgramarActividadModal({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Fecha *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Fecha *</label>
             <input
               type="date"
               value={form.fecha}
               onChange={(e) => setForm((p) => ({ ...p, fecha: e.target.value }))}
-              className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+              className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
             />
-            {errores.fecha && <p className="text-xs text-red-600 mt-1">{errores.fecha}</p>}
+            {errores.fecha && <p className="text-xs text-brand-700 mt-1">{errores.fecha}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora inicio *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Hora inicio *</label>
             <input
               type="time"
               value={form.horaInicio}
               onChange={(e) => setForm((p) => ({ ...p, horaInicio: e.target.value }))}
-              className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+              className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
             />
-            {errores.horaInicio && <p className="text-xs text-red-600 mt-1">{errores.horaInicio}</p>}
+            {errores.horaInicio && <p className="text-xs text-brand-700 mt-1">{errores.horaInicio}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora fin *</label>
+            <label className="block text-xs font-semibold text-ink-900 mb-1">Hora fin *</label>
             <input
               type="time"
               value={form.horaFin}
               onChange={(e) => setForm((p) => ({ ...p, horaFin: e.target.value }))}
-              className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+              className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
             />
-            {errores.horaFin && <p className="text-xs text-red-600 mt-1">{errores.horaFin}</p>}
+            {errores.horaFin && <p className="text-xs text-brand-700 mt-1">{errores.horaFin}</p>}
           </div>
         </div>
 

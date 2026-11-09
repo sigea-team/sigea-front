@@ -160,12 +160,12 @@ export default function MenuAcciones({ grupos, etiqueta = 'Más', ariaLabel }) {
         aria-label={ariaLabel}
         onClick={() => (abierto ? cerrar() : abrir())}
         onKeyDown={teclaEnBoton}
-        className={`h-9 pl-3.5 pr-2.5 inline-flex items-center gap-1.5 rounded-[8px] border bg-white text-[13px] font-medium text-[#1f2023] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
-          abierto ? 'border-[#a6192e] ring-3 ring-[#fdecec]' : 'border-[#d8dadf] hover:bg-[#f7f7f8]'
+        className={`h-9 pl-3.5 pr-2.5 inline-flex items-center gap-1.5 rounded-[8px] border bg-surface text-[13px] font-medium text-ink-900 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
+          abierto ? 'border-brand-600 ring-2 ring-brand-100' : 'border-field-border hover:bg-surface-muted'
         }`}
       >
         {etiqueta}
-        <ChevronDown className={`w-4 h-4 text-[#5b5f66] transition-transform ${abierto ? 'rotate-180' : ''}`} aria-hidden="true" />
+        <ChevronDown className={`w-4 h-4 text-ink-600 transition-transform ${abierto ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
 
       {abierto &&
@@ -185,13 +185,13 @@ export default function MenuAcciones({ grupos, etiqueta = 'Más', ariaLabel }) {
               overflowY: 'auto',
               transform: posicion.arriba ? 'translateY(-100%)' : undefined,
             }}
-            className="z-[60] bg-white border border-[#e5e7ea] rounded-[12px] p-1.5 shadow-[0_12px_32px_rgba(31,32,35,0.14),0_2px_6px_rgba(31,32,35,0.06)]"
+            className="z-[60] bg-surface border border-border rounded-[12px] p-1.5 shadow-lg"
           >
             {gruposVisibles.map((grupo, i) => (
               <div key={grupo.titulo || i} role="group" aria-label={grupo.titulo}>
-                {i > 0 && <div className="h-px bg-[#e5e7ea] my-1.5 mx-1" role="separator" />}
+                {i > 0 && <div className="h-px bg-border my-1.5 mx-1" role="separator" />}
                 {grupo.titulo && (
-                  <p className="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-[#5b5f66]" aria-hidden="true">
+                  <p className="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-ink-600" aria-hidden="true">
                     {grupo.titulo}
                   </p>
                 )}
@@ -206,16 +206,16 @@ export default function MenuAcciones({ grupos, etiqueta = 'Más', ariaLabel }) {
                       onClick={() => elegir(accion)}
                       className={`w-full flex items-start gap-2.5 px-3 py-2 rounded-[6px] text-left text-sm transition-colors focus:outline-none ${
                         accion.disabled
-                          ? 'text-[#9ca0a6] cursor-not-allowed'
+                          ? 'text-ink-300 cursor-not-allowed'
                           : accion.peligro
-                          ? 'text-[#7a0c1e] hover:bg-[#fdecec] focus:bg-[#fdecec] cursor-pointer'
-                          : 'text-[#1f2023] hover:bg-[#f7f7f8] focus:bg-[#f7f7f8] cursor-pointer'
+                          ? 'text-brand-700 hover:bg-brand-100 focus:bg-brand-100 cursor-pointer'
+                          : 'text-ink-900 hover:bg-surface-muted focus:bg-surface-muted cursor-pointer'
                       }`}
                     >
                       {Icono && (
                         <Icono
                           className={`w-4 h-4 mt-0.5 shrink-0 ${
-                            accion.disabled ? 'text-[#9ca0a6]' : accion.peligro ? 'text-[#a6192e]' : 'text-[#5b5f66]'
+                            accion.disabled ? 'text-ink-300' : accion.peligro ? 'text-brand-600' : 'text-ink-600'
                           }`}
                           aria-hidden="true"
                         />
@@ -223,7 +223,7 @@ export default function MenuAcciones({ grupos, etiqueta = 'Más', ariaLabel }) {
                       <span className="min-w-0">
                         <span className="block">{accion.etiqueta}</span>
                         {accion.disabled && accion.motivo && (
-                          <span className="block text-xs text-[#5b5f66] mt-0.5">{accion.motivo}</span>
+                          <span className="block text-xs text-ink-600 mt-0.5">{accion.motivo}</span>
                         )}
                       </span>
                     </button>

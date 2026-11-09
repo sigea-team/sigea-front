@@ -84,11 +84,11 @@ export default function GastoForm({ rubros, onRegistrar, rubroInicial }) {
     <form
       onSubmit={enviar}
       noValidate
-      className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]"
+      className="p-4 rounded-[12px] border border-border bg-surface-muted"
       aria-label="Registrar gasto ejecutado"
     >
-      <p className="text-sm font-semibold text-[#1f2023]">Registrar gasto</p>
-      <p className="text-xs text-[#5b5f66] mt-0.5">
+      <p className="text-sm font-semibold text-ink-900">Registrar gasto</p>
+      <p className="text-xs text-ink-600 mt-0.5">
         Escribe el valor en pesos, con o sin puntos de miles (350000 o 350.000). El valor 0 es válido y el soporte es opcional.
       </p>
 
@@ -161,19 +161,19 @@ export default function GastoForm({ rubros, onRegistrar, rubroInicial }) {
 
       <div className="mt-3 space-y-2" aria-live="polite">
         {rubro && (
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             «{rubro.nombre}»: ejecutado{' '}
-            <span className="font-semibold text-[#1f2023] tabular-nums">{formatearPesos(rubro.ejecutado)}</span> de{' '}
-            <span className="font-semibold text-[#1f2023] tabular-nums">{formatearPesos(rubro.presupuestado)}</span>.
+            <span className="font-semibold text-ink-900 tabular-nums">{formatearPesos(rubro.ejecutado)}</span> de{' '}
+            <span className="font-semibold text-ink-900 tabular-nums">{formatearPesos(rubro.presupuestado)}</span>.
             Disponible:{' '}
-            <span className={`font-semibold tabular-nums ${Number(rubro.disponible) < 0 ? 'text-[#7a0c1e]' : 'text-[#1f2023]'}`}>
+            <span className={`font-semibold tabular-nums ${Number(rubro.disponible) < 0 ? 'text-brand-700' : 'text-ink-900'}`}>
               {formatearPesos(rubro.disponible)}
             </span>
           </p>
         )}
         {excede && (
-          <p className="flex items-start gap-2 text-xs text-[#1f2023] bg-white border border-[#e5e7ea] rounded-[8px] px-3 py-2">
-            <Info className="w-4 h-4 shrink-0 text-[#5b5f66]" aria-hidden="true" />
+          <p className="flex items-start gap-2 text-xs text-ink-900 bg-white border border-border rounded-[8px] px-3 py-2">
+            <Info className="w-4 h-4 shrink-0 text-ink-600" aria-hidden="true" />
             <span>
               {yaExcedido ? 'El rubro ya supera lo presupuestado. ' : 'Este gasto supera el disponible del rubro. '}
               Con este gasto el rubro quedará{' '}
@@ -185,7 +185,7 @@ export default function GastoForm({ rubros, onRegistrar, rubroInicial }) {
       </div>
 
       {errorGeneral && (
-        <p className="mt-3 text-sm text-[#7a0c1e] bg-[#fdecec] border border-[#a6192e]/20 px-3 py-2 rounded-[8px]" role="alert">
+        <p className="mt-3 text-sm text-brand-700 bg-brand-100 border border-brand-600 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}

@@ -20,10 +20,10 @@ import {
  */
 
 const BOTON_QUITAR =
-  'mt-[26px] w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-[8px] border border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]';
+  'mt-[26px] w-11 h-11 shrink-0 inline-flex items-center justify-center rounded-[8px] border border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600';
 
 const BOTON_AGREGAR =
-  'inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:underline';
+  'inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:underline';
 
 /**
  * @param {Object} props
@@ -94,15 +94,15 @@ export default function TrayectoriaFields({ form, errores, onCambiar, disabled =
       />
 
       {/* ----- Estudios ----- */}
-      <fieldset className="rounded-[12px] border border-[#e5e7ea] p-4">
-        <legend className="px-1.5 text-sm font-semibold text-[#1f2023] flex items-center gap-1.5">
-          <GraduationCap className="w-4 h-4 text-[#a6192e]" />
+      <fieldset className="rounded-[12px] border border-border p-4">
+        <legend className="px-1.5 text-sm font-semibold text-ink-900 flex items-center gap-1.5">
+          <GraduationCap className="w-4 h-4 text-brand-600" />
           Estudios
         </legend>
         {form.estudios.length === 0 && (
-          <p className="text-xs text-[#5b5f66]">Sin estudios registrados. Son opcionales.</p>
+          <p className="text-xs text-ink-600">Sin estudios registrados. Son opcionales.</p>
         )}
-        {errores.estudios && <p className="text-xs text-[#7a0c1e] font-medium">{errores.estudios}</p>}
+        {errores.estudios && <p className="text-xs text-brand-700 font-medium">{errores.estudios}</p>}
         <div className="space-y-3">
           {form.estudios.map((estudio, i) => (
             <div
@@ -174,18 +174,18 @@ export default function TrayectoriaFields({ form, errores, onCambiar, disabled =
       </fieldset>
 
       {/* ----- Publicaciones ----- */}
-      <fieldset className="rounded-[12px] border border-[#e5e7ea] p-4">
-        <legend className="px-1.5 text-sm font-semibold text-[#1f2023] flex items-center gap-1.5">
-          <BookOpen className="w-4 h-4 text-[#a6192e]" />
+      <fieldset className="rounded-[12px] border border-border p-4">
+        <legend className="px-1.5 text-sm font-semibold text-ink-900 flex items-center gap-1.5">
+          <BookOpen className="w-4 h-4 text-brand-600" />
           Publicaciones
         </legend>
         {form.publicaciones.length === 0 && (
-          <p className="text-xs text-[#5b5f66]">Sin publicaciones registradas. Son opcionales.</p>
+          <p className="text-xs text-ink-600">Sin publicaciones registradas. Son opcionales.</p>
         )}
-        {errores.publicaciones && <p className="text-xs text-[#7a0c1e] font-medium">{errores.publicaciones}</p>}
+        {errores.publicaciones && <p className="text-xs text-brand-700 font-medium">{errores.publicaciones}</p>}
         <div className="space-y-4">
           {form.publicaciones.map((pub, i) => (
-            <div key={pub.clave} className="space-y-3 pb-4 border-b border-dashed border-[#e5e7ea] last:border-b-0 last:pb-0">
+            <div key={pub.clave} className="space-y-3 pb-4 border-b border-dashed border-border last:border-b-0 last:pb-0">
               <div className="grid grid-cols-1 sm:grid-cols-[170px_minmax(0,1fr)_auto] items-start gap-3">
                 <Select
                   id={`${idPrefijo}-pub-${i}-tipo`}

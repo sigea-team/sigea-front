@@ -18,18 +18,18 @@ const fechaOTexto = (fecha) => (fecha ? formatearFechaHora(fecha) : 'Sin fecha d
 const ESTILOS_RECEPCION = {
   abierta: {
     texto: 'Recibiendo propuestas',
-    clase: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    punto: 'bg-emerald-600',
+    clase: 'bg-brand-600 text-surface border-transparent',
+    punto: 'bg-surface',
   },
   proxima: {
     texto: 'Próximamente',
-    clase: 'bg-[#f7f7f8] text-[#5b5f66] border-[#d8dadf]',
-    punto: 'bg-[#9ca0a6]',
+    clase: 'bg-surface-muted text-ink-600 border-field-border',
+    punto: 'bg-ink-300',
   },
   cerrada: {
     texto: 'Recepción cerrada',
-    clase: 'bg-[#fdecec] text-[#7a0c1e] border-[#a6192e]/20',
-    punto: 'bg-[#a6192e]',
+    clase: 'bg-brand-100 text-brand-700 border-brand-600',
+    punto: 'bg-brand-600',
   },
 };
 
@@ -48,13 +48,13 @@ export default function ConvocatoriaPublicaCard({ convocatoria, destacada = fals
     <article
       id={`convocatoria-${convocatoria.id}`}
       className={`bg-white rounded-[16px] border p-6 transition-shadow ${
-        destacada ? 'border-[#a6192e] shadow-md ring-2 ring-[#fdecec]' : 'border-[#e5e7ea] shadow-xs'
+        destacada ? 'border-brand-600 shadow-md ring-2 ring-brand-100' : 'border-border shadow-xs'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#a6192e]">{convocatoria.eventoNombre}</p>
-          <h3 className="text-lg font-semibold text-[#1f2023] mt-1 leading-snug">{convocatoria.titulo}</h3>
+          <p className="text-xs font-bold uppercase tracking-wider text-brand-600">{convocatoria.eventoNombre}</p>
+          <h3 className="text-lg font-semibold text-ink-900 mt-1 leading-snug">{convocatoria.titulo}</h3>
         </div>
         <span
           className={`inline-flex items-center self-start px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${estilo.clase}`}
@@ -65,28 +65,28 @@ export default function ConvocatoriaPublicaCard({ convocatoria, destacada = fals
       </div>
 
       {convocatoria.descripcion && (
-        <p className="text-sm text-[#5b5f66] mt-3 leading-relaxed whitespace-pre-line">{convocatoria.descripcion}</p>
+        <p className="text-sm text-ink-600 mt-3 leading-relaxed whitespace-pre-line">{convocatoria.descripcion}</p>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[#1f2023]">
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-900">
         <p className="flex items-center gap-1.5">
-          <CalendarDays className="w-3.5 h-3.5 text-[#5b5f66]" />
-          <span className="text-[#5b5f66]">Apertura:</span>
+          <CalendarDays className="w-3.5 h-3.5 text-ink-600" />
+          <span className="text-ink-600">Apertura:</span>
           <strong>{fechaOTexto(convocatoria.fechaApertura)}</strong>
         </p>
         <p className="flex items-center gap-1.5">
-          <CalendarDays className="w-3.5 h-3.5 text-[#a6192e]" />
-          <span className="text-[#5b5f66]">Fecha límite:</span>
+          <CalendarDays className="w-3.5 h-3.5 text-brand-600" />
+          <span className="text-ink-600">Fecha límite:</span>
           <strong>{fechaOTexto(convocatoria.fechaCierre)}</strong>
         </p>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-[#e5e7ea] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {convocatoria.requisitos ? (
           <button
             type="button"
             onClick={() => setVerRequisitos((v) => !v)}
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[#a6192e] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:underline cursor-pointer"
             aria-expanded={verRequisitos}
           >
             {verRequisitos ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -99,7 +99,7 @@ export default function ConvocatoriaPublicaCard({ convocatoria, destacada = fals
         {recepcion === 'abierta' && (
           <Link
             to={conSesion ? '/dashboard' : '/login'}
-            className="h-10 px-5 rounded-[8px] bg-[#a6192e] text-white text-sm font-medium hover:bg-[#7a0c1e] inline-flex items-center justify-center gap-2 transition-colors"
+            className="h-10 px-5 rounded-[8px] bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 inline-flex items-center justify-center gap-2 transition-colors"
           >
             <Send className="w-4 h-4" />
             {conSesion ? 'Ir a mi panel para postularme' : 'Inicia sesión para postularte'}
@@ -108,9 +108,9 @@ export default function ConvocatoriaPublicaCard({ convocatoria, destacada = fals
       </div>
 
       {verRequisitos && convocatoria.requisitos && (
-        <div className="mt-3 p-4 rounded-[8px] bg-[#f7f7f8] border border-[#e5e7ea]">
-          <p className="text-xs font-semibold text-[#1f2023] mb-1">Requisitos para los autores</p>
-          <p className="text-sm text-[#5b5f66] whitespace-pre-line leading-relaxed">{convocatoria.requisitos}</p>
+        <div className="mt-3 p-4 rounded-[8px] bg-surface-muted border border-border">
+          <p className="text-xs font-semibold text-ink-900 mb-1">Requisitos para los autores</p>
+          <p className="text-sm text-ink-600 whitespace-pre-line leading-relaxed">{convocatoria.requisitos}</p>
         </div>
       )}
     </article>

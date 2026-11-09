@@ -21,29 +21,29 @@ export const GRUPOS = [
   {
     id: 'aprobada',
     titulo: 'Aceptadas',
-    clase: 'bg-[#ecfdf3] text-[#027a48] border-[#a6f4c5]',
+    clase: 'bg-brand-600 text-surface border-transparent',
   },
   {
     id: 'aprobada_con_ajustes',
     titulo: 'Aceptadas con modificaciones',
-    clase: 'bg-[#fffaeb] text-[#b54708] border-[#fedf89]',
+    clase: 'bg-surface-muted text-ink-600 border border-border',
   },
   {
     id: 'rechazada',
     titulo: 'Rechazadas',
-    clase: 'bg-[#fef3f2] text-[#b42318] border-[#fecdca]',
+    clase: 'bg-brand-100 text-brand-700 border-transparent',
   },
   {
     id: 'sin_clasificar',
     titulo: 'Sin clasificar',
     descripcion: 'Evaluación completa; falta aplicar la clasificación.',
-    clase: 'bg-[#eef4ff] text-[#3538cd] border-[#c7d7fe]',
+    clase: 'bg-surface-muted text-ink-600 border border-border',
   },
   {
     id: 'evaluacion_incompleta',
     titulo: 'Evaluación incompleta',
     descripcion: 'No se pueden clasificar hasta completar su evaluación.',
-    clase: 'bg-[#f7f7f8] text-[#5b5f66] border-[#e5e7ea]',
+    clase: 'bg-surface-muted text-ink-600 border-border',
   },
 ];
 

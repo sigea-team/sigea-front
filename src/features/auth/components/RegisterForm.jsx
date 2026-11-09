@@ -316,12 +316,12 @@ export default function RegisterForm() {
         icon: 'success',
         title: '¡Registro Exitoso!',
         html: `
-          <p style="color: #5b5f66; font-size: 14px; margin-bottom: 12px;">
+          <p style="color: var(--ink-600); font-size: 14px; margin-bottom: 12px;">
             ${data.mensaje || 'Se ha registrado la cuenta exitosamente.'}
           </p>
-          <div style="background-color: #f7f7f8; border: 1px solid #e5e7ea; padding: 12px; border-radius: 8px; text-align: left; font-size: 13px; color: #1f2023;">
+          <div style="background-color: var(--surface-muted); border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: left; font-size: 13px; color: var(--ink-900);">
             <p><strong>Correo registrado:</strong> ${data.correo}</p>
-            ${data.requiereVerificacion ? '<p style="color: #a6192e; margin-top: 6px; font-weight: 500;">* Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.</p>' : ''}
+            ${data.requiereVerificacion ? '<p style="color: var(--brand-600); margin-top: 6px; font-weight: 500;">* Recuerde verificar el enlace enviado a su correo antes de iniciar sesión.</p>' : ''}
           </div>
         `,
         confirmButtonText: 'Entendido',
@@ -361,16 +361,16 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+    <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
       {/* Encabezado de la tarjeta */}
       <div className="mb-8">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-brand-600 inline-block mb-1.5">
           Crear cuenta
         </span>
-        <h2 className="font-serif-title text-3xl text-[#1f2023] tracking-tight">
+        <h2 className="font-serif-title text-3xl text-ink-900 tracking-tight">
           Registro de Usuario
         </h2>
-        <p className="text-sm text-[#5b5f66] mt-1.5 font-normal">
+        <p className="text-sm text-ink-600 mt-1.5 font-normal">
           Diligencie la información para participar como asistente, ponente u organizador en SIGEA.
         </p>
       </div>
@@ -486,7 +486,7 @@ export default function RegisterForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="hover:text-[#1f2023] focus:outline-none cursor-pointer"
+                className="hover:text-ink-900 focus:outline-none cursor-pointer"
                 title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
               >
                 {showPassword ? (
@@ -516,7 +516,7 @@ export default function RegisterForm() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="hover:text-[#1f2023] focus:outline-none cursor-pointer"
+                className="hover:text-ink-900 focus:outline-none cursor-pointer"
                 title={showConfirmPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
               >
                 {showConfirmPassword ? (
@@ -535,8 +535,8 @@ export default function RegisterForm() {
         </div>
 
         {/* Requisitos de contraseña */}
-        <p className="text-xs text-[#5b5f66] leading-relaxed bg-[#f7f7f8] p-3 rounded-[8px] border border-[#e5e7ea]">
-          <strong className="text-[#1f2023]">Requisitos de seguridad:</strong> mínimo 8 caracteres, al menos una mayúscula, una minúscula, un dígito numérico y un carácter especial (@$!%*?&._-#).
+        <p className="text-xs text-ink-600 leading-relaxed bg-surface-muted p-3 rounded-[8px] border border-border">
+          <strong className="text-ink-900">Requisitos de seguridad:</strong> mínimo 8 caracteres, al menos una mayúscula, una minúscula, un dígito numérico y un carácter especial (@$!%*?&._-#).
         </p>
 
         {/* Botón de envío */}
@@ -553,9 +553,9 @@ export default function RegisterForm() {
 
         {/* Pie informativo */}
         <div className="text-center pt-2">
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             ¿Ya tienes una cuenta registrada?{' '}
-            <Link to="/login" className="text-[#a6192e] font-semibold hover:underline">
+            <Link to="/login" className="text-brand-600 font-semibold hover:underline">
               Iniciar Sesión
             </Link>
           </p>

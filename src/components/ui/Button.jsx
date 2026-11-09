@@ -36,12 +36,13 @@ export default function Button({
   className = '',
   ...props
 }) {
-  const baseStyles = 'h-11 px-6 rounded-[8px] font-medium text-sm transition-all duration-150 inline-flex items-center justify-center gap-2 select-none cursor-pointer focus:outline-none';
+  const baseStyles = 'h-11 px-6 rounded-[8px] font-medium text-sm transition-all duration-150 inline-flex items-center justify-center gap-2 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2';
 
   const variants = {
-    primary: 'bg-[#a6192e] text-white hover:bg-[#7a0c1e] active:bg-[#600816] disabled:bg-[#d8dadf] disabled:text-[#9ca0a6] disabled:cursor-not-allowed shadow-sm',
-    secondary: 'bg-[#edeeef] text-[#1f2023] hover:bg-[#d8dadf] disabled:opacity-50 disabled:cursor-not-allowed',
-    outline: 'border border-[#d8dadf] text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed',
+    primary: 'bg-brand-600 text-surface hover:bg-brand-700 active:bg-brand-700 disabled:bg-surface-muted disabled:text-ink-300 disabled:border disabled:border-border disabled:cursor-not-allowed shadow-xs',
+    secondary: 'bg-surface text-ink-900 border border-field-border hover:bg-surface-muted active:bg-surface-muted disabled:bg-surface-muted disabled:text-ink-300 disabled:border-border disabled:cursor-not-allowed',
+    outline: 'bg-surface text-ink-900 border border-field-border hover:bg-surface-muted active:bg-surface-muted disabled:bg-surface-muted disabled:text-ink-300 disabled:border-border disabled:cursor-not-allowed',
+    destructive: 'bg-brand-600 text-surface hover:bg-brand-700 active:bg-brand-700 disabled:bg-surface-muted disabled:text-ink-300 disabled:border-border disabled:cursor-not-allowed',
   };
 
   return (

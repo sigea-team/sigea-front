@@ -137,16 +137,16 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <EstadoEventoBadge estado={evento.estado} />
-            <p className="text-sm text-[#5b5f66]" role="status">
+            <p className="text-sm text-ink-600" role="status">
               {resumen}
             </p>
           </div>
-          <label className="flex items-center gap-2 text-sm text-[#1f2023] cursor-pointer select-none">
+          <label className="flex items-center gap-2 text-sm text-ink-900 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={incluirHistorial}
               onChange={(e) => setIncluirHistorial(e.target.checked)}
-              className="w-4 h-4 accent-[#a6192e] cursor-pointer"
+              className="w-4 h-4 accent-brand-600 cursor-pointer"
             />
             Mostrar retirados
           </label>
@@ -155,22 +155,22 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
         {modificable ? (
           <MiembroComiteForm onAgregar={agregar} />
         ) : (
-          <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+          <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 text-brand-700" role="note">
             <Lock className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="text-sm leading-relaxed">{motivoComiteBloqueado(evento)}</p>
           </div>
         )}
 
         {aviso && (
-          <p className="text-sm text-[#1f2023] bg-[#f7f7f8] border border-[#e5e7ea] px-3 py-2 rounded-[8px]" role="status">
+          <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px]" role="status">
             {aviso}
           </p>
         )}
 
-        <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+        <div className="overflow-hidden rounded-[12px] border border-border bg-white">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+              <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                 <th scope="col" className="py-3 px-4">Persona</th>
                 <th scope="col" className="py-3 px-4">Rol en el comité</th>
                 <th scope="col" className="py-3 px-4">Participación</th>
@@ -181,15 +181,15 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+            <tbody className="divide-y divide-border text-sm text-ink-900">
               {errorCarga && (
                 <tr>
                   <td colSpan={modificable ? 4 : 3} className="py-10 px-4 text-center">
-                    <p className="font-semibold text-[#1f2023]">No se pudo cargar el comité</p>
+                    <p className="font-semibold text-ink-900">No se pudo cargar el comité</p>
                     <button
                       type="button"
                       onClick={recargar}
-                      className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                      className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
                     >
                       Reintentar
                     </button>
@@ -199,7 +199,7 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
 
               {!errorCarga && !miembros && (
                 <tr>
-                  <td colSpan={modificable ? 4 : 3} className="py-10 px-4 text-center text-[#5b5f66]" role="status">
+                  <td colSpan={modificable ? 4 : 3} className="py-10 px-4 text-center text-ink-600" role="status">
                     Cargando comité...
                   </td>
                 </tr>
@@ -208,11 +208,11 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
               {!errorCarga && miembros?.length === 0 && (
                 <tr>
                   <td colSpan={modificable ? 4 : 3} className="py-10 px-4 text-center">
-                    <p className="font-semibold text-[#1f2023]">
+                    <p className="font-semibold text-ink-900">
                       {incluirHistorial ? 'Este evento no tiene participaciones registradas' : 'El comité todavía no tiene miembros'}
                     </p>
                     {modificable && (
-                      <p className="text-xs mt-1 text-[#5b5f66]">Agrega al primero con su número de documento.</p>
+                      <p className="text-xs mt-1 text-ink-600">Agrega al primero con su número de documento.</p>
                     )}
                   </td>
                 </tr>
@@ -220,28 +220,28 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
 
               {!errorCarga &&
                 miembros?.map((miembro) => (
-                  <tr key={miembro.id} className={miembro.activo ? '' : 'bg-[#f7f7f8]/60'}>
+                  <tr key={miembro.id} className={miembro.activo ? '' : 'bg-surface-muted'}>
                     <td className="py-3.5 px-4 align-middle">
-                      <p className={`font-semibold ${miembro.activo ? 'text-[#1f2023]' : 'text-[#5b5f66]'}`}>
+                      <p className={`font-semibold ${miembro.activo ? 'text-ink-900' : 'text-ink-600'}`}>
                         {miembro.nombreCompleto}
                       </p>
-                      <p className="text-xs text-[#5b5f66] mt-0.5">
+                      <p className="text-xs text-ink-600 mt-0.5">
                         {miembro.numeroDocumento}
                         {miembro.correo ? `, ${miembro.correo}` : ''}
                       </p>
                     </td>
-                    <td className={`py-3.5 px-4 align-middle ${miembro.activo ? '' : 'text-[#5b5f66]'}`}>
+                    <td className={`py-3.5 px-4 align-middle ${miembro.activo ? '' : 'text-ink-600'}`}>
                       {miembro.rolComite}
                     </td>
                     <td className="py-3.5 px-4 align-middle whitespace-nowrap">
                       {miembro.activo ? (
-                        <span className="text-[#1f2023]">Desde {formatearFecha(soloFecha(miembro.fechaAsignacion))}</span>
+                        <span className="text-ink-900">Desde {formatearFecha(soloFecha(miembro.fechaAsignacion))}</span>
                       ) : (
                         <div>
-                          <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#edeeef] text-[#5b5f66] border border-[#d8dadf]">
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-page text-ink-600 border border-field-border">
                             Retirado
                           </span>
-                          <p className="text-xs text-[#5b5f66] mt-1">
+                          <p className="text-xs text-ink-600 mt-1">
                             {formatearFecha(soloFecha(miembro.fechaAsignacion))} – {formatearFecha(soloFecha(miembro.fechaRetiro))}
                           </p>
                         </div>
@@ -256,7 +256,7 @@ export default function ComiteOrganizadorModal({ isOpen, evento, api, onClose })
                             disabled={retirandoId !== null}
                             title={`Retirar a ${miembro.nombreCompleto} del comité`}
                             aria-label={`Retirar a ${miembro.nombreCompleto} del comité`}
-                            className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                            className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                           >
                             <UserMinus className="w-4 h-4" />
                           </button>

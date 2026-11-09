@@ -232,7 +232,7 @@ export default function ConferencistasModal({ isOpen, evento, api, onClose }) {
     <button
       type="button"
       onClick={() => (vista.tipo === 'asociar' ? setVista({ tipo: 'agregar' }) : volverALista())}
-      className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5b5f66] hover:text-[#1f2023] cursor-pointer mb-5"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 hover:text-ink-900 cursor-pointer mb-5"
     >
       <ArrowLeft className="w-4 h-4" />
       {vista.tipo === 'asociar' ? 'Volver a agregar conferencista' : 'Volver a la lista'}
@@ -263,13 +263,13 @@ export default function ConferencistasModal({ isOpen, evento, api, onClose }) {
     const listo = perfilEdicion?.personaId === vista.personaId;
     if (!listo) {
       contenido = (
-        <p className="py-10 text-center text-sm text-[#5b5f66]" role="status">
+        <p className="py-10 text-center text-sm text-ink-600" role="status">
           Cargando datos del conferencista...
         </p>
       );
     } else if (perfilEdicion.error) {
       contenido = (
-        <p className="p-4 rounded-[12px] bg-[#fdecec] text-sm text-[#7a0c1e]" role="alert">
+        <p className="p-4 rounded-[12px] bg-brand-100 text-sm text-brand-700" role="alert">
           {perfilEdicion.error}
         </p>
       );
@@ -366,7 +366,7 @@ function ListaConferencistas({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <EstadoEventoBadge estado={evento.estado} />
-          <p className="text-sm text-[#5b5f66]" role="status">
+          <p className="text-sm text-ink-600" role="status">
             {conferencistas ? `${total} ${total === 1 ? 'conferencista' : 'conferencistas'}` : 'Cargando conferencistas...'}
           </p>
         </div>
@@ -376,7 +376,7 @@ function ListaConferencistas({
               to={`/eventos/${evento.id}/conferencistas-publicos`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 underline-offset-2 hover:underline"
             >
               <ExternalLink className="w-4 h-4" />
               Ver vista pública
@@ -392,22 +392,22 @@ function ListaConferencistas({
       </div>
 
       {!modificable && (
-        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 text-brand-700" role="note">
           <Lock className="w-4 h-4 mt-0.5 shrink-0" />
           <p className="text-sm leading-relaxed">{motivoAsociacionBloqueada(evento)}</p>
         </div>
       )}
 
       {aviso && (
-        <p className="text-sm text-[#1f2023] bg-[#f7f7f8] border border-[#e5e7ea] px-3 py-2 rounded-[8px]" role="status">
+        <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px]" role="status">
           {aviso}
         </p>
       )}
 
-      <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+      <div className="overflow-hidden rounded-[12px] border border-border bg-white">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
               <th scope="col" className="py-3 px-4">Conferencista</th>
               <th scope="col" className="py-3 px-4">Participación</th>
               <th scope="col" className="py-3 px-4">Trayectoria</th>
@@ -416,15 +416,15 @@ function ListaConferencistas({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+          <tbody className="divide-y divide-border text-sm text-ink-900">
             {errorCarga && (
               <tr>
                 <td colSpan={columnas} className="py-10 px-4 text-center">
-                  <p className="font-semibold text-[#1f2023]">No se pudieron cargar los conferencistas</p>
+                  <p className="font-semibold text-ink-900">No se pudieron cargar los conferencistas</p>
                   <button
                     type="button"
                     onClick={onRecargar}
-                    className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                    className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
                   >
                     Reintentar
                   </button>
@@ -434,7 +434,7 @@ function ListaConferencistas({
 
             {!errorCarga && !conferencistas && (
               <tr>
-                <td colSpan={columnas} className="py-10 px-4 text-center text-[#5b5f66]" role="status">
+                <td colSpan={columnas} className="py-10 px-4 text-center text-ink-600" role="status">
                   Cargando conferencistas...
                 </td>
               </tr>
@@ -443,9 +443,9 @@ function ListaConferencistas({
             {!errorCarga && conferencistas?.length === 0 && (
               <tr>
                 <td colSpan={columnas} className="py-10 px-4 text-center">
-                  <p className="font-semibold text-[#1f2023]">Este evento todavía no tiene conferencistas</p>
+                  <p className="font-semibold text-ink-900">Este evento todavía no tiene conferencistas</p>
                   {modificable && (
-                    <p className="text-xs mt-1 text-[#5b5f66]">
+                    <p className="text-xs mt-1 text-ink-600">
                       Agrega uno de los conferencistas registrados o invita a uno nuevo con su nombre y correo.
                     </p>
                   )}
@@ -457,31 +457,31 @@ function ListaConferencistas({
               conferencistas?.map((c) => (
                 <tr key={c.participacionId}>
                   <td className="py-3.5 px-4 align-top">
-                    <p className="font-semibold text-[#1f2023]">{c.nombreCompleto}</p>
-                    <p className="text-xs text-[#5b5f66] mt-0.5">
+                    <p className="font-semibold text-ink-900">{c.nombreCompleto}</p>
+                    <p className="text-xs text-ink-600 mt-0.5">
                       {c.tipoDocumento} {c.numeroDocumento}
                     </p>
-                    <p className="text-xs text-[#5b5f66]">
+                    <p className="text-xs text-ink-600">
                       {c.correo}
                       {c.telefono ? ` · ${c.telefono}` : ''}
                     </p>
                   </td>
                   <td className="py-3.5 px-4 align-top">
-                    <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#fdecec] text-[#7a0c1e] border border-[#a6192e]/15">
+                    <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 text-brand-700 border border-brand-600">
                       {etiquetaParticipacion(c.tipoParticipacion)}
                     </span>
-                    {c.tema && <p className="text-xs text-[#1f2023] mt-1.5 max-w-[220px]">{c.tema}</p>}
+                    {c.tema && <p className="text-xs text-ink-900 mt-1.5 max-w-[220px]">{c.tema}</p>}
                   </td>
                   <td className="py-3.5 px-4 align-top">
                     {c.tienePerfil ? (
                       <>
-                        <p className="text-[#1f2023]">{[c.cargoActual, c.institucion].filter(Boolean).join(' · ') || 'Biografía registrada'}</p>
-                        <p className="text-xs text-[#5b5f66] mt-0.5">
+                        <p className="text-ink-900">{[c.cargoActual, c.institucion].filter(Boolean).join(' · ') || 'Biografía registrada'}</p>
+                        <p className="text-xs text-ink-600 mt-0.5">
                           Actualizada el {formatearFecha(fechaCorta(c.fechaActualizacionTrayectoria))}
                         </p>
                       </>
                     ) : (
-                      <p className="text-xs text-[#7a0c1e]">Sin trayectoria registrada</p>
+                      <p className="text-xs text-brand-700">Sin trayectoria registrada</p>
                     )}
                   </td>
                   <td className="py-3.5 px-4 align-top">
@@ -491,7 +491,7 @@ function ListaConferencistas({
                         onClick={() => onEditar(c)}
                         title={`Editar datos y trayectoria de ${c.nombreCompleto}`}
                         aria-label={`Editar datos y trayectoria de ${c.nombreCompleto}`}
-                        className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                        className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-field-border text-ink-600 bg-white hover:bg-surface-muted hover:text-ink-900 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -502,7 +502,7 @@ function ListaConferencistas({
                           disabled={ocupadoId !== null}
                           title={`Retirar a ${c.nombreCompleto} del evento`}
                           aria-label={`Retirar a ${c.nombreCompleto} del evento`}
-                          className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                          className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         >
                           <UserMinus className="w-4 h-4" />
                         </button>
@@ -517,23 +517,23 @@ function ListaConferencistas({
 
       {invitaciones.length > 0 && (
         <section className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66] flex items-center gap-1.5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" />
             Invitaciones pendientes ({invitaciones.length})
           </h3>
-          <ul className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white">
+          <ul className="divide-y divide-border rounded-[12px] border border-border bg-white">
             {invitaciones.map((inv) => {
               const vencida = inv.estado === 'vencida';
               const ocupada = ocupadoId === `i-${inv.id}`;
               return (
                 <li key={inv.id} className="px-4 py-3 flex flex-wrap items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#1f2023] truncate">{inv.nombre}</p>
-                    <p className="text-xs text-[#5b5f66] truncate">{inv.correo}</p>
-                    <p className="text-[11px] mt-0.5 text-[#5b5f66]">
+                    <p className="text-sm font-semibold text-ink-900 truncate">{inv.nombre}</p>
+                    <p className="text-xs text-ink-600 truncate">{inv.correo}</p>
+                    <p className="text-[11px] mt-0.5 text-ink-600">
                       Enviada el {fechaHora(inv.fechaEnvio)} ·{' '}
                       {vencida ? (
-                        <span className="font-semibold text-[#7a0c1e]">venció el {fechaHora(inv.fechaExpiracion)}</span>
+                        <span className="font-semibold text-brand-700">venció el {fechaHora(inv.fechaExpiracion)}</span>
                       ) : (
                         <span>vence el {fechaHora(inv.fechaExpiracion)}</span>
                       )}
@@ -542,8 +542,8 @@ function ListaConferencistas({
                   <span
                     className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
                       vencida
-                        ? 'bg-[#fdecec] text-[#7a0c1e] border-[#a6192e]/20'
-                        : 'bg-[#fff8e6] text-[#7a5a00] border-[#e9c46a]/60'
+                        ? 'bg-brand-100 text-brand-700 border-brand-600'
+                        : 'bg-surface-muted text-ink-600 border-border'
                     }`}
                   >
                     {vencida ? 'Vencida' : 'Esperando registro'}
@@ -555,7 +555,7 @@ function ListaConferencistas({
                         onClick={() => onCopiarEnlace(inv)}
                         title="Copiar enlace de la invitación"
                         aria-label={`Copiar enlace de la invitación de ${inv.nombre}`}
-                        className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                        className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-field-border text-ink-600 bg-white hover:bg-surface-muted hover:text-ink-900 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
@@ -567,7 +567,7 @@ function ListaConferencistas({
                         disabled={ocupadoId !== null}
                         title="Reenviar invitación con un enlace nuevo"
                         aria-label={`Reenviar invitación a ${inv.nombre}`}
-                        className="h-9 px-3 inline-flex items-center gap-1.5 rounded-[8px] border border-[#d8dadf] text-xs font-semibold text-[#1f2023] bg-white hover:bg-[#f7f7f8] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                        className="h-9 px-3 inline-flex items-center gap-1.5 rounded-[8px] border border-field-border text-xs font-semibold text-ink-900 bg-white hover:bg-surface-muted transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                       >
                         <RotateCw className={`w-3.5 h-3.5 ${ocupada ? 'animate-spin' : ''}`} />
                         Reenviar
@@ -579,7 +579,7 @@ function ListaConferencistas({
                       disabled={ocupadoId !== null}
                       title="Cancelar invitación"
                       aria-label={`Cancelar invitación de ${inv.nombre}`}
-                      className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                      className="w-9 h-9 inline-flex items-center justify-center rounded-[8px] border border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                     >
                       <XCircle className="w-4 h-4" />
                     </button>
@@ -588,7 +588,7 @@ function ListaConferencistas({
               );
             })}
           </ul>
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             Cuando el invitado registre sus datos, aparecerá automáticamente en la lista de conferencistas.
           </p>
         </section>
