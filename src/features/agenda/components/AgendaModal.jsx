@@ -7,6 +7,10 @@ import AgendaTimeline from './AgendaTimeline';
 import AgendaTabla from './AgendaTabla';
 import FiltrosAgenda from './FiltrosAgenda';
 import ActividadFormModal from './ActividadFormModal';
+import AgendaGeneracionPanel from './AgendaGeneracionPanel';
+import { agendaService } from '../../../api/agendaService';
+import { separarActividades, precargaAsignacionManual } from '../agendaPublicacionUtils';
+import { confirmarDesprogramar } from '../accionesAgenda';
 import { actividadService } from '../../../api/actividadService';
 import { salaService } from '../../../api/salaService';
 import { conferencistaService } from '../../../api/conferencistaService';
@@ -14,7 +18,9 @@ import { parametroEventoService } from '../../../api/parametroEventoService';
 
 /**
  * @file AgendaModal.jsx
- * @description Modal embebible para administrar la agenda de un evento directamente (HU-21).
+ * @description Modal embebible para administrar la agenda de un evento directamente (HU-21). HU-22: incluye la
+ * franja de generación automática y publicación; la línea de tiempo y la tabla solo muestran las actividades con
+ * horario.
  */
 export default function AgendaModal({
   isOpen,
@@ -24,8 +30,9 @@ export default function AgendaModal({
   apiSalas = salaService,
   apiConferencistas = conferencistaService,
   apiParametros = parametroEventoService,
+  apiAgenda = agendaService,
 }) {
-  const [actividades, setActividades] = useState([]);
+  const [todasActividades, setActividades] = useState([]);
   const [salas, setSalas] = useState([]);
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
@@ -72,6 +79,9 @@ export default function AgendaModal({
   }, [isOpen, eventoId, version, apiActividades, apiSalas, apiConferencistas, apiParametros]);
 
   if (!isOpen || !evento) return null;
+
+  // HU-22: las actividades por programar no tienen fecha ni horario; se gestionan en «Generar agenda».
+  const { programadas: actividades } = separarActividades(todasActividades);
 
   // Filtrado
   const actividadesFiltradas = actividades.filter((a) => {
@@ -143,6 +153,10 @@ export default function AgendaModal({
     });
   };
 
+  const handleDesprogramar = (act) => confirmarDesprogramar(apiAgenda, eventoId, act, recargar);
+  const handleAsignarManual = (act) =>
+    setModalFormulario({ tipo: 'editar', actividad: precargaAsignacionManual(act, evento) });
+
   return (
     <>
       <ModalShell
@@ -202,6 +216,19 @@ export default function AgendaModal({
             </div>
           </div>
 
+          {/* HU-22: generación automática y publicación */}
+          <AgendaGeneracionPanel
+            evento={evento}
+            actividades={todasActividades}
+            tiposActividad={tiposActividad}
+            ponentes={ponentes}
+            version={version}
+            api={apiAgenda}
+            apiActividades={apiActividades}
+            onCambios={recargar}
+            onAsignarManual={salas.length > 0 ? handleAsignarManual : undefined}
+          />
+
           {/* Filtros */}
           <FiltrosAgenda
             busqueda={busqueda}
@@ -236,6 +263,7 @@ export default function AgendaModal({
               ponentes={ponentes}
               onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
               onEliminar={handleEliminar}
+              onDesprogramar={handleDesprogramar}
             />
           ) : (
             <AgendaTabla
@@ -244,6 +272,7 @@ export default function AgendaModal({
               ponentes={ponentes}
               onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
               onEliminar={handleEliminar}
+              onDesprogramar={handleDesprogramar}
             />
           )}
         </div>
@@ -252,6 +281,7 @@ export default function AgendaModal({
       {/* Modal de Formulario (Crear / Editar) */}
       {modalFormulario && (
         <ActividadFormModal
+          key={`modal-actividad-${modalFormulario.tipo}-${modalFormulario.actividad?.id || 'nueva'}`}
           isOpen
           actividad={modalFormulario.tipo === 'editar' ? modalFormulario.actividad : null}
           evento={evento}

@@ -7,6 +7,8 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  Sparkles,
+  Undo2,
 } from 'lucide-react';
 import { formatearHora, agruparPorFecha } from '../agendaUtils';
 
@@ -15,6 +17,8 @@ import { formatearHora, agruparPorFecha } from '../agendaUtils';
  * @description Vista cronológica (Timeline) del desarrollo del evento (HU-21: Criterio 1).
  * Agrupa las actividades por día y las despliega en riguroso orden cronológico,
  * destacando actividades simultáneas paralelas, ponentes y salas.
+ * HU-22: marca las actividades que ubicó la generación automática y, si se pasa `onDesprogramar`, permite
+ * devolverlas a «por programar» (ajuste manual del Criterio 1).
  */
 export default function AgendaTimeline({
   actividades = [],
@@ -22,6 +26,7 @@ export default function AgendaTimeline({
   ponentes = [],
   onEditar,
   onEliminar,
+  onDesprogramar,
 }) {
   const gruposPorDia = agruparPorFecha(actividades);
 
@@ -115,6 +120,16 @@ export default function AgendaTimeline({
                             Advertencia de cruce
                           </span>
                         )}
+
+                        {act.asignacionAutomatica && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] px-2 py-0.5 rounded-md"
+                            title="La ubicó la generación automática; revísala antes de publicar (HU-22)"
+                          >
+                            <Sparkles className="w-3 h-3 text-[#a6192e]" />
+                            Ubicada automáticamente
+                          </span>
+                        )}
                       </div>
 
                       {/* Título */}
@@ -170,6 +185,18 @@ export default function AgendaTimeline({
                         <Pencil className="w-3.5 h-3.5" />
                         <span>Editar</span>
                       </button>
+
+                      {onDesprogramar && (
+                        <button
+                          type="button"
+                          onClick={() => onDesprogramar(act)}
+                          className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-[#5b5f66] hover:text-[#1f2023] hover:bg-[#f2f4f7] rounded-lg transition-colors cursor-pointer"
+                          title="Quitar fecha, horario y sala: vuelve a por programar (HU-22)"
+                          aria-label={`Devolver «${act.nombre}» a por programar`}
+                        >
+                          <Undo2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
                       <button
                         type="button"
