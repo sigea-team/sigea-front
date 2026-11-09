@@ -24,6 +24,10 @@ import AgendaTimeline from '../features/agenda/components/AgendaTimeline';
 import AgendaTabla from '../features/agenda/components/AgendaTabla';
 import FiltrosAgenda from '../features/agenda/components/FiltrosAgenda';
 import ActividadFormModal from '../features/agenda/components/ActividadFormModal';
+import AgendaGeneracionPanel from '../features/agenda/components/AgendaGeneracionPanel';
+import { agendaService } from '../api/agendaService';
+import { separarActividades, precargaAsignacionManual } from '../features/agenda/agendaPublicacionUtils';
+import { confirmarDesprogramar } from '../features/agenda/accionesAgenda';
 
 /**
  * @file AgendaPage.jsx
@@ -36,6 +40,9 @@ import ActividadFormModal from '../features/agenda/components/ActividadFormModal
  * - Validar obligatoriedad de nombre, fecha, horario y sala (Criterio 4).
  * - Modificar actividades ya programadas revalidando conflictos con el resto de la agenda (Criterio 5).
  * - Indicador claro para integrar endpoints del backend cuando estén disponibles.
+ * HU-22: franja de generación automática y publicación (`AgendaGeneracionPanel`). La línea de tiempo, la tabla,
+ * los filtros y las métricas solo muestran las actividades con horario; las «por programar» se gestionan en el
+ * modal de generación.
  */
 export default function AgendaPage({
   apiActividades = actividadService,
@@ -43,13 +50,14 @@ export default function AgendaPage({
   apiSalas = salaService,
   apiConferencistas = conferencistaService,
   apiParametros = parametroEventoService,
+  apiAgenda = agendaService,
 }) {
   const { eventoId: eventoIdParam } = useParams();
   const navigate = useNavigate();
 
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionadoId, setEventoSeleccionadoId] = useState(eventoIdParam || '');
-  const [actividades, setActividades] = useState([]);
+  const [todasActividades, setActividades] = useState([]);
   const [salas, setSalas] = useState([]);
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
@@ -121,6 +129,9 @@ export default function AgendaPage({
       activo = false;
     };
   }, [idEventoActivo, version, apiActividades, apiSalas, apiConferencistas, apiParametros]);
+
+  // HU-22: las actividades por programar no tienen fecha ni horario; no van en la línea de tiempo ni en la tabla.
+  const { programadas: actividades } = useMemo(() => separarActividades(todasActividades), [todasActividades]);
 
   const eventoActual = useMemo(
     () => eventos.find((e) => String(e.id) === String(idEventoActivo)),
@@ -222,6 +233,12 @@ export default function AgendaPage({
       }
     });
   };
+
+  const handleDesprogramar = (act) => confirmarDesprogramar(apiAgenda, idEventoActivo, act, recargar);
+
+  // HU-22 Criterio 1 (ajuste manual): abre el formulario de HU-21 con un horario de su misma duración.
+  const handleAsignarManual = (act) =>
+    setModalFormulario({ tipo: 'editar', actividad: precargaAsignacionManual(act, eventoActual) });
 
   return (
     <MainLayout title="Agenda y Cronograma de Actividades" activeNav="agenda">
@@ -355,6 +372,19 @@ export default function AgendaPage({
               </div>
             )}
 
+            {/* HU-22: generación automática y publicación */}
+            <AgendaGeneracionPanel
+              evento={eventoActual || { id: idEventoActivo }}
+              actividades={todasActividades}
+              tiposActividad={tiposActividad}
+              ponentes={ponentes}
+              version={version}
+              api={apiAgenda}
+              apiActividades={apiActividades}
+              onCambios={recargar}
+              onAsignarManual={salas.length > 0 ? handleAsignarManual : undefined}
+            />
+
             {/* Barra de Filtros y Selector de Vista */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -425,6 +455,7 @@ export default function AgendaPage({
                 ponentes={ponentes}
                 onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
                 onEliminar={handleEliminar}
+                onDesprogramar={handleDesprogramar}
               />
             ) : (
               <AgendaTabla
@@ -433,6 +464,7 @@ export default function AgendaPage({
                 ponentes={ponentes}
                 onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
                 onEliminar={handleEliminar}
+                onDesprogramar={handleDesprogramar}
               />
             )}
           </>
