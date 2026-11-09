@@ -90,11 +90,11 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
       }
     >
       {error && (
-        <p className="text-sm text-[#5b5f66] py-8 text-center">No se pudo cargar el historial de ediciones.</p>
+        <p className="text-sm text-ink-600 py-8 text-center">No se pudo cargar el historial de ediciones.</p>
       )}
 
       {!error && !historial && (
-        <p className="text-sm text-[#5b5f66] py-8 text-center" role="status">
+        <p className="text-sm text-ink-600 py-8 text-center" role="status">
           Cargando ediciones...
         </p>
       )}
@@ -109,31 +109,31 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
             return (
               <li key={edicion.id} className="relative pl-10 pb-6 last:pb-0">
                 {!esUltima && (
-                  <span className="absolute left-[11px] top-6 bottom-0 w-px bg-[#e5e7ea]" aria-hidden="true" />
+                  <span className="absolute left-[11px] top-6 bottom-0 w-px bg-border" aria-hidden="true" />
                 )}
                 <span
                   className={`absolute left-0 top-1 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    esActual ? 'border-[#a6192e] bg-[#fdecec]' : 'border-[#d8dadf] bg-white'
+                    esActual ? 'border-brand-600 bg-brand-100' : 'border-field-border bg-white'
                   }`}
                   aria-hidden="true"
                 >
-                  <span className={`w-2 h-2 rounded-full ${esActual ? 'bg-[#a6192e]' : 'bg-[#9ca0a6]'}`} />
+                  <span className={`w-2 h-2 rounded-full ${esActual ? 'bg-brand-600' : 'bg-ink-300'}`} />
                 </span>
 
                 <div
                   className={`p-4 rounded-[12px] border ${
-                    esActual ? 'border-[#a6192e]/30 bg-white' : 'border-[#e5e7ea] bg-white'
+                    esActual ? 'border-brand-600 bg-white' : 'border-border bg-white'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-base font-semibold text-[#1f2023]">{edicion.semestre || 'Sin semestre'}</p>
-                      <p className="text-sm text-[#1f2023] mt-0.5 truncate">{edicion.nombre}</p>
+                      <p className="text-base font-semibold text-ink-900">{edicion.semestre || 'Sin semestre'}</p>
+                      <p className="text-sm text-ink-900 mt-0.5 truncate">{edicion.nombre}</p>
                     </div>
                     <EstadoEventoBadge estado={edicion.estado} />
                   </div>
 
-                  <p className="text-xs text-[#5b5f66] mt-2">
+                  <p className="text-xs text-ink-600 mt-2">
                     {formatearRango(edicion.fechaInicio, edicion.fechaFin)}
                     {edicion.modalidad && `, ${etiquetaModalidad(edicion.modalidad).toLowerCase()}`}
                   </p>
@@ -141,12 +141,12 @@ export default function EdicionesModal({ isOpen, evento, api, onClose, onNuevaEd
                   {(esBase || esActual) && (
                     <div className="flex gap-2 mt-3">
                       {esBase && (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]">
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-muted text-ink-600 border border-border">
                           Evento base
                         </span>
                       )}
                       {esActual && (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#fdecec] text-[#a6192e] border border-[#a6192e]/20">
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 text-brand-600 border border-brand-600">
                           Consultando
                         </span>
                       )}

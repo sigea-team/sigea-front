@@ -21,6 +21,6 @@ export const Basico = {
         <Button variant="primary">Crear evento</Button>
       </>
     ),
-    children: <p className="text-sm text-[#5b5f66]">Contenido del modal.</p>,
+    children: <p className="text-sm text-ink-600">Contenido del modal.</p>,
   },
 };

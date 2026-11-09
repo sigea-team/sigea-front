@@ -46,19 +46,19 @@ export default function RoleFormModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-modal-rol"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/60 backdrop-blur-xs"
     >
-      <div className="w-full max-w-3xl bg-white rounded-[16px] shadow-2xl border border-[#e5e7ea] flex flex-col max-h-[90vh] overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#e5e7ea] flex items-center justify-between shrink-0 bg-[#f7f7f8]/50">
+      <div className="w-full max-w-3xl bg-white rounded-[16px] shadow-2xl border border-border flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between shrink-0 bg-surface-muted">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h2 id="titulo-modal-rol" className="font-serif-title text-xl text-[#1f2023] leading-tight">
+              <h2 id="titulo-modal-rol" className="font-serif-title text-xl text-ink-900 leading-tight">
                 {isEditing ? `Editar Rol: ${role.nombre}` : 'Crear Nuevo Rol'}
               </h2>
-              <p className="text-xs text-[#5b5f66] mt-0.5">
+              <p className="text-xs text-ink-600 mt-0.5">
                 {isEditing
                   ? 'Modifica el nombre, la descripción y los permisos de este rol.'
                   : 'Define el nombre del rol y los permisos que otorga.'}
@@ -69,7 +69,7 @@ export default function RoleFormModal({
             type="button"
             onClick={onClose}
             disabled={guardando}
-            className="p-2 text-[#5b5f66] hover:text-[#1f2023] hover:bg-[#e5e7ea]/60 rounded-full transition-colors cursor-pointer"
+            className="p-2 text-ink-600 hover:text-ink-900 hover:bg-border rounded-full transition-colors cursor-pointer"
             aria-label="Cerrar"
           >
             <X className="w-5 h-5" />
@@ -78,8 +78,8 @@ export default function RoleFormModal({
 
         <form id="form-rol" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {isEditing && usuariosAfectados > 0 && (
-            <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-xs flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#a6192e] shrink-0 mt-0.5" />
+            <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-xs flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-sm">Advertencia de propagación de permisos</p>
                 <p className="mt-0.5">
@@ -91,7 +91,7 @@ export default function RoleFormModal({
           )}
 
           {errorGuardado && (
-            <div role="alert" className="p-3 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm">
+            <div role="alert" className="p-3 rounded-[8px] bg-brand-100 border border-brand-600 text-brand-700 text-sm">
               {errorGuardado}
             </div>
           )}
@@ -111,7 +111,7 @@ export default function RoleFormModal({
               error={errors.nombre}
             />
             <div className="flex flex-col gap-1.5 w-full">
-              <label htmlFor="descripcion-rol" className="text-sm font-medium text-[#1f2023]">
+              <label htmlFor="descripcion-rol" className="text-sm font-medium text-ink-900">
                 Descripción
               </label>
               <textarea
@@ -121,18 +121,18 @@ export default function RoleFormModal({
                 rows={3}
                 disabled={guardando}
                 placeholder="Describe el alcance y responsabilidades de este rol..."
-                className="w-full p-3 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e] outline-none transition-colors"
+                className="w-full p-3 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 outline-none transition-colors"
               />
-              {errors.descripcion && <p className="text-xs text-[#b42318]">{errors.descripcion}</p>}
+              {errors.descripcion && <p className="text-xs text-brand-700">{errors.descripcion}</p>}
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-[#1f2023]">Permisos del rol</span>
-              <span className="text-xs text-[#5b5f66]">{permisosIds.length} seleccionado(s)</span>
+              <span className="text-sm font-semibold text-ink-900">Permisos del rol</span>
+              <span className="text-xs text-ink-600">{permisosIds.length} seleccionado(s)</span>
             </div>
-            <p className="text-xs text-[#5b5f66]">
+            <p className="text-xs text-ink-600">
               Para que los usuarios de este rol puedan ingresar como Evaluador, marca «Evaluar propuestas mediante rúbricas».
             </p>
             <RolePermisosSelector
@@ -144,7 +144,7 @@ export default function RoleFormModal({
           </div>
         </form>
 
-        <div className="px-6 py-4 border-t border-[#e5e7ea] bg-[#f7f7f8]/50 flex items-center justify-end gap-3 shrink-0">
+        <div className="px-6 py-4 border-t border-border bg-surface-muted flex items-center justify-end gap-3 shrink-0">
           <Button type="button" variant="outline" onClick={onClose} disabled={guardando}>
             Cancelar
           </Button>

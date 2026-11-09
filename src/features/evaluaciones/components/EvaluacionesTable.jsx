@@ -43,11 +43,11 @@ export default function EvaluacionesTable({
   const columnasTotales = 5;
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white shadow-2xs">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
               <th scope="col" className="py-3.5 px-5">Propuesta Académica</th>
               <th scope="col" className="py-3.5 px-5">Periodo de Evaluación</th>
               <th scope="col" className="py-3.5 px-5">Estado Asignación</th>
@@ -55,11 +55,11 @@ export default function EvaluacionesTable({
               <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+          <tbody className="divide-y divide-border text-sm text-ink-900">
             {cargando && asignaciones.length === 0 && (
               <tr>
-                <td colSpan={columnasTotales} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
-                  <div className="w-7 h-7 border-3 border-[#a6192e] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <td colSpan={columnasTotales} className="py-12 px-5 text-center text-ink-600" role="status">
+                  <div className="w-7 h-7 border-3 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   Cargando asignaciones de evaluación...
                 </td>
               </tr>
@@ -68,13 +68,13 @@ export default function EvaluacionesTable({
             {!cargando && asignaciones.length === 0 && (
               <tr>
                 <td colSpan={columnasTotales} className="py-12 px-5 text-center">
-                  <ClipboardCheck className="w-10 h-10 text-[#9ca0a6] mx-auto mb-2" />
-                  <p className="font-semibold text-base text-[#1f2023]">
+                  <ClipboardCheck className="w-10 h-10 text-ink-300 mx-auto mb-2" />
+                  <p className="font-semibold text-base text-ink-900">
                     {hayFiltros
                       ? 'Ninguna asignación coincide con los criterios de búsqueda'
                       : 'No tienes propuestas asignadas para evaluar actualmente'}
                   </p>
-                  <p className="text-xs mt-1 text-[#5b5f66]">
+                  <p className="text-xs mt-1 text-ink-600">
                     {hayFiltros
                       ? 'Prueba modificando los filtros o el término de búsqueda.'
                       : 'El comité organizador te notificará cuando se te asignen nuevas ponencias.'}
@@ -97,42 +97,42 @@ export default function EvaluacionesTable({
               const configClasif = obtenerConfiguracionClasificacion(clasifAsignacion);
 
               return (
-                <tr key={asignacion.asignacionId} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                <tr key={asignacion.asignacionId} className="hover:bg-surface-muted transition-colors">
                   {/* Propuesta y Convocatoria */}
                   <td className="py-4 px-5 align-middle max-w-sm">
-                    <p className="font-bold text-[#1f2023] leading-snug line-clamp-2">
+                    <p className="font-bold text-ink-900 leading-snug line-clamp-2">
                       {asignacion.propuestaTitulo}
                     </p>
                     {asignacion.convocatoriaTitulo && (
-                      <p className="text-xs text-[#a6192e] font-medium mt-1 truncate">
+                      <p className="text-xs text-brand-600 font-medium mt-1 truncate">
                         {asignacion.convocatoriaTitulo}
                       </p>
                     )}
                     {Array.isArray(asignacion.autores) && asignacion.autores.length > 0 && (
-                      <p className="text-[11px] text-[#5b5f66] mt-0.5 truncate">
+                      <p className="text-[11px] text-ink-600 mt-0.5 truncate">
                         Autores: {asignacion.autores.join(', ')}
                       </p>
                     )}
                   </td>
 
                   {/* Periodo de recepción y fecha límite */}
-                  <td className="py-4 px-5 align-middle whitespace-nowrap text-xs text-[#1f2023]">
+                  <td className="py-4 px-5 align-middle whitespace-nowrap text-xs text-ink-900">
                     <div className="space-y-1">
                       {asignacion.fechaAsignacion && (
-                        <p className="text-[#5b5f66]">
+                        <p className="text-ink-600">
                           Asignada: <strong>{new Date(asignacion.fechaAsignacion).toLocaleDateString()}</strong>
                         </p>
                       )}
                       {asignacion.fechaCierre && (
                         <p className="flex items-center gap-1.5">
-                          <span className="text-[#5b5f66]">Límite:</span>
+                          <span className="text-ink-600">Límite:</span>
                           <strong>{new Date(asignacion.fechaCierre).toLocaleDateString()}</strong>
                           {periodoCerrado ? (
-                            <span className="px-1.5 py-0.2 rounded-xs bg-[#fdecec] text-[#7a0c1e] text-[10px] font-bold">
+                            <span className="px-1.5 py-0.2 rounded-xs bg-brand-100 text-brand-700 text-[10px] font-bold">
                               Cerrado
                             </span>
                           ) : (
-                            <span className="px-1.5 py-0.2 rounded-xs bg-[#ecfdf3] text-[#027a48] text-[10px] font-bold">
+                            <span className="px-1.5 py-0.2 rounded-xs bg-brand-600 text-surface text-[10px] font-bold">
                               Abierto
                             </span>
                           )}
@@ -144,17 +144,17 @@ export default function EvaluacionesTable({
                   {/* Estado de la Asignación */}
                   <td className="py-4 px-5 align-middle whitespace-nowrap">
                     {esCompletada ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[#ecfdf3] text-[#027a48] border border-[#a6f4c5]">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-brand-600 text-surface border-transparent">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Completada
                       </span>
                     ) : asignacion.estado === 'en_proceso' ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[#eff8ff] text-[#175cd3] border border-[#b2ddff]">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-surface-muted text-ink-600 border border-border">
                         <Clock className="w-3.5 h-3.5" />
                         En Proceso
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[#fffaeb] text-[#b54708] border border-[#fedf89]">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-surface-muted text-ink-600 border border-border">
                         <Clock className="w-3.5 h-3.5" />
                         Pendiente
                       </span>
@@ -166,10 +166,10 @@ export default function EvaluacionesTable({
                     {esCompletada ? (
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-serif-title text-base font-bold text-[#1f2023]">
+                          <span className="font-serif-title text-base font-bold text-ink-900">
                             {formatearPuntuacion(puntuacionAsignacion)}
                           </span>
-                          <span className="text-[#5b5f66] text-[11px]">/ 10.0</span>
+                          <span className="text-ink-600 text-[11px]">/ 10.0</span>
                         </div>
                         <span
                           className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${configClasif.badgeClass}`}
@@ -178,7 +178,7 @@ export default function EvaluacionesTable({
                         </span>
                       </div>
                     ) : (
-                      <span className="text-[#9ca0a6] italic">Sin calificar</span>
+                      <span className="text-ink-300 italic">Sin calificar</span>
                     )}
                   </td>
 
@@ -197,7 +197,7 @@ export default function EvaluacionesTable({
                       >
                         {esCompletada && periodoCerrado ? (
                           <>
-                            <Lock className="w-3.5 h-3.5 text-[#b42318]" />
+                            <Lock className="w-3.5 h-3.5 text-brand-700" />
                             <span>Cerrada</span>
                           </>
                         ) : esCompletada ? (
@@ -220,7 +220,7 @@ export default function EvaluacionesTable({
                         size="sm"
                         onClick={() => onVerResultado && onVerResultado(asignacion)}
                         title="Consultar puntuación ponderada y estado consolidado (HU-17)"
-                        className="text-xs text-[#5b5f66] hover:text-[#a6192e]"
+                        className="text-xs text-ink-600 hover:text-brand-600"
                       >
                         <Award className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">Resultado</span>
@@ -234,7 +234,7 @@ export default function EvaluacionesTable({
                           size="sm"
                           onClick={() => onVerVersiones(asignacion)}
                           title="Consultar el historial de versiones de la propuesta (HU-14)"
-                          className="text-xs text-[#5b5f66] hover:text-[#a6192e]"
+                          className="text-xs text-ink-600 hover:text-brand-600"
                         >
                           <History className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Versiones</span>

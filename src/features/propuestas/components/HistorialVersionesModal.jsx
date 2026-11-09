@@ -124,12 +124,12 @@ export default function HistorialVersionesModal({ propuesta, api, esAdmin = fals
     >
       {error && (
         <div className="py-10 text-center">
-          <p className="font-semibold text-[#1f2023]">No se pudo cargar el historial</p>
-          <p className="text-xs mt-1 text-[#5b5f66]">{error}</p>
+          <p className="font-semibold text-ink-900">No se pudo cargar el historial</p>
+          <p className="text-xs mt-1 text-ink-600">{error}</p>
           <button
             type="button"
             onClick={reintentar}
-            className="inline-flex items-center gap-1 text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
           >
             <RotateCw className="w-3.5 h-3.5" aria-hidden="true" />
             Reintentar
@@ -138,13 +138,13 @@ export default function HistorialVersionesModal({ propuesta, api, esAdmin = fals
       )}
 
       {!error && !versiones && (
-        <p className="py-10 text-center text-[#5b5f66]" role="status">
+        <p className="py-10 text-center text-ink-600" role="status">
           Cargando versiones...
         </p>
       )}
 
       {!error && versiones && puedeAutorizar && autorizacionConcedida && (
-        <p className="mb-4 text-xs text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3" role="status">
+        <p className="mb-4 text-xs text-ink-600 bg-surface-muted border border-border rounded-[8px] p-3" role="status">
           Autorización concedida: el autor puede crear una nueva versión. Se podrá conceder otra después de que la use.
         </p>
       )}

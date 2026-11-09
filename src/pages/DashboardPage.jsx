@@ -131,16 +131,16 @@ export default function DashboardPage({
     <MainLayout title="Dashboard Principal" activeNav="dashboard">
       <div className="space-y-6">
         {/* Cabecera con bienvenida y botón para refrescar datos */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
               SIGEA — Panel General en Tiempo Real
             </span>
-            <h1 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h1 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
               Bienvenido, {nombreCompleto}
             </h1>
-            <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+            <p className="text-sm text-ink-600 mt-1 max-w-2xl">
               Sistema Integral de Gestión de Eventos Académicos — Universidad Francisco de Paula Santander (UFPS).
             </p>
           </div>
@@ -165,20 +165,20 @@ export default function DashboardPage({
 
         {/* Banner para Conferencista */}
         {esConferencista && (
-          <div className="bg-[#fdecec] border border-[#a6192e]/30 rounded-[16px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="bg-brand-100 border border-brand-600 rounded-[16px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
             <div>
-              <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-[#a6192e] text-white rounded-full mb-1">
+              <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-brand-600 text-white rounded-full mb-1">
                 Modo Conferencista Activo
               </span>
-              <h2 className="text-base font-bold text-[#1f2023]">Tu trayectoria académica y profesional</h2>
-              <p className="text-xs text-[#5b5f66] mt-1 max-w-xl">
+              <h2 className="text-base font-bold text-ink-900">Tu trayectoria académica y profesional</h2>
+              <p className="text-xs text-ink-600 mt-1 max-w-xl">
                 Revisa y actualiza tu biografía, estudios y publicaciones. Los cambios se ven de inmediato en la
                 página pública de los eventos en los que participas.
               </p>
             </div>
             <Link
               to={RUTA_MI_PERFIL_CONFERENCISTA}
-              className="inline-flex items-center justify-center px-4 py-2.5 bg-[#a6192e] hover:bg-[#7a0c1e] text-white text-xs font-semibold rounded-[8px] transition-colors shrink-0 shadow-xs"
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-[8px] transition-colors shrink-0 shadow-xs"
             >
               Ir a mi perfil de conferencista
             </Link>
@@ -186,9 +186,9 @@ export default function DashboardPage({
         )}
 
         {errorCarga && (
-          <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#a6192e] shrink-0" aria-hidden="true" />
+              <Info className="w-4 h-4 text-brand-600 shrink-0" aria-hidden="true" />
               <span>{errorCarga}</span>
             </div>
             <button
@@ -206,68 +206,68 @@ export default function DashboardPage({
           {/* Tarjeta 1: Convocatorias */}
           <Link
             to="/convocatorias"
-            className="group block p-5 rounded-[16px] bg-white border border-[#e5e7ea] hover:border-[#a6192e]/40 hover:shadow-sm transition-all"
+            className="group block p-5 rounded-[16px] bg-white border border-border hover:border-brand-600 hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-ink-600">
                 Convocatorias Abiertas
               </span>
-              <span className="w-8 h-8 rounded-lg bg-[#fdecec] text-[#a6192e] flex items-center justify-center">
+              <span className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center">
                 <FileText className="w-4 h-4" />
               </span>
             </div>
-            <p className="font-serif-title text-3xl font-bold text-[#a6192e] mt-3">
+            <p className="font-serif-title text-3xl font-bold text-brand-600 mt-3">
               {cargando ? '—' : convocatoriasAbiertas}
             </p>
-            <div className="mt-2 flex items-center justify-between text-xs text-[#5b5f66]">
+            <div className="mt-2 flex items-center justify-between text-xs text-ink-600">
               <span>{cargando ? 'Cargando...' : `${totalConvocatorias} registradas en total`}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#a6192e] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-3.5 h-3.5 text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </Link>
 
           {/* Tarjeta 2: Eventos */}
           <Link
             to="/eventos"
-            className="group block p-5 rounded-[16px] bg-white border border-[#e5e7ea] hover:border-[#a6192e]/40 hover:shadow-sm transition-all"
+            className="group block p-5 rounded-[16px] bg-white border border-border hover:border-brand-600 hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-ink-600">
                 Eventos Académicos
               </span>
-              <span className="w-8 h-8 rounded-lg bg-[#f7f7f8] text-[#1f2023] flex items-center justify-center">
+              <span className="w-8 h-8 rounded-lg bg-surface-muted text-ink-900 flex items-center justify-center">
                 <Calendar className="w-4 h-4" />
               </span>
             </div>
-            <p className="font-serif-title text-3xl font-bold text-[#1f2023] mt-3">
+            <p className="font-serif-title text-3xl font-bold text-ink-900 mt-3">
               {cargando ? '—' : totalEventos}
             </p>
-            <div className="mt-2 flex items-center justify-between text-xs text-[#5b5f66]">
+            <div className="mt-2 flex items-center justify-between text-xs text-ink-600">
               <span>
                 {cargando ? 'Cargando...' : `${eventosHabilitados} evento(s) publicados`}
               </span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#a6192e] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-3.5 h-3.5 text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </Link>
 
           {/* Tarjeta 3: Salas e Infraestructura */}
           <Link
             to="/salas"
-            className="group block p-5 rounded-[16px] bg-white border border-[#e5e7ea] hover:border-[#a6192e]/40 hover:shadow-sm transition-all"
+            className="group block p-5 rounded-[16px] bg-white border border-border hover:border-brand-600 hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-ink-600">
                 Salas y Espacios
               </span>
-              <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <span className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center">
                 <Building className="w-4 h-4" />
               </span>
             </div>
-            <p className="font-serif-title text-3xl font-bold text-[#1f2023] mt-3">
+            <p className="font-serif-title text-3xl font-bold text-ink-900 mt-3">
               Infraestructura
             </p>
-            <div className="mt-2 flex items-center justify-between text-xs text-[#5b5f66]">
+            <div className="mt-2 flex items-center justify-between text-xs text-ink-600">
               <span>Auditorios y aulas institucionales</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#a6192e] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-3.5 h-3.5 text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </Link>
         </div>
@@ -275,33 +275,33 @@ export default function DashboardPage({
         {/* Sección de Resúmenes en Tiempo Real */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Bloque Eventos Recientes */}
-          <div className="rounded-[16px] border border-[#e5e7ea] bg-white p-5 shadow-2xs flex flex-col justify-between">
+          <div className="rounded-[16px] border border-border bg-white p-5 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-[#e5e7ea]">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#a6192e]" />
-                  <h2 className="font-serif-title text-lg font-semibold text-[#1f2023]">Eventos Recientes</h2>
+                  <Calendar className="w-4 h-4 text-brand-600" />
+                  <h2 className="font-serif-title text-lg font-semibold text-ink-900">Eventos Recientes</h2>
                 </div>
                 <Link
                   to="/eventos"
-                  className="text-xs font-semibold text-[#a6192e] hover:text-[#7a0c1e] hover:underline"
+                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline"
                 >
                   Ver todos →
                 </Link>
               </div>
 
-              <div className="mt-3 divide-y divide-[#e5e7ea]">
+              <div className="mt-3 divide-y divide-border">
                 {cargando ? (
-                  <p className="text-xs text-[#5b5f66] py-6 text-center">Cargando eventos desde el servidor...</p>
+                  <p className="text-xs text-ink-600 py-6 text-center">Cargando eventos desde el servidor...</p>
                 ) : eventos.length === 0 ? (
-                  <p className="text-xs text-[#5b5f66] py-6 text-center">No hay eventos registrados en el sistema.</p>
+                  <p className="text-xs text-ink-600 py-6 text-center">No hay eventos registrados en el sistema.</p>
                 ) : (
                   eventos.slice(0, 4).map((ev) => (
                     <div key={ev.id} className="py-3 flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1f2023] truncate">{ev.nombre}</p>
-                        <p className="text-xs text-[#5b5f66] mt-0.5 flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-[#9ca0a6]" />
+                        <p className="text-sm font-semibold text-ink-900 truncate">{ev.nombre}</p>
+                        <p className="text-xs text-ink-600 mt-0.5 flex items-center gap-1.5">
+                          <Clock className="w-3 h-3 text-ink-300" />
                           <span>{ev.fechaInicio} al {ev.fechaFin}</span>
                           <span className="capitalize">• {ev.modalidad || 'Presencial'}</span>
                         </p>
@@ -315,40 +315,40 @@ export default function DashboardPage({
           </div>
 
           {/* Bloque Convocatorias Abiertas */}
-          <div className="rounded-[16px] border border-[#e5e7ea] bg-white p-5 shadow-2xs flex flex-col justify-between">
+          <div className="rounded-[16px] border border-border bg-white p-5 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-[#e5e7ea]">
+              <div className="flex items-center justify-between pb-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#a6192e]" />
-                  <h2 className="font-serif-title text-lg font-semibold text-[#1f2023]">Convocatorias Vigentes</h2>
+                  <FileText className="w-4 h-4 text-brand-600" />
+                  <h2 className="font-serif-title text-lg font-semibold text-ink-900">Convocatorias Vigentes</h2>
                 </div>
                 <Link
                   to="/convocatorias"
-                  className="text-xs font-semibold text-[#a6192e] hover:text-[#7a0c1e] hover:underline"
+                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline"
                 >
                   Ver todas →
                 </Link>
               </div>
 
-              <div className="mt-3 divide-y divide-[#e5e7ea]">
+              <div className="mt-3 divide-y divide-border">
                 {cargando ? (
-                  <p className="text-xs text-[#5b5f66] py-6 text-center">Cargando convocatorias desde el servidor...</p>
+                  <p className="text-xs text-ink-600 py-6 text-center">Cargando convocatorias desde el servidor...</p>
                 ) : convocatorias.length === 0 ? (
-                  <p className="text-xs text-[#5b5f66] py-6 text-center">No hay convocatorias registradas.</p>
+                  <p className="text-xs text-ink-600 py-6 text-center">No hay convocatorias registradas.</p>
                 ) : (
                   convocatorias.slice(0, 4).map((c) => (
                     <div key={c.id} className="py-3 flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1f2023] truncate">{c.titulo}</p>
-                        <p className="text-xs text-[#5b5f66] mt-0.5">
+                        <p className="text-sm font-semibold text-ink-900 truncate">{c.titulo}</p>
+                        <p className="text-xs text-ink-600 mt-0.5">
                           {c.eventoNombre ? `Evento: ${c.eventoNombre} • ` : ''}
                           Cierre: {c.fechaFin || c.fechaCierre || 'No definida'}
                         </p>
                       </div>
                       <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider ${
                         c.estado === 'PUBLICADA' || c.estado === 'ABIERTA'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-zinc-100 text-zinc-700 border border-zinc-200'
+                          ? 'bg-brand-600 text-surface'
+                          : 'bg-surface-muted text-ink-600 border border-border'
                       }`}>
                         {c.estado}
                       </span>
@@ -361,13 +361,13 @@ export default function DashboardPage({
         </div>
 
         {/* Información de la Sesión Actual */}
-        <div className="text-sm text-[#5b5f66] bg-[#f7f7f8] border border-[#e5e7ea] rounded-[16px] p-5 space-y-2">
-          <h3 className="font-semibold text-[#1f2023] text-base mb-2">Información de la Sesión Actual</h3>
-          <p><strong className="text-[#1f2023]">Nombre Completo:</strong> {nombreCompleto}</p>
-          <p><strong className="text-[#1f2023]">Correo Electrónico:</strong> {email}</p>
-          <p><strong className="text-[#1f2023]">Perfil de Ingreso:</strong> {esConferencista ? 'Conferencista invitado' : esEvaluador ? 'Evaluador de Propuestas' : isAdmin ? 'Administrador del Sistema' : 'Asistente General'}</p>
-          <p><strong className="text-[#1f2023]">Rol del Sistema:</strong> {rol}</p>
-          {afiliacion && <p><strong className="text-[#1f2023]">Afiliación Institucional:</strong> {afiliacion}</p>}
+        <div className="text-sm text-ink-600 bg-surface-muted border border-border rounded-[16px] p-5 space-y-2">
+          <h3 className="font-semibold text-ink-900 text-base mb-2">Información de la Sesión Actual</h3>
+          <p><strong className="text-ink-900">Nombre Completo:</strong> {nombreCompleto}</p>
+          <p><strong className="text-ink-900">Correo Electrónico:</strong> {email}</p>
+          <p><strong className="text-ink-900">Perfil de Ingreso:</strong> {esConferencista ? 'Conferencista invitado' : esEvaluador ? 'Evaluador de Propuestas' : isAdmin ? 'Administrador del Sistema' : 'Asistente General'}</p>
+          <p><strong className="text-ink-900">Rol del Sistema:</strong> {rol}</p>
+          {afiliacion && <p><strong className="text-ink-900">Afiliación Institucional:</strong> {afiliacion}</p>}
         </div>
       </div>
     </MainLayout>

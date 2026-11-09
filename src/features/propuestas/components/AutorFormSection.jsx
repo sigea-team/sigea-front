@@ -119,14 +119,14 @@ export default function AutorFormSection({
   const esEdicion = Boolean(autorEnEdicion);
 
   return (
-    <div className="bg-[#f7f7f8] rounded-[16px] border border-[#e5e7ea] p-5">
+    <div className="bg-surface-muted rounded-[16px] border border-border p-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
-          <h3 className="text-sm font-bold text-[#1f2023] flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-[#a6192e]" />
+          <h3 className="text-sm font-bold text-ink-900 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-brand-600" />
             {esEdicion ? 'Editar datos del autor / ponente' : 'Agregar autor o ponente a la propuesta'}
           </h3>
-          <p className="text-xs text-[#5b5f66] mt-0.5">
+          <p className="text-xs text-ink-600 mt-0.5">
             Diligencie los campos requeridos con su rol específico en la ponencia.
           </p>
         </div>
@@ -135,7 +135,7 @@ export default function AutorFormSection({
           <button
             type="button"
             onClick={handleCargarMisDatos}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#a6192e] bg-white border border-[#a6192e]/30 rounded-[8px] hover:bg-[#fdecec] transition-colors cursor-pointer shadow-2xs"
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-600 bg-white border border-brand-600 rounded-[8px] hover:bg-brand-100 transition-colors cursor-pointer shadow-2xs"
             title="Autocompletar con mis datos de usuario autenticado"
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -145,7 +145,7 @@ export default function AutorFormSection({
       </div>
 
       {Object.keys(errores).length > 0 && (
-        <div className="mb-4 flex items-start gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-xs rounded-[8px] p-3">
+        <div className="mb-4 flex items-start gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-xs rounded-[8px] p-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold">Faltan campos obligatorios para registrar al autor (Criterio 3):</p>

@@ -93,47 +93,47 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
     <div className="space-y-5">
       {/* Resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">Puntuación ponderada</p>
-          <p className="font-serif-title text-3xl text-[#1f2023] mt-1 tabular-nums">
+        <div className="p-4 rounded-[12px] border border-border bg-white">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-600">Puntuación ponderada</p>
+          <p className="font-serif-title text-3xl text-ink-900 mt-1 tabular-nums">
             {formatearPuntuacion(propuesta.puntuacionPonderada)}
           </p>
-          <p className="text-xs text-[#9ca0a6]">sobre 10</p>
+          <p className="text-xs text-ink-300">sobre 10</p>
         </div>
-        <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">Según los umbrales</p>
+        <div className="p-4 rounded-[12px] border border-border bg-white">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-600">Según los umbrales</p>
           <div className="mt-2">
             {propuesta.clasificacionPorUmbrales ? (
               <ClasificacionBadge clasificacion={propuesta.clasificacionPorUmbrales} />
             ) : (
-              <span className="text-sm text-[#5b5f66]">Sin puntuación</span>
+              <span className="text-sm text-ink-600">Sin puntuación</span>
             )}
           </div>
         </div>
-        <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#5b5f66]">Clasificación aplicada</p>
+        <div className="p-4 rounded-[12px] border border-border bg-white">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-600">Clasificación aplicada</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {propuesta.aplicada ? (
               <ClasificacionBadge clasificacion={propuesta.clasificacion} />
             ) : (
-              <span className="text-sm text-[#5b5f66]">Todavía no se aplica</span>
+              <span className="text-sm text-ink-600">Todavía no se aplica</span>
             )}
             {propuesta.ajusteManual && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#5b5f66]">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink-600">
                 <Pencil className="w-3 h-3" aria-hidden="true" />
                 Ajuste manual
               </span>
             )}
           </div>
           {propuesta.aplicada && propuesta.fechaClasificacion && (
-            <p className="text-xs text-[#9ca0a6] mt-1.5">{formatearFechaHora(propuesta.fechaClasificacion)}</p>
+            <p className="text-xs text-ink-300 mt-1.5">{formatearFechaHora(propuesta.fechaClasificacion)}</p>
           )}
         </div>
       </div>
 
       {/* Criterio 3: evaluación incompleta */}
       {!propuesta.evaluacionCompleta && (
-        <div className="flex gap-2 p-3 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-sm text-[#93370d]" role="status">
+        <div className="flex gap-2 p-3 rounded-[12px] bg-brand-100 border border-brand-600 text-sm text-brand-700" role="status">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
           <p>
             <strong>No se puede clasificar todavía.</strong> {clasificable.motivo} Cuando todos los evaluadores terminen,
@@ -143,7 +143,7 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
       )}
 
       {propuesta.evaluacionCompleta && !propuesta.aplicada && (
-        <div className="flex gap-2 p-3 rounded-[12px] bg-[#eef4ff] border border-[#c7d7fe] text-sm text-[#3538cd]" role="status">
+        <div className="flex gap-2 p-3 rounded-[12px] bg-surface-muted border border-border text-sm text-ink-900" role="status">
           <Sparkles className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
           <p>
             {propuesta.fechaClasificacion
@@ -156,7 +156,7 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
       )}
 
       {requiereReclasificar(propuesta) && (
-        <div className="flex gap-2 p-3 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-sm text-[#93370d]" role="status">
+        <div className="flex gap-2 p-3 rounded-[12px] bg-brand-100 border border-brand-600 text-sm text-brand-700" role="status">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
           <p>
             Con los umbrales actuales le corresponde {etiquetaClasificacion(propuesta.clasificacionPorUmbrales)}. Vuelve a
@@ -166,7 +166,7 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
       )}
 
       {error && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {error}
         </p>
       )}
@@ -214,7 +214,7 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
 
       {/* Criterio 2: historial */}
       <section aria-labelledby="historial-clasificacion-titulo" className="space-y-3">
-        <h3 id="historial-clasificacion-titulo" className="text-sm font-bold text-[#1f2023]">
+        <h3 id="historial-clasificacion-titulo" className="text-sm font-bold text-ink-900">
           Historial de clasificación
         </h3>
         <HistorialClasificaciones movimientos={historial} error={errorHistorial} onReintentar={recargarHistorial} />

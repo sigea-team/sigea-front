@@ -89,13 +89,13 @@ export default function PropuestasEvaluadoresModal({
             <button
               type="button"
               onClick={() => setSeleccionadaId(null)}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               Volver a las propuestas
             </button>
             {seleccionada.autores?.length > 0 && (
-              <p className="text-xs text-[#5b5f66]">Autores: {seleccionada.autores.join(', ')}</p>
+              <p className="text-xs text-ink-600">Autores: {seleccionada.autores.join(', ')}</p>
             )}
             <AsignarEvaluadoresPanel
               key={`panel-${seleccionada.propuestaId}`}
@@ -106,15 +106,15 @@ export default function PropuestasEvaluadoresModal({
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-sm text-[#5b5f66]">
+            <p className="text-sm text-ink-600">
               Asigna cada propuesta a uno o más evaluadores del comité. Cada evaluador recibe una notificación y la
               propuesta aparece en su bandeja de evaluaciones.
             </p>
 
-            <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+            <div className="overflow-hidden rounded-[12px] border border-border bg-white">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                  <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                     <th scope="col" className="py-3 px-4">Propuesta</th>
                     <th scope="col" className="py-3 px-4">Estado</th>
                     <th scope="col" className="py-3 px-4">Evaluadores</th>
@@ -123,15 +123,15 @@ export default function PropuestasEvaluadoresModal({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+                <tbody className="divide-y divide-border text-sm text-ink-900">
                   {errorCarga && (
                     <tr>
                       <td colSpan={4} className="py-10 px-4 text-center">
-                        <p className="font-semibold text-[#1f2023]">No se pudieron cargar las propuestas</p>
+                        <p className="font-semibold text-ink-900">No se pudieron cargar las propuestas</p>
                         <button
                           type="button"
                           onClick={recargar}
-                          className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                          className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
                         >
                           Reintentar
                         </button>
@@ -141,7 +141,7 @@ export default function PropuestasEvaluadoresModal({
 
                   {!errorCarga && !propuestas && (
                     <tr>
-                      <td colSpan={4} className="py-10 px-4 text-center text-[#5b5f66]" role="status">
+                      <td colSpan={4} className="py-10 px-4 text-center text-ink-600" role="status">
                         Cargando propuestas...
                       </td>
                     </tr>
@@ -150,8 +150,8 @@ export default function PropuestasEvaluadoresModal({
                   {!errorCarga && propuestas?.length === 0 && (
                     <tr>
                       <td colSpan={4} className="py-10 px-4 text-center">
-                        <p className="font-semibold text-[#1f2023]">La convocatoria todavía no tiene propuestas</p>
-                        <p className="text-xs mt-1 text-[#5b5f66]">Aquí aparecerán cuando los autores las envíen.</p>
+                        <p className="font-semibold text-ink-900">La convocatoria todavía no tiene propuestas</p>
+                        <p className="text-xs mt-1 text-ink-600">Aquí aparecerán cuando los autores las envíen.</p>
                       </td>
                     </tr>
                   )}
@@ -160,25 +160,25 @@ export default function PropuestasEvaluadoresModal({
                     propuestas?.map((p) => {
                       const asignable = puedeAsignarPropuesta(p).permitido;
                       return (
-                        <tr key={p.propuestaId} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                        <tr key={p.propuestaId} className="hover:bg-surface-muted transition-colors">
                           <td className="py-3.5 px-4 align-middle max-w-sm">
                             <p className="font-semibold leading-snug">{p.titulo}</p>
-                            <p className="text-xs text-[#5b5f66] mt-1">
+                            <p className="text-xs text-ink-600 mt-1">
                               {p.autores?.length > 0 ? p.autores.join(', ') : 'Sin autores registrados'}
                             </p>
-                            <p className="text-xs text-[#9ca0a6] mt-0.5">Enviada {formatearFechaHoraCorta(p.fechaEnvio)}</p>
+                            <p className="text-xs text-ink-300 mt-0.5">Enviada {formatearFechaHoraCorta(p.fechaEnvio)}</p>
                           </td>
                           <td className="py-3.5 px-4 align-middle whitespace-nowrap">
-                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f7f7f8] text-[#1f2023] border border-[#d8dadf]">
+                            <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-muted text-ink-900 border border-field-border">
                               {ESTADOS_PROPUESTA[p.estado] || p.estado}
                             </span>
                           </td>
                           <td className="py-3.5 px-4 align-middle">
-                            <p className={`text-sm ${p.asignacionesTotales > 0 ? 'text-[#1f2023]' : 'text-[#a6192e] font-semibold'}`}>
+                            <p className={`text-sm ${p.asignacionesTotales > 0 ? 'text-ink-900' : 'text-brand-600 font-semibold'}`}>
                               {textoResumenAsignaciones(p)}
                             </p>
                             {p.evaluadores?.length > 0 && (
-                              <p className="text-xs text-[#5b5f66] mt-0.5">{p.evaluadores.join(', ')}</p>
+                              <p className="text-xs text-ink-600 mt-0.5">{p.evaluadores.join(', ')}</p>
                             )}
                           </td>
                           <td className="py-3.5 px-4 align-middle text-right">

@@ -28,7 +28,7 @@ const ESTILO_SWAL = {
 };
 
 const CLASE_BOTON_ICONO =
-  'w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]';
+  'w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600';
 
 /**
  * @param {Object} props
@@ -148,19 +148,19 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
       <EvaluadorForm onRegistrar={registrar} />
 
       {aviso && (
-        <p className="text-sm text-[#1f2023] bg-[#f7f7f8] border border-[#e5e7ea] px-3 py-2 rounded-[8px]" role="status">
+        <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px]" role="status">
           {aviso}
         </p>
       )}
 
-      <p className="text-sm text-[#5b5f66]" role="status">
+      <p className="text-sm text-ink-600" role="status">
         {resumen}
       </p>
 
-      <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+      <div className="overflow-hidden rounded-[12px] border border-border bg-white">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
               <th scope="col" className="py-3 px-4">Evaluador</th>
               <th scope="col" className="py-3 px-4">Área de experticia</th>
               <th scope="col" className="py-3 px-4 whitespace-nowrap">Propuestas</th>
@@ -169,16 +169,16 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+          <tbody className="divide-y divide-border text-sm text-ink-900">
             {errorCarga && (
               <tr>
                 <td colSpan={4} className="py-10 px-4 text-center">
-                  <p className="font-semibold text-[#1f2023]">No se pudo cargar el comité evaluador</p>
-                  <p className="text-xs text-[#5b5f66] mt-1">{errorCarga}</p>
+                  <p className="font-semibold text-ink-900">No se pudo cargar el comité evaluador</p>
+                  <p className="text-xs text-ink-600 mt-1">{errorCarga}</p>
                   <button
                     type="button"
                     onClick={reintentar}
-                    className="mt-1 inline-flex items-center gap-1 text-xs text-[#a6192e] font-semibold underline cursor-pointer"
+                    className="mt-1 inline-flex items-center gap-1 text-xs text-brand-600 font-semibold underline cursor-pointer"
                   >
                     <RotateCw className="w-3.5 h-3.5" />
                     Reintentar
@@ -189,7 +189,7 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
 
             {!errorCarga && !evaluadores && (
               <tr>
-                <td colSpan={4} className="py-10 px-4 text-center text-[#5b5f66]" role="status">
+                <td colSpan={4} className="py-10 px-4 text-center text-ink-600" role="status">
                   Cargando comité evaluador...
                 </td>
               </tr>
@@ -198,8 +198,8 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
             {!errorCarga && evaluadores?.length === 0 && (
               <tr>
                 <td colSpan={4} className="py-10 px-4 text-center">
-                  <p className="font-semibold text-[#1f2023]">El comité evaluador todavía no tiene miembros</p>
-                  <p className="text-xs mt-1 text-[#5b5f66]">Registra al primero con su correo y su área de experticia.</p>
+                  <p className="font-semibold text-ink-900">El comité evaluador todavía no tiene miembros</p>
+                  <p className="text-xs mt-1 text-ink-600">Registra al primero con su correo y su área de experticia.</p>
                 </td>
               </tr>
             )}
@@ -212,14 +212,14 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                 return (
                   <tr key={ev.comiteEvaluadorId}>
                     <td className="py-3.5 px-4 align-top">
-                      <p className="font-semibold text-[#1f2023]">{nombre}</p>
-                      <p className="text-xs text-[#5b5f66] mt-0.5">
+                      <p className="font-semibold text-ink-900">{nombre}</p>
+                      <p className="text-xs text-ink-600 mt-0.5">
                         {ev.correo}
                         {ev.afiliacion ? ` · ${ev.afiliacion}` : ''}
                       </p>
                       {!ev.tieneCuenta && (
                         <span
-                          className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#fff7e6] text-[#8a5a12] border border-[#b7791f]/30"
+                          className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-muted text-ink-600 border border-border"
                           title="Debe crear su cuenta en SIGEA para poder calificar las propuestas que le asignen."
                         >
                           Sin cuenta
@@ -248,14 +248,14 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                             autoFocus
                             className={`w-full h-9 px-3 rounded-[8px] bg-white text-sm border outline-none ${
                               edicion.error
-                                ? 'border-[#a6192e] focus:ring-1 focus:ring-[#7a0c1e]'
-                                : 'border-[#d8dadf] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
+                                ? 'border-brand-600 focus:ring-1 focus:ring-brand-700'
+                                : 'border-field-border focus:border-brand-600 focus:ring-1 focus:ring-brand-600'
                             }`}
                           />
-                          {edicion.error && <p className="text-xs text-[#7a0c1e] font-medium mt-1">{edicion.error}</p>}
+                          {edicion.error && <p className="text-xs text-brand-700 font-medium mt-1">{edicion.error}</p>}
                         </div>
                       ) : (
-                        ev.areaExperticia || <span className="text-[#9ca0a6]">Sin área</span>
+                        ev.areaExperticia || <span className="text-ink-300">Sin área</span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 align-top whitespace-nowrap">{asignadas}</td>
@@ -269,7 +269,7 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                               disabled={edicion.guardando}
                               title="Guardar área"
                               aria-label={`Guardar el área de ${nombre}`}
-                              className={`${CLASE_BOTON_ICONO} border-[#107e3e]/30 text-[#107e3e] bg-[#e8f5ee]/60 hover:bg-[#e8f5ee]`}
+                              className={`${CLASE_BOTON_ICONO} border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-600 hover:text-surface`}
                             >
                               <Check className="w-4 h-4" />
                             </button>
@@ -279,7 +279,7 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                               disabled={edicion.guardando}
                               title="Cancelar"
                               aria-label="Cancelar la edición"
-                              className={`${CLASE_BOTON_ICONO} border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8]`}
+                              className={`${CLASE_BOTON_ICONO} border-field-border text-ink-600 bg-white hover:bg-surface-muted`}
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -292,7 +292,7 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                               disabled={Boolean(edicion) || retirandoId !== null}
                               title={`Editar el área de ${nombre}`}
                               aria-label={`Editar el área de ${nombre}`}
-                              className={`${CLASE_BOTON_ICONO} border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023]`}
+                              className={`${CLASE_BOTON_ICONO} border-field-border text-ink-600 bg-white hover:bg-surface-muted hover:text-ink-900`}
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
@@ -306,7 +306,7 @@ export default function ComiteEvaluadorPanel({ convocatoriaId, api }) {
                                   : `Retirar a ${nombre} del comité`
                               }
                               aria-label={`Retirar a ${nombre} del comité`}
-                              className={`${CLASE_BOTON_ICONO} border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec]`}
+                              className={`${CLASE_BOTON_ICONO} border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100`}
                             >
                               <UserMinus className="w-4 h-4" />
                             </button>

@@ -223,8 +223,8 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
   if (errorCarga) {
     return (
       <div className="py-10 text-center">
-        <p className="font-semibold text-[#1f2023]">No se pudieron cargar los evaluadores</p>
-        <button type="button" onClick={recargar} className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer">
+        <p className="font-semibold text-ink-900">No se pudieron cargar los evaluadores</p>
+        <button type="button" onClick={recargar} className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer">
           Reintentar
         </button>
       </div>
@@ -233,7 +233,7 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
 
   if (!asignaciones || !disponibles) {
     return (
-      <p className="py-10 text-center text-sm text-[#5b5f66]" role="status">
+      <p className="py-10 text-center text-sm text-ink-600" role="status">
         Cargando evaluadores...
       </p>
     );
@@ -242,28 +242,28 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
   return (
     <div className="space-y-6">
       {!asignable.permitido && (
-        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 text-brand-700" role="note">
           <Lock className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
           <p className="text-sm leading-relaxed">{asignable.motivo}</p>
         </div>
       )}
 
       {aviso && (
-        <p className="text-sm text-[#1f2023] bg-[#f7f7f8] border border-[#e5e7ea] px-3 py-2 rounded-[8px]" role="status">
+        <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px]" role="status">
           {aviso}
         </p>
       )}
 
       {/* Asignaciones vigentes */}
       <section aria-labelledby="asignados-titulo">
-        <h3 id="asignados-titulo" className="text-sm font-bold text-[#1f2023] mb-2 flex items-center gap-2">
-          <UserCheck className="w-4 h-4 text-[#a6192e]" aria-hidden="true" />
+        <h3 id="asignados-titulo" className="text-sm font-bold text-ink-900 mb-2 flex items-center gap-2">
+          <UserCheck className="w-4 h-4 text-brand-600" aria-hidden="true" />
           Evaluadores asignados ({asignaciones.length})
         </h3>
-        <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+        <div className="overflow-hidden rounded-[12px] border border-border bg-white">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+              <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                 <th scope="col" className="py-3 px-4">Evaluador</th>
                 <th scope="col" className="py-3 px-4">Asignada</th>
                 <th scope="col" className="py-3 px-4">Estado</th>
@@ -274,10 +274,10 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+            <tbody className="divide-y divide-border text-sm text-ink-900">
               {asignaciones.length === 0 && (
                 <tr>
-                  <td colSpan={asignable.permitido ? 4 : 3} className="py-8 px-4 text-center text-sm text-[#5b5f66]">
+                  <td colSpan={asignable.permitido ? 4 : 3} className="py-8 px-4 text-center text-sm text-ink-600">
                     La propuesta todavía no tiene evaluadores asignados.
                   </td>
                 </tr>
@@ -288,9 +288,9 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
                   <tr key={a.asignacionId}>
                     <td className="py-3 px-4 align-middle">
                       <p className="font-semibold">{a.evaluadorNombre}</p>
-                      <p className="text-xs text-[#5b5f66] mt-0.5">{a.areaExperticia || a.evaluadorCorreo}</p>
+                      <p className="text-xs text-ink-600 mt-0.5">{a.areaExperticia || a.evaluadorCorreo}</p>
                     </td>
-                    <td className="py-3 px-4 align-middle whitespace-nowrap text-xs text-[#5b5f66]">
+                    <td className="py-3 px-4 align-middle whitespace-nowrap text-xs text-ink-600">
                       {formatearFechaHoraCorta(a.fechaAsignacion)}
                     </td>
                     <td className="py-3 px-4 align-middle whitespace-nowrap">
@@ -322,14 +322,14 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
       {reasignacion && (
         <form
           onSubmit={confirmarReasignacion}
-          className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8] space-y-4"
+          className="p-4 rounded-[12px] border border-border bg-surface-muted space-y-4"
           aria-labelledby="reasignar-titulo"
         >
-          <p id="reasignar-titulo" className="text-sm font-bold text-[#1f2023]">
+          <p id="reasignar-titulo" className="text-sm font-bold text-ink-900">
             Reasignar la evaluación de {reasignacion.asignacion.evaluadorNombre}
           </p>
           {candidatos.length === 0 ? (
-            <p className="text-sm text-[#5b5f66]">
+            <p className="text-sm text-ink-600">
               No hay otros evaluadores del comité disponibles para esta propuesta.
             </p>
           ) : (
@@ -359,7 +359,7 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
             </div>
           )}
           {reasignacion.error && (
-            <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+            <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
               {reasignacion.error}
             </p>
           )}
@@ -379,21 +379,21 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
       {/* Criterio 1 y 2: evaluadores del comité */}
       {asignable.permitido && (
         <section aria-labelledby="comite-titulo">
-          <h3 id="comite-titulo" className="text-sm font-bold text-[#1f2023] mb-2 flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#a6192e]" aria-hidden="true" />
+          <h3 id="comite-titulo" className="text-sm font-bold text-ink-900 mb-2 flex items-center gap-2">
+            <Users className="w-4 h-4 text-brand-600" aria-hidden="true" />
             Comité evaluador de la convocatoria
           </h3>
 
           {disponibles.length === 0 ? (
-            <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white text-center">
-              <p className="text-sm font-semibold text-[#1f2023]">La convocatoria no tiene evaluadores registrados</p>
-              <p className="text-xs text-[#5b5f66] mt-1">Registra primero a los integrantes del comité evaluador.</p>
+            <div className="p-4 rounded-[12px] border border-border bg-white text-center">
+              <p className="text-sm font-semibold text-ink-900">La convocatoria no tiene evaluadores registrados</p>
+              <p className="text-xs text-ink-600 mt-1">Registra primero a los integrantes del comité evaluador.</p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+            <div className="overflow-hidden rounded-[12px] border border-border bg-white">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                  <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                     <th scope="col" className="py-3 px-4 w-10">
                       <span className="sr-only">Seleccionar</span>
                     </th>
@@ -402,13 +402,13 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
                     <th scope="col" className="py-3 px-4">Conflicto de interés</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+                <tbody className="divide-y divide-border text-sm text-ink-900">
                   {disponibles.map((e) => {
                     const seleccionable = puedeSeleccionarEvaluador(e);
                     const marcado = seleccionados.includes(e.comiteEvaluadorId);
                     const idCasilla = `evaluador-${e.comiteEvaluadorId}`;
                     return (
-                      <tr key={e.comiteEvaluadorId} className={seleccionable.permitido ? '' : 'bg-[#f7f7f8]/60'}>
+                      <tr key={e.comiteEvaluadorId} className={seleccionable.permitido ? '' : 'bg-surface-muted'}>
                         <td className="py-3 px-4 align-top">
                           <input
                             id={idCasilla}
@@ -417,30 +417,30 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
                             disabled={!seleccionable.permitido || enviando}
                             onChange={() => alternarSeleccion(e.comiteEvaluadorId)}
                             title={seleccionable.motivo}
-                            className="w-4 h-4 mt-0.5 accent-[#a6192e] cursor-pointer disabled:cursor-not-allowed"
+                            className="w-4 h-4 mt-0.5 accent-brand-600 cursor-pointer disabled:cursor-not-allowed"
                           />
                         </td>
                         <td className="py-3 px-4 align-top">
-                          <label htmlFor={idCasilla} className={`font-semibold ${seleccionable.permitido ? 'cursor-pointer' : 'text-[#5b5f66]'}`}>
+                          <label htmlFor={idCasilla} className={`font-semibold ${seleccionable.permitido ? 'cursor-pointer' : 'text-ink-600'}`}>
                             {e.nombre}
                           </label>
-                          <p className="text-xs text-[#5b5f66] mt-0.5">{e.areaExperticia || e.correo}</p>
+                          <p className="text-xs text-ink-600 mt-0.5">{e.areaExperticia || e.correo}</p>
                           {e.yaAsignado && (
-                            <span className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#edeeef] text-[#5b5f66] border border-[#d8dadf]">
+                            <span className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-page text-ink-600 border border-field-border">
                               Ya asignado
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4 align-top whitespace-nowrap text-xs text-[#5b5f66]">
+                        <td className="py-3 px-4 align-top whitespace-nowrap text-xs text-ink-600">
                           {textoCarga(e.asignacionesAbiertas)}
                         </td>
                         <td className="py-3 px-4 align-top">
                           {e.conflicto === NIVELES_CONFLICTO.NINGUNO ? (
-                            <span className="text-xs text-[#9ca0a6]">Ninguno</span>
+                            <span className="text-xs text-ink-300">Ninguno</span>
                           ) : (
                             <div className="space-y-1">
                               <ConflictoBadge nivel={e.conflicto} detalle={e.detalleConflicto} />
-                              <p className="text-xs text-[#5b5f66] max-w-xs">{e.detalleConflicto}</p>
+                              <p className="text-xs text-ink-600 max-w-xs">{e.detalleConflicto}</p>
                             </div>
                           )}
                         </td>
@@ -453,7 +453,7 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
           )}
 
           {advertencias.length > 0 && (
-            <div className="flex items-start gap-2 mt-3 p-3 rounded-[8px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+            <div className="flex items-start gap-2 mt-3 p-3 rounded-[8px] bg-brand-100 text-brand-700" role="note">
               <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-xs leading-relaxed">
                 Posible conflicto de interés: {advertencias.join(' ')} Se te pedirá confirmar antes de asignar.
@@ -462,14 +462,14 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
           )}
 
           {error && (
-            <p className="mt-3 text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+            <p className="mt-3 text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
               {error}
             </p>
           )}
 
           {disponibles.length > 0 && (
             <div className="flex items-center justify-between gap-4 mt-3">
-              <p className="text-xs text-[#5b5f66]" role="status">
+              <p className="text-xs text-ink-600" role="status">
                 {seleccionados.length === 0
                   ? 'Marca uno o más evaluadores.'
                   : `${seleccionados.length} ${seleccionados.length === 1 ? 'evaluador seleccionado' : 'evaluadores seleccionados'}`}
@@ -488,7 +488,7 @@ export default function AsignarEvaluadoresPanel({ propuesta, api, onCambio }) {
           type="button"
           onClick={() => setMostrarHistorial((v) => !v)}
           aria-expanded={mostrarHistorial}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e] cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700 cursor-pointer"
         >
           <History className="w-4 h-4" aria-hidden="true" />
           {mostrarHistorial ? 'Ocultar historial de asignaciones' : 'Ver historial de asignaciones'}

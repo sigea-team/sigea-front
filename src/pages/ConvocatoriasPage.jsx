@@ -201,11 +201,11 @@ export default function ConvocatoriasPage({
       title: 'Completa los datos para publicar',
       html: (
         <div className="text-left">
-          <p className="text-sm text-[#5b5f66] mb-2">
+          <p className="text-sm text-ink-600 mb-2">
             {data?.message || 'La convocatoria tiene datos obligatorios sin completar.'}
           </p>
           {faltantes.length > 0 && (
-            <ul className="list-disc pl-5 text-[13px] text-[#1f2023] space-y-1">
+            <ul className="list-disc pl-5 text-[13px] text-ink-900 space-y-1">
               {faltantes.map((f) => (
                 <li key={f.campo || f.mensaje}>
                   <strong>{f.etiqueta}:</strong> {f.mensaje}
@@ -394,16 +394,16 @@ export default function ConvocatoriasPage({
     >
       <div className="space-y-6">
         {/* Encabezado */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" />
               SIGEA — {isAdmin ? 'Gestión y recepción de propuestas' : 'Convocatorias vigentes para ponencias'}
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
               {isAdmin ? 'Convocatorias académicas' : 'Convocatorias abiertas'}
             </h2>
-            <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+            <p className="text-sm text-ink-600 mt-1 max-w-2xl">
               {isAdmin
                 ? 'Configura las fechas de apertura y cierre para la recepción de ponencias, pósters y artículos asociados a cada evento.'
                 : 'Consulta las convocatorias activas para presentar ponencias. Haz clic en «Enviar propuesta» para registrar tus datos de autor y postularte.'}
@@ -413,9 +413,9 @@ export default function ConvocatoriasPage({
             {/* HU-11, Criterio 1: verificar lo que ven los usuarios externos */}
             <Link
               to="/convocatorias-publicas"
-              className="h-11 px-4 rounded-[8px] border border-[#d8dadf] text-sm font-medium text-[#1f2023] hover:bg-[#f7f7f8] inline-flex items-center gap-2 transition-colors"
+              className="h-11 px-4 rounded-[8px] border border-field-border text-sm font-medium text-ink-900 hover:bg-surface-muted inline-flex items-center gap-2 transition-colors"
             >
-              <Globe className="w-4 h-4 text-[#5b5f66]" />
+              <Globe className="w-4 h-4 text-ink-600" />
               <span>Ver página pública</span>
             </Link>
             {isAdmin && (
@@ -440,7 +440,7 @@ export default function ConvocatoriasPage({
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Título, evento o descripción..."
-              rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+              rightElement={<Search className="w-4 h-4 text-ink-600" />}
             />
           </div>
           <div className="w-full sm:w-56">
@@ -452,16 +452,16 @@ export default function ConvocatoriasPage({
               options={OPCIONES_FILTRO_ESTADO}
             />
           </div>
-          <p className="sm:ml-auto text-xs text-[#5b5f66] sm:pb-3 self-end">
+          <p className="sm:ml-auto text-xs text-ink-600 sm:pb-3 self-end">
             {cargando ? 'Cargando...' : `${convocatoriasFiltradas.length} de ${convocatorias.length} convocatorias`}
           </p>
         </div>
 
         {/* Alerta de Error de carga */}
         {errorCarga && (
-          <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#a6192e] shrink-0" />
+              <Info className="w-4 h-4 text-brand-600 shrink-0" />
               <span>{errorCarga}</span>
             </div>
             <button

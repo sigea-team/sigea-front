@@ -73,9 +73,9 @@ export default function EvaluadorForm({ onRegistrar, disabled = false }) {
   const bloqueado = disabled || guardando;
 
   return (
-    <form onSubmit={enviar} noValidate className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]">
-      <p className="text-sm font-semibold text-[#1f2023]">Registrar evaluador</p>
-      <p className="text-xs text-[#5b5f66] mt-0.5">
+    <form onSubmit={enviar} noValidate className="p-4 rounded-[12px] border border-border bg-surface-muted">
+      <p className="text-sm font-semibold text-ink-900">Registrar evaluador</p>
+      <p className="text-xs text-ink-600 mt-0.5">
         Búscalo por su correo. Si tiene cuenta en SIGEA, recibirá el rol de evaluador para poder calificar.
       </p>
 
@@ -106,13 +106,13 @@ export default function EvaluadorForm({ onRegistrar, disabled = false }) {
         />
       </div>
 
-      <label className="mt-3 flex items-center gap-2 text-sm text-[#1f2023] cursor-pointer select-none w-fit">
+      <label className="mt-3 flex items-center gap-2 text-sm text-ink-900 cursor-pointer select-none w-fit">
         <input
           type="checkbox"
           checked={personaNueva}
           onChange={(e) => setPersonaNueva(e.target.checked)}
           disabled={bloqueado}
-          className="w-4 h-4 accent-[#a6192e] cursor-pointer"
+          className="w-4 h-4 accent-brand-600 cursor-pointer"
         />
         La persona aún no está registrada en SIGEA
       </label>
@@ -175,7 +175,7 @@ export default function EvaluadorForm({ onRegistrar, disabled = false }) {
       )}
 
       {errorGeneral && (
-        <p className="mt-3 text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="mt-3 text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}

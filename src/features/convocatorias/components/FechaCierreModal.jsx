@@ -69,13 +69,13 @@ export default function FechaCierreModal({ convocatoria, onClose, onSubmit }) {
     >
       <form onSubmit={guardar} className="space-y-4">
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="p-3 rounded-[8px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <p className="text-[#5b5f66]">Apertura</p>
-            <p className="font-semibold text-[#1f2023] mt-0.5">{formatearFechaHora(convocatoria?.fechaApertura)}</p>
+          <div className="p-3 rounded-[8px] bg-surface-muted border border-border">
+            <p className="text-ink-600">Apertura</p>
+            <p className="font-semibold text-ink-900 mt-0.5">{formatearFechaHora(convocatoria?.fechaApertura)}</p>
           </div>
-          <div className="p-3 rounded-[8px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <p className="text-[#5b5f66]">Fecha límite actual</p>
-            <p className="font-semibold text-[#1f2023] mt-0.5">{formatearFechaHora(convocatoria?.fechaCierre)}</p>
+          <div className="p-3 rounded-[8px] bg-surface-muted border border-border">
+            <p className="text-ink-600">Fecha límite actual</p>
+            <p className="font-semibold text-ink-900 mt-0.5">{formatearFechaHora(convocatoria?.fechaCierre)}</p>
           </div>
         </div>
 
@@ -91,18 +91,18 @@ export default function FechaCierreModal({ convocatoria, onClose, onSubmit }) {
             setErrorApi(null);
           }}
           error={error}
-          rightElement={<Calendar className="w-4 h-4 text-[#5b5f66]" />}
+          rightElement={<Calendar className="w-4 h-4 text-ink-600" />}
           helperText="Debe ser una fecha futura y posterior a la fecha de apertura."
         />
 
         {errorApi && (
-          <div className="p-3 rounded-[8px] bg-[#fdecec] text-[#7a0c1e] text-sm" role="alert">
+          <div className="p-3 rounded-[8px] bg-brand-100 text-brand-700 text-sm" role="alert">
             {errorApi}
           </div>
         )}
 
-        <div className="bg-[#f7f7f8] rounded-[8px] p-3 border border-[#e5e7ea] flex items-start gap-2 text-xs text-[#5b5f66]">
-          <Bell className="w-4 h-4 text-[#a6192e] shrink-0 mt-0.5" />
+        <div className="bg-surface-muted rounded-[8px] p-3 border border-border flex items-start gap-2 text-xs text-ink-600">
+          <Bell className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
           <p>
             Al guardar, todos los usuarios activos recibirán una <strong>notificación</strong> con la nueva fecha
             límite, indicando que aún pueden enviar sus propuestas.

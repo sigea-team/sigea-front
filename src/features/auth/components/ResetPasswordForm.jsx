@@ -36,7 +36,7 @@ function BotonVerContrasena({ visible, onToggle }) {
     <button
       type="button"
       onClick={onToggle}
-      className="hover:text-[#1f2023] focus:outline-none cursor-pointer"
+      className="hover:text-ink-900 focus:outline-none cursor-pointer"
       title={visible ? 'Ocultar contraseña' : 'Ver contraseña'}
       aria-label={visible ? 'Ocultar contraseña' : 'Ver contraseña'}
     >
@@ -52,11 +52,11 @@ function RequisitosContrasena({ valor }) {
       {REQUISITOS_CONTRASENA.map(({ id, texto, cumple }) => {
         const ok = cumple(valor);
         return (
-          <li key={id} className={`flex items-center gap-2 ${ok ? 'text-[#1f2023]' : 'text-[#5b5f66]'}`}>
+          <li key={id} className={`flex items-center gap-2 ${ok ? 'text-ink-900' : 'text-ink-600'}`}>
             {ok ? (
-              <Check className="w-3.5 h-3.5 text-[#a6192e] shrink-0" aria-hidden="true" />
+              <Check className="w-3.5 h-3.5 text-brand-600 shrink-0" aria-hidden="true" />
             ) : (
-              <Circle className="w-3.5 h-3.5 text-[#9ca0a6] shrink-0" aria-hidden="true" />
+              <Circle className="w-3.5 h-3.5 text-ink-300 shrink-0" aria-hidden="true" />
             )}
             <span>{texto}</span>
             <span className="sr-only">{ok ? '(cumple)' : '(pendiente)'}</span>
@@ -71,11 +71,11 @@ function RequisitosContrasena({ valor }) {
 function Encabezado({ titulo, descripcion }) {
   return (
     <div className="mb-8">
-      <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
+      <span className="text-xs font-bold uppercase tracking-wider text-brand-600 inline-block mb-1.5">
         Recuperar acceso
       </span>
-      <h2 className="font-serif-title text-3xl text-[#1f2023] tracking-tight">{titulo}</h2>
-      <p className="text-sm text-[#5b5f66] mt-1.5 font-normal">{descripcion}</p>
+      <h2 className="font-serif-title text-3xl text-ink-900 tracking-tight">{titulo}</h2>
+      <p className="text-sm text-ink-600 mt-1.5 font-normal">{descripcion}</p>
     </div>
   );
 }
@@ -83,24 +83,24 @@ function Encabezado({ titulo, descripcion }) {
 /** Estado de enlace inválido / expirado / ya usado (Criterio 3) o sin token en la URL. */
 function EnlaceNoValido({ mensaje }) {
   return (
-    <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+    <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
       <Encabezado
         titulo="Enlace no válido"
         descripcion="No es posible restablecer la contraseña con este enlace."
       />
-      <div role="alert" className="mb-6 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] px-4 py-3">
+      <div role="alert" className="mb-6 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] px-4 py-3">
         {mensaje}
       </div>
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
           to="/recuperar-password"
-          className="flex-1 h-11 px-6 rounded-[8px] font-medium text-sm inline-flex items-center justify-center bg-[#a6192e] text-white hover:bg-[#7a0c1e] transition-colors shadow-sm"
+          className="flex-1 h-11 px-6 rounded-[8px] font-medium text-sm inline-flex items-center justify-center bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-sm"
         >
           Solicitar un nuevo enlace
         </Link>
         <Link
           to="/login"
-          className="flex-1 h-11 px-6 rounded-[8px] font-medium text-sm inline-flex items-center justify-center border border-[#d8dadf] text-[#1f2023] hover:bg-[#f7f7f8] transition-colors"
+          className="flex-1 h-11 px-6 rounded-[8px] font-medium text-sm inline-flex items-center justify-center border border-field-border text-ink-900 hover:bg-surface-muted transition-colors"
         >
           Volver a iniciar sesión
         </Link>
@@ -141,16 +141,16 @@ export default function ResetPasswordForm({ token, servicio = servicioRecuperaci
 
   if (exito) {
     return (
-      <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+      <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
         <Encabezado
           titulo="Contraseña actualizada"
           descripcion="Ya puedes ingresar a SIGEA con tu nueva contraseña."
         />
-        <div role="status" className="mb-6 flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3">
-          <ShieldCheck className="w-5 h-5 text-[#a6192e] shrink-0 mt-0.5" />
+        <div role="status" className="mb-6 flex items-start gap-3 bg-surface-muted border border-border text-ink-900 text-sm rounded-[8px] px-4 py-3">
+          <ShieldCheck className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
           <div>
             <p>{exito.mensaje}</p>
-            {exito.correo && <p className="text-xs text-[#5b5f66] mt-1">Cuenta: {exito.correo}</p>}
+            {exito.correo && <p className="text-xs text-ink-600 mt-1">Cuenta: {exito.correo}</p>}
           </div>
         </div>
         <Button
@@ -226,14 +226,14 @@ export default function ResetPasswordForm({ token, servicio = servicioRecuperaci
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+    <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
       <Encabezado
         titulo="Crea una nueva contraseña"
         descripcion="Elige una contraseña segura para tu cuenta de SIGEA."
       />
 
       {errorGeneral && (
-        <div role="alert" className="mb-6 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] px-4 py-3">
+        <div role="alert" className="mb-6 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] px-4 py-3">
           {errorGeneral}
         </div>
       )}
@@ -288,7 +288,7 @@ export default function ResetPasswordForm({ token, servicio = servicioRecuperaci
         </div>
 
         <div className="text-center pt-2">
-          <Link to="/login" className="text-xs font-semibold text-[#a6192e] hover:underline">
+          <Link to="/login" className="text-xs font-semibold text-brand-600 hover:underline">
             Cancelar y volver a iniciar sesión
           </Link>
         </div>

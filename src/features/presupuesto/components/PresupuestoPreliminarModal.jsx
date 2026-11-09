@@ -162,7 +162,7 @@ export default function PresupuestoPreliminarModal({
     >
       <div className="space-y-5">
         {/* Resumen: total del presupuesto (Criterio 1) */}
-        <div className="flex items-center justify-between gap-4 p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
+        <div className="flex items-center justify-between gap-4 p-4 rounded-[12px] border border-border bg-white">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
               <EstadoEventoBadge estado={presupuesto?.estadoEvento || evento.estado} />
@@ -171,13 +171,13 @@ export default function PresupuestoPreliminarModal({
                   <button
                     type="button"
                     onClick={onAbrirPresupuestoAprobado}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20 hover:bg-[#e8f3ec]/80 cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-600 text-surface border-transparent hover:bg-brand-700 cursor-pointer"
                     title="Ver presupuesto aprobado formalmente"
                   >
                     Presupuesto aprobado →
                   </button>
                 ) : (
-                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20">
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-600 text-surface border-transparent">
                     Presupuesto aprobado
                   </span>
                 )
@@ -185,19 +185,19 @@ export default function PresupuestoPreliminarModal({
                 <button
                   type="button"
                   onClick={onAbrirPresupuestoAprobado}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#a6192e] hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-600 hover:underline cursor-pointer"
                 >
                   Registrar presupuesto oficial →
                 </button>
               ) : null}
             </div>
-            <p className="text-xs text-[#5b5f66]">
+            <p className="text-xs text-ink-600">
               {presupuesto ? `${cantidad} ${cantidad === 1 ? 'rubro vigente' : 'rubros vigentes'}` : 'Cargando presupuesto...'}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">Total estimado</p>
-            <p className="font-serif-title text-2xl sm:text-3xl text-[#a6192e] tabular-nums leading-tight" aria-live="polite">
+            <p className="text-xs font-bold uppercase tracking-wider text-ink-600">Total estimado</p>
+            <p className="font-serif-title text-2xl sm:text-3xl text-brand-600 tabular-nums leading-tight" aria-live="polite">
               {presupuesto ? formatearPesos(presupuesto.total) : '—'}
             </p>
           </div>
@@ -207,7 +207,7 @@ export default function PresupuestoPreliminarModal({
         <div
           role="tablist"
           aria-label="Presupuesto preliminar"
-          className="flex gap-6 border-b border-[#e5e7ea]"
+          className="flex gap-6 border-b border-border"
           onKeyDown={moverConTeclado}
         >
           {PESTANAS.map((p) => {
@@ -222,8 +222,8 @@ export default function PresupuestoPreliminarModal({
                 aria-controls={`presupuesto-panel-${p.clave}`}
                 tabIndex={activa ? 0 : -1}
                 onClick={() => setPestana(p.clave)}
-                className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] rounded-t-[4px] ${
-                  activa ? 'border-[#a6192e] text-[#a6192e]' : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-t-[4px] ${
+                  activa ? 'border-brand-600 text-brand-600' : 'border-transparent text-ink-600 hover:text-ink-900'
                 }`}
               >
                 {p.titulo}
@@ -237,12 +237,12 @@ export default function PresupuestoPreliminarModal({
             <div className="space-y-5">
               {errorCarga && !presupuesto && (
                 <div className="py-10 text-center">
-                  <p className="font-semibold text-[#1f2023]">No se pudo cargar el presupuesto</p>
-                  <p className="text-sm text-[#5b5f66] mt-1">{errorCarga}</p>
+                  <p className="font-semibold text-ink-900">No se pudo cargar el presupuesto</p>
+                  <p className="text-sm text-ink-600 mt-1">{errorCarga}</p>
                   <button
                     type="button"
                     onClick={reintentar}
-                    className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+                    className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
                   >
                     Reintentar
                   </button>
@@ -250,7 +250,7 @@ export default function PresupuestoPreliminarModal({
               )}
 
               {!errorCarga && !presupuesto && (
-                <p className="text-sm text-[#5b5f66] py-10 text-center" role="status">
+                <p className="text-sm text-ink-600 py-10 text-center" role="status">
                   Cargando presupuesto...
                 </p>
               )}
@@ -260,22 +260,22 @@ export default function PresupuestoPreliminarModal({
                   {editable ? (
                     <RubroForm onAgregar={agregar} rubros={rubros} />
                   ) : (
-                    <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+                    <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 text-brand-700" role="note">
                       <Lock className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
                       <p className="text-sm leading-relaxed">{motivoPresupuestoBloqueado(presupuesto)}</p>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-sm text-[#1f2023] min-h-5" role="status" aria-live="polite">
+                    <p className="text-sm text-ink-900 min-h-5" role="status" aria-live="polite">
                       {aviso}
                     </p>
-                    <label className="flex items-center gap-2 text-sm text-[#1f2023] cursor-pointer select-none shrink-0">
+                    <label className="flex items-center gap-2 text-sm text-ink-900 cursor-pointer select-none shrink-0">
                       <input
                         type="checkbox"
                         checked={incluirEliminados}
                         onChange={(e) => setIncluirEliminados(e.target.checked)}
-                        className="w-4 h-4 accent-[#a6192e] cursor-pointer"
+                        className="w-4 h-4 accent-brand-600 cursor-pointer"
                       />
                       Mostrar eliminados
                     </label>

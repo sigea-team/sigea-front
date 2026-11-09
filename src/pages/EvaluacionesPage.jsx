@@ -149,13 +149,13 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
         {/* Encabezado institucional */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e]">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
               SIGEA • Arbitraje y Rúbricas
             </span>
-            <h1 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1">
+            <h1 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1">
               Evaluación de Propuestas Académicas
             </h1>
-            <p className="text-xs sm:text-sm text-[#5b5f66] mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-ink-600 mt-1 max-w-2xl">
               Califica las ponencias asignadas aplicando los criterios y pesos de la rúbrica oficial (HU-17). El sistema calculará automáticamente la puntuación ponderada y validará la completitud del arbitraje.
             </p>
           </div>
@@ -177,66 +177,66 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
         </div>
 
         {errorCarga && (
-          <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e]">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#a6192e]" />
+          <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-brand-600" />
             <p className="text-sm">{errorCarga}</p>
           </div>
         )}
 
         {/* Tarjetas de métricas rápidas */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <div className="flex items-center justify-between text-[#5b5f66]">
+          <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
+            <div className="flex items-center justify-between text-ink-600">
               <span className="text-xs font-medium">Total Asignadas</span>
-              <ClipboardCheck className="w-4 h-4 text-[#a6192e]" />
+              <ClipboardCheck className="w-4 h-4 text-brand-600" />
             </div>
-            <p className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] font-bold mt-2">
+            <p className="font-serif-title text-2xl sm:text-3xl text-ink-900 font-bold mt-2">
               {metricas.total}
             </p>
           </div>
 
-          <div className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <div className="flex items-center justify-between text-[#5b5f66]">
+          <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
+            <div className="flex items-center justify-between text-ink-600">
               <span className="text-xs font-medium">Por Calificar</span>
-              <Clock className="w-4 h-4 text-[#b54708]" />
+              <Clock className="w-4 h-4 text-brand-700" />
             </div>
-            <p className="font-serif-title text-2xl sm:text-3xl text-[#b54708] font-bold mt-2">
+            <p className="font-serif-title text-2xl sm:text-3xl text-brand-700 font-bold mt-2">
               {metricas.pendientes}
             </p>
           </div>
 
-          <div className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <div className="flex items-center justify-between text-[#5b5f66]">
+          <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
+            <div className="flex items-center justify-between text-ink-600">
               <span className="text-xs font-medium">Completadas</span>
-              <CheckCircle2 className="w-4 h-4 text-[#107e3e]" />
+              <CheckCircle2 className="w-4 h-4 text-brand-600" />
             </div>
-            <p className="font-serif-title text-2xl sm:text-3xl text-[#107e3e] font-bold mt-2">
+            <p className="font-serif-title text-2xl sm:text-3xl text-brand-600 font-bold mt-2">
               {metricas.completadas}
             </p>
           </div>
 
-          <div className="p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <div className="flex items-center justify-between text-[#5b5f66]">
+          <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
+            <div className="flex items-center justify-between text-ink-600">
               <span className="text-xs font-medium">Promedio Otorgado</span>
-              <Award className="w-4 h-4 text-[#a6192e]" />
+              <Award className="w-4 h-4 text-brand-600" />
             </div>
-            <p className="font-serif-title text-2xl sm:text-3xl text-[#a6192e] font-bold mt-2">
+            <p className="font-serif-title text-2xl sm:text-3xl text-brand-600 font-bold mt-2">
               {metricas.promedio}
             </p>
           </div>
         </div>
 
         {/* Barra de filtros y búsqueda */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-[12px] border border-[#e5e7ea]">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-[12px] border border-border">
           {/* Pestañas de estado */}
-          <div className="flex items-center gap-1.5 p-1 bg-[#f7f7f8] rounded-[8px] border border-[#e5e7ea] self-start sm:self-auto">
+          <div className="flex items-center gap-1.5 p-1 bg-surface-muted rounded-[8px] border border-border self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setFiltroEstado('todos')}
               className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition-colors cursor-pointer ${
                 filtroEstado === 'todos'
-                  ? 'bg-white text-[#a6192e] shadow-2xs'
-                  : 'text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'bg-white text-brand-600 shadow-2xs'
+                  : 'text-ink-600 hover:text-ink-900'
               }`}
             >
               Todas ({metricas.total})
@@ -246,8 +246,8 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
               onClick={() => setFiltroEstado('pendiente')}
               className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition-colors cursor-pointer ${
                 filtroEstado === 'pendiente'
-                  ? 'bg-white text-[#b54708] shadow-2xs'
-                  : 'text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'bg-white text-brand-700 shadow-2xs'
+                  : 'text-ink-600 hover:text-ink-900'
               }`}
             >
               Pendientes ({metricas.pendientes})
@@ -257,8 +257,8 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
               onClick={() => setFiltroEstado('completada')}
               className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition-colors cursor-pointer ${
                 filtroEstado === 'completada'
-                  ? 'bg-white text-[#107e3e] shadow-2xs'
-                  : 'text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'bg-white text-brand-600 shadow-2xs'
+                  : 'text-ink-600 hover:text-ink-900'
               }`}
             >
               Completadas ({metricas.completadas})
@@ -267,13 +267,13 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
 
           {/* Campo de búsqueda */}
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-[#9ca0a6] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-ink-300 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={terminoBusqueda}
               onChange={(e) => setTerminoBusqueda(e.target.value)}
               placeholder="Buscar por título, autor o convocatoria..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-[8px] border border-[#e5e7ea] text-xs outline-hidden focus:border-[#a6192e] focus:ring-2 focus:ring-[#a6192e]/20 transition-all"
+              className="w-full pl-9 pr-3 py-1.5 rounded-[8px] border border-border text-xs outline-hidden focus:border-brand-600 focus:ring-2 focus:ring-brand-600 transition-all"
             />
           </div>
         </div>

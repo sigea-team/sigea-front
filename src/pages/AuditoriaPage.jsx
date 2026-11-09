@@ -158,14 +158,14 @@ export default function AuditoriaPage({ usuarioProp, servicio = servicioAuditori
   if (!autorizado || sinPermiso) {
     return (
       <MainLayout title="Auditoría del Sistema" activeNav="auditoria" onSelectNav={onSelectNav} usuario={usuarioProp}>
-        <div className="max-w-lg mx-auto mt-12 text-center rounded-[16px] border border-[#e5e7ea] bg-white p-10 shadow-sm">
-          <div className="w-14 h-14 mx-auto rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center">
+        <div className="max-w-lg mx-auto mt-12 text-center rounded-[16px] border border-border bg-white p-10 shadow-sm">
+          <div className="w-14 h-14 mx-auto rounded-full bg-brand-100 text-brand-600 flex items-center justify-center">
             <ShieldOff className="w-7 h-7" />
           </div>
-          <h2 className="font-serif-title text-2xl text-[#1f2023] mt-5">
+          <h2 className="font-serif-title text-2xl text-ink-900 mt-5">
             No tienes permisos para consultar la auditoría
           </h2>
-          <p className="text-sm text-[#5b5f66] mt-2">
+          <p className="text-sm text-ink-600 mt-2">
             Esta sección es exclusiva para administradores. Si crees que deberías tener acceso, solicita al
             administrador del sistema el permiso <span className="font-mono text-xs">AUDITORIA_VER</span>.
           </p>
@@ -186,26 +186,26 @@ export default function AuditoriaPage({ usuarioProp, servicio = servicioAuditori
     >
       <div className="space-y-6">
         {/* Encabezado */}
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex items-center justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <History className="w-3.5 h-3.5" />
               SIGEA — Trazabilidad
             </span>
-            <h2 className="font-serif-title text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h2 className="font-serif-title text-3xl text-ink-900 mt-1 tracking-tight">
               Auditoría de Operaciones Críticas
             </h2>
-            <p className="text-sm text-[#5b5f66] mt-1">
+            <p className="text-sm text-ink-600 mt-1">
               Consulta quién realizó cada operación crítica, cuándo la hizo y qué datos afectó.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <span
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-surface-muted text-ink-600 border border-border"
               title="Los registros de auditoría no pueden modificarse ni eliminarse"
             >
-              <Lock className="w-3.5 h-3.5 text-[#a6192e]" />
+              <Lock className="w-3.5 h-3.5 text-brand-600" />
               Solo lectura
             </span>
             <Button
@@ -236,17 +236,17 @@ export default function AuditoriaPage({ usuarioProp, servicio = servicioAuditori
         {resultado.error && (
           <div
             role="alert"
-            className="p-4 rounded-[12px] border border-[#a6192e]/30 bg-[#fdecec] text-[#7a0c1e] text-sm font-medium flex items-center justify-between"
+            className="p-4 rounded-[12px] border border-brand-600 bg-brand-100 text-brand-700 text-sm font-medium flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-[#a6192e] shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-brand-600 shrink-0" />
               <span>{resultado.error}</span>
             </div>
             <div className="flex items-center gap-2 ml-4 shrink-0">
               <button
                 type="button"
                 onClick={handleActualizar}
-                className="px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-[#a6192e]/30 hover:bg-[#fdecec] cursor-pointer"
+                className="px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-brand-600 hover:bg-brand-100 cursor-pointer"
               >
                 Reintentar
               </button>

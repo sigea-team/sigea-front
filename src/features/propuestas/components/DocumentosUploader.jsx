@@ -65,11 +65,11 @@ export default function DocumentosUploader({
   return (
     <div className="space-y-3">
       <div>
-        <label htmlFor={inputId} className="text-sm font-medium text-[#1f2023]">
+        <label htmlFor={inputId} className="text-sm font-medium text-ink-900">
           {etiqueta}
-          {obligatorio && <span className="text-[#a6192e]"> *</span>}
+          {obligatorio && <span className="text-brand-600"> *</span>}
         </label>
-        <p className="text-xs text-[#5b5f66] mt-0.5">
+        <p className="text-xs text-ink-600 mt-0.5">
           Formatos {TEXTO_FORMATOS} · máximo {TAMANO_MAXIMO_MB} MB por archivo · hasta {MAXIMO_DOCUMENTOS} documentos por versión.
         </p>
       </div>
@@ -82,23 +82,23 @@ export default function DocumentosUploader({
         onDragLeave={() => setArrastrando(false)}
         onDrop={alSoltar}
         className={`rounded-[12px] border border-dashed px-4 py-6 text-center transition-colors ${
-          arrastrando ? 'border-[#a6192e] bg-[#fdecec]/40' : error ? 'border-[#a6192e]' : 'border-[#d8dadf] bg-[#f7f7f8]'
+          arrastrando ? 'border-brand-600 bg-brand-100' : error ? 'border-brand-600' : 'border-field-border bg-surface-muted'
         }`}
       >
-        <Upload className="w-6 h-6 mx-auto text-[#5b5f66]" aria-hidden="true" />
-        <p className="text-sm text-[#1f2023] mt-2">
+        <Upload className="w-6 h-6 mx-auto text-ink-600" aria-hidden="true" />
+        <p className="text-sm text-ink-900 mt-2">
           Arrastra los archivos aquí o{' '}
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={deshabilitado || cupoAgotado}
-            className="font-semibold text-[#a6192e] hover:text-[#7a0c1e] underline cursor-pointer disabled:text-[#9ca0a6] disabled:no-underline disabled:cursor-not-allowed"
+            className="font-semibold text-brand-600 hover:text-brand-700 underline cursor-pointer disabled:text-ink-300 disabled:no-underline disabled:cursor-not-allowed"
           >
             selecciónalos
           </button>
         </p>
         {cupoAgotado && (
-          <p className="text-xs text-[#5b5f66] mt-1">Ya alcanzaste el máximo de {MAXIMO_DOCUMENTOS} documentos.</p>
+          <p className="text-xs text-ink-600 mt-1">Ya alcanzaste el máximo de {MAXIMO_DOCUMENTOS} documentos.</p>
         )}
         <input
           id={inputId}
@@ -116,13 +116,13 @@ export default function DocumentosUploader({
       </div>
 
       {archivos.length > 0 && (
-        <ul className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white">
+        <ul className="divide-y divide-border rounded-[12px] border border-border bg-white">
           {archivos.map((archivo, i) => (
             <li key={`${archivo.name}-${i}`} className="flex items-center gap-3 px-4 py-2.5">
-              <FileText className="w-4 h-4 text-[#a6192e] shrink-0" aria-hidden="true" />
+              <FileText className="w-4 h-4 text-brand-600 shrink-0" aria-hidden="true" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-[#1f2023] truncate">{archivo.name}</p>
-                <p className="text-xs text-[#5b5f66]">
+                <p className="text-sm text-ink-900 truncate">{archivo.name}</p>
+                <p className="text-xs text-ink-600">
                   {formatearTamano(archivo.size)}
                   {i === 0 && yaIncluidos === 0 && ' · documento principal'}
                 </p>
@@ -131,7 +131,7 @@ export default function DocumentosUploader({
                 type="button"
                 onClick={() => quitar(i)}
                 disabled={deshabilitado}
-                className="p-1.5 rounded-full text-[#5b5f66] hover:text-[#a6192e] hover:bg-[#fdecec] cursor-pointer disabled:cursor-not-allowed"
+                className="p-1.5 rounded-full text-ink-600 hover:text-brand-600 hover:bg-brand-100 cursor-pointer disabled:cursor-not-allowed"
                 aria-label={`Quitar ${archivo.name}`}
                 title="Quitar archivo"
               >
@@ -143,7 +143,7 @@ export default function DocumentosUploader({
       )}
 
       {(error || rechazados.length > 0) && (
-        <div className="flex items-start gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-xs rounded-[8px] p-3" role="alert">
+        <div className="flex items-start gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-xs rounded-[8px] p-3" role="alert">
           <AlertCircle className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" />
           <div className="space-y-1">
             {error && <p>{error}</p>}

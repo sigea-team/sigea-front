@@ -244,12 +244,12 @@ export default function AgendaPage({
     <MainLayout title="Agenda y Cronograma de Actividades" activeNav="agenda">
       <div className="space-y-6">
         {/* Encabezado con selector de evento y botón de acción */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border">
           <div className="space-y-1">
-            <h2 className="text-lg font-bold text-[#1f2023]">
+            <h2 className="text-lg font-bold text-ink-900">
               {eventoActual ? `Agenda: ${eventoActual.nombre}` : 'Programación de la Agenda'}
             </h2>
-            <p className="text-xs text-[#5b5f66]">
+            <p className="text-xs text-ink-600">
               {eventoActual
                 ? `Fechas del evento: ${eventoActual.fechaInicio} al ${eventoActual.fechaFin} • Modalidad: ${eventoActual.modalidad || 'Presencial'}`
                 : 'Selecciona un evento para visualizar y organizar cronológicamente sus actividades.'}
@@ -302,10 +302,10 @@ export default function AgendaPage({
         </div>
 
         {!idEventoActivo ? (
-          <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-[#d8dadf] bg-white">
-            <Calendar className="w-12 h-12 text-[#9ca0a6] mx-auto mb-2" />
-            <p className="text-base font-semibold text-[#1f2023]">Selecciona un evento académico</p>
-            <p className="text-xs text-[#5b5f66] mt-1">
+          <div className="text-center py-16 px-4 rounded-2xl border border-dashed border-field-border bg-white">
+            <Calendar className="w-12 h-12 text-ink-300 mx-auto mb-2" />
+            <p className="text-base font-semibold text-ink-900">Selecciona un evento académico</p>
+            <p className="text-xs text-ink-600 mt-1">
               Elige un evento del selector superior para consultar o programar las actividades de su agenda.
             </p>
           </div>
@@ -313,58 +313,58 @@ export default function AgendaPage({
           <>
             {/* Tarjetas de estadísticas */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-              <div className="p-3.5 rounded-xl border border-[#e5e7ea] bg-white">
-                <div className="flex items-center justify-between text-[#5b5f66] mb-1">
+              <div className="p-3.5 rounded-xl border border-border bg-white">
+                <div className="flex items-center justify-between text-ink-600 mb-1">
                   <span className="text-[11px] font-semibold uppercase">Total Actividades</span>
-                  <CalendarClock className="w-4 h-4 text-[#a6192e]" />
+                  <CalendarClock className="w-4 h-4 text-brand-600" />
                 </div>
-                <p className="text-xl font-bold text-[#1f2023]">{metricas.total}</p>
-                <p className="text-[10px] text-[#5b5f66]">En el cronograma</p>
+                <p className="text-xl font-bold text-ink-900">{metricas.total}</p>
+                <p className="text-[10px] text-ink-600">En el cronograma</p>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-[#e5e7ea] bg-white">
-                <div className="flex items-center justify-between text-[#5b5f66] mb-1">
+              <div className="p-3.5 rounded-xl border border-border bg-white">
+                <div className="flex items-center justify-between text-ink-600 mb-1">
                   <span className="text-[11px] font-semibold uppercase">Simultáneas</span>
-                  <Layers className="w-4 h-4 text-blue-600" />
+                  <Layers className="w-4 h-4 text-brand-600" />
                 </div>
-                <p className="text-xl font-bold text-[#1f2023]">{metricas.simultaneas}</p>
-                <p className="text-[10px] text-[#5b5f66]">Talleres y tracks paralelos</p>
+                <p className="text-xl font-bold text-ink-900">{metricas.simultaneas}</p>
+                <p className="text-[10px] text-ink-600">Talleres y tracks paralelos</p>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-[#e5e7ea] bg-white">
-                <div className="flex items-center justify-between text-[#5b5f66] mb-1">
+              <div className="p-3.5 rounded-xl border border-border bg-white">
+                <div className="flex items-center justify-between text-ink-600 mb-1">
                   <span className="text-[11px] font-semibold uppercase">Salas Asignadas</span>
-                  <Building className="w-4 h-4 text-emerald-600" />
+                  <Building className="w-4 h-4 text-brand-600" />
                 </div>
-                <p className="text-xl font-bold text-[#1f2023]">{metricas.salasOcupadas}</p>
-                <p className="text-[10px] text-[#5b5f66]">De {salas.length} disponibles</p>
+                <p className="text-xl font-bold text-ink-900">{metricas.salasOcupadas}</p>
+                <p className="text-[10px] text-ink-600">De {salas.length} disponibles</p>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-[#e5e7ea] bg-white">
-                <div className="flex items-center justify-between text-[#5b5f66] mb-1">
+              <div className="p-3.5 rounded-xl border border-border bg-white">
+                <div className="flex items-center justify-between text-ink-600 mb-1">
                   <span className="text-[11px] font-semibold uppercase">Ponentes Activos</span>
-                  <User className="w-4 h-4 text-purple-600" />
+                  <User className="w-4 h-4 text-brand-600" />
                 </div>
-                <p className="text-xl font-bold text-[#1f2023]">{metricas.ponentesActivos}</p>
-                <p className="text-[10px] text-[#5b5f66]">Con sesiones asignadas</p>
+                <p className="text-xl font-bold text-ink-900">{metricas.ponentesActivos}</p>
+                <p className="text-[10px] text-ink-600">Con sesiones asignadas</p>
               </div>
             </div>
 
             {/* Aviso si el evento no tiene salas registradas */}
             {salas.length === 0 && (
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-brand-100 border border-brand-600 text-brand-700 text-xs">
+                <AlertCircle className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-amber-950">
+                  <p className="font-semibold text-brand-700">
                     No hay salas registradas para este evento
                   </p>
-                  <p className="mt-0.5 text-amber-800">
+                  <p className="mt-0.5 text-brand-700">
                     Para programar actividades (Criterio 1 y 4), primero debes registrar los espacios o auditorios del evento desde el módulo de Salas y Espacios.
                   </p>
                   <button
                     type="button"
                     onClick={() => navigate(`/eventos/${idEventoActivo}/salas`)}
-                    className="mt-2 text-xs font-semibold text-[#a6192e] underline cursor-pointer"
+                    className="mt-2 text-xs font-semibold text-brand-600 underline cursor-pointer"
                   >
                     Ir a Salas y Espacios →
                   </button>
@@ -388,14 +388,14 @@ export default function AgendaPage({
             {/* Barra de Filtros y Selector de Vista */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 p-1 bg-[#f2f4f7] rounded-lg">
+                <div className="flex items-center gap-1.5 p-1 bg-surface-muted rounded-lg">
                   <button
                     type="button"
                     onClick={() => setVista('timeline')}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                       vista === 'timeline'
-                        ? 'bg-white text-[#1f2023] shadow-xs'
-                        : 'text-[#5b5f66] hover:text-[#1f2023]'
+                        ? 'bg-white text-ink-900 shadow-xs'
+                        : 'text-ink-600 hover:text-ink-900'
                     }`}
                   >
                     <Calendar className="w-3.5 h-3.5" />
@@ -407,8 +407,8 @@ export default function AgendaPage({
                     onClick={() => setVista('tabla')}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                       vista === 'tabla'
-                        ? 'bg-white text-[#1f2023] shadow-xs'
-                        : 'text-[#5b5f66] hover:text-[#1f2023]'
+                        ? 'bg-white text-ink-900 shadow-xs'
+                        : 'text-ink-600 hover:text-ink-900'
                     }`}
                   >
                     <LayoutList className="w-3.5 h-3.5" />
@@ -416,7 +416,7 @@ export default function AgendaPage({
                   </button>
                 </div>
 
-                <p className="text-xs text-[#5b5f66]">
+                <p className="text-xs text-ink-600">
                   Mostrando {actividadesFiltradas.length} de {actividades.length} actividades
                 </p>
               </div>
@@ -444,8 +444,8 @@ export default function AgendaPage({
 
             {/* Visualización de la Agenda */}
             {cargando ? (
-              <div className="py-20 text-center text-xs text-[#5b5f66]">
-                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-[#a6192e]" />
+              <div className="py-20 text-center text-xs text-ink-600">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-brand-600" />
                 Cargando agenda cronológica...
               </div>
             ) : vista === 'timeline' ? (

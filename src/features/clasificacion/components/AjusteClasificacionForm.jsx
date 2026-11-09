@@ -57,14 +57,14 @@ export default function AjusteClasificacionForm({ propuesta, api, onAjustada, on
     <form
       onSubmit={guardar}
       noValidate
-      className="space-y-4 p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]/60"
+      className="space-y-4 p-4 rounded-[12px] border border-border bg-surface-muted"
       aria-labelledby="ajuste-titulo"
     >
       <div>
-        <p id="ajuste-titulo" className="text-sm font-bold text-[#1f2023]">
+        <p id="ajuste-titulo" className="text-sm font-bold text-ink-900">
           Ajustar clasificación manualmente
         </p>
-        <p className="text-xs text-[#5b5f66] mt-0.5">
+        <p className="text-xs text-ink-600 mt-0.5">
           {propuesta.aplicada
             ? `Clasificación actual: ${etiquetaClasificacion(propuesta.clasificacion)}.`
             : `Según los umbrales le corresponde: ${etiquetaClasificacion(propuesta.clasificacionPorUmbrales)}.`}{' '}
@@ -100,7 +100,7 @@ export default function AjusteClasificacionForm({ propuesta, api, onAjustada, on
       />
 
       {errorGeneral && !errorMotivo && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}

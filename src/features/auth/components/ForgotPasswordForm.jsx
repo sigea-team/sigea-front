@@ -90,15 +90,15 @@ export default function ForgotPasswordForm({ servicio = servicioRecuperacion }) 
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-8 sm:p-12 shadow-sm">
+    <div className="bg-white rounded-[16px] border border-border p-8 sm:p-12 shadow-sm">
       <div className="mb-8">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] inline-block mb-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-brand-600 inline-block mb-1.5">
           Recuperar acceso
         </span>
-        <h2 className="font-serif-title text-3xl text-[#1f2023] tracking-tight">
+        <h2 className="font-serif-title text-3xl text-ink-900 tracking-tight">
           ¿Olvidaste tu contraseña?
         </h2>
-        <p className="text-sm text-[#5b5f66] mt-1.5 font-normal">
+        <p className="text-sm text-ink-600 mt-1.5 font-normal">
           {confirmacion
             ? 'Revisa tu bandeja de entrada (y la carpeta de spam) para continuar.'
             : 'Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.'}
@@ -109,13 +109,13 @@ export default function ForgotPasswordForm({ servicio = servicioRecuperacion }) 
         <div className="space-y-6">
           <div
             role="status"
-            className="flex items-start gap-3 bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] text-sm rounded-[8px] px-4 py-3"
+            className="flex items-start gap-3 bg-surface-muted border border-border text-ink-900 text-sm rounded-[8px] px-4 py-3"
           >
-            <MailCheck className="w-5 h-5 text-[#a6192e] shrink-0 mt-0.5" />
+            <MailCheck className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
             <p>{confirmacion}</p>
           </div>
 
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             El enlace solo puede usarse una vez. Si expira, solicita uno nuevo.
           </p>
 
@@ -133,7 +133,7 @@ export default function ForgotPasswordForm({ servicio = servicioRecuperacion }) 
           {errorGeneral && (
             <div
               role="alert"
-              className="mb-6 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] px-4 py-3"
+              className="mb-6 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] px-4 py-3"
             >
               {errorGeneral}
             </div>
@@ -161,7 +161,7 @@ export default function ForgotPasswordForm({ servicio = servicioRecuperacion }) 
             </div>
 
             <div className="text-center pt-2">
-              <Link to="/login" className="text-xs font-semibold text-[#a6192e] hover:underline">
+              <Link to="/login" className="text-xs font-semibold text-brand-600 hover:underline">
                 Volver a iniciar sesión
               </Link>
             </div>

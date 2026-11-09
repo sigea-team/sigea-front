@@ -71,16 +71,16 @@ export default function AsociarConferencistaPanel({ coincidencia, formInicial, e
 
   return (
     <form onSubmit={enviar} noValidate className="space-y-6">
-      <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-        <div className="w-10 h-10 rounded-full bg-white border border-[#e5e7ea] text-[#5b5f66] flex items-center justify-center shrink-0">
+      <div className="flex items-start gap-3 p-4 rounded-[12px] bg-surface-muted border border-border">
+        <div className="w-10 h-10 rounded-full bg-white border border-border text-ink-600 flex items-center justify-center shrink-0">
           <UserRound className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <p className="font-semibold text-[#1f2023]">{coincidencia.nombreCompleto}</p>
-          <p className="text-xs text-[#5b5f66] mt-0.5">
+          <p className="font-semibold text-ink-900">{coincidencia.nombreCompleto}</p>
+          <p className="text-xs text-ink-600 mt-0.5">
             {coincidencia.tipoDocumento} {coincidencia.numeroDocumento} · {coincidencia.correo}
           </p>
-          <p className="text-xs text-[#5b5f66] mt-1">
+          <p className="text-xs text-ink-600 mt-1">
             {coincidencia.eventosPrevios > 0
               ? `Ha participado como conferencista en ${coincidencia.eventosPrevios} ${coincidencia.eventosPrevios === 1 ? 'evento' : 'eventos'}. `
               : ''}
@@ -92,7 +92,7 @@ export default function AsociarConferencistaPanel({ coincidencia, formInicial, e
       </div>
 
       <section className="space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">Participación en este evento</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">Participación en este evento</h3>
         <div className="grid grid-cols-1 sm:grid-cols-[220px_minmax(0,1fr)] gap-4">
           <Select
             id="asoc-tipo-participacion"
@@ -119,18 +119,18 @@ export default function AsociarConferencistaPanel({ coincidencia, formInicial, e
 
       {pideTrayectoria && (
         <section className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">Trayectoria académica y profesional</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">Trayectoria académica y profesional</h3>
           <TrayectoriaFields form={form} errores={errores} onCambiar={cambiar} disabled={guardando} idPrefijo="asoc" />
         </section>
       )}
 
       {errorGeneral && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}
 
-      <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#e5e7ea]">
+      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
         <Button type="button" variant="outline" onClick={onCancelar} disabled={guardando}>
           Cancelar
         </Button>

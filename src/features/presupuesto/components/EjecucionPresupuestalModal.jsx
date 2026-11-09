@@ -36,16 +36,16 @@ const TODOS = 'todos';
 /** Tarjeta pequeña de una cifra del resumen. */
 function Cifra({ titulo, valor, detalle, resaltada = false, alerta = false }) {
   return (
-    <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-[#5b5f66]">{titulo}</p>
+    <div className="p-4 rounded-[12px] border border-border bg-white">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-ink-600">{titulo}</p>
       <p
         className={`font-serif-title text-2xl tabular-nums leading-tight mt-1 ${
-          alerta ? 'text-[#7a0c1e]' : resaltada ? 'text-[#a6192e]' : 'text-[#1f2023]'
+          alerta ? 'text-brand-700' : resaltada ? 'text-brand-600' : 'text-ink-900'
         }`}
       >
         {valor}
       </p>
-      {detalle && <p className="text-xs text-[#5b5f66] mt-1">{detalle}</p>}
+      {detalle && <p className="text-xs text-ink-600 mt-1">{detalle}</p>}
     </div>
   );
 }
@@ -198,19 +198,19 @@ export default function EjecucionPresupuestalModal({
       <div className="space-y-5">
         {/* Carga inicial y error */}
         {!ejecucion && !errorCarga && (
-          <p className="text-sm text-[#5b5f66] py-12 text-center" role="status">
+          <p className="text-sm text-ink-600 py-12 text-center" role="status">
             Cargando la ejecución presupuestal...
           </p>
         )}
 
         {!ejecucion && errorCarga && (
           <div className="py-10 text-center">
-            <p className="font-semibold text-[#1f2023]">No se pudo cargar la ejecución presupuestal</p>
-            <p className="text-sm text-[#5b5f66] mt-1">{errorCarga}</p>
+            <p className="font-semibold text-ink-900">No se pudo cargar la ejecución presupuestal</p>
+            <p className="text-sm text-ink-600 mt-1">{errorCarga}</p>
             <button
               type="button"
               onClick={reintentar}
-              className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+              className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
             >
               Reintentar
             </button>
@@ -220,22 +220,22 @@ export default function EjecucionPresupuestalModal({
         {ejecucion && (
           <>
             {/* Resumen del evento (RF12, Criterio 4: 0 % sin gastos) */}
-            <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8] space-y-4">
+            <div className="p-4 rounded-[12px] border border-border bg-surface-muted space-y-4">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-2 flex-wrap">
                   <EstadoEventoBadge estado={evento.estado} />
                   {ejecucion.tienePresupuestoAprobado ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#e8f3ec] text-[#1e6b3a] border border-[#1e6b3a]/20">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-600 text-surface border-transparent">
                       <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
                       Presupuesto aprobado
                     </span>
                   ) : (
-                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#fdecec] text-[#a6192e] border border-[#a6192e]/20">
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 text-brand-600 border border-brand-600">
                       Sin presupuesto aprobado
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-[#5b5f66]">
+                <p className="text-xs text-ink-600">
                   {ejecucion.cantidadGastos} {ejecucion.cantidadGastos === 1 ? 'gasto registrado' : 'gastos registrados'}
                 </p>
               </div>
@@ -275,7 +275,7 @@ export default function EjecucionPresupuestalModal({
             <div
               role="tablist"
               aria-label="Ejecución presupuestal"
-              className="flex gap-6 border-b border-[#e5e7ea]"
+              className="flex gap-6 border-b border-border"
               onKeyDown={moverConTeclado}
             >
               {PESTANAS.map((p) => {
@@ -290,13 +290,13 @@ export default function EjecucionPresupuestalModal({
                     aria-controls={`ejecucion-panel-${p.clave}`}
                     tabIndex={activa ? 0 : -1}
                     onClick={() => setPestana(p.clave)}
-                    className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] rounded-t-[4px] ${
-                      activa ? 'border-[#a6192e] text-[#a6192e]' : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                    className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-t-[4px] ${
+                      activa ? 'border-brand-600 text-brand-600' : 'border-transparent text-ink-600 hover:text-ink-900'
                     }`}
                   >
                     {p.titulo}
                     {p.clave === 'gastos' && ejecucion.cantidadGastos > 0 && (
-                      <span className="ml-2 text-xs py-0.5 px-2 rounded-full bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]">
+                      <span className="ml-2 text-xs py-0.5 px-2 rounded-full bg-surface-muted text-ink-600 border border-border">
                         {ejecucion.cantidadGastos}
                       </span>
                     )}
@@ -316,7 +316,7 @@ export default function EjecucionPresupuestalModal({
                       rubroInicial={formulario.rubroId}
                     />
                   ) : (
-                    <div className="flex items-start justify-between gap-4 p-4 rounded-[12px] bg-[#fdecec] text-[#7a0c1e]" role="note">
+                    <div className="flex items-start justify-between gap-4 p-4 rounded-[12px] bg-brand-100 text-brand-700" role="note">
                       <div className="flex items-start gap-3">
                         <Lock className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
                         <p className="text-sm leading-relaxed">{motivoBloqueo}</p>
@@ -332,10 +332,10 @@ export default function EjecucionPresupuestalModal({
 
                   {aviso && (
                     <div className="space-y-2" role="status" aria-live="polite">
-                      <p className="text-sm text-[#1f2023]">{aviso.texto}</p>
+                      <p className="text-sm text-ink-900">{aviso.texto}</p>
                       {aviso.advertencia && (
-                        <p className="flex items-start gap-2 text-sm text-[#1f2023] bg-white border border-[#e5e7ea] rounded-[8px] px-3 py-2">
-                          <Info className="w-4 h-4 mt-0.5 shrink-0 text-[#5b5f66]" aria-hidden="true" />
+                        <p className="flex items-start gap-2 text-sm text-ink-900 bg-white border border-border rounded-[8px] px-3 py-2">
+                          <Info className="w-4 h-4 mt-0.5 shrink-0 text-ink-600" aria-hidden="true" />
                           <span>{aviso.advertencia} El rubro quedó marcado como excedido.</span>
                         </p>
                       )}
@@ -368,12 +368,12 @@ export default function EjecucionPresupuestalModal({
 
                   {errorGastos && !gastos && (
                     <div className="py-10 text-center">
-                      <p className="font-semibold text-[#1f2023]">No se pudieron cargar los gastos</p>
-                      <p className="text-sm text-[#5b5f66] mt-1">{errorGastos}</p>
+                      <p className="font-semibold text-ink-900">No se pudieron cargar los gastos</p>
+                      <p className="text-sm text-ink-600 mt-1">{errorGastos}</p>
                       <button
                         type="button"
                         onClick={reintentar}
-                        className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+                        className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
                       >
                         Reintentar
                       </button>
@@ -381,7 +381,7 @@ export default function EjecucionPresupuestalModal({
                   )}
 
                   {!errorGastos && !gastos && (
-                    <p className="text-sm text-[#5b5f66] py-10 text-center" role="status">
+                    <p className="text-sm text-ink-600 py-10 text-center" role="status">
                       Cargando gastos...
                     </p>
                   )}

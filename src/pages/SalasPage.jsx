@@ -440,16 +440,16 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
     <MainLayout title="Salas y Espacios" activeNav="salas" usuario={usuario}>
       <div className="space-y-6">
         {/* Encabezado Principal */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <Building className="w-3.5 h-3.5" />
               SIGEA — Infraestructura Institucional (HU-20)
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
               Salas, Espacios y Horarios
             </h2>
-            <p className="text-sm text-[#5b5f66] mt-1 max-w-3xl">
+            <p className="text-sm text-ink-600 mt-1 max-w-3xl">
               Crea salas institucionales y configura sus horarios de disponibilidad sin necesidad de asignarles evento.
               Vincular una sala a un evento específico se gestiona de manera independiente en «Asignar a Evento».
             </p>
@@ -476,7 +476,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               disabled={eventos.length === 0}
               title="Añadir una sala existente a un evento específico"
             >
-              <CopyPlus className="w-4 h-4 text-[#a6192e]" />
+              <CopyPlus className="w-4 h-4 text-brand-600" />
               <span>Asignar a un evento</span>
             </Button>
           </div>
@@ -484,42 +484,42 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
 
         {/* Tarjetas de Resumen de Infraestructura */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
-            <span className="text-[11px] font-semibold text-[#5b5f66] uppercase tracking-wider block">
+          <div className="rounded-[12px] border border-border bg-white p-3.5 shadow-xs">
+            <span className="text-[11px] font-semibold text-ink-600 uppercase tracking-wider block">
               Salas Institucionales
             </span>
-            <span className="text-2xl font-bold text-[#1f2023] mt-0.5 block">
+            <span className="text-2xl font-bold text-ink-900 mt-0.5 block">
               {listaSalasInstitucionales.length}
             </span>
           </div>
-          <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
-            <span className="text-[11px] font-semibold text-[#5b5f66] uppercase tracking-wider block">
+          <div className="rounded-[12px] border border-border bg-white p-3.5 shadow-xs">
+            <span className="text-[11px] font-semibold text-ink-600 uppercase tracking-wider block">
               Salas físicas
             </span>
-            <span className="text-2xl font-bold text-emerald-700 mt-0.5 block">
+            <span className="text-2xl font-bold text-brand-600 mt-0.5 block">
               {cantFisicas}
             </span>
           </div>
-          <div className="rounded-[12px] border border-[#e5e7ea] bg-white p-3.5 shadow-xs">
-            <span className="text-[11px] font-semibold text-[#5b5f66] uppercase tracking-wider block">
+          <div className="rounded-[12px] border border-border bg-white p-3.5 shadow-xs">
+            <span className="text-[11px] font-semibold text-ink-600 uppercase tracking-wider block">
               Salas virtuales
             </span>
-            <span className="text-2xl font-bold text-blue-700 mt-0.5 block">
+            <span className="text-2xl font-bold text-brand-600 mt-0.5 block">
               {cantVirtuales}
             </span>
           </div>
         </div>
 
         {/* Pestañas de Navegación del Módulo */}
-        <div className="flex items-center justify-between border-b border-[#e5e7ea] gap-4">
+        <div className="flex items-center justify-between border-b border-border gap-4">
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setPestanaActiva('salas')}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 pestanaActiva === 'salas'
-                  ? 'border-[#a6192e] text-[#a6192e] bg-[#fdecec]/30'
-                  : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'border-brand-600 text-brand-600 bg-brand-100'
+                  : 'border-transparent text-ink-600 hover:text-ink-900'
               }`}
             >
               <Building className="w-4 h-4" />
@@ -531,8 +531,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               onClick={() => setPestanaActiva('asignar')}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 pestanaActiva === 'asignar'
-                  ? 'border-[#a6192e] text-[#a6192e] bg-[#fdecec]/30'
-                  : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'border-brand-600 text-brand-600 bg-brand-100'
+                  : 'border-transparent text-ink-600 hover:text-ink-900'
               }`}
             >
               <CopyPlus className="w-4 h-4" />
@@ -544,8 +544,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               onClick={() => setPestanaActiva('ponentes')}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 pestanaActiva === 'ponentes'
-                  ? 'border-[#a6192e] text-[#a6192e] bg-[#fdecec]/30'
-                  : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'border-brand-600 text-brand-600 bg-brand-100'
+                  : 'border-transparent text-ink-600 hover:text-ink-900'
               }`}
             >
               <User className="w-4 h-4" />
@@ -557,8 +557,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               onClick={() => setPestanaActiva('evento')}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                 pestanaActiva === 'evento'
-                  ? 'border-[#a6192e] text-[#a6192e] bg-[#fdecec]/30'
-                  : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+                  ? 'border-brand-600 text-brand-600 bg-brand-100'
+                  : 'border-transparent text-ink-600 hover:text-ink-900'
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -579,7 +579,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         </div>
 
         {errorCarga && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs">
+          <div className="p-4 rounded-xl bg-brand-100 border border-brand-600 text-brand-700 text-xs">
             <p className="font-semibold">No se pudieron cargar los datos:</p>
             <p>{errorCarga}</p>
           </div>
@@ -600,7 +600,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                     placeholder="Buscar sala por nombre o ubicación..."
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
-                    rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+                    rightElement={<Search className="w-4 h-4 text-ink-600" />}
                   />
                 </div>
                 <div className="w-36 shrink-0">
@@ -618,7 +618,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#5b5f66]">
+                <span className="text-xs text-ink-600">
                   {salasFiltradasInstitucionales.length} espacio(s) registrado(s)
                 </span>
                 <Button
@@ -634,12 +634,12 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             </div>
 
             {salasFiltradasInstitucionales.length === 0 ? (
-              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <Building className="w-12 h-12 text-[#9ca0a6] mx-auto mb-2" />
-                <h3 className="font-serif-title text-base font-semibold text-[#1f2023]">
+              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <Building className="w-12 h-12 text-ink-300 mx-auto mb-2" />
+                <h3 className="font-serif-title text-base font-semibold text-ink-900">
                   No hay salas registradas
                 </h3>
-                <p className="text-xs text-[#5b5f66] mt-1 max-w-md mx-auto">
+                <p className="text-xs text-ink-600 mt-1 max-w-md mx-auto">
                   Crea los auditorios, aulas físicas y salas virtuales de la institución junto con sus horarios de disponibilidad.
                 </p>
                 <div className="mt-4">
@@ -662,17 +662,17 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                   return (
                     <div
                       key={sala.id}
-                      className="rounded-[12px] border border-[#e5e7ea] bg-white p-5 shadow-xs hover:border-[#a6192e]/40 transition-colors flex flex-col justify-between"
+                      className="rounded-[12px] border border-border bg-white p-5 shadow-xs hover:border-brand-600 transition-colors flex flex-col justify-between"
                     >
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <h4 className="font-serif-title text-base font-semibold text-[#1f2023] leading-snug">
+                            <h4 className="font-serif-title text-base font-semibold text-ink-900 leading-snug">
                               {sala.nombre}
                             </h4>
                             {sala.ubicacion && (
-                              <p className="text-xs text-[#5b5f66] flex items-center gap-1 mt-1">
-                                <MapPin className="w-3.5 h-3.5 shrink-0 text-[#a6192e]" />
+                              <p className="text-xs text-ink-600 flex items-center gap-1 mt-1">
+                                <MapPin className="w-3.5 h-3.5 shrink-0 text-brand-600" />
                                 <span className="truncate">{sala.ubicacion}</span>
                               </p>
                             )}
@@ -680,17 +680,17 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                           <TipoSalaBadge tipo={sala.tipo} />
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#e5e7ea]/60">
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
                           <AforoBadge aforo={sala.aforoMaximo} />
                           <span
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface-muted text-ink-600 border border-border"
                             title="Franjas horarias de disponibilidad"
                           >
-                            <Clock className="w-3.5 h-3.5 text-[#a6192e]" />
+                            <Clock className="w-3.5 h-3.5 text-brand-600" />
                             {cantFranjas} {cantFranjas === 1 ? 'horario' : 'horarios'} configurado(s)
                           </span>
                           {sala.permiteSimultaneidad && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-blue-50 text-blue-700 border border-blue-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-surface-muted text-ink-600 border border-border">
                               Simultánea
                             </span>
                           )}
@@ -698,21 +698,21 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
 
                         {/* Eventos a los que está vinculada */}
                         {sala.eventosVinculados?.length > 0 && (
-                          <div className="text-xs text-[#5b5f66] pt-1">
-                            <span className="text-[11px] font-medium text-[#1f2023] block mb-0.5">
+                          <div className="text-xs text-ink-600 pt-1">
+                            <span className="text-[11px] font-medium text-ink-900 block mb-0.5">
                               Vinculada a {sala.eventosVinculados.length} evento(s):
                             </span>
                             <div className="flex flex-wrap gap-1">
                               {sala.eventosVinculados.slice(0, 3).map((ev) => (
                                 <span
                                   key={ev.id}
-                                  className="px-2 py-0.5 rounded text-[10px] bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023]"
+                                  className="px-2 py-0.5 rounded text-[10px] bg-surface-muted border border-border text-ink-900"
                                 >
                                   {ev.nombre}
                                 </span>
                               ))}
                               {sala.eventosVinculados.length > 3 && (
-                                <span className="text-[10px] text-[#5b5f66] self-center">
+                                <span className="text-[10px] text-ink-600 self-center">
                                   +{sala.eventosVinculados.length - 3} más
                                 </span>
                               )}
@@ -722,7 +722,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
 
                         {/* Indicador de ocupaciones activas */}
                         {sala.ocupaciones?.length > 0 && (
-                          <div className="p-2 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/20 text-[11px] text-[#7a0c1e] flex items-center justify-between">
+                          <div className="p-2 rounded-[8px] bg-brand-100 border border-brand-600 text-[11px] text-brand-700 flex items-center justify-between">
                             <span className="flex items-center gap-1">
                               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                               {sala.ocupaciones.length} horario(s) ocupados por eventos
@@ -731,12 +731,12 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                         )}
                       </div>
 
-                      <div className="mt-5 pt-3 border-t border-[#e5e7ea] flex flex-wrap items-center justify-between gap-2">
+                      <div className="mt-5 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => setModalDisponibilidadSala(sala)}
-                            className="text-xs font-medium text-[#a6192e] hover:text-[#7a0c1e] hover:underline flex items-center gap-1 cursor-pointer"
+                            className="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <Clock className="w-3.5 h-3.5" />
                             Disponibilidad
@@ -746,10 +746,10 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                             onClick={() => {
                               setModalAsignarSala(true);
                             }}
-                            className="text-xs font-medium text-[#5b5f66] hover:text-[#1f2023] hover:underline flex items-center gap-1 cursor-pointer ml-1"
+                            className="text-xs font-medium text-ink-600 hover:text-ink-900 hover:underline flex items-center gap-1 cursor-pointer ml-1"
                             title="Vincular a un evento"
                           >
-                            <CopyPlus className="w-3.5 h-3.5 text-[#a6192e]" />
+                            <CopyPlus className="w-3.5 h-3.5 text-brand-600" />
                             Vincular a evento
                           </button>
                         </div>
@@ -758,7 +758,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                           <button
                             type="button"
                             onClick={() => setModalSala({ tipo: 'editar', sala })}
-                            className="p-1.5 text-[#5b5f66] hover:text-[#1f2023] hover:bg-[#f7f7f8] rounded cursor-pointer"
+                            className="p-1.5 text-ink-600 hover:text-ink-900 hover:bg-surface-muted rounded cursor-pointer"
                             title="Editar sala"
                           >
                             <Pencil className="w-4 h-4" />
@@ -766,7 +766,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                           <button
                             type="button"
                             onClick={() => handleEliminarSala(sala)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                            className="p-1.5 text-brand-700 hover:bg-brand-100 rounded cursor-pointer"
                             title="Eliminar del catálogo"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -786,13 +786,13 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         {/* ======================================================== */}
         {pestanaActiva === 'asignar' && (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-surface-muted border border-border">
               <div>
-                <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider flex items-center gap-1.5">
-                  <CopyPlus className="w-4 h-4 text-[#a6192e]" />
+                <h4 className="text-xs font-bold text-ink-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <CopyPlus className="w-4 h-4 text-brand-600" />
                   Asignación de Salas por Evento
                 </h4>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+                <p className="text-xs text-ink-600 mt-0.5">
                   Selecciona un evento para revisar qué salas tiene asignadas o vincularle salas del catálogo institucional.
                 </p>
               </div>
@@ -820,20 +820,20 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             </div>
 
             {!idEventoActivo ? (
-              <div className="text-center py-14 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <Building className="w-10 h-10 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">Selecciona un evento académico</p>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+              <div className="text-center py-14 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <Building className="w-10 h-10 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">Selecciona un evento académico</p>
+                <p className="text-xs text-ink-600 mt-0.5">
                   Elige un evento en el selector para consultar o asignar las salas que usará.
                 </p>
               </div>
             ) : todasLasSalas.length === 0 ? (
-              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <Building className="w-12 h-12 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">
+              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <Building className="w-12 h-12 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">
                   No hay salas asignadas a {eventoActual?.nombre || 'este evento'}
                 </p>
-                <p className="text-xs text-[#5b5f66] mt-1 max-w-md mx-auto">
+                <p className="text-xs text-ink-600 mt-1 max-w-md mx-auto">
                   Usa el botón «Asignar sala al evento» para vincular auditorios o salas virtuales del catálogo institucional.
                 </p>
                 <div className="mt-4">
@@ -856,17 +856,17 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                   return (
                     <div
                       key={sala.id}
-                      className="rounded-[12px] border border-[#e5e7ea] bg-white p-5 shadow-xs flex flex-col justify-between"
+                      className="rounded-[12px] border border-border bg-white p-5 shadow-xs flex flex-col justify-between"
                     >
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <h4 className="font-serif-title text-base font-semibold text-[#1f2023] leading-snug">
+                            <h4 className="font-serif-title text-base font-semibold text-ink-900 leading-snug">
                               {sala.nombre}
                             </h4>
                             {sala.ubicacion && (
-                              <p className="text-xs text-[#5b5f66] flex items-center gap-1 mt-1">
-                                <MapPin className="w-3.5 h-3.5 shrink-0 text-[#a6192e]" />
+                              <p className="text-xs text-ink-600 flex items-center gap-1 mt-1">
+                                <MapPin className="w-3.5 h-3.5 shrink-0 text-brand-600" />
                                 <span className="truncate">{sala.ubicacion}</span>
                               </p>
                             )}
@@ -874,20 +874,20 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                           <TipoSalaBadge tipo={sala.tipo} />
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#e5e7ea]/60">
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
                           <AforoBadge aforo={sala.aforoMaximo} />
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#f7f7f8] text-[#5b5f66] border border-[#e5e7ea]">
-                            <Clock className="w-3.5 h-3.5 text-[#a6192e]" />
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface-muted text-ink-600 border border-border">
+                            <Clock className="w-3.5 h-3.5 text-brand-600" />
                             {cantFranjas} franjas en este evento
                           </span>
                         </div>
                       </div>
 
-                      <div className="mt-5 pt-3 border-t border-[#e5e7ea] flex items-center justify-between gap-2">
+                      <div className="mt-5 pt-3 border-t border-border flex items-center justify-between gap-2">
                         <button
                           type="button"
                           onClick={() => setModalDisponibilidadSala(sala)}
-                          className="text-xs font-medium text-[#a6192e] hover:text-[#7a0c1e] hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           Ajustar horarios en evento
@@ -896,7 +896,7 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                         <button
                           type="button"
                           onClick={() => handleDesvincularSalaEvento(sala)}
-                          className="text-xs text-red-600 hover:text-red-700 hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs text-brand-700 hover:text-brand-700 hover:underline flex items-center gap-1 cursor-pointer"
                           title="Desvincular sala de este evento"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -916,13 +916,13 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         {/* ======================================================== */}
         {pestanaActiva === 'ponentes' && (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-surface-muted border border-border">
               <div>
-                <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-[#a6192e]" />
+                <h4 className="text-xs font-bold text-ink-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-brand-600" />
                   Disponibilidad de ponentes registrados (Criterio 2)
                 </h4>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+                <p className="text-xs text-ink-600 mt-0.5">
                   Selecciona un evento académico para definir los rangos de disponibilidad horaria de sus ponentes.
                 </p>
               </div>
@@ -938,23 +938,23 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             </div>
 
             {!idEventoActivo ? (
-              <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <User className="w-10 h-10 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">Selecciona un evento</p>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+              <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <User className="w-10 h-10 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">Selecciona un evento</p>
+                <p className="text-xs text-ink-600 mt-0.5">
                   Elige un evento en el selector superior para consultar y configurar la disponibilidad de sus ponentes.
                 </p>
               </div>
             ) : ponentes.length === 0 ? (
-              <div className="text-center py-14 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <User className="w-10 h-10 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">No hay ponentes registrados para este evento</p>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+              <div className="text-center py-14 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <User className="w-10 h-10 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">No hay ponentes registrados para este evento</p>
+                <p className="text-xs text-ink-600 mt-0.5">
                   Asocia ponentes desde la gestión de conferencistas para configurar su disponibilidad.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white overflow-hidden shadow-xs">
+              <div className="divide-y divide-border rounded-[12px] border border-border bg-white overflow-hidden shadow-xs">
                 {ponentes.map((p) => {
                   const cantFranjas = p.disponibilidad?.length || 0;
                   const actividadesPonente = actividades.filter(
@@ -964,30 +964,30 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                   return (
                     <div
                       key={p.personaId}
-                      className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#f7f7f8]/50 transition-colors"
+                      className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-muted transition-colors"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-[#1f2023]">
+                          <span className="font-semibold text-sm text-ink-900">
                             {p.nombres} {p.apellidos}
                           </span>
                           {cantFranjas > 0 ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-brand-600 text-surface px-2 py-0.5 rounded-full">
                               <CheckCircle2 className="w-3 h-3" />
                               {cantFranjas} {cantFranjas === 1 ? 'rango disponible' : 'rangos disponibles'}
                             </span>
                           ) : (
-                            <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                            <span className="text-[11px] text-brand-700 bg-brand-100 px-2 py-0.5 rounded-full">
                               Sin disponibilidad horaria
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[#5b5f66]">
+                        <p className="text-xs text-ink-600">
                           {p.institucion ? `${p.institucion} • ` : ''}
                           {p.correo}
                         </p>
                         {actividadesPonente.length > 0 && (
-                          <p className="text-[11px] text-indigo-700 font-medium">
+                          <p className="text-[11px] text-ink-600 font-medium">
                             {actividadesPonente.length} actividad(es) programada(s)
                           </p>
                         )}
@@ -1017,12 +1017,12 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
         {/* ======================================================== */}
         {pestanaActiva === 'evento' && (
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[12px] bg-surface-muted border border-border">
               <div>
-                <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-ink-900 uppercase tracking-wider">
                   Programación de infraestructura por evento
                 </h4>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+                <p className="text-xs text-ink-600 mt-0.5">
                   Selecciona el evento para agendar actividades usando las salas y la disponibilidad registrada como referencia.
                 </p>
               </div>
@@ -1056,26 +1056,26 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
             </div>
 
             {!idEventoActivo ? (
-              <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <Calendar className="w-10 h-10 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">Selecciona un evento académico</p>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+              <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <Calendar className="w-10 h-10 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">Selecciona un evento académico</p>
+                <p className="text-xs text-ink-600 mt-0.5">
                   Elige un evento para consultar o registrar la programación de sus actividades.
                 </p>
               </div>
             ) : actividades.length === 0 ? (
-              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-white">
-                <Calendar className="w-12 h-12 text-[#9ca0a6] mx-auto mb-2" />
-                <p className="text-sm font-semibold text-[#1f2023]">No hay actividades programadas</p>
-                <p className="text-xs text-[#5b5f66] mt-0.5">
+              <div className="text-center py-16 px-4 rounded-[12px] border border-dashed border-field-border bg-white">
+                <Calendar className="w-12 h-12 text-ink-300 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink-900">No hay actividades programadas</p>
+                <p className="text-xs text-ink-600 mt-0.5">
                   Usa «Programar actividad» para agendar respetando el aforo y la disponibilidad horaria registrada.
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-[12px] border border-[#e5e7ea] bg-white shadow-xs">
+              <div className="overflow-x-auto rounded-[12px] border border-border bg-white shadow-xs">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] font-bold text-[#1f2023] uppercase">
+                    <tr className="bg-surface-muted border-b border-border font-bold text-ink-900 uppercase">
                       <th className="py-3.5 px-4">Actividad</th>
                       <th className="py-3.5 px-4">Sala Asignada</th>
                       <th className="py-3.5 px-4">Ponente</th>
@@ -1084,19 +1084,19 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                       <th className="py-3.5 px-4 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e5e7ea] text-[#1f2023]">
+                  <tbody className="divide-y divide-border text-ink-900">
                     {actividades.map((act) => {
                       const sala = todasLasSalas.find((s) => Number(s.id) === Number(act.salaId));
                       const ponente = ponentes.find((p) => Number(p.personaId) === Number(act.ponenteId));
                       const sobrecupo = sala && (act.inscripcionesActivas || 0) > sala.aforoMaximo;
 
                       return (
-                        <tr key={act.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                        <tr key={act.id} className="hover:bg-surface-muted transition-colors">
                           <td className="py-4 px-4 font-semibold">
                             <p>{act.nombre}</p>
                             {act.tieneAdvertencia && (
-                              <span className="inline-flex items-center gap-1 mt-1 text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded font-medium border border-amber-200">
-                                <AlertTriangle className="w-3 h-3 text-amber-600" />
+                              <span className="inline-flex items-center gap-1 mt-1 text-[10px] text-brand-700 bg-brand-100 px-2 py-0.5 rounded font-medium border border-border">
+                                <AlertTriangle className="w-3 h-3 text-brand-600" />
                                 Fuera de disponibilidad registrada
                               </span>
                             )}
@@ -1118,25 +1118,25 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
                           </td>
                           <td className="py-4 px-4 whitespace-nowrap">
                             <p className="font-medium">{act.fecha}</p>
-                            <p className="text-[#5b5f66] text-[11px]">
+                            <p className="text-ink-600 text-[11px]">
                               {formatearHora(act.horaInicio)} – {formatearHora(act.horaFin)}
                             </p>
                           </td>
                           <td className="py-4 px-4 whitespace-nowrap">
                             <span
                               className={`font-semibold ${
-                                sobrecupo ? 'text-red-600 bg-red-50 px-2 py-0.5 rounded' : 'text-[#1f2023]'
+                                sobrecupo ? 'text-brand-700 bg-brand-100 px-2 py-0.5 rounded' : 'text-ink-900'
                               }`}
                             >
                               {act.inscripcionesActivas || 0} / {sala?.aforoMaximo || '—'}
                             </span>
-                            {sobrecupo && <p className="text-[10px] text-red-600 mt-0.5">Sobrecupo</p>}
+                            {sobrecupo && <p className="text-[10px] text-brand-700 mt-0.5">Sobrecupo</p>}
                           </td>
                           <td className="py-4 px-4 text-right">
                             <button
                               type="button"
                               onClick={() => handleEliminarActividad(act.id)}
-                              className="p-1.5 text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                              className="p-1.5 text-brand-700 hover:bg-brand-100 rounded cursor-pointer"
                               title="Eliminar actividad"
                             >
                               <Trash2 className="w-4 h-4" />

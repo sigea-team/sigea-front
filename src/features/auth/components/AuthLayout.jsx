@@ -8,20 +8,20 @@ import React from 'react';
  */
 export default function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen w-full flex bg-[#edeeef] text-[#1f2023]">
+    <div className="min-h-screen w-full flex bg-surface-page text-ink-900">
       {/* Panel de marca UFPS (552px fijo) */}
-      <aside className="hidden min-[980px]:flex flex-col justify-between w-[552px] min-h-screen shrink-0 bg-[#a6192e] text-white p-12 select-none shadow-xl">
+      <aside className="hidden min-[980px]:flex flex-col justify-between w-[552px] min-h-screen shrink-0 bg-brand-600 text-surface p-12 select-none shadow-xl">
         <div className="space-y-8">
           {/* Logo / Escudo institucional UFPS */}
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md">
-              <span className="text-[#a6192e] font-bold text-xl tracking-tight">UFPS</span>
+            <div className="w-14 h-14 rounded-full bg-surface flex items-center justify-center shadow-md">
+              <span className="text-brand-600 font-bold text-xl tracking-tight">UFPS</span>
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-wider text-red-100 uppercase">
+              <p className="text-xs font-semibold tracking-wider text-brand-100 uppercase">
                 Portal Institucional
               </p>
-              <p className="text-sm font-medium text-white/90">
+              <p className="text-sm font-medium text-surface">
                 División de Sistemas
               </p>
             </div>
@@ -29,25 +29,25 @@ export default function AuthLayout({ children }) {
 
           {/* Identidad del Sistema */}
           <div className="space-y-4 pt-6">
-            <h1 className="font-serif-title text-[40px] leading-tight text-white tracking-tight">
+            <h1 className="font-serif-title text-[40px] leading-tight text-surface tracking-tight">
               SIGEA
             </h1>
-            <p className="text-base text-red-50 leading-relaxed font-normal">
+            <p className="text-base text-brand-100 leading-relaxed font-normal">
               Sistema Integral de Gestión de Eventos Académicos. Plataforma para la organización, inscripción, desarrollo y certificación de actividades académicas e investigativas.
             </p>
           </div>
         </div>
 
         {/* Pie de marca institucional */}
-        <div className="pt-8 border-t border-white/20 text-sm text-red-100 leading-relaxed font-normal">
-          <p className="font-semibold text-white">Programa de Ingeniería de Sistemas</p>
+        <div className="pt-8 border-t border-brand-700 text-sm text-brand-100 leading-relaxed font-normal">
+          <p className="font-semibold text-surface">Programa de Ingeniería de Sistemas</p>
           <p>Facultad de Ingeniería</p>
           <p>Universidad Francisco de Paula Santander — Cúcuta</p>
         </div>
       </aside>
 
       {/* Área de contenido */}
-      <main className="flex-1 min-h-screen bg-[#f7f7f8] flex items-center justify-center p-4 sm:p-8 lg:p-12 overflow-y-auto">
+      <main className="flex-1 min-h-screen bg-surface-muted flex items-center justify-center p-4 sm:p-8 lg:p-12 overflow-y-auto">
         <div className="w-full max-w-[720px]">
           {children}
         </div>

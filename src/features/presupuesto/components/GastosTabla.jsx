@@ -19,10 +19,10 @@ export default function GastosTabla({ gastos, mostrarRubro = true }) {
   const total = gastos.reduce((suma, g) => suma + Number(g.valor || 0), 0);
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+          <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
             <th scope="col" className="py-3 px-4 whitespace-nowrap">Fecha</th>
             {mostrarRubro && <th scope="col" className="py-3 px-4">Rubro</th>}
             <th scope="col" className="py-3 px-4">Descripción</th>
@@ -32,12 +32,12 @@ export default function GastosTabla({ gastos, mostrarRubro = true }) {
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+        <tbody className="divide-y divide-border text-sm text-ink-900">
           {gastos.length === 0 && (
             <tr>
               <td colSpan={columnas} className="py-10 px-4 text-center">
-                <p className="font-semibold text-[#1f2023]">Todavía no hay gastos registrados</p>
-                <p className="text-xs mt-1 text-[#5b5f66]">La ejecución presupuestal está en 0 %.</p>
+                <p className="font-semibold text-ink-900">Todavía no hay gastos registrados</p>
+                <p className="text-xs mt-1 text-ink-600">La ejecución presupuestal está en 0 %.</p>
               </td>
             </tr>
           )}
@@ -47,17 +47,17 @@ export default function GastosTabla({ gastos, mostrarRubro = true }) {
               <td className="py-3.5 px-4 align-top whitespace-nowrap">{formatearFecha(gasto.fechaGasto)}</td>
               {mostrarRubro && <td className="py-3.5 px-4 align-top font-semibold break-words">{gasto.rubroNombre}</td>}
               <td className="py-3.5 px-4 align-top break-words">
-                {gasto.descripcion || <span className="text-[#9ca0a6]">Sin descripción</span>}
+                {gasto.descripcion || <span className="text-ink-300">Sin descripción</span>}
               </td>
               <td className="py-3.5 px-4 align-top max-w-[220px]">
                 {!gasto.soporteUrl ? (
-                  <span className="text-[#9ca0a6]">Sin soporte</span>
+                  <span className="text-ink-300">Sin soporte</span>
                 ) : esEnlace(gasto.soporteUrl) ? (
                   <a
                     href={gasto.soporteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[#a6192e] font-semibold hover:text-[#7a0c1e] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-brand-600 font-semibold hover:text-brand-700 hover:underline"
                     title={gasto.soporteUrl}
                   >
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
@@ -67,7 +67,7 @@ export default function GastosTabla({ gastos, mostrarRubro = true }) {
                   <span className="break-words">{gasto.soporteUrl}</span>
                 )}
               </td>
-              <td className="py-3.5 px-4 align-top text-[#5b5f66]">{gasto.registradoPorNombre || '—'}</td>
+              <td className="py-3.5 px-4 align-top text-ink-600">{gasto.registradoPorNombre || '—'}</td>
               <td className="py-3.5 px-4 align-top text-right tabular-nums whitespace-nowrap font-semibold">
                 {formatearPesos(gasto.valor)}
               </td>
@@ -77,14 +77,14 @@ export default function GastosTabla({ gastos, mostrarRubro = true }) {
 
         {gastos.length > 0 && (
           <tfoot>
-            <tr className="bg-[#f7f7f8] border-t-2 border-[#e5e7ea]">
-              <th scope="row" colSpan={columnas - 1} className="py-3.5 px-4 text-left text-sm font-semibold text-[#1f2023]">
+            <tr className="bg-surface-muted border-t-2 border-border">
+              <th scope="row" colSpan={columnas - 1} className="py-3.5 px-4 text-left text-sm font-semibold text-ink-900">
                 Total
-                <span className="ml-2 text-xs font-normal text-[#5b5f66]">
+                <span className="ml-2 text-xs font-normal text-ink-600">
                   ({gastos.length} {gastos.length === 1 ? 'gasto' : 'gastos'})
                 </span>
               </th>
-              <td className="py-3.5 px-4 text-right text-base font-bold text-[#a6192e] tabular-nums whitespace-nowrap">
+              <td className="py-3.5 px-4 text-right text-base font-bold text-brand-600 tabular-nums whitespace-nowrap">
                 {formatearPesos(total)}
               </td>
             </tr>

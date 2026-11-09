@@ -36,7 +36,7 @@ export const DesdeNotificacion = {
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector('#convocatoria-1')).not.toBeNull());
     const tarjeta = canvasElement.querySelector('#convocatoria-1');
-    expect(tarjeta.className).toContain('border-[#a6192e]');
+    expect(tarjeta.className).toContain('border-brand-600');
     expect(within(tarjeta).getByText('Requisitos para los autores')).toBeInTheDocument();
   },
 };

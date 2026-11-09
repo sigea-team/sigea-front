@@ -61,7 +61,7 @@ export default function AuditoriaFiltros({
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8] p-5 space-y-4"
+      className="rounded-[12px] border border-border bg-surface-muted p-5 space-y-4"
       aria-label="Filtros del log de auditoría"
     >
       <div className="grid grid-cols-4 gap-4 items-start">
@@ -102,7 +102,7 @@ export default function AuditoriaFiltros({
       </div>
 
       {avisoTipos && (
-        <p className="text-xs text-[#5b5f66]" role="status">
+        <p className="text-xs text-ink-600" role="status">
           {avisoTipos}
         </p>
       )}

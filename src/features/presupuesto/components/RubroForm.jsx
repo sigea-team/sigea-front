@@ -69,11 +69,11 @@ export default function RubroForm({ onAgregar, rubros = [] }) {
     <form
       onSubmit={enviar}
       noValidate
-      className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]"
+      className="p-4 rounded-[12px] border border-border bg-surface-muted"
       aria-label="Agregar rubro al presupuesto"
     >
-      <p className="text-sm font-semibold text-[#1f2023]">Agregar rubro</p>
-      <p className="text-xs text-[#5b5f66] mt-0.5">
+      <p className="text-sm font-semibold text-ink-900">Agregar rubro</p>
+      <p className="text-xs text-ink-600 mt-0.5">
         Escribe los valores en pesos, con o sin puntos de miles (350000 o 350.000). El valor 0 es válido.
       </p>
 
@@ -119,13 +119,13 @@ export default function RubroForm({ onAgregar, rubros = [] }) {
         </Button>
       </div>
 
-      <p className="mt-3 text-xs text-[#5b5f66]" aria-live="polite">
+      <p className="mt-3 text-xs text-ink-600" aria-live="polite">
         Valor del rubro:{' '}
-        <span className="font-semibold text-[#1f2023] tabular-nums">{subtotal === null ? '—' : formatearPesos(subtotal)}</span>
+        <span className="font-semibold text-ink-900 tabular-nums">{subtotal === null ? '—' : formatearPesos(subtotal)}</span>
       </p>
 
       {errorGeneral && (
-        <p className="mt-3 text-sm text-[#7a0c1e] bg-[#fdecec] border border-[#a6192e]/20 px-3 py-2 rounded-[8px]" role="alert">
+        <p className="mt-3 text-sm text-brand-700 bg-brand-100 border border-brand-600 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}

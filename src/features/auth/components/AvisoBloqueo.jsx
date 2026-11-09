@@ -42,9 +42,9 @@ export default function AvisoBloqueo({ mensaje, desbloqueoEn, onFinalizado }) {
   return (
     <div
       role="alert"
-      className="mb-6 flex items-start gap-3 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] px-4 py-3"
+      className="mb-6 flex items-start gap-3 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] px-4 py-3"
     >
-      <Lock className="w-5 h-5 text-[#a6192e] shrink-0 mt-0.5" />
+      <Lock className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
       <div className="space-y-1">
         <p>{mensaje}</p>
         {restante > 0 && (

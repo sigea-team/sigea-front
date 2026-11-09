@@ -78,8 +78,8 @@ export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas =
       <div className="space-y-4">
         {noEditable && (
           <div>
-            <p className="text-sm font-semibold text-[#1f2023]">El evento ya no está en configuración</p>
-            <p className="text-sm text-[#5b5f66] mt-1 leading-relaxed">
+            <p className="text-sm font-semibold text-ink-900">El evento ya no está en configuración</p>
+            <p className="text-sm text-ink-600 mt-1 leading-relaxed">
               Su estado es «{ESTADOS_EVENTO[evento.estado] || evento.estado}». Solo se pueden eliminar eventos en
               configuración, para conservar el historial de los eventos realizados.
             </p>
@@ -88,8 +88,8 @@ export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas =
 
         {!noEditable && tieneEdiciones && (
           <div>
-            <p className="text-sm font-semibold text-[#1f2023]">Es el evento base de otras ediciones</p>
-            <p className="text-sm text-[#5b5f66] mt-1 leading-relaxed">
+            <p className="text-sm font-semibold text-ink-900">Es el evento base de otras ediciones</p>
+            <p className="text-sm text-ink-600 mt-1 leading-relaxed">
               Tiene {edicionesDerivadas} {edicionesDerivadas === 1 ? 'edición vinculada' : 'ediciones vinculadas'}.
               Elimina primero esas ediciones para no romper el historial.
             </p>
@@ -98,11 +98,11 @@ export default function EventoDeleteModal({ isOpen, evento, edicionesDerivadas =
 
         {!bloqueado && (
           <>
-            <p className="text-sm text-[#1f2023] leading-relaxed">
+            <p className="text-sm text-ink-900 leading-relaxed">
               ¿Eliminar <strong className="font-semibold">{evento.nombre}</strong>
               {evento.semestre ? ` (${evento.semestre})` : ''}?
             </p>
-            <p className="text-xs text-[#5b5f66] bg-[#f7f7f8] p-3 rounded-[8px] border border-[#e5e7ea] leading-relaxed">
+            <p className="text-xs text-ink-600 bg-surface-muted p-3 rounded-[8px] border border-border leading-relaxed">
               Esta acción es permanente. También se eliminará la información que el evento tenga registrada, como
               comité organizador, presupuesto o convocatorias.
             </p>

@@ -160,10 +160,10 @@ export default function PropuestaFormModal({
         title: '¡Propuesta recibida!',
         html: (
           <div className="text-left">
-            <p className="text-sm text-[#5b5f66] mb-3">
+            <p className="text-sm text-ink-600 mb-3">
               {respuesta?.mensaje || `La propuesta «${datosPropuesta.titulo}» fue recibida correctamente.`}
             </p>
-            <div className="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[8px] p-3 text-xs space-y-1">
+            <div className="bg-surface-muted border border-border rounded-[8px] p-3 text-xs space-y-1">
               <p><strong>Convocatoria:</strong> {convocatoria?.titulo || 'Convocatoria académica'}</p>
               <p><strong>Autores:</strong> {autores.map((a) => `${a.nombreCompleto} (${rolesLegibles[a.rol] || a.rol})`).join(', ')}</p>
               <p><strong>Documentos:</strong> {archivos.map((a) => a.name).join(', ')}</p>
@@ -185,10 +185,10 @@ export default function PropuestaFormModal({
         icon: 'error',
         title: error.titulo,
         html: (
-          <div className="text-left text-sm text-[#5b5f66]">
+          <div className="text-left text-sm text-ink-600">
             <p>{error.mensaje}</p>
             {error.detalles.length > 0 && (
-              <ul className="list-disc pl-5 mt-2 text-[13px] text-[#1f2023] space-y-1">
+              <ul className="list-disc pl-5 mt-2 text-[13px] text-ink-900 space-y-1">
                 {error.detalles.map((d) => (
                   <li key={d}>{d}</li>
                 ))}
@@ -242,18 +242,18 @@ export default function PropuestaFormModal({
       <div className="space-y-6">
         {/* Banner informativo de la convocatoria */}
         {convocatoria && (
-          <div className="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[12px] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-surface-muted border border-border rounded-[12px] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#a6192e] block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
                 Evento asociado
               </span>
-              <p className="text-sm font-semibold text-[#1f2023]">
+              <p className="text-sm font-semibold text-ink-900">
                 {convocatoria.eventoNombre || 'Evento Académico UFPS'}
               </p>
             </div>
             {convocatoria.fechaCierre && (
-              <div className="flex items-center gap-1.5 text-xs text-[#5b5f66] bg-white border border-[#e5e7ea] px-3 py-1.5 rounded-[8px] self-start sm:self-auto">
-                <Calendar className="w-3.5 h-3.5 text-[#a6192e]" />
+              <div className="flex items-center gap-1.5 text-xs text-ink-600 bg-white border border-border px-3 py-1.5 rounded-[8px] self-start sm:self-auto">
+                <Calendar className="w-3.5 h-3.5 text-brand-600" />
                 <span>Cierre: {formatearFechaHora(convocatoria.fechaCierre)}</span>
               </div>
             )}
@@ -262,7 +262,7 @@ export default function PropuestaFormModal({
 
         {/* Datos generales de la propuesta */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">
             Información del Trabajo
           </h3>
 
@@ -297,7 +297,7 @@ export default function PropuestaFormModal({
         </div>
 
         {errorEnvio && (
-          <div className="flex items-start gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-sm rounded-[8px] p-3" role="alert">
+          <div className="flex items-start gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-sm rounded-[8px] p-3" role="alert">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">{errorEnvio.titulo}</p>
@@ -314,7 +314,7 @@ export default function PropuestaFormModal({
         )}
 
         {/* HU-14: documentos de la propuesta (versión 1) */}
-        <div className="pt-2 border-t border-[#e5e7ea]">
+        <div className="pt-2 border-t border-border">
           <DocumentosUploader
             archivos={archivos}
             onChange={(lista) => {
@@ -334,20 +334,20 @@ export default function PropuestaFormModal({
         </div>
 
         {/* Sección de Autores y Ponentes (HU Principal) */}
-        <div className="space-y-4 pt-2 border-t border-[#e5e7ea]">
+        <div className="space-y-4 pt-2 border-t border-border">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600">
                 Identificación de Autores y Ponentes (*)
               </h3>
-              <p className="text-xs text-[#5b5f66] mt-0.5">
+              <p className="text-xs text-ink-600 mt-0.5">
                 Criterios 1, 2 y 3: Registre los participantes asociando su rol específico (Autor Principal, Coautor, Ponente).
               </p>
             </div>
           </div>
 
           {errores.autores && (
-            <div className="flex items-center gap-2 bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e] text-xs rounded-[8px] p-3">
+            <div className="flex items-center gap-2 bg-brand-100 border border-brand-600 text-brand-700 text-xs rounded-[8px] p-3">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errores.autores}</span>
             </div>

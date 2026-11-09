@@ -70,12 +70,12 @@ export default function TiposEventoModal({ isOpen, api = tipoEventoService, onCl
     >
       {errorCarga && (
         <div className="py-10 text-center">
-          <p className="font-semibold text-[#1f2023]">No se pudieron cargar los tipos de evento</p>
-          <p className="text-sm text-[#5b5f66] mt-1">{errorCarga}</p>
+          <p className="font-semibold text-ink-900">No se pudieron cargar los tipos de evento</p>
+          <p className="text-sm text-ink-600 mt-1">{errorCarga}</p>
           <button
             type="button"
             onClick={reintentar}
-            className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+            className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
           >
             Reintentar
           </button>
@@ -83,7 +83,7 @@ export default function TiposEventoModal({ isOpen, api = tipoEventoService, onCl
       )}
 
       {!errorCarga && tipos === null && (
-        <p className="text-sm text-[#5b5f66] py-10 text-center" role="status">
+        <p className="text-sm text-ink-600 py-10 text-center" role="status">
           Cargando tipos de evento...
         </p>
       )}

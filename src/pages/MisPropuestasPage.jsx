@@ -61,30 +61,30 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
   return (
     <MainLayout title="Mis propuestas" activeNav="mis-propuestas" onSelectNav={onSelectNav} usuario={usuarioProp}>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <FileStack className="w-3.5 h-3.5" aria-hidden="true" />
               SIGEA — Propuestas enviadas
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">Mis propuestas</h2>
-            <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">Mis propuestas</h2>
+            <p className="text-sm text-ink-600 mt-1 max-w-2xl">
               Consulta el historial de versiones de tus propuestas y modifícalas mientras la convocatoria lo permita.
               Cada cambio crea una nueva versión y las anteriores se conservan como evidencia.
             </p>
           </div>
           <Link
             to="/convocatorias"
-            className="h-11 px-4 rounded-[8px] border border-[#d8dadf] text-sm font-medium text-[#1f2023] hover:bg-[#f7f7f8] inline-flex items-center gap-2 transition-colors shrink-0"
+            className="h-11 px-4 rounded-[8px] border border-field-border text-sm font-medium text-ink-900 hover:bg-surface-muted inline-flex items-center gap-2 transition-colors shrink-0"
           >
             Enviar una propuesta nueva
           </Link>
         </div>
 
         {error && (
-          <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#a6192e] shrink-0" aria-hidden="true" />
+              <Info className="w-4 h-4 text-brand-600 shrink-0" aria-hidden="true" />
               <span>{error}</span>
             </div>
             <button
@@ -99,10 +99,10 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
         )}
 
         {!error && (
-          <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+          <div className="overflow-hidden rounded-[12px] border border-border bg-white">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                   <th scope="col" className="py-3 px-4">Propuesta</th>
                   <th scope="col" className="py-3 px-4">Estado</th>
                   <th scope="col" className="py-3 px-4">Versión</th>
@@ -111,10 +111,10 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+              <tbody className="divide-y divide-border text-sm text-ink-900">
                 {!propuestas && (
                   <tr>
-                    <td colSpan={4} className="py-10 px-4 text-center text-[#5b5f66]" role="status">
+                    <td colSpan={4} className="py-10 px-4 text-center text-ink-600" role="status">
                       Cargando propuestas...
                     </td>
                   </tr>
@@ -123,8 +123,8 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                 {propuestas?.length === 0 && (
                   <tr>
                     <td colSpan={4} className="py-10 px-4 text-center">
-                      <p className="font-semibold text-[#1f2023]">Todavía no has enviado propuestas</p>
-                      <p className="text-xs mt-1 text-[#5b5f66]">
+                      <p className="font-semibold text-ink-900">Todavía no has enviado propuestas</p>
+                      <p className="text-xs mt-1 text-ink-600">
                         Elige una convocatoria abierta y envía tu propuesta con sus documentos.
                       </p>
                     </td>
@@ -135,18 +135,18 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                   const p = mia.propuesta;
                   const edicion = puedeModificarPropuesta(mia);
                   return (
-                    <tr key={p.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                    <tr key={p.id} className="hover:bg-surface-muted transition-colors">
                       <td className="py-3.5 px-4 align-middle max-w-md">
                         <p className="font-semibold leading-snug">{p.titulo}</p>
-                        <p className="text-xs text-[#5b5f66] mt-1">{p.convocatoriaTitulo}</p>
-                        <p className="text-xs text-[#9ca0a6] mt-0.5">Enviada {formatearFechaHoraCorta(p.fechaEnvio)}</p>
+                        <p className="text-xs text-ink-600 mt-1">{p.convocatoriaTitulo}</p>
+                        <p className="text-xs text-ink-300 mt-0.5">Enviada {formatearFechaHoraCorta(p.fechaEnvio)}</p>
                       </td>
                       <td className="py-3.5 px-4 align-middle whitespace-nowrap">
-                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f7f7f8] text-[#1f2023] border border-[#d8dadf]">
+                        <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-muted text-ink-900 border border-field-border">
                           {ESTADOS_PROPUESTA[p.estado] || p.estado}
                         </span>
                         {mia.tieneVersionDefinitiva && (
-                          <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-[#7a0c1e]">
+                          <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-brand-700">
                             <Lock className="w-3 h-3" aria-hidden="true" />
                             Versión definitiva
                           </span>
@@ -154,7 +154,7 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                       </td>
                       <td className="py-3.5 px-4 align-middle whitespace-nowrap">
                         <p>Versión {mia.versionActual || 1}</p>
-                        <p className="text-xs text-[#5b5f66]">
+                        <p className="text-xs text-ink-600">
                           {mia.totalVersiones} {mia.totalVersiones === 1 ? 'versión' : 'versiones'}
                         </p>
                       </td>
@@ -182,10 +182,10 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                           </Button>
                         </div>
                         {!edicion.permitido && (
-                          <p className="text-[11px] text-[#5b5f66] text-right mt-1 max-w-xs ml-auto">{edicion.motivo}</p>
+                          <p className="text-[11px] text-ink-600 text-right mt-1 max-w-xs ml-auto">{edicion.motivo}</p>
                         )}
                         {edicion.usaAutorizacion && (
-                          <p className="text-[11px] text-[#5b5f66] text-right mt-1">Modificación autorizada por el administrador.</p>
+                          <p className="text-[11px] text-ink-600 text-right mt-1">Modificación autorizada por el administrador.</p>
                         )}
                       </td>
                     </tr>

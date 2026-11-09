@@ -34,12 +34,12 @@ function BotonIcono({ icono: Icono, etiqueta, onClick, disabled, peligro = false
       disabled={disabled}
       title={etiqueta}
       aria-label={etiqueta}
-      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
+      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
         disabled
-          ? 'border-[#e5e7ea] text-[#9ca0a6] cursor-not-allowed'
+          ? 'border-border text-ink-300 cursor-not-allowed'
           : peligro
-          ? 'border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] cursor-pointer'
-          : 'border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] cursor-pointer'
+          ? 'border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 cursor-pointer'
+          : 'border-field-border text-ink-600 bg-white hover:bg-surface-muted hover:text-ink-900 cursor-pointer'
       }`}
     >
       <Icono className="w-4 h-4" />
@@ -54,10 +54,10 @@ function BotonCompacto({ children, onClick, principal = false, disabled = false 
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`h-9 px-4 rounded-[8px] text-sm font-medium inline-flex items-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] disabled:cursor-not-allowed ${
+      className={`h-9 px-4 rounded-[8px] text-sm font-medium inline-flex items-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 disabled:cursor-not-allowed ${
         principal
-          ? 'bg-[#a6192e] text-white hover:bg-[#7a0c1e] disabled:bg-[#d8dadf] disabled:text-[#9ca0a6] cursor-pointer'
-          : 'border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 cursor-pointer'
+          ? 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-field-border disabled:text-ink-300 cursor-pointer'
+          : 'border border-field-border bg-white text-ink-900 hover:bg-surface-muted disabled:opacity-50 cursor-pointer'
       }`}
     >
       {children}
@@ -68,7 +68,7 @@ function BotonCompacto({ children, onClick, principal = false, disabled = false 
 /** Mensaje de error general, con la pareja de colores de alerta del sistema de diseño. */
 function AlertaError({ children }) {
   return (
-    <p className="text-sm text-[#7a0c1e] bg-[#fdecec] border border-[#a6192e]/20 rounded-[8px] px-3 py-2" role="alert">
+    <p className="text-sm text-brand-700 bg-brand-100 border border-brand-600 rounded-[8px] px-3 py-2" role="alert">
       {children}
     </p>
   );
@@ -208,10 +208,10 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-[#5b5f66] leading-relaxed">{config.ayuda}</p>
+      <p className="text-sm text-ink-600 leading-relaxed">{config.ayuda}</p>
 
       {!modificable && (
-        <div className="flex items-start gap-2.5 text-sm text-[#7a0c1e] bg-[#fdecec] border border-[#a6192e]/20 rounded-[8px] px-3.5 py-3">
+        <div className="flex items-start gap-2.5 text-sm text-brand-700 bg-brand-100 border border-brand-600 rounded-[8px] px-3.5 py-3">
           <Lock className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
           <p>{motivoBloqueo}</p>
         </div>
@@ -221,7 +221,7 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
         <form
           onSubmit={agregar}
           noValidate
-          className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-3 items-start p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]"
+          className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-3 items-start p-4 rounded-[12px] border border-border bg-surface-muted"
           aria-label={`Agregar ${config.singular}`}
         >
           <Input
@@ -268,15 +268,15 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
       <p className="sr-only" role="status" aria-live="polite">
         {aviso}
       </p>
-      {aviso && <p className="text-xs text-[#5b5f66]" aria-hidden="true">{aviso}</p>}
+      {aviso && <p className="text-xs text-ink-600" aria-hidden="true">{aviso}</p>}
 
       {items.length === 0 ? (
-        <div className="py-10 px-6 text-center rounded-[12px] border border-dashed border-[#d8dadf]">
-          <p className="font-semibold text-[#1f2023]">{config.vacioTitulo}</p>
-          {modificable && <p className="text-sm text-[#5b5f66] mt-1">{config.vacioTexto}</p>}
+        <div className="py-10 px-6 text-center rounded-[12px] border border-dashed border-field-border">
+          <p className="font-semibold text-ink-900">{config.vacioTitulo}</p>
+          {modificable && <p className="text-sm text-ink-600 mt-1">{config.vacioTexto}</p>}
         </div>
       ) : (
-        <ul className="rounded-[12px] border border-[#e5e7ea] bg-white divide-y divide-[#e5e7ea]">
+        <ul className="rounded-[12px] border border-border bg-white divide-y divide-border">
           {items.map((item) => {
             const enAccion = accion?.id === item.id;
             const editando = enAccion && accion.tipo === 'editar';
@@ -284,7 +284,7 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
 
             if (editando) {
               return (
-                <li key={item.id} className="p-4 bg-[#f7f7f8]/60">
+                <li key={item.id} className="p-4 bg-surface-muted">
                   <form
                     onSubmit={guardarEdicion}
                     noValidate
@@ -327,12 +327,12 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
             }
 
             return (
-              <li key={item.id} className={eliminando ? 'bg-[#f7f7f8]/60' : ''}>
+              <li key={item.id} className={eliminando ? 'bg-surface-muted' : ''}>
                 <div className="flex items-center gap-4 px-4 py-3.5">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#1f2023] break-words">{item.nombre}</p>
+                    <p className="text-sm font-semibold text-ink-900 break-words">{item.nombre}</p>
                     {item.descripcion && (
-                      <p className="text-xs text-[#5b5f66] mt-0.5 break-words">{item.descripcion}</p>
+                      <p className="text-xs text-ink-600 mt-0.5 break-words">{item.descripcion}</p>
                     )}
                   </div>
 
@@ -355,15 +355,15 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
                   )}
 
                   {eliminando && accion.fase === 'verificando' && (
-                    <p className="text-xs text-[#5b5f66] shrink-0" role="status">
+                    <p className="text-xs text-ink-600 shrink-0" role="status">
                       Revisando si está en uso...
                     </p>
                   )}
                 </div>
 
                 {eliminando && (accion.fase === 'confirmar' || accion.fase === 'eliminando') && (
-                  <div className="mx-4 mb-4 p-3.5 rounded-[8px] border border-[#e5e7ea] bg-white space-y-3" role="alertdialog" aria-label={`Confirmar eliminación de ${item.nombre}`}>
-                    <p className="text-sm text-[#1f2023]">
+                  <div className="mx-4 mb-4 p-3.5 rounded-[8px] border border-border bg-white space-y-3" role="alertdialog" aria-label={`Confirmar eliminación de ${item.nombre}`}>
+                    <p className="text-sm text-ink-900">
                       {accion.uso
                         ? `«${item.nombre}» no está en uso. La eliminación es permanente.`
                         : `¿Eliminar «${item.nombre}»? La eliminación es permanente.`}
@@ -382,8 +382,8 @@ export default function CatalogoParametros({ config, items, modificable, motivoB
                 )}
 
                 {eliminando && accion.fase === 'bloqueado' && (
-                  <div className="mx-4 mb-4 p-3.5 rounded-[8px] border border-[#a6192e]/20 bg-[#fdecec] space-y-3" role="alert">
-                    <p className="text-sm text-[#7a0c1e]">
+                  <div className="mx-4 mb-4 p-3.5 rounded-[8px] border border-brand-600 bg-brand-100 space-y-3" role="alert">
+                    <p className="text-sm text-brand-700">
                       {accion.uso ? (
                         <>
                           No se puede eliminar «{item.nombre}» porque lo usan {describirUso(accion.uso)}.{' '}

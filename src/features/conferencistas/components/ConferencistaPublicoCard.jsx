@@ -32,44 +32,44 @@ export default function ConferencistaPublicoCard({ conferencista: c }) {
   return (
     <article
       id={`conferencista-${c.personaId}`}
-      className="bg-white rounded-[16px] border border-[#e5e7ea] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+      className="bg-white rounded-[16px] border border-border p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
     >
       <header className="flex items-start gap-4">
         <div
-          className="w-14 h-14 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0 font-serif-title text-lg"
+          className="w-14 h-14 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0 font-serif-title text-lg"
           aria-hidden="true"
         >
           {iniciales(c.nombreCompleto)}
         </div>
         <div className="min-w-0 flex-1">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#a6192e]">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-brand-600">
             {etiquetaParticipacion(c.tipoParticipacion)}
           </span>
-          <h2 className="font-serif-title text-xl text-[#1f2023] leading-tight mt-0.5">{c.nombreCompleto}</h2>
-          {subtitulo && <p className="text-sm text-[#5b5f66] mt-0.5">{subtitulo}</p>}
+          <h2 className="font-serif-title text-xl text-ink-900 leading-tight mt-0.5">{c.nombreCompleto}</h2>
+          {subtitulo && <p className="text-sm text-ink-600 mt-0.5">{subtitulo}</p>}
           {c.tema && (
-            <p className="text-sm text-[#1f2023] mt-2">
+            <p className="text-sm text-ink-900 mt-2">
               <span className="font-semibold">Tema:</span> {c.tema}
             </p>
           )}
         </div>
       </header>
 
-      {c.biografia && <p className="text-sm text-[#1f2023] leading-relaxed mt-4 whitespace-pre-line">{c.biografia}</p>}
+      {c.biografia && <p className="text-sm text-ink-900 leading-relaxed mt-4 whitespace-pre-line">{c.biografia}</p>}
 
       {(c.estudios?.length > 0 || c.publicaciones?.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5 pt-5 border-t border-[#e5e7ea]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5 pt-5 border-t border-border">
           {c.estudios?.length > 0 && (
             <section>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66] flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5 text-[#a6192e]" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600 flex items-center gap-1.5">
+                <GraduationCap className="w-3.5 h-3.5 text-brand-600" />
                 Formación
               </h3>
               <ul className="mt-2 space-y-2">
                 {c.estudios.map((e) => (
                   <li key={e.id ?? `${e.titulo}-${e.anio}`} className="text-sm">
-                    <p className="text-[#1f2023] font-medium">{e.titulo}</p>
-                    <p className="text-xs text-[#5b5f66]">
+                    <p className="text-ink-900 font-medium">{e.titulo}</p>
+                    <p className="text-xs text-ink-600">
                       {etiquetaNivel(e.nivel)} · {e.institucion}
                       {e.anio ? ` · ${e.anio}` : ''}
                     </p>
@@ -80,8 +80,8 @@ export default function ConferencistaPublicoCard({ conferencista: c }) {
           )}
           {c.publicaciones?.length > 0 && (
             <section>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#5b5f66] flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-[#a6192e]" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-ink-600 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-brand-600" />
                 Publicaciones
               </h3>
               <ul className="mt-2 space-y-2">
@@ -92,14 +92,14 @@ export default function ConferencistaPublicoCard({ conferencista: c }) {
                         href={p.enlace}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[#1f2023] font-medium hover:text-[#a6192e] underline-offset-2 hover:underline"
+                        className="text-ink-900 font-medium hover:text-brand-600 underline-offset-2 hover:underline"
                       >
                         {p.titulo}
                       </a>
                     ) : (
-                      <p className="text-[#1f2023] font-medium">{p.titulo}</p>
+                      <p className="text-ink-900 font-medium">{p.titulo}</p>
                     )}
-                    <p className="text-xs text-[#5b5f66]">
+                    <p className="text-xs text-ink-600">
                       {etiquetaPublicacion(p.tipo)}
                       {p.medio ? ` · ${p.medio}` : ''}
                       {p.anio ? ` · ${p.anio}` : ''}
@@ -112,13 +112,13 @@ export default function ConferencistaPublicoCard({ conferencista: c }) {
         </div>
       )}
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 mt-5 pt-4 border-t border-[#e5e7ea]">
+      <footer className="flex flex-wrap items-center justify-between gap-3 mt-5 pt-4 border-t border-border">
         {c.enlacePerfil ? (
           <a
             href={c.enlacePerfil}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#a6192e] hover:text-[#7a0c1e]"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
             <ExternalLink className="w-4 h-4" />
             Perfil académico
@@ -127,7 +127,7 @@ export default function ConferencistaPublicoCard({ conferencista: c }) {
           <span />
         )}
         {c.fechaActualizacion && (
-          <p className="text-xs text-[#5b5f66]">
+          <p className="text-xs text-ink-600">
             Trayectoria actualizada el {formatearFecha(fechaCorta(c.fechaActualizacion))}
           </p>
         )}

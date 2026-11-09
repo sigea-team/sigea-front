@@ -72,13 +72,13 @@ export default function DisponibilidadPonenteModal({
         icon: 'warning',
         title: '¿Confirmar cambio de disponibilidad del ponente?',
         html: `
-          <div class="text-left text-sm text-[#1f2023] space-y-2">
+          <div class="text-left text-sm text-ink-900 space-y-2">
             <p>
               Al actualizar la disponibilidad de <strong>${nombreCompleto}</strong>,
               <strong>${conflictoActividades.actividadesEnConflicto.length} actividad(es)</strong>
               asignada(s) quedarán en conflicto (fuera de sus rangos horarios disponibles).
             </p>
-            <ul class="list-disc list-inside text-xs text-[#a6192e] font-medium space-y-1">
+            <ul class="list-disc list-inside text-xs text-brand-600 font-medium space-y-1">
               ${conflictoActividades.actividadesEnConflicto
                 .map(
                   (a) =>
@@ -88,7 +88,7 @@ export default function DisponibilidadPonenteModal({
                 )
                 .join('')}
             </ul>
-            <p class="text-xs text-[#5b5f66] mt-2">
+            <p class="text-xs text-ink-600 mt-2">
               ¿Deseas guardar los cambios de todas formas? Deberás reprogramar la actividad o reasignar el ponente.
             </p>
           </div>
@@ -155,44 +155,44 @@ export default function DisponibilidadPonenteModal({
           />
         )}
 
-        <div className="bg-[#f7f7f8] p-4 rounded-[12px] border border-[#e5e7ea] space-y-3">
-          <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider flex items-center gap-1.5">
-            <Plus className="w-3.5 h-3.5 text-[#a6192e]" />
+        <div className="bg-surface-muted p-4 rounded-[12px] border border-border space-y-3">
+          <h4 className="text-xs font-bold text-ink-900 uppercase tracking-wider flex items-center gap-1.5">
+            <Plus className="w-3.5 h-3.5 text-brand-600" />
             Definir rango de disponibilidad horaria (Criterio 2)
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1f2023] mb-1">Fecha *</label>
+              <label className="block text-xs font-semibold text-ink-900 mb-1">Fecha *</label>
               <input
                 type="date"
                 value={nuevaFranja.fecha}
                 onChange={(e) => setNuevaFranja((p) => ({ ...p, fecha: e.target.value }))}
-                className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+                className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora inicio *</label>
+              <label className="block text-xs font-semibold text-ink-900 mb-1">Hora inicio *</label>
               <input
                 type="time"
                 value={nuevaFranja.horaInicio}
                 onChange={(e) => setNuevaFranja((p) => ({ ...p, horaInicio: e.target.value }))}
-                className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+                className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#1f2023] mb-1">Hora fin *</label>
+              <label className="block text-xs font-semibold text-ink-900 mb-1">Hora fin *</label>
               <input
                 type="time"
                 value={nuevaFranja.horaFin}
                 onChange={(e) => setNuevaFranja((p) => ({ ...p, horaFin: e.target.value }))}
-                className="w-full text-xs h-9 px-2.5 rounded-lg border border-[#d8dadf] bg-white focus:outline-none focus:ring-2 focus:ring-[#a6192e]"
+                className="w-full text-xs h-9 px-2.5 rounded-lg border border-field-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-600"
               />
             </div>
           </div>
 
           {(errorFranja.horaFin || errorFranja.fecha || errorFranja.general) && (
-            <p className="text-xs text-red-600 font-medium">
+            <p className="text-xs text-brand-700 font-medium">
               {errorFranja.horaFin || errorFranja.fecha || errorFranja.general}
             </p>
           )}
@@ -208,31 +208,31 @@ export default function DisponibilidadPonenteModal({
         {/* Listado de franjas actuales */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-ink-900 uppercase tracking-wider">
               Rangos registrados ({franjas.length})
             </h4>
-            <span className="text-xs text-[#5b5f66]">Referencia para programación</span>
+            <span className="text-xs text-ink-600">Referencia para programación</span>
           </div>
 
           {franjas.length === 0 ? (
-            <div className="text-center py-8 px-4 rounded-[12px] border border-dashed border-[#d8dadf] bg-[#f7f7f8]/50">
-              <Clock className="w-8 h-8 text-[#9ca0a6] mx-auto mb-2" />
-              <p className="text-xs font-medium text-[#1f2023]">Sin disponibilidad registrada</p>
-              <p className="text-[11px] text-[#5b5f66] mt-0.5">
+            <div className="text-center py-8 px-4 rounded-[12px] border border-dashed border-field-border bg-surface-muted">
+              <Clock className="w-8 h-8 text-ink-300 mx-auto mb-2" />
+              <p className="text-xs font-medium text-ink-900">Sin disponibilidad registrada</p>
+              <p className="text-[11px] text-ink-600 mt-0.5">
                 Agrega los rangos en los cuales este ponente puede dictar ponencias o talleres.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#e5e7ea] rounded-[12px] border border-[#e5e7ea] bg-white overflow-hidden shadow-xs">
+            <div className="divide-y divide-border rounded-[12px] border border-border bg-white overflow-hidden shadow-xs">
               {franjas.map((f, idx) => (
-                <div key={f.id || idx} className="px-4 py-3 flex items-center justify-between hover:bg-[#f7f7f8]/60 transition-colors">
+                <div key={f.id || idx} className="px-4 py-3 flex items-center justify-between hover:bg-surface-muted transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#fdecec] text-[#a6192e] flex items-center justify-center font-bold text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-xs">
                       <Calendar className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#1f2023]">{f.fecha}</p>
-                      <p className="text-xs text-[#5b5f66]">
+                      <p className="text-xs font-semibold text-ink-900">{f.fecha}</p>
+                      <p className="text-xs text-ink-600">
                         {formatearHora(f.horaInicio)} a {formatearHora(f.horaFin)}
                       </p>
                     </div>
@@ -241,7 +241,7 @@ export default function DisponibilidadPonenteModal({
                   <button
                     type="button"
                     onClick={() => eliminarFranja(idx)}
-                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-brand-700 hover:bg-brand-100 rounded-lg transition-colors cursor-pointer"
                     title="Eliminar rango"
                     aria-label={`Eliminar rango del ${f.fecha}`}
                   >

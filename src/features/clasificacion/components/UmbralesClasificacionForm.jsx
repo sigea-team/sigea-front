@@ -94,26 +94,26 @@ export default function UmbralesClasificacionForm({ convocatoriaId, umbrales, ap
       </div>
 
       {vistaPrevia && (
-        <ul className="text-xs text-[#5b5f66] space-y-0.5" aria-label="Rangos resultantes">
+        <ul className="text-xs text-ink-600 space-y-0.5" aria-label="Rangos resultantes">
           <li>
-            <strong className="text-[#027a48]">Aceptada:</strong> {formatearPuntuacion(aceptacion)} o más
+            <strong className="text-brand-600">Aceptada:</strong> {formatearPuntuacion(aceptacion)} o más
           </li>
           <li>
-            <strong className="text-[#b54708]">Aceptada con modificaciones:</strong> desde {formatearPuntuacion(ajustes)} hasta
+            <strong className="text-ink-600">Aceptada con modificaciones:</strong> desde {formatearPuntuacion(ajustes)} hasta
             antes de {formatearPuntuacion(aceptacion)}
           </li>
           <li>
-            <strong className="text-[#b42318]">Rechazada:</strong> menos de {formatearPuntuacion(ajustes)}
+            <strong className="text-brand-700">Rechazada:</strong> menos de {formatearPuntuacion(ajustes)}
           </li>
         </ul>
       )}
 
-      <p className="text-xs text-[#5b5f66]">
+      <p className="text-xs text-ink-600">
         Las propuestas ya clasificadas no cambian solas: después de guardar, vuelve a aplicar la clasificación.
       </p>
 
       {errorGeneral && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}

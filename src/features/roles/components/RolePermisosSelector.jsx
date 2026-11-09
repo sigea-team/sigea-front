@@ -20,7 +20,7 @@ export default function RolePermisosSelector({ permisos = [], seleccionados = []
 
   if (grupos.length === 0) {
     return (
-      <p className="text-xs text-[#5b5f66] p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]">
+      <p className="text-xs text-ink-600 p-4 rounded-[12px] border border-border bg-surface-muted">
         No hay permisos disponibles en el catálogo.
       </p>
     );
@@ -32,25 +32,25 @@ export default function RolePermisosSelector({ permisos = [], seleccionados = []
         const ids = grupo.permisos.map((p) => p.id);
         const todos = ids.every((id) => marcados.has(id));
         return (
-          <fieldset key={grupo.modulo} className="rounded-[12px] border border-[#e5e7ea] bg-white overflow-hidden">
+          <fieldset key={grupo.modulo} className="rounded-[12px] border border-border bg-white overflow-hidden">
             <legend className="sr-only">{grupo.etiqueta}</legend>
-            <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-[#f7f7f8] border-b border-[#e5e7ea]">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#1f2023]">{grupo.etiqueta}</span>
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-surface-muted border-b border-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-ink-900">{grupo.etiqueta}</span>
               <button
                 type="button"
                 disabled={disabled}
                 onClick={() => cambiar(ids, !todos)}
-                className="text-xs font-semibold text-[#a6192e] hover:underline disabled:opacity-50 cursor-pointer"
+                className="text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50 cursor-pointer"
               >
                 {todos ? 'Quitar todos' : 'Marcar todos'}
               </button>
             </div>
-            <ul className="divide-y divide-[#e5e7ea]">
+            <ul className="divide-y divide-border">
               {grupo.permisos.map((p) => {
                 const activo = marcados.has(p.id);
                 return (
                   <li key={p.id}>
-                    <label className="flex items-start gap-3 px-4 py-2.5 cursor-pointer hover:bg-[#f7f7f8]/60">
+                    <label className="flex items-start gap-3 px-4 py-2.5 cursor-pointer hover:bg-surface-muted">
                       <input
                         type="checkbox"
                         className="sr-only"
@@ -61,14 +61,14 @@ export default function RolePermisosSelector({ permisos = [], seleccionados = []
                       <span
                         aria-hidden="true"
                         className={`mt-0.5 w-5 h-5 shrink-0 rounded-[6px] border flex items-center justify-center ${
-                          activo ? 'bg-[#a6192e] border-[#a6192e] text-white' : 'bg-white border-[#d8dadf]'
+                          activo ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white border-field-border'
                         }`}
                       >
                         {activo && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm text-[#1f2023]">{p.descripcion || p.codigo}</span>
-                        <span className="block text-[11px] font-mono text-[#5b5f66]">{p.codigo}</span>
+                        <span className="block text-sm text-ink-900">{p.descripcion || p.codigo}</span>
+                        <span className="block text-[11px] font-mono text-ink-600">{p.codigo}</span>
                       </span>
                     </label>
                   </li>

@@ -33,12 +33,12 @@ function BotonIcono({ icono: Icono, etiqueta, onClick, disabled, peligro = false
       disabled={disabled}
       title={etiqueta}
       aria-label={etiqueta}
-      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
+      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
         disabled
-          ? 'border-[#e5e7ea] text-[#9ca0a6] cursor-not-allowed'
+          ? 'border-border text-ink-300 cursor-not-allowed'
           : peligro
-          ? 'border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] cursor-pointer'
-          : 'border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] cursor-pointer'
+          ? 'border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 cursor-pointer'
+          : 'border-field-border text-ink-600 bg-white hover:bg-surface-muted hover:text-ink-900 cursor-pointer'
       }`}
     >
       <Icono className="w-4 h-4" />
@@ -53,10 +53,10 @@ function BotonCompacto({ children, onClick, principal = false, disabled = false,
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`h-9 px-4 rounded-[8px] text-sm font-medium inline-flex items-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] disabled:cursor-not-allowed ${
+      className={`h-9 px-4 rounded-[8px] text-sm font-medium inline-flex items-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 disabled:cursor-not-allowed ${
         principal
-          ? 'bg-[#a6192e] text-white hover:bg-[#7a0c1e] disabled:bg-[#d8dadf] disabled:text-[#9ca0a6] cursor-pointer'
-          : 'border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 cursor-pointer'
+          ? 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-field-border disabled:text-ink-300 cursor-pointer'
+          : 'border border-field-border bg-white text-ink-900 hover:bg-surface-muted disabled:opacity-50 cursor-pointer'
       }`}
     >
       {children}
@@ -66,7 +66,7 @@ function BotonCompacto({ children, onClick, principal = false, disabled = false,
 
 function AlertaError({ children }) {
   return (
-    <p className="text-sm text-[#7a0c1e] bg-[#fdecec] border border-[#a6192e]/20 rounded-[8px] px-3 py-2" role="alert">
+    <p className="text-sm text-brand-700 bg-brand-100 border border-brand-600 rounded-[8px] px-3 py-2" role="alert">
       {children}
     </p>
   );
@@ -141,10 +141,10 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
   const vigentes = rubros.filter((r) => r.activo).length;
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+          <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
             <th scope="col" className="py-3 px-4">Rubro</th>
             <th scope="col" className="py-3 px-4 text-right">Cantidad</th>
             <th scope="col" className="py-3 px-4 text-right">Valor unitario</th>
@@ -157,12 +157,12 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+        <tbody className="divide-y divide-border text-sm text-ink-900">
           {rubros.length === 0 && (
             <tr>
               <td colSpan={columnas} className="py-10 px-4 text-center">
-                <p className="font-semibold text-[#1f2023]">El presupuesto todavía no tiene rubros</p>
-                {editable && <p className="text-xs mt-1 text-[#5b5f66]">Agrega el primero con su valor estimado.</p>}
+                <p className="font-semibold text-ink-900">El presupuesto todavía no tiene rubros</p>
+                {editable && <p className="text-xs mt-1 text-ink-600">Agrega el primero con su valor estimado.</p>}
               </td>
             </tr>
           )}
@@ -175,7 +175,7 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
               const cantidad = leerNumero(accion.form.cantidad);
               const subtotal = calcularSubtotal(cantidad === null ? 1 : cantidad, leerNumero(accion.form.valorUnitario));
               return (
-                <tr key={rubro.id} className="bg-[#f7f7f8]/60">
+                <tr key={rubro.id} className="bg-surface-muted">
                   <td colSpan={columnas} className="p-4">
                     <form
                       onSubmit={guardarEdicion}
@@ -230,9 +230,9 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
                         error={accion.errores.motivo}
                         disabled={accion.guardando}
                       />
-                      <p className="text-xs text-[#5b5f66]">
+                      <p className="text-xs text-ink-600">
                         Nuevo subtotal:{' '}
-                        <span className="font-semibold text-[#1f2023] tabular-nums">
+                        <span className="font-semibold text-ink-900 tabular-nums">
                           {subtotal === null ? '—' : formatearPesos(subtotal)}
                         </span>{' '}
                         (antes {formatearPesos(rubro.subtotal)})
@@ -247,26 +247,26 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
             // ----- Fila normal (con confirmación de eliminación debajo si aplica) -----
             const confirmando = enAccion && accion.tipo === 'eliminar';
             return [
-              <tr key={rubro.id} className={!rubro.activo ? 'bg-[#f7f7f8]/60' : confirmando ? 'bg-[#fdecec]/30' : ''}>
+              <tr key={rubro.id} className={!rubro.activo ? 'bg-surface-muted' : confirmando ? 'bg-brand-100' : ''}>
                 <td className="py-3.5 px-4 align-middle">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`font-semibold break-words ${rubro.activo ? 'text-[#1f2023]' : 'text-[#5b5f66] line-through'}`}>
+                    <span className={`font-semibold break-words ${rubro.activo ? 'text-ink-900' : 'text-ink-600 line-through'}`}>
                       {rubro.nombre}
                     </span>
                     {!rubro.activo && (
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#edeeef] text-[#5b5f66] border border-[#d8dadf]">
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-page text-ink-600 border border-field-border">
                         Eliminado
                       </span>
                     )}
                   </div>
                 </td>
-                <td className={`py-3.5 px-4 align-middle text-right tabular-nums ${rubro.activo ? '' : 'text-[#5b5f66]'}`}>
+                <td className={`py-3.5 px-4 align-middle text-right tabular-nums ${rubro.activo ? '' : 'text-ink-600'}`}>
                   {formatearCantidad(rubro.cantidad)}
                 </td>
-                <td className={`py-3.5 px-4 align-middle text-right tabular-nums whitespace-nowrap ${rubro.activo ? '' : 'text-[#5b5f66]'}`}>
+                <td className={`py-3.5 px-4 align-middle text-right tabular-nums whitespace-nowrap ${rubro.activo ? '' : 'text-ink-600'}`}>
                   {formatearPesos(rubro.valorUnitarioProyectado)}
                 </td>
-                <td className={`py-3.5 px-4 align-middle text-right tabular-nums whitespace-nowrap ${rubro.activo ? 'font-semibold' : 'text-[#5b5f66]'}`}>
+                <td className={`py-3.5 px-4 align-middle text-right tabular-nums whitespace-nowrap ${rubro.activo ? 'font-semibold' : 'text-ink-600'}`}>
                   {formatearPesos(rubro.subtotal)}
                 </td>
                 {conAcciones && (
@@ -302,17 +302,17 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
                 )}
               </tr>,
               confirmando && (
-                <tr key={`${rubro.id}-confirmar`} className="bg-[#fdecec]/30">
+                <tr key={`${rubro.id}-confirmar`} className="bg-brand-100">
                   <td colSpan={columnas} className="px-4 pb-4 pt-0">
                     <form
                       onSubmit={confirmarEliminacion}
                       noValidate
                       onKeyDown={(e) => e.key === 'Escape' && !accion.eliminando && cancelar()}
-                      className="p-3.5 rounded-[8px] border border-[#e5e7ea] bg-white space-y-3"
+                      className="p-3.5 rounded-[8px] border border-border bg-white space-y-3"
                       role="alertdialog"
                       aria-label={`Confirmar eliminación de ${rubro.nombre}`}
                     >
-                      <p className="text-sm text-[#1f2023]">
+                      <p className="text-sm text-ink-900">
                         ¿Eliminar «{rubro.nombre}» del presupuesto? El total bajará{' '}
                         <span className="font-semibold tabular-nums">{formatearPesos(rubro.subtotal)}</span>. El rubro queda
                         guardado en el historial.
@@ -349,14 +349,14 @@ export default function RubrosTabla({ rubros, total, editable, onActualizar, onE
         </tbody>
 
         <tfoot>
-          <tr className="bg-[#f7f7f8] border-t-2 border-[#e5e7ea]">
-            <th scope="row" colSpan={3} className="py-3.5 px-4 text-left text-sm font-semibold text-[#1f2023]">
+          <tr className="bg-surface-muted border-t-2 border-border">
+            <th scope="row" colSpan={3} className="py-3.5 px-4 text-left text-sm font-semibold text-ink-900">
               Total del presupuesto preliminar
-              <span className="ml-2 text-xs font-normal text-[#5b5f66]">
+              <span className="ml-2 text-xs font-normal text-ink-600">
                 ({vigentes} {vigentes === 1 ? 'rubro vigente' : 'rubros vigentes'})
               </span>
             </th>
-            <td className="py-3.5 px-4 text-right text-base font-bold text-[#a6192e] tabular-nums whitespace-nowrap">
+            <td className="py-3.5 px-4 text-right text-base font-bold text-brand-600 tabular-nums whitespace-nowrap">
               {formatearPesos(total)}
             </td>
             {conAcciones && <td />}

@@ -212,15 +212,15 @@ export default function CalendarioDisponibilidad({
   return (
     <div className="space-y-4">
       {/* Selector de modo y resumen superior */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-        <div className="flex items-center gap-1.5 p-1 rounded-[8px] bg-white border border-[#e5e7ea]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-[12px] bg-surface-muted border border-border">
+        <div className="flex items-center gap-1.5 p-1 rounded-[8px] bg-white border border-border">
           <button
             type="button"
             onClick={() => setModo('semana')}
             className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-colors flex items-center gap-1.5 ${
               modo === 'semana'
-                ? 'bg-[#a6192e] text-white shadow-xs'
-                : 'text-[#5b5f66] hover:text-[#1f2023]'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'text-ink-600 hover:text-ink-900'
             }`}
           >
             <CalendarDays className="w-3.5 h-3.5" />
@@ -231,8 +231,8 @@ export default function CalendarioDisponibilidad({
             onClick={() => setModo('individual')}
             className={`px-3 py-1.5 rounded-[6px] text-xs font-medium transition-colors flex items-center gap-1.5 ${
               modo === 'individual'
-                ? 'bg-[#a6192e] text-white shadow-xs'
-                : 'text-[#5b5f66] hover:text-[#1f2023]'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'text-ink-600 hover:text-ink-900'
             }`}
           >
             <CalendarIcon className="w-3.5 h-3.5" />
@@ -240,12 +240,12 @@ export default function CalendarioDisponibilidad({
           </button>
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-[#5b5f66]">
+        <div className="flex items-center gap-3 text-xs text-ink-600">
           <span>
-            <strong className="text-[#1f2023] font-semibold">{franjas.length}</strong> franja(s) disponible(s)
+            <strong className="text-ink-900 font-semibold">{franjas.length}</strong> franja(s) disponible(s)
           </span>
           {ocupaciones.length > 0 && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fdecec] text-[#7a0c1e] font-medium border border-[#a6192e]/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 font-medium border border-brand-600">
               <Clock className="w-3 h-3" />
               {ocupaciones.length} ocupada(s) por eventos
             </span>
@@ -254,7 +254,7 @@ export default function CalendarioDisponibilidad({
             <button
               type="button"
               onClick={handleLimpiarTodo}
-              className="text-[#a6192e] hover:underline text-xs"
+              className="text-brand-600 hover:underline text-xs"
             >
               Limpiar todo
             </button>
@@ -264,14 +264,14 @@ export default function CalendarioDisponibilidad({
 
       {/* Alertas de feedback / error */}
       {errorLocal && (
-        <div className="p-3 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-xs flex items-center gap-2">
+        <div className="p-3 rounded-[8px] bg-brand-100 border border-brand-600 text-brand-700 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorLocal}</span>
         </div>
       )}
 
       {mensajeFeedback && (
-        <div className="p-3 rounded-[8px] bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] text-xs flex items-center gap-2">
+        <div className="p-3 rounded-[8px] bg-surface-muted border border-border text-ink-900 text-xs flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{mensajeFeedback}</span>
         </div>
@@ -279,9 +279,9 @@ export default function CalendarioDisponibilidad({
 
       {/* Controles de edición interactiva */}
       {editable && modo === 'semana' && (
-        <div className="p-4 rounded-[12px] bg-white border border-[#e5e7ea] space-y-4 shadow-xs">
+        <div className="p-4 rounded-[12px] bg-white border border-border space-y-4 shadow-xs">
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-ink-900 uppercase tracking-wider mb-2">
               1. Selecciona los días de la semana
             </label>
             <div className="flex flex-wrap items-center gap-1.5 mb-2">
@@ -294,8 +294,8 @@ export default function CalendarioDisponibilidad({
                     onClick={() => toggleDiaSemana(d.id)}
                     className={`px-3 py-1.5 rounded-[8px] text-xs font-medium border transition-colors ${
                       activo
-                        ? 'bg-[#a6192e] text-white border-[#a6192e]'
-                        : 'bg-white text-[#5b5f66] border-[#e5e7ea] hover:bg-[#f7f7f8]'
+                        ? 'bg-brand-600 text-white border-brand-600'
+                        : 'bg-white text-ink-600 border-border hover:bg-surface-muted'
                     }`}
                   >
                     {d.nombre}
@@ -303,11 +303,11 @@ export default function CalendarioDisponibilidad({
                 );
               })}
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-[#5b5f66]">
+            <div className="flex items-center gap-3 text-[11px] text-ink-600">
               <button
                 type="button"
                 onClick={seleccionarLunesAViernes}
-                className="text-[#a6192e] hover:underline"
+                className="text-brand-600 hover:underline"
               >
                 Lunes a Viernes
               </button>
@@ -315,7 +315,7 @@ export default function CalendarioDisponibilidad({
               <button
                 type="button"
                 onClick={seleccionarTodosDias}
-                className="text-[#a6192e] hover:underline"
+                className="text-brand-600 hover:underline"
               >
                 Todos los días
               </button>
@@ -330,7 +330,7 @@ export default function CalendarioDisponibilidad({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#e5e7ea]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-border">
             <Input
               id="rango-fecha-desde"
               label="Desde"
@@ -350,7 +350,7 @@ export default function CalendarioDisponibilidad({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1f2023] uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-ink-900 uppercase tracking-wider mb-2">
               2. Horario a aplicar
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2.5">
@@ -374,8 +374,8 @@ export default function CalendarioDisponibilidad({
 
             {/* Presets rápidos */}
             <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-              <span className="text-[#5b5f66] mr-1 flex items-center gap-1 font-medium">
-                <Sparkles className="w-3 h-3 text-[#a6192e]" />
+              <span className="text-ink-600 mr-1 flex items-center gap-1 font-medium">
+                <Sparkles className="w-3 h-3 text-brand-600" />
                 Atajos:
               </span>
               {presetsHorario.map((p) => (
@@ -386,7 +386,7 @@ export default function CalendarioDisponibilidad({
                     setHoraInicioSemana(p.inicio);
                     setHoraFinSemana(p.fin);
                   }}
-                  className="px-2 py-1 rounded bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023] hover:bg-[#e5e7ea]/50 transition-colors"
+                  className="px-2 py-1 rounded bg-surface-muted border border-border text-ink-900 hover:bg-border transition-colors"
                 >
                   {p.label}
                 </button>
@@ -394,7 +394,7 @@ export default function CalendarioDisponibilidad({
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#e5e7ea] flex justify-end">
+          <div className="pt-3 border-t border-border flex justify-end">
             <Button
               type="button"
               variant="primary"
@@ -408,8 +408,8 @@ export default function CalendarioDisponibilidad({
       )}
 
       {editable && modo === 'individual' && (
-        <div className="p-4 rounded-[12px] bg-white border border-[#e5e7ea] space-y-4 shadow-xs">
-          <label className="block text-xs font-semibold text-[#1f2023] uppercase tracking-wider">
+        <div className="p-4 rounded-[12px] bg-white border border-border space-y-4 shadow-xs">
+          <label className="block text-xs font-semibold text-ink-900 uppercase tracking-wider">
             Añadir franja a una fecha puntual
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -445,7 +445,7 @@ export default function CalendarioDisponibilidad({
               variant="secondary"
               onClick={handleAgregarIndividual}
             >
-              <Plus className="w-4 h-4 text-[#a6192e]" />
+              <Plus className="w-4 h-4 text-brand-600" />
               <span>Agregar franja</span>
             </Button>
           </div>
@@ -455,19 +455,19 @@ export default function CalendarioDisponibilidad({
       {/* Visualización del Cronograma y Disponibilidad */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#1f2023] flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#a6192e]" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-ink-900 flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-brand-600" />
             Cronograma de Disponibilidad y Ocupaciones de la Sala
           </h4>
-          <span className="text-[11px] text-[#5b5f66]">
+          <span className="text-[11px] text-ink-600">
             {cronogramaPorFecha.length} fecha(s) con actividad o disponibilidad
           </span>
         </div>
 
         {cronogramaPorFecha.length === 0 ? (
-          <div className="p-8 text-center rounded-[12px] border border-dashed border-[#e5e7ea] bg-[#f7f7f8] text-[#5b5f66] text-xs">
-            <CalendarIcon className="w-8 h-8 text-[#9ca0a6] mx-auto mb-2 opacity-50" />
-            <p className="font-medium text-[#1f2023]">Sin franjas de disponibilidad configuradas</p>
+          <div className="p-8 text-center rounded-[12px] border border-dashed border-border bg-surface-muted text-ink-600 text-xs">
+            <CalendarIcon className="w-8 h-8 text-ink-300 mx-auto mb-2 opacity-50" />
+            <p className="font-medium text-ink-900">Sin franjas de disponibilidad configuradas</p>
             <p className="mt-1 max-w-sm mx-auto">
               Usa los controles de arriba para añadir horarios por días de la semana o fechas puntuales.
             </p>
@@ -477,17 +477,17 @@ export default function CalendarioDisponibilidad({
             {cronogramaPorFecha.map((item) => (
               <div
                 key={item.fecha}
-                className="p-3 rounded-[12px] border border-[#e5e7ea] bg-white hover:border-[#d8dadf] transition-colors"
+                className="p-3 rounded-[12px] border border-border bg-white hover:border-field-border transition-colors"
               >
-                <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-[#e5e7ea]/60">
-                  <span className="text-xs font-bold text-[#1f2023] capitalize">
+                <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-border">
+                  <span className="text-xs font-bold text-ink-900 capitalize">
                     {formatearFechaAmigable(item.fecha)}
                   </span>
                   {editable && item.franjas.length > 0 && (
                     <button
                       type="button"
                       onClick={() => handleLimpiarFecha(item.fecha)}
-                      className="text-[11px] text-[#5b5f66] hover:text-[#a6192e] transition-colors"
+                      className="text-[11px] text-ink-600 hover:text-brand-600 transition-colors"
                       title="Eliminar todas las franjas de esta fecha"
                     >
                       Limpiar fecha
@@ -502,9 +502,9 @@ export default function CalendarioDisponibilidad({
                       {item.franjas.map((f, idx) => (
                         <span
                           key={f.id || idx}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-xs font-medium bg-[#f7f7f8] border border-[#e5e7ea] text-[#1f2023]"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-xs font-medium bg-surface-muted border border-border text-ink-900"
                         >
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                          <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0" />
                           <span>
                             {formatearHora(f.horaInicio)} – {formatearHora(f.horaFin)}
                           </span>
@@ -512,7 +512,7 @@ export default function CalendarioDisponibilidad({
                             <button
                               type="button"
                               onClick={() => handleEliminarFranja(f.id || idx)}
-                              className="text-[#5b5f66] hover:text-[#a6192e] ml-1 p-0.5 rounded"
+                              className="text-ink-600 hover:text-brand-600 ml-1 p-0.5 rounded"
                               title="Eliminar franja"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -525,14 +525,14 @@ export default function CalendarioDisponibilidad({
 
                   {/* Franjas ocupadas por eventos */}
                   {item.ocupaciones.length > 0 && (
-                    <div className="space-y-1 pt-1.5 border-t border-dashed border-[#e5e7ea]/60">
+                    <div className="space-y-1 pt-1.5 border-t border-dashed border-border">
                       {item.ocupaciones.map((oc, ocIdx) => (
                         <div
                           key={oc.actividadId || ocIdx}
-                          className="flex items-center justify-between text-xs p-2 rounded-[8px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e]"
+                          className="flex items-center justify-between text-xs p-2 rounded-[8px] bg-brand-100 border border-brand-600 text-brand-700"
                         >
                           <div className="flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5 shrink-0 text-[#a6192e]" />
+                            <Clock className="w-3.5 h-3.5 shrink-0 text-brand-600" />
                             <span>
                               <strong>{formatearHora(oc.horaInicio)} – {formatearHora(oc.horaFin)}</strong>
                               {' : '}
@@ -540,7 +540,7 @@ export default function CalendarioDisponibilidad({
                               {oc.actividadNombre ? ` (${oc.actividadNombre})` : ''}
                             </span>
                           </div>
-                          <span className="text-[10px] font-semibold uppercase tracking-wider bg-white/70 px-1.5 py-0.5 rounded text-[#7a0c1e]">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider bg-surface px-1.5 py-0.5 rounded text-brand-700">
                             No disponible
                           </span>
                         </div>

@@ -26,10 +26,10 @@ export default function EjecucionRubrosTabla({ rubros, totalPresupuestado, total
   const disponibleTotal = Number(totalPresupuestado) - Number(totalEjecutado);
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+          <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
             <th scope="col" className="py-3 px-4">Rubro</th>
             <th scope="col" className="py-3 px-4 text-right">Presupuestado</th>
             <th scope="col" className="py-3 px-4 text-right">Ejecutado</th>
@@ -43,12 +43,12 @@ export default function EjecucionRubrosTabla({ rubros, totalPresupuestado, total
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+        <tbody className="divide-y divide-border text-sm text-ink-900">
           {rubros.length === 0 && (
             <tr>
               <td colSpan={columnas} className="py-10 px-4 text-center">
-                <p className="font-semibold text-[#1f2023]">El presupuesto no tiene rubros vigentes</p>
-                <p className="text-xs mt-1 text-[#5b5f66]">Los gastos se registran contra los rubros del presupuesto preliminar.</p>
+                <p className="font-semibold text-ink-900">El presupuesto no tiene rubros vigentes</p>
+                <p className="text-xs mt-1 text-ink-600">Los gastos se registran contra los rubros del presupuesto preliminar.</p>
               </td>
             </tr>
           )}
@@ -61,12 +61,12 @@ export default function EjecucionRubrosTabla({ rubros, totalPresupuestado, total
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold break-words">{rubro.nombre}</span>
                     {rubro.excedido && (
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#fdecec] text-[#7a0c1e] border border-[#a6192e]/20">
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-100 text-brand-700 border border-brand-600">
                         Excedido
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#5b5f66] mt-0.5">
+                  <p className="text-xs text-ink-600 mt-0.5">
                     {rubro.cantidadGastos === 0
                       ? 'Sin gastos'
                       : `${rubro.cantidadGastos} ${rubro.cantidadGastos === 1 ? 'gasto' : 'gastos'}`}
@@ -80,7 +80,7 @@ export default function EjecucionRubrosTabla({ rubros, totalPresupuestado, total
                 </td>
                 <td
                   className={`py-3.5 px-4 align-middle text-right tabular-nums whitespace-nowrap ${
-                    disponible < 0 ? 'text-[#7a0c1e] font-semibold' : ''
+                    disponible < 0 ? 'text-brand-700 font-semibold' : ''
                   }`}
                 >
                   {formatearPesos(disponible)}
@@ -120,19 +120,19 @@ export default function EjecucionRubrosTabla({ rubros, totalPresupuestado, total
         </tbody>
 
         <tfoot>
-          <tr className="bg-[#f7f7f8] border-t-2 border-[#e5e7ea] text-sm">
-            <th scope="row" className="py-3.5 px-4 text-left font-semibold text-[#1f2023]">
+          <tr className="bg-surface-muted border-t-2 border-border text-sm">
+            <th scope="row" className="py-3.5 px-4 text-left font-semibold text-ink-900">
               Total de los rubros
             </th>
             <td className="py-3.5 px-4 text-right tabular-nums whitespace-nowrap font-semibold">
               {formatearPesos(totalPresupuestado)}
             </td>
-            <td className="py-3.5 px-4 text-right tabular-nums whitespace-nowrap font-bold text-[#a6192e]">
+            <td className="py-3.5 px-4 text-right tabular-nums whitespace-nowrap font-bold text-brand-600">
               {formatearPesos(totalEjecutado)}
             </td>
             <td
               className={`py-3.5 px-4 text-right tabular-nums whitespace-nowrap font-semibold ${
-                disponibleTotal < 0 ? 'text-[#7a0c1e]' : ''
+                disponibleTotal < 0 ? 'text-brand-700' : ''
               }`}
             >
               {formatearPesos(disponibleTotal)}

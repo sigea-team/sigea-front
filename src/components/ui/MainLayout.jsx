@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
  * @file MainLayout.jsx
  * @description Layout principal de aplicación funcional para el sistema SIGEA.
  * Divide la pantalla en un Sidebar colapsable a la izquierda y un área principal a la derecha
- * con Topbar (64px) independiente, contenedor central `<main>` (padding 32px) con tarjeta blanca y Footer institucional.
+ * con Topbar (64px) independiente, contenedor central `<main>` (padding 24-32px) y Footer institucional.
  * Consume los datos del usuario autenticado del AuthContext o por props.
  * @module components/ui/MainLayout
  */
@@ -53,7 +53,7 @@ export default function MainLayout({
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-[#edeeef] text-[#1f2023] font-sans antialiased">
+    <div className="min-h-screen w-full flex bg-surface text-ink-900 font-sans antialiased">
       {/* Sidebar Lateral Colapsable (Maneja su propio colapso) */}
       <Sidebar
         activeItem={activeNav}
@@ -65,7 +65,7 @@ export default function MainLayout({
       />
 
       {/* Área Principal de Contenido (Derecha) */}
-      <div className="flex-1 flex flex-col min-h-screen bg-[#f7f7f8] min-w-0 transition-all duration-300">
+      <div className="flex-1 flex flex-col min-h-screen bg-surface min-w-0 transition-all duration-300">
         {/* Topbar Superior Independiente */}
         <Topbar
           title={title}
@@ -74,11 +74,9 @@ export default function MainLayout({
           apiNotificaciones={apiNotificaciones}
         />
 
-        {/* Contenedor Central <main> con padding de 32px (p-8) */}
+        {/* Contenedor Central <main> integrado directamente con la pantalla */}
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
-          <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-6 sm:p-8 shadow-xs">
-            {children}
-          </div>
+          {children}
         </main>
 
         {/* Footer Global al Final */}

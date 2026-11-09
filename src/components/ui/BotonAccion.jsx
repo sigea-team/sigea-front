@@ -34,12 +34,12 @@ export default function BotonAccion({
       disabled={disabled}
       title={titulo}
       aria-label={titulo}
-      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] ${
+      className={`w-9 h-9 inline-flex items-center justify-center rounded-[8px] border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
         disabled
-          ? 'border-[#e5e7ea] text-[#9ca0a6] cursor-not-allowed bg-white/50'
+          ? 'border-border text-ink-300 cursor-not-allowed bg-surface-muted'
           : peligro
-          ? 'border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] cursor-pointer'
-          : 'border-[#d8dadf] text-[#5b5f66] bg-white hover:bg-[#f7f7f8] hover:text-[#1f2023] cursor-pointer'
+          ? 'border-brand-600 text-brand-700 bg-brand-100 hover:bg-brand-600 hover:text-surface cursor-pointer'
+          : 'border-field-border text-ink-600 bg-surface hover:bg-surface-muted hover:text-ink-900 cursor-pointer'
       }`}
     >
       <Icono className="w-4 h-4" />

@@ -33,29 +33,29 @@ export const Default = {
     children: (
       <div className="space-y-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e]">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
             SIGEA — Panel General
           </span>
-          <h2 className="font-serif-title text-2xl text-[#1f2023] mt-1">
+          <h2 className="font-serif-title text-2xl text-ink-900 mt-1">
             Bienvenido al Sistema de Gestión de Eventos
           </h2>
-          <p className="text-sm text-[#5b5f66] mt-1">
+          <p className="text-sm text-ink-600 mt-1">
             Resumen de actividad reciente, convocatorias abiertas e inscritos en eventos.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <p className="text-xs font-medium text-[#5b5f66]">Convocatorias Activas</p>
-            <p className="font-serif-title text-3xl text-[#a6192e] mt-2">12</p>
+          <div className="p-5 rounded-[12px] bg-surface-muted border border-border">
+            <p className="text-xs font-medium text-ink-600">Convocatorias Activas</p>
+            <p className="font-serif-title text-3xl text-brand-600 mt-2">12</p>
           </div>
-          <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <p className="text-xs font-medium text-[#5b5f66]">Eventos Programados</p>
-            <p className="font-serif-title text-3xl text-[#1f2023] mt-2">8</p>
+          <div className="p-5 rounded-[12px] bg-surface-muted border border-border">
+            <p className="text-xs font-medium text-ink-600">Eventos Programados</p>
+            <p className="font-serif-title text-3xl text-ink-900 mt-2">8</p>
           </div>
-          <div className="p-5 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]">
-            <p className="text-xs font-medium text-[#5b5f66]">Certificados Emitidos</p>
-            <p className="font-serif-title text-3xl text-[#1f2023] mt-2">145</p>
+          <div className="p-5 rounded-[12px] bg-surface-muted border border-border">
+            <p className="text-xs font-medium text-ink-600">Certificados Emitidos</p>
+            <p className="font-serif-title text-3xl text-ink-900 mt-2">145</p>
           </div>
         </div>
 
@@ -78,11 +78,11 @@ export const ConvocatoriasView = {
     },
     children: (
       <div className="space-y-4">
-        <h2 className="font-serif-title text-2xl text-[#1f2023]">Convocatorias de Investigación 2026</h2>
-        <p className="text-sm text-[#5b5f66]">
+        <h2 className="font-serif-title text-2xl text-ink-900">Convocatorias de Investigación 2026</h2>
+        <p className="text-sm text-ink-600">
           Listado de propuestas recibidas para ponencias y artículos académicos.
         </p>
-        <div className="h-48 rounded-[8px] border border-dashed border-[#d8dadf] bg-[#f7f7f8] flex items-center justify-center text-sm text-[#9ca0a6]">
+        <div className="h-48 rounded-[8px] border border-dashed border-field-border bg-surface-muted flex items-center justify-center text-sm text-ink-300">
           Tabla de Convocatorias
         </div>
       </div>
@@ -110,13 +110,13 @@ export const Interactive = {
         onLogout={() => alert('Sesión cerrada')}
       >
         <div className="space-y-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e]">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
             Pestaña Activa: {currentNav}
           </span>
-          <h2 className="font-serif-title text-2xl text-[#1f2023]">
+          <h2 className="font-serif-title text-2xl text-ink-900">
             {titles[currentNav]}
           </h2>
-          <p className="text-sm text-[#5b5f66]">
+          <p className="text-sm text-ink-600">
             Haz clic en los elementos de la barra lateral (Sidebar) para cambiar la vista interactiva.
           </p>
         </div>

@@ -42,11 +42,11 @@ export default function AuditoriaTabla({
   const esUltima = p.pagina >= p.totalPaginas - 1;
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white shadow-2xs">
+    <div className="overflow-hidden rounded-[12px] border border-border bg-white shadow-2xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+            <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
               <th className="py-3.5 px-6">Fecha y hora</th>
               <th className="py-3.5 px-6">Usuario</th>
               <th className="py-3.5 px-6">Operación</th>
@@ -54,13 +54,13 @@ export default function AuditoriaTabla({
               <th className="py-3.5 px-6 text-right">Datos afectados</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+          <tbody className="divide-y divide-border text-sm text-ink-900">
             {cargando ? (
               Array.from({ length: FILAS_ESQUELETO }).map((_, i) => (
                 <tr key={`esqueleto-${i}`} aria-hidden="true">
                   {Array.from({ length: 5 }).map((__, j) => (
                     <td key={j} className="py-4 px-6">
-                      <div className="h-4 rounded bg-[#edeeef] animate-pulse" />
+                      <div className="h-4 rounded bg-surface-page animate-pulse" />
                     </td>
                   ))}
                 </tr>
@@ -68,10 +68,10 @@ export default function AuditoriaTabla({
             ) : registros.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 px-6 text-center">
-                  <p className="font-semibold text-base text-[#1f2023]">
+                  <p className="font-semibold text-base text-ink-900">
                     {hayFiltros ? 'Sin resultados para los filtros aplicados' : 'Aún no hay operaciones críticas registradas'}
                   </p>
-                  <p className="text-xs mt-1 text-[#9ca0a6]">
+                  <p className="text-xs mt-1 text-ink-300">
                     {hayFiltros
                       ? 'Prueba ampliando el rango de fechas o usando "Limpiar filtros".'
                       : 'Los registros aparecerán aquí a medida que se ejecuten operaciones críticas.'}
@@ -83,24 +83,24 @@ export default function AuditoriaTabla({
                 const { fecha, hora } = formatearFechaHora(r.fechaHora);
                 const esSistema = !r.usuarioId;
                 return (
-                  <tr key={r.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                  <tr key={r.id} className="hover:bg-surface-muted transition-colors">
                     <td className="py-4 px-6 align-middle whitespace-nowrap">
                       <span className="font-medium block">{fecha}</span>
-                      <span className="text-xs text-[#5b5f66] font-mono">{hora}</span>
+                      <span className="text-xs text-ink-600 font-mono">{hora}</span>
                     </td>
 
                     <td className="py-4 px-6 align-middle">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#f7f7f8] border border-[#e5e7ea] flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-surface-muted border border-border flex items-center justify-center shrink-0">
                           {esSistema ? (
-                            <Cpu className="w-4 h-4 text-[#5b5f66]" />
+                            <Cpu className="w-4 h-4 text-ink-600" />
                           ) : (
-                            <User className="w-4 h-4 text-[#a6192e]" />
+                            <User className="w-4 h-4 text-brand-600" />
                           )}
                         </div>
                         <div className="min-w-0">
                           <span className="font-semibold block truncate">{r.usuarioNombre || 'Sistema'}</span>
-                          <span className="text-xs text-[#5b5f66] block truncate">
+                          <span className="text-xs text-ink-600 block truncate">
                             {r.usuarioCorreo || 'Operación automática del sistema'}
                           </span>
                         </div>
@@ -109,15 +109,15 @@ export default function AuditoriaTabla({
 
                     <td className="py-4 px-6 align-middle max-w-xs">
                       <span className="text-sm block leading-snug">{r.accionDescripcion || r.accion}</span>
-                      <span className="text-[11px] font-mono text-[#5b5f66] uppercase tracking-wider">
+                      <span className="text-[11px] font-mono text-ink-600 uppercase tracking-wider">
                         {r.accion}
                       </span>
                     </td>
 
                     <td className="py-4 px-6 align-middle whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f7f7f8] text-[#1f2023] border border-[#e5e7ea]">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-muted text-ink-900 border border-border">
                         {r.entidad}
-                        {r.entidadId != null && <span className="text-[#5b5f66] ml-1">#{r.entidadId}</span>}
+                        {r.entidadId != null && <span className="text-ink-600 ml-1">#{r.entidadId}</span>}
                       </span>
                     </td>
 
@@ -125,11 +125,11 @@ export default function AuditoriaTabla({
                       <button
                         type="button"
                         onClick={() => onVerDetalle?.(r)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold text-[#1f2023] bg-white border border-[#d8dadf] hover:bg-[#f7f7f8] hover:border-[#9ca0a6] transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold text-ink-900 bg-white border border-field-border hover:bg-surface-muted hover:border-ink-300 transition-colors cursor-pointer"
                         title="Ver datos afectados"
                         aria-label={`Ver datos afectados del registro ${r.id}`}
                       >
-                        <Eye className="w-3.5 h-3.5 text-[#5b5f66]" />
+                        <Eye className="w-3.5 h-3.5 text-ink-600" />
                         <span>Ver detalle</span>
                       </button>
                     </td>
@@ -142,15 +142,15 @@ export default function AuditoriaTabla({
       </div>
 
       {/* Paginación */}
-      <div className="flex items-center justify-between px-6 py-3 border-t border-[#e5e7ea] bg-[#f7f7f8]/50">
-        <p className="text-xs text-[#5b5f66]">
+      <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-surface-muted">
+        <p className="text-xs text-ink-600">
           {cargando ? (
             'Consultando registros...'
           ) : (
             <>
-              Mostrando <span className="font-bold text-[#1f2023]">{desde}</span>–
-              <span className="font-bold text-[#1f2023]">{hasta}</span> de{' '}
-              <span className="font-bold text-[#1f2023]">{p.totalElementos}</span> registros
+              Mostrando <span className="font-bold text-ink-900">{desde}</span>–
+              <span className="font-bold text-ink-900">{hasta}</span> de{' '}
+              <span className="font-bold text-ink-900">{p.totalElementos}</span> registros
             </>
           )}
         </p>
@@ -160,12 +160,12 @@ export default function AuditoriaTabla({
             onClick={() => onCambiarPagina?.(p.pagina - 1)}
             disabled={cargando || esPrimera}
             aria-label="Página anterior"
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-field-border bg-white text-ink-900 hover:bg-surface-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             Anterior
           </button>
-          <span className="text-xs text-[#5b5f66] px-1" aria-live="polite">
+          <span className="text-xs text-ink-600 px-1" aria-live="polite">
             Página {p.pagina + 1} de {p.totalPaginas}
           </span>
           <button
@@ -173,7 +173,7 @@ export default function AuditoriaTabla({
             onClick={() => onCambiarPagina?.(p.pagina + 1)}
             disabled={cargando || esUltima}
             aria-label="Página siguiente"
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-[#d8dadf] bg-white text-[#1f2023] hover:bg-[#f7f7f8] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold border border-field-border bg-white text-ink-900 hover:bg-surface-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             Siguiente
             <ChevronRight className="w-3.5 h-3.5" />

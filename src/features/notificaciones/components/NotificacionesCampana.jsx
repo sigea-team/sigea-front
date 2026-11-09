@@ -142,7 +142,7 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
       <button
         type="button"
         onClick={() => setAbierta((v) => !v)}
-        className="p-2 rounded-full text-[#5b5f66] hover:bg-[#f7f7f8] hover:text-[#1f2023] transition-colors relative cursor-pointer"
+        className="p-2 rounded-full text-ink-600 hover:bg-surface-muted hover:text-ink-900 transition-colors relative cursor-pointer"
         title={etiquetaBoton}
         aria-label={etiquetaBoton}
         aria-haspopup="true"
@@ -150,7 +150,7 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
       >
         <Bell className="w-5 h-5" />
         {noLeidas > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#a6192e] text-white text-[10px] font-bold flex items-center justify-center leading-none">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-600 text-surface text-[10px] font-bold flex items-center justify-center leading-none">
             {textoContador(noLeidas)}
           </span>
         )}
@@ -158,14 +158,14 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
 
       {abierta && (
         <div
-          className="absolute right-0 mt-2 w-[380px] bg-white rounded-[16px] border border-[#e5e7ea] shadow-2xl z-40 overflow-hidden"
+          className="absolute right-0 mt-2 w-[380px] bg-surface rounded-[16px] border border-border shadow-2xl z-40 overflow-hidden"
           role="dialog"
           aria-label="Notificaciones"
         >
-          <div className="px-4 py-3 border-b border-[#e5e7ea] flex items-center justify-between bg-[#f7f7f8]/50">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-surface-muted">
             <div>
-              <p className="text-sm font-semibold text-[#1f2023]">Notificaciones</p>
-              <p className="text-xs text-[#5b5f66]">
+              <p className="text-sm font-semibold text-ink-900">Notificaciones</p>
+              <p className="text-xs text-ink-600">
                 {noLeidas > 0 ? `${noLeidas} sin leer` : 'Estás al día'}
               </p>
             </div>
@@ -173,7 +173,7 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
               type="button"
               onClick={marcarTodas}
               disabled={noLeidas === 0}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[#a6192e] hover:underline disabled:text-[#9ca0a6] disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline disabled:text-ink-300 disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               Marcar todas como leídas
@@ -182,15 +182,15 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
 
           <div className="max-h-[420px] overflow-y-auto">
             {cargando && notificaciones.length === 0 && (
-              <p className="px-4 py-8 text-center text-sm text-[#5b5f66]" role="status">
+              <p className="px-4 py-8 text-center text-sm text-ink-600" role="status">
                 Cargando notificaciones...
               </p>
             )}
 
             {error && (
-              <div className="m-3 p-3 rounded-[8px] bg-[#fdecec] text-[#7a0c1e] text-xs flex items-center justify-between gap-2">
+              <div className="m-3 p-3 rounded-[8px] bg-brand-100 text-brand-700 text-xs flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-[#a6192e] shrink-0" />
+                  <Info className="w-3.5 h-3.5 text-brand-600 shrink-0" />
                   {error}
                 </span>
                 <button
@@ -206,25 +206,25 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
 
             {!cargando && !error && notificaciones.length === 0 && (
               <div className="px-4 py-10 text-center">
-                <Bell className="w-6 h-6 text-[#9ca0a6] mx-auto" />
-                <p className="text-sm font-semibold text-[#1f2023] mt-2">No tienes notificaciones</p>
-                <p className="text-xs text-[#5b5f66] mt-1">Aquí verás los avisos de convocatorias y eventos.</p>
+                <Bell className="w-6 h-6 text-ink-300 mx-auto" />
+                <p className="text-sm font-semibold text-ink-900 mt-2">No tienes notificaciones</p>
+                <p className="text-xs text-ink-600 mt-1">Aquí verás los avisos de convocatorias y eventos.</p>
               </div>
             )}
 
-            <ul className="divide-y divide-[#e5e7ea]">
+            <ul className="divide-y divide-border">
               {notificaciones.map((n) => (
                 <li key={n.id}>
                   <button
                     type="button"
                     onClick={() => abrirNotificacion(n)}
-                    className={`w-full text-left px-4 py-3 flex gap-3 transition-colors cursor-pointer hover:bg-[#f7f7f8] ${
-                      n.leida ? '' : 'bg-[#fdecec]/40'
+                    className={`w-full text-left px-4 py-3 flex gap-3 transition-colors cursor-pointer hover:bg-surface-muted ${
+                      n.leida ? '' : 'bg-brand-100'
                     }`}
                   >
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        n.leida ? 'bg-[#f7f7f8] text-[#9ca0a6]' : 'bg-[#fdecec] text-[#a6192e]'
+                        n.leida ? 'bg-surface-muted text-ink-300' : 'bg-brand-100 text-brand-600'
                       }`}
                     >
                       <CalendarClock className="w-4 h-4" />
@@ -233,17 +233,17 @@ export default function NotificacionesCampana({ api: apiProp, abiertaInicial = f
                       <div className="flex items-start justify-between gap-2">
                         <p
                           className={`text-sm leading-snug ${
-                            n.leida ? 'text-[#5b5f66] font-medium' : 'text-[#1f2023] font-semibold'
+                            n.leida ? 'text-ink-600 font-medium' : 'text-ink-900 font-semibold'
                           }`}
                         >
                           {n.titulo}
                         </p>
                         {!n.leida && (
-                          <span className="w-2 h-2 rounded-full bg-[#a6192e] shrink-0 mt-1.5" aria-label="Sin leer"></span>
+                          <span className="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-1.5" aria-label="Sin leer"></span>
                         )}
                       </div>
-                      <p className="text-xs text-[#5b5f66] mt-1 line-clamp-3">{n.mensaje}</p>
-                      <p className="text-[11px] text-[#9ca0a6] mt-1">{tiempoRelativo(n.fechaCreacion)}</p>
+                      <p className="text-xs text-ink-600 mt-1 line-clamp-3">{n.mensaje}</p>
+                      <p className="text-[11px] text-ink-300 mt-1">{tiempoRelativo(n.fechaCreacion)}</p>
                     </div>
                   </button>
                 </li>

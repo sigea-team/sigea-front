@@ -162,7 +162,7 @@ export default function EventoFormModal({
               <button
                 type="button"
                 onClick={onAdministrarTipos}
-                className="text-xs mt-1.5 text-[#a6192e] font-semibold underline cursor-pointer"
+                className="text-xs mt-1.5 text-brand-600 font-semibold underline cursor-pointer"
               >
                 {tiposEvento?.length === 0 ? 'Crear tipos de evento' : '¿No está el tipo? Administrar tipos de evento'}
               </button>

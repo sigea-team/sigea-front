@@ -14,8 +14,8 @@ export default function TipoSalaBadge({ tipo }) {
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
         esVirtual
-          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          ? 'bg-surface-muted text-ink-600 border border-border'
+          : 'bg-brand-600 text-surface border-transparent'
       }`}
     >
       <Icono className="w-3.5 h-3.5" aria-hidden="true" />

@@ -70,34 +70,34 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
     <MainLayout title="Mi perfil de conferencista" activeNav="mi-perfil-conferencista" usuario={usuarioProp}>
       <div className="max-w-4xl space-y-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
             <Mic className="w-3.5 h-3.5" />
             Perfil de conferencista
           </span>
-          <h1 className="font-serif-title text-2xl text-[#1f2023] mt-1">
+          <h1 className="font-serif-title text-2xl text-ink-900 mt-1">
             {perfil ? perfil.nombreCompleto : 'Mi perfil de conferencista'}
           </h1>
-          <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+          <p className="text-sm text-ink-600 mt-1 max-w-2xl">
             Mantén al día tu trayectoria académica y profesional. Es la información que se publica en la agenda,
             el material de difusión y la certificación de los eventos en los que participas.
           </p>
         </div>
 
         {!resultado && (
-          <p className="py-12 text-center text-sm text-[#5b5f66]" role="status">
+          <p className="py-12 text-center text-sm text-ink-600" role="status">
             Cargando tu perfil...
           </p>
         )}
 
         {resultado?.noRegistrado && (
-          <div className="p-6 rounded-[16px] bg-white border border-[#e5e7ea] flex items-start gap-4">
-            <div className="w-11 h-11 rounded-full bg-[#f7f7f8] border border-[#e5e7ea] text-[#5b5f66] flex items-center justify-center shrink-0">
+          <div className="p-6 rounded-[16px] bg-white border border-border flex items-start gap-4">
+            <div className="w-11 h-11 rounded-full bg-surface-muted border border-border text-ink-600 flex items-center justify-center shrink-0">
               <UserX className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-semibold text-[#1f2023]">Aún no tienes perfil de conferencista</p>
-              <p className="text-sm text-[#5b5f66] mt-1 leading-relaxed">{resultado.error}</p>
-              <p className="text-xs text-[#5b5f66] mt-2">
+              <p className="font-semibold text-ink-900">Aún no tienes perfil de conferencista</p>
+              <p className="text-sm text-ink-600 mt-1 leading-relaxed">{resultado.error}</p>
+              <p className="text-xs text-ink-600 mt-2">
                 Cuando completes la invitación que te llega al correo, vuelve a ingresar con el perfil «Conferencista».
               </p>
             </div>
@@ -105,9 +105,9 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
         )}
 
         {resultado?.error && !resultado.noRegistrado && (
-          <div className="p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/20 text-[#7a0c1e] text-sm flex items-center justify-between gap-4">
+          <div className="p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700 text-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#a6192e] shrink-0" />
+              <Info className="w-4 h-4 text-brand-600 shrink-0" />
               <span>{resultado.error}</span>
             </div>
             <button
@@ -128,7 +128,7 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
           <>
             {aviso && (
               <p
-                className="flex items-start gap-2 text-sm text-[#1d6b45] bg-[#e8f5ee] border border-[#bfe3cf] px-4 py-3 rounded-[12px]"
+                className="flex items-start gap-2 text-sm text-brand-600 bg-brand-100 border border-border px-4 py-3 rounded-[12px]"
                 role="status"
               >
                 <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
@@ -138,14 +138,14 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
 
             {publicos.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs text-[#5b5f66]">Así te ven en:</span>
+                <span className="text-xs text-ink-600">Así te ven en:</span>
                 {publicos.map((p) => (
                   <Link
                     key={p.participacionId}
                     to={`/eventos/${p.eventoId}/conferencistas-publicos`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#a6192e] bg-white border border-[#a6192e]/25 hover:bg-[#fdecec] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-brand-600 bg-white border border-brand-600 hover:bg-brand-100 transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     {p.eventoNombre}
@@ -154,7 +154,7 @@ export default function MiPerfilConferencistaPage({ api = conferencistaService, 
               </div>
             )}
 
-            <div className="bg-white rounded-[16px] border border-[#e5e7ea] p-6">
+            <div className="bg-white rounded-[16px] border border-border p-6">
               <ConferencistaForm
                 key={claveFormulario}
                 modo="editar"

@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-100: #fdecec;
+  --color-brand-600: #a6192e;
+  --color-brand-700: #7a0c1e;
+
+  --color-ink-300: #9ca0a6;
+  --color-ink-600: #5b5f66;
+  --color-ink-900: #1f2023;
+
+  --color-border: #e5e7ea;
+  --color-field-border: #d8dadf;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f7f8;
+  --color-surface-page: #edeeef;
+}
+
 :root {
   --brand-600: #a6192e;
   --brand-700: #7a0c1e;

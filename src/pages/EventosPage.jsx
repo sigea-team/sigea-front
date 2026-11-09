@@ -69,13 +69,13 @@ function BotonFila({ icono: Icono, children, onClick, principal = false }) {
     <button
       type="button"
       onClick={onClick}
-      className={`h-9 px-3.5 inline-flex items-center gap-1.5 rounded-[8px] border text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] focus-visible:ring-offset-1 ${
+      className={`h-9 px-3.5 inline-flex items-center gap-1.5 rounded-[8px] border text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-1 ${
         principal
-          ? 'bg-[#a6192e] border-[#a6192e] text-white hover:bg-[#7a0c1e] hover:border-[#7a0c1e]'
-          : 'bg-white border-[#d8dadf] text-[#1f2023] hover:bg-[#f7f7f8]'
+          ? 'bg-brand-600 border-brand-600 text-white hover:bg-brand-700 hover:border-brand-700'
+          : 'bg-white border-field-border text-ink-900 hover:bg-surface-muted'
       }`}
     >
-      <Icono className={`w-4 h-4 ${principal ? 'text-white' : 'text-[#5b5f66]'}`} aria-hidden="true" />
+      <Icono className={`w-4 h-4 ${principal ? 'text-white' : 'text-ink-600'}`} aria-hidden="true" />
       {children}
     </button>
   );
@@ -304,16 +304,16 @@ export default function EventosPage({
     >
       <div className="space-y-6">
         {/* Encabezado */}
-        <div className="flex items-end justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <CalendarDays className="w-3.5 h-3.5" />
               SIGEA — {isAdmin ? 'Gestión de eventos' : 'Eventos académicos'}
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
               {isAdmin ? 'Eventos y ediciones' : 'Catálogo de eventos'}
             </h2>
-            <p className="text-sm text-[#5b5f66] mt-1 max-w-2xl">
+            <p className="text-sm text-ink-600 mt-1 max-w-2xl">
               {isAdmin
                 ? 'Crea los eventos del programa y reutiliza su configuración en cada nueva edición.'
                 : 'Consulta los eventos académicos institucionales programados por la universidad.'}
@@ -342,7 +342,7 @@ export default function EventosPage({
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Nombre, tipo o semestre"
-              rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+              rightElement={<Search className="w-4 h-4 text-ink-600" />}
             />
           </div>
           <div className="w-56">
@@ -354,17 +354,17 @@ export default function EventosPage({
               options={OPCIONES_ESTADO}
             />
           </div>
-          <p className="ml-auto text-xs text-[#5b5f66] pb-3">
+          <p className="ml-auto text-xs text-ink-600 pb-3">
             {cargando ? 'Cargando...' : `${eventosFiltrados.length} de ${eventos.length} eventos`}
           </p>
         </div>
 
         {/* Tabla */}
-        <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white">
+        <div className="overflow-hidden rounded-[12px] border border-border bg-white">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                   <th scope="col" className="py-3.5 px-5">Evento</th>
                   <th scope="col" className="py-3.5 px-5">Fechas</th>
                   <th scope="col" className="py-3.5 px-5">Semestre</th>
@@ -373,10 +373,10 @@ export default function EventosPage({
                   <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Detalles'}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+              <tbody className="divide-y divide-border text-sm text-ink-900">
                 {cargando && eventos.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center text-[#5b5f66]" role="status">
+                    <td colSpan={6} className="py-12 px-5 text-center text-ink-600" role="status">
                       Cargando eventos...
                     </td>
                   </tr>
@@ -385,11 +385,11 @@ export default function EventosPage({
                 {!cargando && errorCarga && eventos.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-12 px-5 text-center">
-                      <p className="font-semibold text-base text-[#1f2023]">No se pudieron cargar los eventos</p>
+                      <p className="font-semibold text-base text-ink-900">No se pudieron cargar los eventos</p>
                       <button
                         type="button"
                         onClick={recargar}
-                        className="text-xs mt-1 text-[#a6192e] font-semibold underline cursor-pointer"
+                        className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
                       >
                         Reintentar
                       </button>
@@ -402,13 +402,13 @@ export default function EventosPage({
                     <td colSpan={6} className="py-12 px-5 text-center">
                       {hayFiltros ? (
                         <>
-                          <p className="font-semibold text-base text-[#1f2023]">Ningún evento coincide con la búsqueda</p>
-                          <p className="text-xs mt-1 text-[#5b5f66]">Prueba con otro término o cambia el filtro de estado.</p>
+                          <p className="font-semibold text-base text-ink-900">Ningún evento coincide con la búsqueda</p>
+                          <p className="text-xs mt-1 text-ink-600">Prueba con otro término o cambia el filtro de estado.</p>
                         </>
                       ) : (
                         <>
-                          <p className="font-semibold text-base text-[#1f2023]">Todavía no hay eventos registrados</p>
-                          <p className="text-xs mt-1 text-[#5b5f66]">
+                          <p className="font-semibold text-base text-ink-900">Todavía no hay eventos registrados</p>
+                          <p className="text-xs mt-1 text-ink-600">
                             {isAdmin ? 'Usa «Crear evento» para registrar el primero.' : 'Próximamente se publicarán nuevos eventos académicos.'}
                           </p>
                         </>
@@ -423,10 +423,10 @@ export default function EventosPage({
                   const derivadas = edicionesPorBase[evento.id] || 0;
 
                   return (
-                    <tr key={evento.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                    <tr key={evento.id} className="hover:bg-surface-muted transition-colors">
                       <td className="py-4 px-5 align-middle max-w-sm">
-                        <p className="font-semibold text-[#1f2023]">{evento.nombre}</p>
-                        <p className="text-xs text-[#5b5f66] mt-0.5">
+                        <p className="font-semibold text-ink-900">{evento.nombre}</p>
+                        <p className="text-xs text-ink-600 mt-0.5">
                           {evento.tipo}
                           {evento.esEdicion
                             ? ` — edición de ${nombreBase || 'otro evento'}`
@@ -435,7 +435,7 @@ export default function EventosPage({
                             : ''}
                         </p>
                       </td>
-                      <td className="py-4 px-5 align-middle whitespace-nowrap text-[#1f2023]">
+                      <td className="py-4 px-5 align-middle whitespace-nowrap text-ink-900">
                         {formatearRango(evento.fechaInicio, evento.fechaFin)}
                       </td>
                       <td className="py-4 px-5 align-middle">{evento.semestre || '—'}</td>

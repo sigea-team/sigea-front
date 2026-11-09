@@ -104,7 +104,7 @@ export default function ParametrosEventoModal({
         </Button>
       }
     >
-      <div role="tablist" aria-label="Parámetros del evento" className="flex gap-6 border-b border-[#e5e7ea] -mt-1 mb-5" onKeyDown={moverConTeclado}>
+      <div role="tablist" aria-label="Parámetros del evento" className="flex gap-6 border-b border-border -mt-1 mb-5" onKeyDown={moverConTeclado}>
         {PESTANAS.map((p) => {
           const activa = p.clave === pestana;
           const total = catalogos[p.clave]?.length;
@@ -118,15 +118,15 @@ export default function ParametrosEventoModal({
               aria-controls={`panel-${p.clave}`}
               tabIndex={activa ? 0 : -1}
               onClick={() => setPestana(p.clave)}
-              className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 inline-flex items-center gap-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e] rounded-t-[4px] ${
-                activa ? 'border-[#a6192e] text-[#a6192e]' : 'border-transparent text-[#5b5f66] hover:text-[#1f2023]'
+              className={`-mb-px pb-3 pt-1 text-sm font-semibold border-b-2 inline-flex items-center gap-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-t-[4px] ${
+                activa ? 'border-brand-600 text-brand-600' : 'border-transparent text-ink-600 hover:text-ink-900'
               }`}
             >
               {p.titulo}
               {total !== undefined && (
                 <span
                   className={`min-w-6 px-1.5 py-0.5 rounded-full text-[11px] font-semibold tabular-nums ${
-                    activa ? 'bg-[#fdecec] text-[#a6192e]' : 'bg-[#edeeef] text-[#5b5f66]'
+                    activa ? 'bg-brand-100 text-brand-600' : 'bg-surface-page text-ink-600'
                   }`}
                 >
                   {total}
@@ -140,12 +140,12 @@ export default function ParametrosEventoModal({
       <div id={`panel-${pestana}`} role="tabpanel" aria-labelledby={`pestana-${pestana}`}>
         {errorCarga && (
           <div className="py-10 text-center">
-            <p className="font-semibold text-[#1f2023]">No se pudieron cargar los parámetros del evento</p>
-            <p className="text-sm text-[#5b5f66] mt-1">{errorCarga}</p>
+            <p className="font-semibold text-ink-900">No se pudieron cargar los parámetros del evento</p>
+            <p className="text-sm text-ink-600 mt-1">{errorCarga}</p>
             <button
               type="button"
               onClick={reintentar}
-              className="text-xs mt-2 text-[#a6192e] font-semibold underline cursor-pointer"
+              className="text-xs mt-2 text-brand-600 font-semibold underline cursor-pointer"
             >
               Reintentar
             </button>
@@ -153,7 +153,7 @@ export default function ParametrosEventoModal({
         )}
 
         {!errorCarga && !cargado && (
-          <p className="text-sm text-[#5b5f66] py-10 text-center" role="status">
+          <p className="text-sm text-ink-600 py-10 text-center" role="status">
             Cargando parámetros...
           </p>
         )}

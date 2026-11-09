@@ -31,7 +31,6 @@ const DEFAULT_NAV_ITEMS = [
   { id: 'eventos', label: 'Eventos', icon: Calendar, href: '/eventos' },
   { id: 'certificados', label: 'Certificados', icon: Award, href: '/certificados' },
   { id: 'cuenta', label: 'Mi Cuenta', icon: UserCog, href: '/cuenta' },
-  { id: 'configuracion', label: 'Configuración', icon: Settings, href: '/configuracion' },
 ];
 
 /** HU-14: propuestas del autor, sus versiones y modificación. */
@@ -205,14 +204,14 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`h-screen flex flex-col bg-white border-r border-[#e5e7ea] shrink-0 select-none transition-[width] duration-300 ease-in-out ${
+      className={`h-screen flex flex-col bg-brand-700 border-r border-brand-600 shrink-0 select-none transition-[width] duration-300 ease-in-out ${
         isCollapsed ? 'w-[76px]' : 'w-[260px]'
       } ${className}`}
       aria-expanded={!isCollapsed}
     >
       {/* Header del Sidebar: Marca SIGEA / UFPS con botón de colapso */}
       <div
-        className={`h-16 border-b border-[#e5e7ea] flex items-center shrink-0 ${
+        className={`h-16 border-b border-brand-600 flex items-center shrink-0 ${
           isCollapsed ? 'justify-center px-2' : 'justify-between px-4'
         }`}
       >
@@ -222,7 +221,7 @@ export default function Sidebar({
             onClick={handleToggle}
             title="Expandir menú lateral"
             aria-label="Expandir menú lateral"
-            className="w-10 h-10 rounded-full bg-[#a6192e] flex items-center justify-center text-white font-bold text-sm shadow-sm hover:bg-[#7a0c1e] transition-colors cursor-pointer group"
+            className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm hover:bg-brand-700 transition-colors cursor-pointer group"
           >
             <span className="group-hover:hidden">UFPS</span>
             <ChevronRight className="w-5 h-5 hidden group-hover:block" />
@@ -230,14 +229,14 @@ export default function Sidebar({
         ) : (
           <>
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-full bg-[#a6192e] flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm shrink-0">
                 UFPS
               </div>
               <div className="min-w-0">
-                <span className="font-serif-title text-xl text-[#a6192e] tracking-tight block leading-none">
+                <span className="font-serif-title text-xl text-surface tracking-tight block leading-none">
                   SIGEA
                 </span>
-                <span className="text-[10px] font-semibold tracking-wider text-[#5b5f66] uppercase block mt-0.5 truncate">
+                <span className="text-[10px] font-semibold tracking-wider text-brand-100 uppercase block mt-0.5 truncate">
                   Eventos Académicos
                 </span>
               </div>
@@ -247,7 +246,7 @@ export default function Sidebar({
               onClick={handleToggle}
               title="Colapsar menú lateral"
               aria-label="Colapsar menú lateral"
-              className="p-1.5 rounded-lg text-[#5b5f66] hover:bg-[#f7f7f8] hover:text-[#1f2023] transition-colors cursor-pointer shrink-0"
+              className="p-1.5 rounded-lg text-brand-100 hover:bg-brand-600 hover:text-surface transition-colors cursor-pointer shrink-0"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -258,11 +257,11 @@ export default function Sidebar({
       {/* Menú de Navegación Principal */}
       <nav className={`flex-1 overflow-y-auto space-y-1.5 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         {!isCollapsed ? (
-          <p className="px-3 text-[11px] font-bold text-[#9ca0a6] uppercase tracking-wider mb-2">
+          <p className="px-3 text-[11px] font-bold text-brand-100 uppercase tracking-wider mb-2">
             Navegación
           </p>
         ) : (
-          <div className="my-2 border-t border-[#e5e7ea]/70 mx-2" />
+          <div className="my-2 border-t border-brand-600 mx-2" />
         )}
 
         {navItems.map((item) => {
@@ -283,17 +282,17 @@ export default function Sidebar({
                   isCollapsed ? 'justify-center h-11 px-0' : 'gap-3 px-3.5 py-2.5 text-left'
                 } ${
                   isActive
-                    ? 'bg-[#fdecec] text-[#a6192e]'
-                    : 'text-[#1f2023] hover:bg-[#f7f7f8] hover:text-[#a6192e]'
+                    ? 'bg-surface text-brand-600'
+                    : 'text-surface hover:bg-brand-600 hover:text-surface'
                 }`}
               >
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#a6192e]' : 'text-[#5b5f66]'}`} />
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand-600' : 'text-surface'}`} />
                 {!isCollapsed && <span className="truncate">{item.label}</span>}
               </button>
 
               {/* Tooltip flotante al estar colapsado */}
               {isCollapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-[#1f2023] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-ink-900 text-surface text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                   {item.label}
                 </div>
               )}
@@ -303,14 +302,14 @@ export default function Sidebar({
       </nav>
 
       {/* Pie del Sidebar: Solo Cerrar Sesión (sin vista de cuenta/perfil) */}
-      <div className={`border-t border-[#e5e7ea] bg-[#f7f7f8]/50 shrink-0 ${isCollapsed ? 'p-2' : 'p-4'}`}>
+      <div className={`border-t border-brand-600 bg-brand-700 shrink-0 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <div className="relative group">
           <button
             type="button"
             onClick={handleLogout}
             title={isCollapsed ? 'Cerrar sesión' : undefined}
             aria-label="Cerrar sesión"
-            className={`w-full flex items-center rounded-[8px] text-xs font-semibold text-[#a6192e] hover:bg-[#fdecec] transition-colors cursor-pointer border border-[#a6192e]/20 ${
+            className={`w-full flex items-center rounded-[8px] text-xs font-semibold text-brand-100 hover:bg-brand-600 hover:text-surface transition-colors cursor-pointer border border-brand-100 ${
               isCollapsed ? 'justify-center h-11 px-0' : 'justify-center gap-2 px-3 py-2.5'
             }`}
           >
@@ -319,7 +318,7 @@ export default function Sidebar({
           </button>
 
           {isCollapsed && (
-            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-[#a6192e] text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-brand-600 text-surface text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
               Cerrar sesión
             </div>
           )}

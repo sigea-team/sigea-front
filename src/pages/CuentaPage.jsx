@@ -270,31 +270,31 @@ export default function CuentaPage() {
       <div className="space-y-8 max-w-4xl">
         {/* Encabezado descriptivo */}
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e]">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
             SIGEA — Mi Cuenta
           </span>
-          <h1 className="font-serif-title text-2xl text-[#1f2023] mt-1">
+          <h1 className="font-serif-title text-2xl text-ink-900 mt-1">
             Gestión de Perfil y Cuenta
           </h1>
-          <p className="text-sm text-[#5b5f66] mt-1">
+          <p className="text-sm text-ink-600 mt-1">
             Personaliza tu fotografía, actualiza tus datos de contacto y administra la seguridad de tu sesión.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* SECCIÓN 1: Fotografía de Perfil (Avatar) */}
-          <div className="p-6 bg-[#f7f7f8] border border-[#e5e7ea] rounded-[14px]">
-            <h2 className="text-base font-semibold text-[#1f2023] mb-1">
+          <div className="p-6 bg-surface-muted border border-border rounded-[14px]">
+            <h2 className="text-base font-semibold text-ink-900 mb-1">
               Foto de Perfil
             </h2>
-            <p className="text-xs text-[#5b5f66] mb-5">
+            <p className="text-xs text-ink-600 mb-5">
               Esta fotografía se mostrará en la barra superior del sistema y en los registros de tus actividades.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Contenedor del Avatar */}
               <div className="relative group shrink-0">
-                <div className="w-28 h-28 rounded-full border-2 border-[#a6192e]/30 bg-[#fdecec] text-[#a6192e] flex items-center justify-center overflow-hidden shadow-sm">
+                <div className="w-28 h-28 rounded-full border-2 border-brand-600 bg-brand-100 text-brand-600 flex items-center justify-center overflow-hidden shadow-sm">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
@@ -302,7 +302,7 @@ export default function CuentaPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-14 h-14 text-[#a6192e]/70" />
+                    <User className="w-14 h-14 text-brand-600" />
                   )}
                 </div>
 
@@ -311,7 +311,7 @@ export default function CuentaPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   title="Cambiar fotografía"
-                  className="absolute inset-0 rounded-full bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="absolute inset-0 rounded-full bg-ink-900/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 >
                   <Camera className="w-6 h-6 mb-1" />
                   <span className="text-[10px] font-semibold">Cambiar</span>
@@ -344,7 +344,7 @@ export default function CuentaPage() {
                       type="button"
                       variant="outline"
                       onClick={handleRemovePhoto}
-                      className="!h-9 !px-4 !text-xs text-[#a6192e] hover:bg-[#fdecec] border-[#a6192e]/30"
+                      className="!h-9 !px-4 !text-xs text-brand-600 hover:bg-brand-100 border-brand-600"
                     >
                       <Trash2 className="w-4 h-4" />
                       <span>Eliminar foto</span>
@@ -352,7 +352,7 @@ export default function CuentaPage() {
                   )}
                 </div>
 
-                <p className="text-[11px] text-[#5b5f66] leading-relaxed">
+                <p className="text-[11px] text-ink-600 leading-relaxed">
                   Formatos recomendados: <strong>PNG, JPG o WEBP</strong>. Tamaño máximo: <strong>2.5 MB</strong>.
                   Para un resultado óptimo, usa una imagen cuadrada de al menos 300x300 píxeles.
                 </p>
@@ -361,8 +361,8 @@ export default function CuentaPage() {
           </div>
 
           {/* SECCIÓN 2: Información Personal */}
-          <div className="p-6 bg-[#f7f7f8] border border-[#e5e7ea] rounded-[14px] space-y-5">
-            <h2 className="text-base font-semibold text-[#1f2023]">
+          <div className="p-6 bg-surface-muted border border-border rounded-[14px] space-y-5">
+            <h2 className="text-base font-semibold text-ink-900">
               Información de Usuario
             </h2>
 
@@ -403,7 +403,7 @@ export default function CuentaPage() {
               />
 
               <div className="flex flex-col gap-1.5 w-full">
-                <label htmlFor="afiliacion" className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+                <label htmlFor="afiliacion" className="text-sm font-medium text-ink-900 flex items-center gap-1">
                   Afiliación Institucional
                 </label>
                 <div className="relative flex items-center">
@@ -415,29 +415,29 @@ export default function CuentaPage() {
                     value={afiliacion}
                     onChange={(e) => setAfiliacion(e.target.value)}
                     placeholder="Universidad Francisco de Paula Santander"
-                    className="w-full h-11 px-3.5 pr-10 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e] transition-colors outline-none"
+                    className="w-full h-11 px-3.5 pr-10 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition-colors outline-none"
                   />
                   <datalist id="lista-afiliaciones">
                     {listaAfiliaciones.map((af, idx) => (
                       <option key={af.id || idx} value={af.nombre || af.nombreAfiliacion} />
                     ))}
                   </datalist>
-                  <Building2 className="w-4 h-4 text-[#5b5f66] absolute right-3 pointer-events-none" />
+                  <Building2 className="w-4 h-4 text-ink-600 absolute right-3 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Rol Institucional (Solo lectura) */}
-            <div className="p-4 bg-white border border-[#e5e7ea] rounded-[10px] flex items-start gap-3">
-              <Shield className="w-5 h-5 text-[#a6192e] shrink-0 mt-0.5" />
+            <div className="p-4 bg-white border border-border rounded-[10px] flex items-start gap-3">
+              <Shield className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-[#1f2023]">Rol Asignado:</span>
-                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-[#fdecec] text-[#a6192e] uppercase">
+                  <span className="text-xs font-semibold text-ink-900">Rol Asignado:</span>
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-brand-100 text-brand-600 uppercase">
                     {rol}
                   </span>
                 </div>
-                <p className="text-[11px] text-[#5b5f66]">
+                <p className="text-[11px] text-ink-600">
                   Los privilegios y roles de acceso son administrados de acuerdo a las directrices de la UFPS.
                 </p>
               </div>
@@ -445,7 +445,7 @@ export default function CuentaPage() {
 
             {/* Biografía / Reseña Profesional */}
             <div className="flex flex-col gap-1.5 w-full">
-              <label htmlFor="biografia" className="text-sm font-medium text-[#1f2023]">
+              <label htmlFor="biografia" className="text-sm font-medium text-ink-900">
                 Reseña o Biografía Profesional (Opcional)
               </label>
               <textarea
@@ -455,19 +455,19 @@ export default function CuentaPage() {
                 value={biografia}
                 onChange={(e) => setBiografia(e.target.value)}
                 placeholder="Breve descripción sobre tu trayectoria profesional, áreas de investigación o participación en eventos académicos..."
-                className="w-full p-3.5 rounded-[8px] bg-white text-sm text-[#1f2023] placeholder-[#9ca0a6] border border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e] transition-colors outline-none resize-none"
+                className="w-full p-3.5 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition-colors outline-none resize-none"
               />
             </div>
           </div>
 
           {/* SECCIÓN 3: Seguridad y Contraseña */}
-          <div className="p-6 bg-[#f7f7f8] border border-[#e5e7ea] rounded-[14px] space-y-4">
+          <div className="p-6 bg-surface-muted border border-border rounded-[14px] space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-[#1f2023]">
+                <h2 className="text-base font-semibold text-ink-900">
                   Seguridad y Contraseña
                 </h2>
-                <p className="text-xs text-[#5b5f66]">
+                <p className="text-xs text-ink-600">
                   Mantén protegida tu cuenta actualizando periódicamente tu clave de acceso.
                 </p>
               </div>
@@ -475,14 +475,14 @@ export default function CuentaPage() {
               <button
                 type="button"
                 onClick={() => setCambiarPassword(!cambiarPassword)}
-                className="text-xs font-semibold text-[#a6192e] hover:underline cursor-pointer"
+                className="text-xs font-semibold text-brand-600 hover:underline cursor-pointer"
               >
                 {cambiarPassword ? 'Ocultar cambio de contraseña' : '¿Deseas cambiar tu contraseña?'}
               </button>
             </div>
 
             {cambiarPassword && (
-              <div className="pt-4 border-t border-[#e5e7ea] grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
+              <div className="pt-4 border-t border-border grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                 <Input
                   label="Contraseña Actual"
                   id="passwordActual"

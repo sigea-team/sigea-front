@@ -186,7 +186,7 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
 
   const claseTab = (activa) =>
     `px-4 py-2 rounded-[6px] text-sm font-bold transition-colors cursor-pointer ${
-      activa ? 'bg-white text-[#a6192e] shadow-2xs' : 'text-[#5b5f66] hover:text-[#1f2023]'
+      activa ? 'bg-white text-brand-600 shadow-2xs' : 'text-ink-600 hover:text-ink-900'
     }`;
 
   return (
@@ -197,15 +197,15 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
             role="status"
             className={`p-4 rounded-[12px] border text-sm font-medium flex items-center justify-between gap-4 ${
               notificacion.tipo === 'warning'
-                ? 'bg-[#fdecec] border-[#a6192e]/30 text-[#7a0c1e]'
-                : 'bg-[#edf7ed] border-[#2e7d32]/30 text-[#1b5e20]'
+                ? 'bg-brand-100 border-brand-600 text-brand-700'
+                : 'bg-surface-muted border border-border text-ink-900'
             }`}
           >
             <div className="flex items-center gap-3">
               {notificacion.tipo === 'warning' ? (
-                <AlertTriangle className="w-5 h-5 text-[#a6192e] shrink-0" />
+                <AlertTriangle className="w-5 h-5 text-brand-600 shrink-0" />
               ) : (
-                <CheckCircle2 className="w-5 h-5 text-[#2e7d32] shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-brand-600 shrink-0" />
               )}
               <span>{notificacion.mensaje}</span>
             </div>
@@ -220,16 +220,16 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#e5e7ea]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#a6192e] flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5" />
               SIGEA — Control de Acceso
             </span>
-            <h2 className="font-serif-title text-2xl sm:text-3xl text-[#1f2023] mt-1 tracking-tight">
+            <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
               Administración de Roles y Permisos
             </h2>
-            <p className="text-sm text-[#5b5f66] mt-1">
+            <p className="text-sm text-ink-600 mt-1">
               Gestiona los roles, sus permisos y los roles de cada usuario. Para habilitar a alguien como evaluador,
               asígnale un rol con el permiso de evaluar propuestas.
             </p>
@@ -249,13 +249,13 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
         </div>
 
         {errorCarga && (
-          <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e]">
-            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#a6192e]" />
+          <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-brand-600" />
             <p className="text-sm">{errorCarga}</p>
           </div>
         )}
 
-        <div role="tablist" className="inline-flex items-center gap-1.5 p-1 bg-[#f7f7f8] rounded-[8px] border border-[#e5e7ea]">
+        <div role="tablist" className="inline-flex items-center gap-1.5 p-1 bg-surface-muted rounded-[8px] border border-border">
           <button type="button" role="tab" aria-selected={pestana === 'roles'} className={claseTab(pestana === 'roles')} onClick={() => setPestana('roles')}>
             <span className="inline-flex items-center gap-1.5"><Shield className="w-4 h-4" />Roles ({roles.length})</span>
           </button>
@@ -272,15 +272,15 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                 value={busquedaRoles}
                 onChange={(e) => setBusquedaRoles(e.target.value)}
                 placeholder="Buscar rol por nombre o descripción..."
-                rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+                rightElement={<Search className="w-4 h-4 text-ink-600" />}
               />
             </div>
 
-            <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white shadow-2xs">
+            <div className="overflow-hidden rounded-[12px] border border-border bg-white shadow-2xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                    <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                       <th className="py-3.5 px-6">Rol</th>
                       <th className="py-3.5 px-6">Descripción</th>
                       <th className="py-3.5 px-6 text-center">Permisos</th>
@@ -288,30 +288,30 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                       <th className="py-3.5 px-6 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+                  <tbody className="divide-y divide-border text-sm text-ink-900">
                     {cargando && roles.length === 0 ? (
-                      <tr><td colSpan={5} className="py-12 px-6 text-center text-[#5b5f66]">Cargando roles...</td></tr>
+                      <tr><td colSpan={5} className="py-12 px-6 text-center text-ink-600">Cargando roles...</td></tr>
                     ) : rolesFiltrados.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-12 px-6 text-center text-[#5b5f66]">
-                          <p className="font-semibold text-base text-[#1f2023]">No se encontraron roles</p>
-                          <p className="text-xs mt-1 text-[#9ca0a6]">Prueba con otros términos o crea un nuevo rol.</p>
+                        <td colSpan={5} className="py-12 px-6 text-center text-ink-600">
+                          <p className="font-semibold text-base text-ink-900">No se encontraron roles</p>
+                          <p className="text-xs mt-1 text-ink-300">Prueba con otros términos o crea un nuevo rol.</p>
                         </td>
                       </tr>
                     ) : (
                       rolesFiltrados.map((rol) => (
-                        <tr key={rol.id} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                        <tr key={rol.id} className="hover:bg-surface-muted transition-colors">
                           <td className="py-4 px-6 align-middle">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="font-semibold text-base">{rol.nombre}</span>
                               {esRolSistema(rol) && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fdecec] text-[#a6192e] border border-[#a6192e]/20">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 text-brand-600 border border-brand-600">
                                   <Lock className="w-3 h-3" />
                                   Sistema
                                 </span>
                               )}
                               {esRolEvaluador(rol) && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ecfdf3] text-[#027a48] border border-[#a6f4c5]">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-600 text-surface border-transparent">
                                   <ClipboardCheck className="w-3 h-3" />
                                   Evaluador
                                 </span>
@@ -319,12 +319,12 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                             </div>
                           </td>
                           <td className="py-4 px-6 align-middle max-w-md">
-                            <p className="text-xs text-[#5b5f66] leading-relaxed line-clamp-2">{rol.descripcion || '—'}</p>
+                            <p className="text-xs text-ink-600 leading-relaxed line-clamp-2">{rol.descripcion || '—'}</p>
                           </td>
                           <td className="py-4 px-6 align-middle text-center text-xs font-semibold">{(rol.permisos || []).length}</td>
                           <td className="py-4 px-6 align-middle text-center">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-[#f7f7f8] border-[#e5e7ea]">
-                              <Users className="w-3.5 h-3.5 text-[#a6192e]" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-surface-muted border-border">
+                              <Users className="w-3.5 h-3.5 text-brand-600" />
                               {rol.totalUsuariosAsignados ?? 0}
                             </span>
                           </td>
@@ -333,15 +333,15 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                               <button
                                 type="button"
                                 onClick={() => abrirRol(rol)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-[#d8dadf] hover:bg-[#f7f7f8] cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-field-border hover:bg-surface-muted cursor-pointer"
                               >
-                                <Pencil className="w-3.5 h-3.5 text-[#5b5f66]" />
+                                <Pencil className="w-3.5 h-3.5 text-ink-600" />
                                 <span>Editar</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setRolEliminando(rol)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold text-[#a6192e] bg-[#fdecec]/50 border border-[#a6192e]/20 hover:bg-[#fdecec] cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold text-brand-600 bg-brand-100 border border-brand-600 hover:bg-brand-100 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>Eliminar</span>
@@ -365,50 +365,50 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                   value={busquedaUsuarios}
                   onChange={(e) => setBusquedaUsuarios(e.target.value)}
                   placeholder="Buscar por nombre, correo, documento o rol..."
-                  rightElement={<Search className="w-4 h-4 text-[#5b5f66]" />}
+                  rightElement={<Search className="w-4 h-4 text-ink-600" />}
                 />
               </div>
-              <label className="inline-flex items-center gap-2 text-xs font-semibold text-[#1f2023] cursor-pointer">
+              <label className="inline-flex items-center gap-2 text-xs font-semibold text-ink-900 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={soloEvaluadores}
                   onChange={(e) => setSoloEvaluadores(e.target.checked)}
-                  className="accent-[#a6192e]"
+                  className="accent-brand-600"
                 />
                 Solo evaluadores habilitados ({totalEvaluadores})
               </label>
             </div>
 
-            <div className="overflow-hidden rounded-[12px] border border-[#e5e7ea] bg-white shadow-2xs">
+            <div className="overflow-hidden rounded-[12px] border border-border bg-white shadow-2xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#f7f7f8] border-b border-[#e5e7ea] text-xs font-bold text-[#1f2023] uppercase tracking-wider">
+                    <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
                       <th className="py-3.5 px-6">Usuario</th>
                       <th className="py-3.5 px-6">Roles</th>
                       <th className="py-3.5 px-6 text-center">Evaluador</th>
                       <th className="py-3.5 px-6 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#e5e7ea] text-sm text-[#1f2023]">
+                  <tbody className="divide-y divide-border text-sm text-ink-900">
                     {cargando && usuarios.length === 0 ? (
-                      <tr><td colSpan={4} className="py-12 px-6 text-center text-[#5b5f66]">Cargando usuarios...</td></tr>
+                      <tr><td colSpan={4} className="py-12 px-6 text-center text-ink-600">Cargando usuarios...</td></tr>
                     ) : usuariosFiltrados.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="py-12 px-6 text-center text-[#5b5f66]">
-                          <p className="font-semibold text-base text-[#1f2023]">No se encontraron usuarios</p>
+                        <td colSpan={4} className="py-12 px-6 text-center text-ink-600">
+                          <p className="font-semibold text-base text-ink-900">No se encontraron usuarios</p>
                         </td>
                       </tr>
                     ) : (
                       usuariosFiltrados.map((u) => {
                         const evaluador = (u.permisos || []).includes(PERMISO_EVALUAR);
                         return (
-                          <tr key={u.usuarioId} className="hover:bg-[#f7f7f8]/50 transition-colors">
+                          <tr key={u.usuarioId} className="hover:bg-surface-muted transition-colors">
                             <td className="py-4 px-6 align-middle">
                               <p className="font-semibold">{u.nombreCompleto}</p>
-                              <p className="text-xs text-[#5b5f66]">{u.correo}</p>
+                              <p className="text-xs text-ink-600">{u.correo}</p>
                               {u.estado && u.estado !== 'activo' && (
-                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f7f7f8] border border-[#e5e7ea] text-[#5b5f66] uppercase">
+                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-muted border border-border text-ink-600 uppercase">
                                   {u.estado}
                                 </span>
                               )}
@@ -416,10 +416,10 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                             <td className="py-4 px-6 align-middle">
                               <div className="flex flex-wrap gap-1.5">
                                 {(u.roles || []).length === 0 ? (
-                                  <span className="text-xs text-[#9ca0a6]">Sin roles</span>
+                                  <span className="text-xs text-ink-300">Sin roles</span>
                                 ) : (
                                   u.roles.map((r) => (
-                                    <span key={r.id} className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#f7f7f8] border border-[#e5e7ea]">
+                                    <span key={r.id} className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-surface-muted border border-border">
                                       {r.nombre}
                                     </span>
                                   ))
@@ -428,21 +428,21 @@ export default function RolesPage({ api = rolService, onSelectNav }) {
                             </td>
                             <td className="py-4 px-6 align-middle text-center">
                               {evaluador ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#ecfdf3] text-[#027a48] border border-[#a6f4c5]">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-brand-600 text-surface border-transparent">
                                   <ClipboardCheck className="w-3 h-3" />
                                   Habilitado
                                 </span>
                               ) : (
-                                <span className="text-xs text-[#9ca0a6]">No</span>
+                                <span className="text-xs text-ink-300">No</span>
                               )}
                             </td>
                             <td className="py-4 px-6 align-middle text-right">
                               <button
                                 type="button"
                                 onClick={() => abrirUsuario(u)}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-[#d8dadf] hover:bg-[#f7f7f8] cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-white border border-field-border hover:bg-surface-muted cursor-pointer"
                               >
-                                <UserCog className="w-3.5 h-3.5 text-[#5b5f66]" />
+                                <UserCog className="w-3.5 h-3.5 text-ink-600" />
                                 <span>Asignar roles</span>
                               </button>
                             </td>

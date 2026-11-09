@@ -75,11 +75,11 @@ export default function SalaFormModal({
           icon: 'warning',
           title: '¿Confirmar modificación de aforo?',
           html: `
-            <p class="text-sm text-[#1f2023] mb-3">
+            <p class="text-sm text-ink-900 mb-3">
               El nuevo aforo de <strong>${form.aforoMaximo} personas</strong> es superado por
               actividades activas que tienen hasta <strong>${chequeo.maxInscripciones} personas inscritas</strong>.
             </p>
-            <p class="text-xs text-[#5b5f66]">
+            <p class="text-xs text-ink-600">
               Si confirma, la sala quedará en estado de sobrecupo para dichas actividades.
             </p>
           `,
@@ -212,13 +212,13 @@ export default function SalaFormModal({
             />
           </div>
 
-          <div className="sm:col-span-2 p-3 rounded-[10px] bg-[#f7f7f8] border border-[#e5e7ea] flex items-center justify-between gap-3">
+          <div className="sm:col-span-2 p-3 rounded-[10px] bg-surface-muted border border-border flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-semibold text-[#1f2023] flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-[#a6192e]" />
+              <span className="text-xs font-semibold text-ink-900 flex items-center gap-1.5">
+                <Layers className="w-4 h-4 text-brand-600" />
                 Permite actividades simultáneas
               </span>
-              <p className="text-[11px] text-[#5b5f66] mt-0.5">
+              <p className="text-[11px] text-ink-600 mt-0.5">
                 Permite programar más de una actividad en el mismo horario si ambas admiten simultaneidad (ej. salas virtuales con sub-salas).
               </p>
             </div>
@@ -229,18 +229,18 @@ export default function SalaFormModal({
                 onChange={(e) => handleFieldChange('permiteSimultaneidad', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-[#d8dadf] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a6192e]"></div>
+              <div className="w-11 h-6 bg-field-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-field-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
             </label>
           </div>
         </div>
 
         {/* Asignación interactiva de disponibilidad mediante calendario */}
-        <div className="pt-3 border-t border-[#e5e7ea]">
+        <div className="pt-3 border-t border-border">
           <div className="mb-3">
-            <h3 className="font-semibold text-sm text-[#1f2023]">
+            <h3 className="font-semibold text-sm text-ink-900">
               Horario de disponibilidad de la sala
             </h3>
-            <p className="text-xs text-[#5b5f66] mt-0.5">
+            <p className="text-xs text-ink-600 mt-0.5">
               Configura los días y horas en los que la sala está disponible para asignación. Puedes añadir días de la semana y rangos de manera interactiva.
             </p>
           </div>

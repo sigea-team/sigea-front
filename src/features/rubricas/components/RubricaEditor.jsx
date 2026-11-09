@@ -53,7 +53,7 @@ function confirmarReemplazo(impacto) {
     title: 'Esta rúbrica ya se usó para calificar',
     html: (
       <div className="text-left space-y-3">
-        <ul className="text-sm text-[#1f2023] space-y-1">
+        <ul className="text-sm text-ink-900 space-y-1">
           <li>
             <strong>{plural(impacto.calificacionesRegistradas, 'calificación', 'calificaciones')}</strong> registradas
           </li>
@@ -62,7 +62,7 @@ function confirmarReemplazo(impacto) {
             <strong>{plural(impacto.propuestasAfectadas, 'propuesta')}</strong>
           </li>
         </ul>
-        <p className="text-sm text-[#5b5f66]">
+        <p className="text-sm text-ink-600">
           Si guardas los cambios se crea una nueva versión de la rúbrica. Las calificaciones anteriores se conservan
           como histórico, pero esas evaluaciones vuelven a <strong>pendiente</strong> y los evaluadores deberán
           calificarlas de nuevo con la nueva rúbrica.
@@ -79,9 +79,9 @@ function confirmarReemplazo(impacto) {
 
 /** Color de la barra de suma de pesos. */
 function colorSuma(suma) {
-  if (suma === 100) return { barra: 'bg-[#107e3e]', texto: 'text-[#107e3e]' };
-  if (suma > 100) return { barra: 'bg-[#a6192e]', texto: 'text-[#a6192e]' };
-  return { barra: 'bg-[#b7791f]', texto: 'text-[#8a5a12]' };
+  if (suma === 100) return { barra: 'bg-brand-600', texto: 'text-brand-600' };
+  if (suma > 100) return { barra: 'bg-brand-600', texto: 'text-brand-600' };
+  return { barra: 'bg-ink-600', texto: 'text-brand-700' };
 }
 
 /**
@@ -122,7 +122,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
 
   if (carga.cargando) {
     return (
-      <p className="py-10 text-center text-sm text-[#5b5f66]" role="status">
+      <p className="py-10 text-center text-sm text-ink-600" role="status">
         Cargando rúbrica...
       </p>
     );
@@ -131,12 +131,12 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
   if (carga.error || !form) {
     return (
       <div className="py-10 text-center" role="alert">
-        <p className="font-semibold text-[#1f2023]">No se pudo cargar la rúbrica</p>
-        {carga.error && <p className="text-sm text-[#5b5f66] mt-1">{carga.error}</p>}
+        <p className="font-semibold text-ink-900">No se pudo cargar la rúbrica</p>
+        {carga.error && <p className="text-sm text-ink-600 mt-1">{carga.error}</p>}
         <button
           type="button"
           onClick={reintentarCarga}
-          className="mt-2 inline-flex items-center gap-1 text-xs text-[#a6192e] font-semibold underline cursor-pointer"
+          className="mt-2 inline-flex items-center gap-1 text-xs text-brand-600 font-semibold underline cursor-pointer"
         >
           <RotateCw className="w-3.5 h-3.5" />
           Reintentar
@@ -259,8 +259,8 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
     <form onSubmit={guardar} noValidate className="space-y-5" aria-label="Rúbrica de evaluación">
       {/* Criterio 4: advertencia previa si la rúbrica ya se usó para calificar */}
       {enUso && (
-        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fff7e6] border border-[#b7791f]/30 text-[#5c3d0a]" role="note">
-          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-[#b7791f]" />
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700" role="note">
+          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-brand-600" />
           <p className="text-sm leading-relaxed">
             Esta rúbrica ya se usó en{' '}
             <strong>{plural(impacto.calificacionesRegistradas, 'calificación', 'calificaciones')}</strong> de{' '}
@@ -272,9 +272,9 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
       )}
 
       {!carga.existe && (
-        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#f7f7f8] border border-[#e5e7ea]" role="note">
-          <Info className="w-4 h-4 mt-0.5 shrink-0 text-[#5b5f66]" />
-          <p className="text-sm text-[#5b5f66] leading-relaxed">
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-surface-muted border border-border" role="note">
+          <Info className="w-4 h-4 mt-0.5 shrink-0 text-ink-600" />
+          <p className="text-sm text-ink-600 leading-relaxed">
             Esta convocatoria todavía no tiene rúbrica. Define los criterios con su peso y su escala; los evaluadores
             calificarán cada propuesta con ellos.
           </p>
@@ -296,8 +296,8 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <p className="text-sm font-semibold text-[#1f2023]">Criterios ({form.criterios.length})</p>
-            <p className="text-xs text-[#5b5f66]">
+            <p className="text-sm font-semibold text-ink-900">Criterios ({form.criterios.length})</p>
+            <p className="text-xs text-ink-600">
               La escala de cada criterio puede ir de {ESCALA_LIMITE_MINIMO} a {ESCALA_LIMITE_MAXIMO}.
             </p>
           </div>
@@ -305,7 +305,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
             type="button"
             onClick={repartir}
             disabled={guardando || form.criterios.length === 0}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#a6192e] hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed self-start sm:self-auto"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed self-start sm:self-auto"
           >
             <Shapes className="w-3.5 h-3.5" />
             Repartir pesos en partes iguales
@@ -313,14 +313,14 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
         </div>
 
         {errores.criterios && (
-          <p className="text-xs text-[#7a0c1e] font-medium" role="alert">
+          <p className="text-xs text-brand-700 font-medium" role="alert">
             {errores.criterios}
           </p>
         )}
 
         <ol className="space-y-3">
           {form.criterios.map((criterio, i) => (
-            <li key={criterio.clave} className="p-4 rounded-[12px] border border-[#e5e7ea] bg-white">
+            <li key={criterio.clave} className="p-4 rounded-[12px] border border-border bg-white">
               <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_110px_90px_90px_auto] items-start gap-3">
                 <Input
                   id={`criterio-${criterio.clave}-nombre`}
@@ -380,7 +380,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
                   disabled={guardando || form.criterios.length === 1}
                   title={form.criterios.length === 1 ? 'La rúbrica necesita al menos un criterio' : `Quitar el criterio ${i + 1}`}
                   aria-label={`Quitar el criterio ${i + 1}`}
-                  className="sm:mt-[26px] w-11 h-11 inline-flex items-center justify-center rounded-[8px] border border-[#a6192e]/20 text-[#a6192e] bg-[#fdecec]/50 hover:bg-[#fdecec] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6192e]"
+                  className="sm:mt-[26px] w-11 h-11 inline-flex items-center justify-center rounded-[8px] border border-brand-600 text-brand-600 bg-brand-100 hover:bg-brand-100 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -401,15 +401,15 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
       </div>
 
       {/* Criterios 1 y 2: suma de pesos en vivo */}
-      <div className="p-4 rounded-[12px] border border-[#e5e7ea] bg-[#f7f7f8]">
+      <div className="p-4 rounded-[12px] border border-border bg-surface-muted">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold text-[#1f2023]">Suma de pesos</span>
+          <span className="font-semibold text-ink-900">Suma de pesos</span>
           <span className={`font-bold ${colores.texto}`} aria-live="polite">
             {formatearPeso(suma)}% de 100%
           </span>
         </div>
         <div
-          className="mt-2 h-2 rounded-full bg-[#e5e7ea] overflow-hidden"
+          className="mt-2 h-2 rounded-full bg-border overflow-hidden"
           role="progressbar"
           aria-label="Suma de pesos de los criterios"
           aria-valuemin={0}
@@ -419,15 +419,15 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
           <div className={`h-full ${colores.barra} transition-all`} style={{ width: `${anchoBarra}%` }} />
         </div>
         {errores.pesoPorcentual ? (
-          <p className="text-xs text-[#7a0c1e] font-medium mt-2" role="alert">
+          <p className="text-xs text-brand-700 font-medium mt-2" role="alert">
             {errores.pesoPorcentual}
           </p>
         ) : suma !== 100 ? (
-          <p className="text-xs text-[#5b5f66] mt-2">
+          <p className="text-xs text-ink-600 mt-2">
             {suma < 100 ? `Faltan ${formatearPeso(100 - suma)}% por asignar.` : `Sobran ${formatearPeso(suma - 100)}%.`}
           </p>
         ) : (
-          <p className="text-xs text-[#107e3e] mt-2 inline-flex items-center gap-1">
+          <p className="text-xs text-brand-600 mt-2 inline-flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
             Los pesos suman 100%.
           </p>
@@ -435,12 +435,12 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
       </div>
 
       {errorGeneral && (
-        <p className="text-sm text-[#7a0c1e] bg-[#fdecec] px-3 py-2 rounded-[8px]" role="alert">
+        <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
         </p>
       )}
       {aviso && (
-        <p className="text-sm text-[#0b5a2c] bg-[#e8f5ee] border border-[#107e3e]/20 px-3 py-2 rounded-[8px]" role="status">
+        <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px]" role="status">
           {aviso}
         </p>
       )}

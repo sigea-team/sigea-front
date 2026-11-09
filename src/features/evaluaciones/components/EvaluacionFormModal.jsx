@@ -136,10 +136,10 @@ export default function EvaluacionFormModal({
         icon: 'error',
         title: 'Criterios sin calificar',
         html: `
-          <p class="text-sm text-left mb-2 text-[#5b5f66]">
+          <p class="text-sm text-left mb-2 text-ink-600">
             Todos los criterios de la rúbrica deben ser calificados obligatoriamente antes de enviar la evaluación (Criterio 2):
           </p>
-          <ul class="text-xs text-left list-disc pl-5 space-y-1 font-semibold text-[#b42318]">
+          <ul class="text-xs text-left list-disc pl-5 space-y-1 font-semibold text-brand-700">
             ${validacion.criteriosFaltantes.map((c) => `<li>${escaparHtml(c)}</li>`).join('')}
           </ul>
         `,
@@ -154,10 +154,10 @@ export default function EvaluacionFormModal({
     const confirmacion = await Swal.fire({
       title: '¿Confirmar registro de evaluación?',
       html: `
-        <p class="text-sm text-[#5b5f66] mb-3">
+        <p class="text-sm text-ink-600 mb-3">
           Se registrará una puntuación ponderada preliminar de <strong>${formatearPuntuacion(puntuacionProyectada)} / 10.0</strong> (${configClasif.label}).
         </p>
-        <p class="text-xs text-[#5b5f66]">
+        <p class="text-xs text-ink-600">
           Si todos los evaluadores asignados completan su revisión, se consolidará el resultado definitivo de la propuesta.
         </p>
       `,
@@ -197,15 +197,15 @@ export default function EvaluacionFormModal({
         icon: 'success',
         title: 'Evaluación Registrada',
         html: `
-          <div class="text-left space-y-2 text-sm text-[#1f2023]">
+          <div class="text-left space-y-2 text-sm text-ink-900">
             <p>Tu evaluación ha sido guardada exitosamente con una puntuación ponderada de <strong>${formatearPuntuacion(puntuacionProyectada)}</strong>.</p>
             ${
               resultadoPropuesta?.completo
-                ? `<div class="p-3 bg-[#ecfdf3] border border-[#a6f4c5] text-[#027a48] rounded-[8px] text-xs">
+                ? `<div class="p-3 bg-surface-muted border border-border text-ink-900 rounded-[8px] text-xs">
                      <strong>✓ Todas las evaluaciones están completas (Criterio 1):</strong>
                      El sistema calculó la puntuación ponderada final de la propuesta (${formatearPuntuacion(resultadoPropuesta.puntuacionPonderada)}) con clasificación <strong>${escaparHtml(resultadoPropuesta.clasificacion)}</strong>.
                    </div>`
-                : `<div class="p-3 bg-[#fffaeb] border border-[#fedf89] text-[#b54708] rounded-[8px] text-xs">
+                : `<div class="p-3 bg-[#fffaeb] border border-[#fedf89] text-brand-700 rounded-[8px] text-xs">
                      <strong>⏳ Evaluaciones pendientes (Criterio 3):</strong>
                      Otros miembros del comité aún tienen asignaciones pendientes. El resultado final se calculará cuando todos hayan evaluado.
                    </div>`
@@ -261,20 +261,20 @@ export default function EvaluacionFormModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-evaluacion-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink-900/60 backdrop-blur-xs overflow-y-auto"
     >
-      <div className="bg-white rounded-[16px] border border-[#e5e7ea] shadow-xl w-full max-w-4xl my-8 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-white rounded-[16px] border border-border shadow-xl w-full max-w-4xl my-8 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Encabezado del modal */}
-        <div className="bg-[#f7f7f8] border-b border-[#e5e7ea] px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-surface-muted border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#fdecec] text-[#a6192e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
               <ClipboardCheck className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#a6192e] block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
                 HU-17 • Rúbrica de Evaluación
               </span>
-              <h2 id="modal-evaluacion-title" className="font-serif-title text-xl text-[#1f2023] leading-snug">
+              <h2 id="modal-evaluacion-title" className="font-serif-title text-xl text-ink-900 leading-snug">
                 Evaluar Propuesta Académica
               </h2>
             </div>
@@ -283,16 +283,16 @@ export default function EvaluacionFormModal({
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal"
-            className="p-1.5 rounded-lg text-[#5b5f66] hover:bg-white hover:text-[#1f2023] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-ink-600 hover:bg-white hover:text-ink-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Cuerpo con scroll */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-[#1f2023]">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-ink-900">
           {sinRubrica && (
-            <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fffaeb] border border-[#fedf89] text-[#b54708]">
+            <div role="alert" className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">No hay criterios para calificar</p>
@@ -307,8 +307,8 @@ export default function EvaluacionFormModal({
 
           {/* Advertencia de Criterio 4: Periodo Cerrado */}
           {!estadoEdicion.puedeEditar && (
-            <div className="flex items-start gap-3 p-4 rounded-[12px] bg-[#fdecec] border border-[#a6192e]/30 text-[#7a0c1e]">
-              <Lock className="w-5 h-5 shrink-0 mt-0.5 text-[#a6192e]" />
+            <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700">
+              <Lock className="w-5 h-5 shrink-0 mt-0.5 text-brand-600" />
               <div>
                 <p className="font-semibold text-sm">Evaluación en modo de solo lectura (Criterio 4)</p>
                 <p className="text-xs mt-0.5">
@@ -319,43 +319,43 @@ export default function EvaluacionFormModal({
           )}
 
           {/* Tarjeta de datos de la propuesta */}
-          <div className="bg-[#f7f7f8] border border-[#e5e7ea] rounded-[12px] p-5 space-y-3">
+          <div className="bg-surface-muted border border-border rounded-[12px] p-5 space-y-3">
             <div>
-              <span className="text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-ink-600 uppercase tracking-wider">
                 Título de la ponencia postulada
               </span>
-              <h3 className="font-serif-title text-lg text-[#1f2023] font-bold mt-0.5">
+              <h3 className="font-serif-title text-lg text-ink-900 font-bold mt-0.5">
                 {asignacion.propuestaTitulo}
               </h3>
             </div>
 
             {asignacion.propuestaResumen && (
               <div>
-                <span className="text-[10px] font-bold text-[#5b5f66] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-ink-600 uppercase tracking-wider">
                   Resumen de la propuesta
                 </span>
-                <p className="text-xs text-[#5b5f66] mt-0.5 leading-relaxed bg-white p-3 rounded-[8px] border border-[#e5e7ea]">
+                <p className="text-xs text-ink-600 mt-0.5 leading-relaxed bg-white p-3 rounded-[8px] border border-border">
                   {asignacion.propuestaResumen}
                 </p>
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs text-[#5b5f66]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs text-ink-600">
               {asignacion.convocatoriaTitulo && (
                 <div className="flex items-center gap-1.5">
-                  <BookOpen className="w-4 h-4 text-[#a6192e] shrink-0" />
+                  <BookOpen className="w-4 h-4 text-brand-600 shrink-0" />
                   <span className="truncate">{asignacion.convocatoriaTitulo}</span>
                 </div>
               )}
               {Array.isArray(asignacion.autores) && asignacion.autores.length > 0 && (
                 <div className="flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-[#a6192e] shrink-0" />
+                  <User className="w-4 h-4 text-brand-600 shrink-0" />
                   <span className="truncate">{asignacion.autores.join(', ')}</span>
                 </div>
               )}
               {asignacion.fechaCierre && (
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-[#a6192e] shrink-0" />
+                  <Calendar className="w-4 h-4 text-brand-600 shrink-0" />
                   <span>
                     Cierre: <strong>{new Date(asignacion.fechaCierre).toLocaleDateString()}</strong>
                   </span>
@@ -365,19 +365,19 @@ export default function EvaluacionFormModal({
           </div>
 
           {/* Resumen dinámico en vivo: Puntuación Ponderada y Clasificación (Criterio 1) */}
-          <div className="bg-white border-2 border-[#a6192e]/20 rounded-[12px] p-5 shadow-xs">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b border-[#e5e7ea]">
+          <div className="bg-white border-2 border-brand-600 rounded-[12px] p-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b border-border">
               <div>
-                <span className="text-[10px] font-bold text-[#a6192e] uppercase tracking-wider block">
+                <span className="text-[10px] font-bold text-brand-600 uppercase tracking-wider block">
                   Cálculo Ponderado en Tiempo Real (Criterio 1)
                 </span>
-                <p className="font-serif-title text-2xl text-[#1f2023] font-bold mt-0.5">
+                <p className="font-serif-title text-2xl text-ink-900 font-bold mt-0.5">
                   {puntuacionProyectada !== null ? `${formatearPuntuacion(puntuacionProyectada)} / 10.0` : '— / 10.0'}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#5b5f66]">Clasificación proyectada:</span>
+                <span className="text-xs text-ink-600">Clasificación proyectada:</span>
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${configClasif.badgeClass}`}
                 >
@@ -388,13 +388,13 @@ export default function EvaluacionFormModal({
 
             {/* Barra de progreso visual con umbrales */}
             <div className="mt-4 space-y-1.5">
-              <div className="flex justify-between text-[10px] text-[#5b5f66] font-semibold">
+              <div className="flex justify-between text-[10px] text-ink-600 font-semibold">
                 <span>0.0 (Rechazada)</span>
                 <span>5.0 (Ajustes)</span>
                 <span>7.0 (Aprobada)</span>
                 <span>10.0</span>
               </div>
-              <div className="h-2.5 w-full bg-[#f7f7f8] border border-[#e5e7ea] rounded-full overflow-hidden relative">
+              <div className="h-2.5 w-full bg-surface-muted border border-border rounded-full overflow-hidden relative">
                 <div
                   className="h-full transition-all duration-300 rounded-full"
                   style={{
@@ -409,10 +409,10 @@ export default function EvaluacionFormModal({
           {/* Formulario de criterios de la rúbrica */}
           <form id="form-evaluacion" onSubmit={handleSubmit} className="space-y-5">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-base text-[#1f2023]">
+              <h4 className="font-semibold text-base text-ink-900">
                 Criterios de la Rúbrica ({calificaciones.length})
               </h4>
-              <span className="text-xs text-[#5b5f66]">
+              <span className="text-xs text-ink-600">
                 Todos los criterios son de calificación obligatoria, cada uno en su escala
               </span>
             </div>
@@ -434,22 +434,22 @@ export default function EvaluacionFormModal({
                     key={cid}
                     className={`rounded-[12px] border p-4 sm:p-5 transition-all ${
                       tieneError
-                        ? 'border-[#b42318] bg-[#fffbfa]'
-                        : 'border-[#e5e7ea] bg-white hover:border-[#a6192e]/40'
+                        ? 'border-brand-600 bg-brand-100'
+                        : 'border-border bg-white hover:border-brand-600'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-2">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-[#f7f7f8] border border-[#e5e7ea] text-xs font-bold text-[#1f2023] flex items-center justify-center shrink-0">
+                          <span className="w-6 h-6 rounded-full bg-surface-muted border border-border text-xs font-bold text-ink-900 flex items-center justify-center shrink-0">
                             {index + 1}
                           </span>
-                          <h5 className="font-bold text-sm text-[#1f2023]">
+                          <h5 className="font-bold text-sm text-ink-900">
                             {criterio.nombre}
                           </h5>
                         </div>
                         {criterio.descripcion && (
-                          <p className="text-xs text-[#5b5f66] pl-8">
+                          <p className="text-xs text-ink-600 pl-8">
                             {criterio.descripcion}
                           </p>
                         )}
@@ -457,11 +457,11 @@ export default function EvaluacionFormModal({
 
                       {/* Badge con el peso porcentual */}
                       <div className="flex items-center gap-2 shrink-0 pl-8 sm:pl-0">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#f7f7f8] border border-[#e5e7ea] text-xs font-bold text-[#a6192e]">
+                        <span className="px-2.5 py-0.5 rounded-full bg-surface-muted border border-border text-xs font-bold text-brand-600">
                           Peso: {criterio.pesoPorcentual}%
                         </span>
                         {ponderacionCriterio && (
-                          <span className="text-[11px] font-semibold text-[#107e3e]">
+                          <span className="text-[11px] font-semibold text-brand-600">
                             +{ponderacionCriterio} pts
                           </span>
                         )}
@@ -471,7 +471,7 @@ export default function EvaluacionFormModal({
                     {/* Controles de calificación */}
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 pl-0 sm:pl-8">
                       <div className="sm:col-span-4">
-                        <label className="block text-xs font-semibold text-[#1f2023] mb-1">
+                        <label className="block text-xs font-semibold text-ink-900 mb-1">
                           Calificación ({formatearEscala(escala)}) *
                         </label>
                         <div className="relative">
@@ -486,8 +486,8 @@ export default function EvaluacionFormModal({
                             placeholder={`${escala.minima} a ${escala.maxima}`}
                             className={`w-full rounded-[8px] border px-3 py-2 text-sm font-semibold outline-hidden transition-all ${
                               tieneError
-                                ? 'border-[#b42318] bg-white text-[#b42318] focus:border-[#b42318] focus:ring-2 focus:ring-[#b42318]/20'
-                                : 'border-[#e5e7ea] bg-white text-[#1f2023] focus:border-[#a6192e] focus:ring-2 focus:ring-[#a6192e]/20'
+                                ? 'border-brand-600 bg-white text-brand-700 focus:border-brand-600 focus:ring-2 focus:ring-brand-600'
+                                : 'border-border bg-white text-ink-900 focus:border-brand-600 focus:ring-2 focus:ring-brand-600'
                             }`}
                           />
                         </div>
@@ -500,7 +500,7 @@ export default function EvaluacionFormModal({
                                 key={v}
                                 type="button"
                                 onClick={() => handleAplicarNotaRapida(criterio.criterioId, v)}
-                                className="px-1.5 py-0.5 text-[10px] font-medium bg-[#f7f7f8] hover:bg-[#fdecec] hover:text-[#a6192e] border border-[#e5e7ea] rounded-sm transition-colors cursor-pointer"
+                                className="px-1.5 py-0.5 text-[10px] font-medium bg-surface-muted hover:bg-brand-100 hover:text-brand-600 border border-border rounded-sm transition-colors cursor-pointer"
                               >
                                 {v}
                               </button>
@@ -510,7 +510,7 @@ export default function EvaluacionFormModal({
                       </div>
 
                       <div className="sm:col-span-8">
-                        <label className="block text-xs font-semibold text-[#1f2023] mb-1">
+                        <label className="block text-xs font-semibold text-ink-900 mb-1">
                           Observaciones y retroalimentación para el autor (Opcional)
                         </label>
                         <textarea
@@ -519,14 +519,14 @@ export default function EvaluacionFormModal({
                           onChange={(e) => handleCambioObservaciones(criterio.criterioId, e.target.value)}
                           disabled={esSoloLectura || guardando}
                           placeholder="Añade comentarios técnicos, sugerencias o justificación de la nota..."
-                          className="w-full rounded-[8px] border border-[#e5e7ea] px-3 py-2 text-xs text-[#1f2023] outline-hidden focus:border-[#a6192e] focus:ring-2 focus:ring-[#a6192e]/20 resize-none transition-all"
+                          className="w-full rounded-[8px] border border-border px-3 py-2 text-xs text-ink-900 outline-hidden focus:border-brand-600 focus:ring-2 focus:ring-brand-600 resize-none transition-all"
                         />
                       </div>
                     </div>
 
                     {/* Mensaje de error si falta calificar */}
                     {tieneError && (
-                      <p className="text-xs text-[#b42318] font-semibold mt-2 pl-8 flex items-center gap-1.5">
+                      <p className="text-xs text-brand-700 font-semibold mt-2 pl-8 flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5" />
                         <span>{errores[cid]}</span>
                       </p>
@@ -539,12 +539,12 @@ export default function EvaluacionFormModal({
         </div>
 
         {/* Pie del modal con acciones */}
-        <div className="bg-[#f7f7f8] border-t border-[#e5e7ea] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <div className="text-xs text-[#5b5f66]">
+        <div className="bg-surface-muted border-t border-border px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="text-xs text-ink-600">
             {sinRubrica ? (
-              <span className="text-[#b54708] font-semibold">Sin rúbrica activa</span>
+              <span className="text-brand-700 font-semibold">Sin rúbrica activa</span>
             ) : esSoloLectura ? (
-              <span className="inline-flex items-center gap-1 text-[#b42318] font-semibold">
+              <span className="inline-flex items-center gap-1 text-brand-700 font-semibold">
                 <Lock className="w-3.5 h-3.5" />
                 Periodo de evaluación cerrado
               </span>

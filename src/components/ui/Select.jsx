@@ -55,9 +55,9 @@ export default function Select({
   return (
     <div className="flex flex-col gap-1.5 w-full">
       {label && (
-        <label htmlFor={id || name} className="text-sm font-medium text-[#1f2023] flex items-center gap-1">
+        <label htmlFor={id || name} className="text-sm font-medium text-ink-900 flex items-center gap-1">
           {label}
-          {required && <span className="text-[#a6192e] font-bold">*</span>}
+          {required && <span className="text-brand-600 font-bold">*</span>}
         </label>
       )}
       <div className="relative">
@@ -68,13 +68,13 @@ export default function Select({
           onChange={onChange}
           onBlur={onBlur}
           disabled={disabled}
-          className={`w-full h-11 px-3.5 pr-10 rounded-[8px] bg-white text-sm text-[#1f2023] border appearance-none transition-colors outline-none cursor-pointer
-            ${!value ? 'text-[#9ca0a6]' : 'text-[#1f2023]'}
+          className={`w-full h-11 px-3.5 pr-10 rounded-[8px] bg-surface text-sm text-ink-900 border appearance-none transition-colors outline-none cursor-pointer
+            ${!value ? 'text-ink-300' : 'text-ink-900'}
             ${error
-              ? 'border-[#a6192e] focus:border-[#7a0c1e] focus:ring-1 focus:ring-[#7a0c1e]'
-              : 'border-[#d8dadf] hover:border-[#9ca0a6] focus:border-[#a6192e] focus:ring-1 focus:ring-[#a6192e]'
+              ? 'border-brand-600 focus:border-brand-700 focus:ring-1 focus:ring-brand-700'
+              : 'border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600'
             }
-            ${disabled ? 'bg-[#edeeef] text-[#9ca0a6] cursor-not-allowed' : ''}
+            ${disabled ? 'bg-surface-muted text-ink-300 cursor-not-allowed' : ''}
           `}
           {...props}
         >
@@ -82,22 +82,22 @@ export default function Select({
             {placeholder}
           </option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="text-[#1f2023]">
+            <option key={opt.value} value={opt.value} className="text-ink-900">
               {opt.label}
             </option>
           ))}
         </select>
         {/* Chevron down */}
-        <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-[#5b5f66]">
+        <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-ink-600">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
           </svg>
         </div>
       </div>
       {error ? (
-        <p className="text-xs text-[#7a0c1e] font-medium mt-0.5">{error}</p>
+        <p className="text-xs text-brand-700 font-medium mt-0.5">{error}</p>
       ) : helperText ? (
-        <p className="text-xs text-[#5b5f66] mt-0.5">{helperText}</p>
+        <p className="text-xs text-ink-600 mt-0.5">{helperText}</p>
       ) : null}
     </div>
   );

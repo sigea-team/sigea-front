@@ -26,21 +26,19 @@ export const OPCIONES_ROL_AUTOR = [
 export const INFO_ROL_AUTOR = {
   [ROLES_AUTOR.AUTOR_PRINCIPAL]: {
     label: 'Autor Principal',
-    bg: 'bg-[#fdecec]',
-    text: 'text-[#a6192e]',
-    border: 'border-[#a6192e]/30',
+    bg: 'bg-brand-100',
+    text: 'text-brand-600',
+    border: 'border-brand-600',
   },
   [ROLES_AUTOR.COAUTOR]: {
     label: 'Coautor',
-    bg: 'bg-[#f7f7f8]',
-    text: 'text-[#1f2023]',
-    border: 'border-[#e5e7ea]',
+    bg: 'bg-surface-muted',
+    text: 'text-ink-900',
+    border: 'border-border',
   },
   [ROLES_AUTOR.PONENTE]: {
     label: 'Ponente',
-    bg: 'bg-amber-50',
-    text: 'text-amber-800',
-    border: 'border-amber-200',
+    bg: 'bg-brand-100', text: 'text-brand-700', border: 'border-brand-600',
   },
 };
 
