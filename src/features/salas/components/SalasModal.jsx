@@ -189,7 +189,29 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   };
 
   const handleEliminarActividad = async (actividadId) => {
-    await api.eliminarActividad(actividadId);
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar actividad?',
+      text: 'Se removerá esta actividad de la programación y de la sala.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+    });
+    if (!confirmacion.isConfirmed) return;
+    try {
+      // La API recibe (eventoId, actividadId); antes se pasaba solo el id y la ruta quedaba en /undefined.
+      await api.eliminarActividad(eventoId, actividadId);
+      Swal.fire({ icon: 'success', title: 'Actividad eliminada', timer: 1800, showConfirmButton: false });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo eliminar la actividad',
+        text: mensajeApi(err, 'No fue posible eliminar la actividad.'),
+        confirmButtonColor: '#a6192e',
+      });
+    }
     recargar();
   };
 

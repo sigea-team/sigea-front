@@ -417,13 +417,22 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       cancelButtonColor: '#5b5f66',
     });
     if (confirmacion.isConfirmed) {
-      await api.eliminarActividad(idEventoActivo, actividadId);
-      Swal.fire({
-        icon: 'success',
-        title: 'Actividad eliminada',
-        timer: 1800,
-        showConfirmButton: false,
-      });
+      try {
+        await api.eliminarActividad(idEventoActivo, actividadId);
+        Swal.fire({
+          icon: 'success',
+          title: 'Actividad eliminada',
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo eliminar la actividad',
+          text: mensajeApi(err, 'No fue posible eliminar la actividad.'),
+          confirmButtonColor: '#a6192e',
+        });
+      }
       recargar();
     }
   };

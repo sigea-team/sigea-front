@@ -232,7 +232,9 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        console.warn('Fallo al crear actividad en backend real, usando mock:', err.message);
+        // Con backend real no se cae al mock: un 400/403/500 o una caída de red deben verse,
+        // si no la pantalla anuncia «Actividad agendada» sin haber guardado nada.
+        throw err;
       }
     }
 
@@ -332,12 +334,9 @@ export const actividadService = {
    */
   async eliminarActividad(eventoId, actividadId) {
     if (USE_REAL_BACKEND) {
-      try {
-        await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
-        return { ok: true };
-      } catch (err) {
-        console.warn('Fallo al eliminar actividad en backend real, usando mock:', err.message);
-      }
+      // Sin fallback al mock: si el borrado falla, el error llega a la pantalla.
+      await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
+      return { ok: true };
     }
 
     // Modo Mock
