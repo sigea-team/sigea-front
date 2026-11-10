@@ -118,7 +118,9 @@ describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', (
       expect(resultado.hayConflicto).toBe(true);
       expect(resultado.conflictosSala).toHaveLength(1);
       expect(resultado.conflictosSala[0].mensaje).toContain('Auditorio Central');
-      expect(resultado.conflictosHorario).toHaveLength(1);
+      // Igual que el backend: en la misma sala el cruce se informa una sola vez, como conflicto de sala
+      expect(resultado.conflictosHorario).toHaveLength(0);
+      expect(resultado.hayCruces).toBe(true);
     });
 
     it('detecta conflicto cuando se intenta programar al mismo ponente en horario solapado', () => {
@@ -262,6 +264,85 @@ describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', (
       expect(resultado.conflictosPonente).toHaveLength(1);
       expect(resultado.conflictosPonente[0].mensaje).toContain('María Gómez');
     });
+
+    it('permite compartir sala si ambas son simultáneas y la sala admite simultaneidad', () => {
+      const salasConSimultaneidad = salasMock.map((s) =>
+        s.id === 1 ? { ...s, permiteSimultaneidad: true } : s
+      );
+      const tallerMismaSala = {
+        nombre: 'Taller Paralelo C',
+        fecha: '2026-10-21',
+        horaInicio: '14:00',
+        horaFin: '16:00',
+        salaId: 1,
+        ponenteId: 20,
+        permiteSimultaneidad: true,
+      };
+
+      const resultado = detectarConflictosActividad(tallerMismaSala, agendaConSimultanea, {
+        salas: salasConSimultaneidad,
+        ponentes: ponentesMock,
+      });
+
+      expect(resultado.conflictosSala).toHaveLength(0);
+      expect(resultado.conflictosHorario).toHaveLength(0);
+      expect(resultado.hayCruces).toBe(false);
+    });
+
+    it('aunque la sala admita simultaneidad, exige que ambas actividades estén marcadas como simultáneas', () => {
+      const salasConSimultaneidad = salasMock.map((s) =>
+        s.id === 1 ? { ...s, permiteSimultaneidad: true } : s
+      );
+      const noSimultanea = {
+        nombre: 'Charla no paralela',
+        fecha: '2026-10-21',
+        horaInicio: '14:00',
+        horaFin: '16:00',
+        salaId: 1,
+        ponenteId: 20,
+        permiteSimultaneidad: false,
+      };
+
+      const resultado = detectarConflictosActividad(noSimultanea, agendaConSimultanea, {
+        salas: salasConSimultaneidad,
+        ponentes: ponentesMock,
+      });
+
+      expect(resultado.conflictosSala).toHaveLength(1);
+      expect(resultado.hayCruces).toBe(true);
+    });
+  });
+
+  describe('Actividades canceladas', () => {
+    it('no cuenta como cruce una actividad cancelada', () => {
+      const agenda = [
+        {
+          id: 300,
+          nombre: 'Charla cancelada',
+          fecha: '2026-10-21',
+          horaInicio: '09:00',
+          horaFin: '10:00',
+          salaId: 1,
+          ponenteId: 10,
+          permiteSimultaneidad: false,
+          estado: 'cancelada',
+        },
+      ];
+      const nueva = {
+        nombre: 'Charla de reemplazo',
+        fecha: '2026-10-21',
+        horaInicio: '09:00',
+        horaFin: '10:00',
+        salaId: 1,
+        ponenteId: 10,
+        permiteSimultaneidad: false,
+      };
+
+      const resultado = detectarConflictosActividad(nueva, agenda, { salas: salasMock, ponentes: ponentesMock });
+
+      expect(resultado.hayCruces).toBe(false);
+      expect(resultado.motivos).toHaveLength(0);
+    });
   });
 
   describe('Criterio 4: Rechazo y validación de campos obligatorios', () => {
@@ -374,7 +455,8 @@ describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', (
       expect(resultado.hayConflicto).toBe(true);
       expect(resultado.conflictosSala).toHaveLength(1);
       expect(resultado.conflictosSala[0].actividadConflictiva.id).toBe(302);
-      expect(resultado.conflictosHorario).toHaveLength(1);
+      // Misma sala: un solo motivo (de sala), igual que el backend
+      expect(resultado.conflictosHorario).toHaveLength(0);
     });
   });
 });

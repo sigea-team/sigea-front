@@ -24,6 +24,11 @@ import AgendaTimeline from '../features/agenda/components/AgendaTimeline';
 import AgendaTabla from '../features/agenda/components/AgendaTabla';
 import FiltrosAgenda from '../features/agenda/components/FiltrosAgenda';
 import ActividadFormModal from '../features/agenda/components/ActividadFormModal';
+import AgendaGeneracionPanel from '../features/agenda/components/AgendaGeneracionPanel';
+import { agendaService } from '../api/agendaService';
+import { extraerError } from '../features/eventos/eventoUtils';
+import { separarActividades, precargaAsignacionManual } from '../features/agenda/agendaPublicacionUtils';
+import { confirmarDesprogramar, confirmarEliminarActividad } from '../features/agenda/accionesAgenda';
 
 /**
  * @file AgendaPage.jsx
@@ -36,6 +41,9 @@ import ActividadFormModal from '../features/agenda/components/ActividadFormModal
  * - Validar obligatoriedad de nombre, fecha, horario y sala (Criterio 4).
  * - Modificar actividades ya programadas revalidando conflictos con el resto de la agenda (Criterio 5).
  * - Indicador claro para integrar endpoints del backend cuando estén disponibles.
+ * HU-22: franja de generación automática y publicación (`AgendaGeneracionPanel`). La línea de tiempo, la tabla,
+ * los filtros y las métricas solo muestran las actividades con horario; las «por programar» se gestionan en el
+ * modal de generación.
  */
 export default function AgendaPage({
   apiActividades = actividadService,
@@ -43,18 +51,21 @@ export default function AgendaPage({
   apiSalas = salaService,
   apiConferencistas = conferencistaService,
   apiParametros = parametroEventoService,
+  apiAgenda = agendaService,
 }) {
   const { eventoId: eventoIdParam } = useParams();
   const navigate = useNavigate();
 
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionadoId, setEventoSeleccionadoId] = useState(eventoIdParam || '');
-  const [actividades, setActividades] = useState([]);
+  const [todasActividades, setActividades] = useState([]);
   const [salas, setSalas] = useState([]);
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
 
   const [cargando, setCargando] = useState(false);
+  // Si la lista de actividades no carga, se muestra el error en vez de una agenda vacía.
+  const [errorCarga, setErrorCarga] = useState(null);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
   const [version, setVersion] = useState(0);
 
@@ -109,7 +120,13 @@ export default function AgendaPage({
     ]).then(([resAct, resSalas, resPonentes, resTipos]) => {
       if (!activo) return;
 
-      if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
+      if (resAct.status === 'fulfilled') {
+        setActividades(resAct.value || []);
+        setErrorCarga(null);
+      } else {
+        setActividades([]);
+        setErrorCarga(extraerError(resAct.reason).mensaje);
+      }
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
@@ -121,6 +138,9 @@ export default function AgendaPage({
       activo = false;
     };
   }, [idEventoActivo, version, apiActividades, apiSalas, apiConferencistas, apiParametros]);
+
+  // HU-22: las actividades por programar no tienen fecha ni horario; no van en la línea de tiempo ni en la tabla.
+  const { programadas: actividades } = useMemo(() => separarActividades(todasActividades), [todasActividades]);
 
   const eventoActual = useMemo(
     () => eventos.find((e) => String(e.id) === String(idEventoActivo)),
@@ -194,34 +214,13 @@ export default function AgendaPage({
     });
   };
 
-  const handleEliminar = (act) => {
-    Swal.fire({
-      title: '¿Eliminar actividad de la agenda?',
-      text: `Se removerá «${act.nombre}» del cronograma del evento.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#a6192e',
-      cancelButtonColor: '#5b5f66',
-      customClass: {
-        popup: 'rounded-[16px]',
-        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-      },
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await apiActividades.eliminarActividad(idEventoActivo, act.id);
-        recargar();
-        Swal.fire({
-          icon: 'success',
-          title: 'Actividad eliminada',
-          timer: 1800,
-          showConfirmButton: false,
-        });
-      }
-    });
-  };
+  const handleEliminar = (act) => confirmarEliminarActividad(apiActividades, idEventoActivo, act, recargar);
+
+  const handleDesprogramar = (act) => confirmarDesprogramar(apiAgenda, idEventoActivo, act, recargar);
+
+  // HU-22 Criterio 1 (ajuste manual): abre el formulario de HU-21 con un horario de su misma duración.
+  const handleAsignarManual = (act) =>
+    setModalFormulario({ tipo: 'editar', actividad: precargaAsignacionManual(act, eventoActual) });
 
   return (
     <MainLayout title="Agenda y Cronograma de Actividades" activeNav="agenda">
@@ -355,6 +354,19 @@ export default function AgendaPage({
               </div>
             )}
 
+            {/* HU-22: generación automática y publicación */}
+            <AgendaGeneracionPanel
+              evento={eventoActual || { id: idEventoActivo }}
+              actividades={todasActividades}
+              tiposActividad={tiposActividad}
+              ponentes={ponentes}
+              version={version}
+              api={apiAgenda}
+              apiActividades={apiActividades}
+              onCambios={recargar}
+              onAsignarManual={salas.length > 0 ? handleAsignarManual : undefined}
+            />
+
             {/* Barra de Filtros y Selector de Vista */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -418,6 +430,14 @@ export default function AgendaPage({
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-brand-600" />
                 Cargando agenda cronológica...
               </div>
+            ) : errorCarga ? (
+              <div role="alert" className="py-16 text-center text-xs text-ink-600">
+                <p className="text-sm font-semibold text-brand-700 mb-1">No se pudo cargar la agenda</p>
+                <p className="mb-4">{errorCarga}</p>
+                <Button type="button" variant="outline" onClick={recargar}>
+                  Reintentar
+                </Button>
+              </div>
             ) : vista === 'timeline' ? (
               <AgendaTimeline
                 actividades={actividadesFiltradas}
@@ -425,6 +445,7 @@ export default function AgendaPage({
                 ponentes={ponentes}
                 onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
                 onEliminar={handleEliminar}
+                onDesprogramar={handleDesprogramar}
               />
             ) : (
               <AgendaTabla
@@ -433,6 +454,7 @@ export default function AgendaPage({
                 ponentes={ponentes}
                 onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
                 onEliminar={handleEliminar}
+                onDesprogramar={handleDesprogramar}
               />
             )}
           </>

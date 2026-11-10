@@ -520,6 +520,11 @@ export function normalizarSalaApi(sala) {
   if (sala.permiteSimultaneidad !== undefined) {
     res.permiteSimultaneidad = Boolean(sala.permiteSimultaneidad);
   }
+  // HU-20 Criterio 5: al editar la sala, el backend devuelve las actividades que quedaron fuera de las nuevas
+  // franjas. Se exponen como `conflictos` para reutilizar avisarDisponibilidad.
+  if (sala.conflictosDisponibilidad !== undefined) {
+    res.conflictos = Array.isArray(sala.conflictosDisponibilidad) ? sala.conflictosDisponibilidad : [];
+  }
   if (sala.eventosVinculados !== undefined) {
     res.eventosVinculados = Array.isArray(sala.eventosVinculados) ? sala.eventosVinculados : [];
   }

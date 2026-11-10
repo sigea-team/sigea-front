@@ -17,10 +17,12 @@ import ConferencistaInvitacionPage from './pages/ConferencistaInvitacionPage';
 import EvaluacionesPage from './pages/EvaluacionesPage';
 import SalasPage from './pages/SalasPage';
 import AgendaPage from './pages/AgendaPage';
+import AgendaPublicaPage from './pages/AgendaPublicaPage';
 import MisPropuestasPage from './pages/MisPropuestasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
+import SinPerfilEvaluadorRoute from './routes/SinPerfilEvaluadorRoute';
 
 function App() {
   return (
@@ -37,12 +39,17 @@ function App() {
           <Route path="/convocatorias-publicas" element={<ConvocatoriasPublicasPage />} />
           {/* HU-12 (Criterio 4): conferencistas de un evento publicado, visibles sin iniciar sesión */}
           <Route path="/eventos/:eventoId/conferencistas-publicos" element={<ConferencistasPublicosPage />} />
+          {/* HU-22 (Criterio 3): agenda publicada del evento, organizada por día y hora, sin iniciar sesión */}
+          <Route path="/eventos/:eventoId/agenda-publica" element={<AgendaPublicaPage />} />
           {/* HU-12: el conferencista invitado registra sus datos desde el enlace del correo (sin sesión) */}
           <Route path="/conferencista/invitacion" element={<ConferencistaInvitacionPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/eventos" element={<EventosPage />} />
+            {/* El perfil «Evaluador» no ve Eventos: se le envía a su bandeja de evaluaciones */}
+            <Route element={<SinPerfilEvaluadorRoute />}>
+              <Route path="/eventos" element={<EventosPage />} />
+            </Route>
             <Route path="/agenda" element={<AgendaPage />} />
             <Route path="/eventos/:eventoId/agenda" element={<AgendaPage />} />
             <Route path="/salas" element={<SalasPage />} />

@@ -6,12 +6,14 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Link2,
   MapPin,
   Pencil,
   Plus,
   RefreshCw,
   Search,
   Trash2,
+  Unlink,
   User,
 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
@@ -23,6 +25,7 @@ import SalaFormModal from './SalaFormModal';
 import DisponibilidadSalaModal from './DisponibilidadSalaModal';
 import DisponibilidadPonenteModal from './DisponibilidadPonenteModal';
 import ProgramarActividadModal from './ProgramarActividadModal';
+import AsignarSalaEventoModal from './AsignarSalaEventoModal';
 import { formatearHora } from '../salaUtils';
 import { avisarDisponibilidad, conMensajeApi, mensajeApi } from '../salaAvisos';
 
@@ -46,7 +49,9 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   const [busqueda, setBusqueda] = useState('');
 
   // Modales hijos
-  const [modalSala, setModalSala] = useState(null); // { tipo: 'crear'|'editar', sala: Object|null }
+  const [modalSala, setModalSala] = useState(null); // { tipo: 'editar', sala: Object }
+  // Salas del catálogo que aún no están en el evento; con valor, se abre el modal de asignación.
+  const [salasParaAsignar, setSalasParaAsignar] = useState(null);
   const [modalDisponibilidadSala, setModalDisponibilidadSala] = useState(null); // sala: Object
   const [modalDisponibilidadPonente, setModalDisponibilidadPonente] = useState(null); // ponente: Object
   const [modalProgramar, setModalProgramar] = useState(false);
@@ -98,37 +103,64 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   });
 
   // Operaciones de salas
-  const handleGuardarSala = async (datos) => {
-    if (modalSala?.tipo === 'crear') {
-      await conMensajeApi(() => api.crearSala(eventoId, datos), 'No fue posible registrar la sala.');
+  // Desde el evento no se crean salas: se asignan salas ya creadas en el catálogo («Salas y Espacios»).
+  const abrirAsignarSala = async () => {
+    try {
+      const catalogo = await api.listarSalasGlobales();
+      const yaAsignadas = new Set(salas.map((s) => String(s.id)));
+      const libres = (Array.isArray(catalogo) ? catalogo : []).filter((s) => !yaAsignadas.has(String(s.id)));
+      if (libres.length === 0) {
+        Swal.fire({
+          icon: 'info',
+          title: 'No hay salas para asignar',
+          text: 'Todas las salas del catálogo ya están asignadas a este evento. Las salas nuevas se crean en «Salas y Espacios».',
+          confirmButtonColor: '#a6192e',
+        });
+        return;
+      }
+      setSalasParaAsignar(libres);
+    } catch (err) {
       Swal.fire({
-        icon: 'success',
-        title: 'Sala registrada',
-        text: `La sala «${datos.nombre}» quedó guardada disponible para programar actividades.`,
+        icon: 'error',
+        title: 'No se pudo cargar el catálogo de salas',
+        text: mensajeApi(err, 'Intenta de nuevo en unos segundos.'),
         confirmButtonColor: '#a6192e',
       });
-    } else if (modalSala?.tipo === 'editar') {
-      await conMensajeApi(
+    }
+  };
+
+  const handleAsignarSala = async ({ sala }) => {
+    await conMensajeApi(() => api.vincularSalaEvento(eventoId, sala.id), 'No fue posible asignar la sala al evento.');
+    Swal.fire({
+      icon: 'success',
+      title: 'Sala asignada',
+      text: `La sala «${sala.nombre}» quedó asignada a «${evento.nombre}».`,
+      confirmButtonColor: '#a6192e',
+    });
+    recargar();
+  };
+
+  const handleGuardarSala = async (datos) => {
+    if (modalSala?.tipo === 'editar') {
+      const actualizada = await conMensajeApi(
         () => api.actualizarSala(eventoId, modalSala.sala.id, datos),
         'No fue posible actualizar la sala.'
       );
-      Swal.fire({
-        icon: 'success',
-        title: 'Sala actualizada',
-        text: `Se actualizaron los datos de «${datos.nombre}».`,
-        confirmButtonColor: '#a6192e',
-      });
+      // HU-20 Criterio 5: avisa las actividades del evento que quedaron fuera de las nuevas franjas.
+      await avisarDisponibilidad(actualizada, 'Sala actualizada', `Se actualizaron los datos de «${datos.nombre}».`);
     }
     recargar();
   };
 
-  const handleEliminarSala = async (sala) => {
+  // Desde el evento la sala solo se quita del evento (desvincular); sigue en el catálogo para otros eventos.
+  // El backend no deja desvincularla si tiene actividades programadas en este evento.
+  const handleDesvincularSala = async (sala) => {
     const confirm = await Swal.fire({
       icon: 'question',
-      title: `¿Eliminar la sala «${sala.nombre}»?`,
-      text: 'Esta acción eliminará la sala y su configuración de disponibilidad.',
+      title: `¿Quitar «${sala.nombre}» de este evento?`,
+      text: 'La sala dejará de estar disponible en este evento, pero seguirá en el catálogo institucional.',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, quitar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#a6192e',
       cancelButtonColor: '#5b5f66',
@@ -136,19 +168,19 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
 
     if (confirm.isConfirmed) {
       try {
-        await api.eliminarSala(eventoId, sala.id);
+        await api.desvincularSalaEvento(eventoId, sala.id);
         Swal.fire({
           icon: 'success',
-          title: 'Sala eliminada',
-          text: `Se eliminó la sala «${sala.nombre}».`,
+          title: 'Sala quitada del evento',
+          text: `«${sala.nombre}» ya no está asignada a «${evento.nombre}».`,
           confirmButtonColor: '#a6192e',
         });
         recargar();
       } catch (err) {
         Swal.fire({
           icon: 'error',
-          title: 'No se pudo eliminar',
-          text: mensajeApi(err, 'La sala no pudo ser eliminada.'),
+          title: 'No se pudo quitar la sala',
+          text: mensajeApi(err, 'La sala no pudo quitarse del evento.'),
           confirmButtonColor: '#a6192e',
         });
       }
@@ -189,7 +221,29 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
   };
 
   const handleEliminarActividad = async (actividadId) => {
-    await api.eliminarActividad(actividadId);
+    const confirmacion = await Swal.fire({
+      title: '¿Eliminar actividad?',
+      text: 'Se removerá esta actividad de la programación y de la sala.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#a6192e',
+      cancelButtonColor: '#5b5f66',
+    });
+    if (!confirmacion.isConfirmed) return;
+    try {
+      // La API recibe (eventoId, actividadId); antes se pasaba solo el id y la ruta quedaba en /undefined.
+      await api.eliminarActividad(eventoId, actividadId);
+      Swal.fire({ icon: 'success', title: 'Actividad eliminada', timer: 1800, showConfirmButton: false });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo eliminar la actividad',
+        text: mensajeApi(err, 'No fue posible eliminar la actividad.'),
+        confirmButtonColor: '#a6192e',
+      });
+    }
     recargar();
   };
 
@@ -285,32 +339,23 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
                     rightElement={<Search className="w-4 h-4 text-ink-600" />}
                   />
                 </div>
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => setModalSala({ tipo: 'crear', sala: null })}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Registrar sala (Criterio 1)</span>
+                <Button type="button" variant="primary" onClick={abrirAsignarSala}>
+                  <Link2 className="w-4 h-4" />
+                  <span>Asignar sala</span>
                 </Button>
               </div>
 
               {salasFiltradas.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-[12px] border border-dashed border-field-border bg-surface-muted">
                   <Building className="w-10 h-10 text-ink-300 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-ink-900">No hay salas registradas</p>
+                  <p className="text-sm font-semibold text-ink-900">No hay salas asignadas</p>
                   <p className="text-xs text-ink-600 mt-1 max-w-md mx-auto">
-                    Crea la primera sala o espacio para habilitar la infraestructura del evento.
+                    Asigna una sala del catálogo institucional para habilitar la infraestructura del evento.
                   </p>
                   <div className="mt-4">
-                    <Button
-                      type="button"
-                      variant="primary"
-                      size="sm"
-                      onClick={() => setModalSala({ tipo: 'crear', sala: null })}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Registrar primera sala</span>
+                    <Button type="button" variant="primary" size="sm" onClick={abrirAsignarSala}>
+                      <Link2 className="w-3.5 h-3.5" />
+                      <span>Asignar sala</span>
                     </Button>
                   </div>
                 </div>
@@ -379,11 +424,12 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleEliminarSala(sala)}
+                              onClick={() => handleDesvincularSala(sala)}
                               className="p-1.5 text-brand-700 hover:bg-brand-100 rounded cursor-pointer"
-                              title="Eliminar sala"
+                              title="Quitar sala del evento"
+                              aria-label={`Quitar ${sala.nombre} del evento`}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Unlink className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -643,6 +689,17 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
           )}
           onClose={() => setModalDisponibilidadPonente(null)}
           onGuardar={handleGuardarDisponibilidadPonente}
+        />
+      )}
+
+      {salasParaAsignar && (
+        <AsignarSalaEventoModal
+          isOpen
+          salasDisponibles={salasParaAsignar}
+          eventos={[evento]}
+          eventoActualId={String(eventoId)}
+          onClose={() => setSalasParaAsignar(null)}
+          onAsignar={handleAsignarSala}
         />
       )}
 

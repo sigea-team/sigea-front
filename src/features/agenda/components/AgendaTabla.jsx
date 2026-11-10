@@ -3,12 +3,15 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  Sparkles,
+  Undo2,
 } from 'lucide-react';
 import { formatearHora } from '../agendaUtils';
 
 /**
  * @file AgendaTabla.jsx
- * @description Vista tabular de las actividades de la agenda (HU-21).
+ * @description Vista tabular de las actividades de la agenda (HU-21). HU-22: marca las ubicadas por la generación
+ * automática y permite devolverlas a «por programar» si se pasa `onDesprogramar`.
  */
 export default function AgendaTabla({
   actividades = [],
@@ -16,6 +19,7 @@ export default function AgendaTabla({
   ponentes = [],
   onEditar,
   onEliminar,
+  onDesprogramar,
 }) {
   if (actividades.length === 0) {
     return (
@@ -67,6 +71,12 @@ export default function AgendaTabla({
                     <div className="flex items-center gap-1 mt-1 text-[10px] text-brand-700">
                       <AlertTriangle className="w-3 h-3 text-brand-600" />
                       <span>Con advertencia registrada</span>
+                    </div>
+                  )}
+                  {act.asignacionAutomatica && (
+                    <div className="flex items-center gap-1 mt-1 text-[10px] text-[#5b5f66]">
+                      <Sparkles className="w-3 h-3 text-[#a6192e]" />
+                      <span>Ubicada automáticamente</span>
                     </div>
                   )}
                 </td>
@@ -122,6 +132,17 @@ export default function AgendaTabla({
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
+                    {onDesprogramar && (
+                      <button
+                        type="button"
+                        onClick={() => onDesprogramar(act)}
+                        className="p-1.5 text-[#5b5f66] hover:text-[#1f2023] hover:bg-[#f2f4f7] rounded cursor-pointer"
+                        title="Devolver a por programar (quita fecha, horario y sala)"
+                        aria-label={`Devolver «${act.nombre}» a por programar`}
+                      >
+                        <Undo2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onEliminar(act)}
