@@ -227,8 +227,8 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
     recargar();
   };
 
-  // Operación: Asignar sala existente a un evento y opcionalmente reservar franja inicial
-  const handleAsignarSalaEvento = async ({ sala, eventoDestinoId, eventoDestino, reserva }) => {
+  // Operación: Asignar sala existente a un evento (las actividades se agendan con «Programar actividad»)
+  const handleAsignarSalaEvento = async ({ sala, eventoDestinoId, eventoDestino }) => {
     if (typeof api.vincularSalaEvento === 'function') {
       await conMensajeApi(
         () => api.vincularSalaEvento(eventoDestinoId, sala.id),
@@ -248,28 +248,10 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       );
     }
 
-    // Si además reservó horario específico para este evento, programar actividad
-    if (reserva && reserva.fecha && reserva.horaInicio && reserva.horaFin) {
-      try {
-        await api.programarActividad(eventoDestinoId, {
-          nombre: reserva.nombre || `Uso de ${sala.nombre}`,
-          salaId: sala.id,
-          fecha: reserva.fecha,
-          horaInicio: reserva.horaInicio,
-          horaFin: reserva.horaFin,
-          modalidad: sala.tipo === 'virtual' ? 'virtual' : 'presencial',
-        });
-      } catch (err) {
-        console.warn('La sala fue vinculada pero no se pudo reservar el horario inicial:', err);
-      }
-    }
-
     Swal.fire({
       icon: 'success',
       title: 'Sala vinculada al evento',
-      text: `La sala «${sala.nombre}» quedó vinculada exitosamente a «${eventoDestino?.nombre || 'el evento'}»${
-        reserva ? ' y el horario seleccionado quedó reservado' : ''
-      }.`,
+      text: `La sala «${sala.nombre}» quedó vinculada exitosamente a «${eventoDestino?.nombre || 'el evento'}».`,
       confirmButtonColor: '#a6192e',
     });
     recargar();
