@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { MapPin, Clock, AlertTriangle, Link2 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
-import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import ModalShell from '../../eventos/components/ModalShell';
 import TipoSalaBadge from './TipoSalaBadge';
@@ -9,14 +8,15 @@ import AforoBadge from './AforoBadge';
 import {
   formatearHora,
   obtenerFranjasDisponiblesEfectivas,
-  verificarConflictoConOcupaciones,
 } from '../salaUtils';
 
 /**
  * @file AsignarSalaEventoModal.jsx
  * @description Modal para vincular una sala existente del catálogo institucional a un evento académico.
  * Muestra los horarios disponibles de la sala y previene la doble asignación de horas ya ocupadas por otros eventos.
- * Permite tanto la vinculación general de la sala como la reserva opcional de una franja horaria inicial.
+ * Solo vincula la sala: las actividades se agendan después con «Programar actividad» o desde la agenda,
+ * que piden el tipo de actividad y validan cruces (antes había aquí una reserva de horario que creaba
+ * la actividad sin tipo y el backend la rechazaba en silencio).
  * @module features/salas/components/AsignarSalaEventoModal
  */
 export default function AsignarSalaEventoModal({
@@ -33,13 +33,6 @@ export default function AsignarSalaEventoModal({
   const [eventoDestinoId, setEventoDestinoId] = useState(
     eventoActualId || (eventos[0]?.id ? String(eventos[0].id) : '')
   );
-
-  // Reserva opcional de franja horaria inicial
-  const [reservarHorario, setReservarHorario] = useState(false);
-  const [fechaReserva, setFechaReserva] = useState('');
-  const [horaInicioReserva, setHoraInicioReserva] = useState('09:00');
-  const [horaFinReserva, setHoraFinReserva] = useState('11:00');
-  const [nombreActividadReserva, setNombreActividadReserva] = useState('');
 
   const [asignando, setAsignando] = useState(false);
   const [error, setError] = useState(null);
@@ -100,50 +93,12 @@ export default function AsignarSalaEventoModal({
       return;
     }
 
-    let datosReserva = null;
-    if (reservarHorario) {
-      if (!fechaReserva) {
-        setError('Selecciona la fecha para la reserva de la sala.');
-        return;
-      }
-      if (!horaInicioReserva || !horaFinReserva) {
-        setError('Indica la hora de inicio y de fin.');
-        return;
-      }
-      if (horaInicioReserva >= horaFinReserva) {
-        setError('La hora de fin debe ser posterior a la de inicio.');
-        return;
-      }
-
-      // Validar si el horario choca con una ocupación existente
-      const chequeoOcupacion = verificarConflictoConOcupaciones(
-        { fecha: fechaReserva, horaInicio: horaInicioReserva, horaFin: horaFinReserva },
-        salaSeleccionada?.ocupaciones || []
-      );
-
-      if (chequeoOcupacion.hayConflicto) {
-        const ocups = chequeoOcupacion.ocupacionesEnConflicto;
-        setError(
-          `La sala ya está ocupada en esa fecha y horario por el evento «${ocups[0]?.eventoNombre || 'otro evento'}» (${formatearHora(ocups[0]?.horaInicio)} – ${formatearHora(ocups[0]?.horaFin)}). Esas horas no están disponibles.`
-        );
-        return;
-      }
-
-      datosReserva = {
-        fecha: fechaReserva,
-        horaInicio: horaInicioReserva,
-        horaFin: horaFinReserva,
-        nombre: nombreActividadReserva.trim() || `Uso de ${salaSeleccionada.nombre}`,
-      };
-    }
-
     try {
       setAsignando(true);
       await onAsignar({
         sala: salaSeleccionada,
         eventoDestinoId,
         eventoDestino,
-        reserva: datosReserva,
       });
       onClose();
     } catch (err) {
@@ -276,94 +231,8 @@ export default function AsignarSalaEventoModal({
           />
           {yaEstaVinculada && (
             <p className="text-[11px] text-brand-700 mt-1 font-medium">
-              Nota: La sala «{salaSeleccionada?.nombre}» ya está vinculada a este evento. Puedes reservar un nuevo horario a continuación.
+              Nota: La sala «{salaSeleccionada?.nombre}» ya está vinculada a este evento. Para agendar actividades en ella usa «Programar actividad».
             </p>
-          )}
-        </div>
-
-        {/* 4. Reserva Opcional de Horario Inicial */}
-        <div className="p-3.5 rounded-[12px] bg-white border border-border space-y-3">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-ink-900">
-            <input
-              type="checkbox"
-              checked={reservarHorario}
-              onChange={(e) => {
-                setReservarHorario(e.target.checked);
-                if (e.target.checked && franjasEfectivas[0]) {
-                  setFechaReserva(franjasEfectivas[0].fecha);
-                  setHoraInicioReserva(franjasEfectivas[0].horaInicio);
-                  setHoraFinReserva(franjasEfectivas[0].horaFin);
-                }
-              }}
-              className="rounded text-brand-600 focus:ring-brand-600"
-            />
-            <span>Asignar fecha y horario específico de una vez para este evento (opcional)</span>
-          </label>
-
-          {reservarHorario && (
-            <div className="space-y-3 pt-2 border-t border-border">
-              <div>
-                <Input
-                  id="reserva-nombre-actividad"
-                  label="Nombre o motivo de la asignación"
-                  placeholder="Ej. Sesión Plenaria Inaugural"
-                  value={nombreActividadReserva}
-                  onChange={(e) => setNombreActividadReserva(e.target.value)}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <Input
-                  id="reserva-fecha"
-                  label="Fecha *"
-                  type="date"
-                  value={fechaReserva}
-                  onChange={(e) => setFechaReserva(e.target.value)}
-                  required
-                />
-                <Input
-                  id="reserva-hora-inicio"
-                  label="Hora Inicio *"
-                  type="time"
-                  value={horaInicioReserva}
-                  onChange={(e) => setHoraInicioReserva(e.target.value)}
-                  required
-                />
-                <Input
-                  id="reserva-hora-fin"
-                  label="Hora Fin *"
-                  type="time"
-                  value={horaFinReserva}
-                  onChange={(e) => setHoraFinReserva(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Franjas sugeridas libres */}
-              {franjasEfectivas.length > 0 && (
-                <div className="text-[11px] text-ink-600">
-                  <span className="font-medium text-ink-900 block mb-1">
-                    Franjas libres recomendadas de la sala:
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {franjasEfectivas.slice(0, 5).map((f, i) => (
-                      <button
-                        key={f.id || i}
-                        type="button"
-                        onClick={() => {
-                          setFechaReserva(f.fecha);
-                          setHoraInicioReserva(f.horaInicio);
-                          setHoraFinReserva(f.horaFin);
-                        }}
-                        className="px-2 py-0.5 rounded bg-surface-muted border border-border hover:border-brand-600 hover:text-brand-600 transition-colors"
-                      >
-                        {f.fecha} ({formatearHora(f.horaInicio)} - {formatearHora(f.horaFin)})
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
           )}
         </div>
       </form>

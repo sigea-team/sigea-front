@@ -118,16 +118,11 @@ export const actividadService = {
     if (!eventoId) return [];
 
     if (USE_REAL_BACKEND) {
-      try {
-        const params = fecha ? { fecha } : {};
-        const { data } = await httpClient.get(rutaBase(eventoId), { params });
-        const normalizadas = (Array.isArray(data) ? data : []).map(normalizarActividadResponse);
-        return ordenarCronologicamente(normalizadas);
-      } catch (err) {
-        // En caso de fallo de red o backend local no disponible, fallback a mock
-        console.warn('Fallo al conectar con el backend real, usando almacenamiento de respaldo:', err.message);
-        return this._listarMock(eventoId, fecha);
-      }
+      // Sin fallback al mock: si el backend falla, la agenda muestra el error en vez de datos de demostración.
+      const params = fecha ? { fecha } : {};
+      const { data } = await httpClient.get(rutaBase(eventoId), { params });
+      const normalizadas = (Array.isArray(data) ? data : []).map(normalizarActividadResponse);
+      return ordenarCronologicamente(normalizadas);
     }
 
     return this._listarMock(eventoId, fecha);
@@ -139,12 +134,8 @@ export const actividadService = {
    */
   async obtenerActividad(eventoId, actividadId) {
     if (USE_REAL_BACKEND) {
-      try {
-        const { data } = await httpClient.get(`${rutaBase(eventoId)}/${actividadId}`);
-        return normalizarActividadResponse(data);
-      } catch (err) {
-        console.warn('Fallo al obtener actividad del backend real, usando mock:', err.message);
-      }
+      const { data } = await httpClient.get(`${rutaBase(eventoId)}/${actividadId}`);
+      return normalizarActividadResponse(data);
     }
 
     const todas = obtenerActividadesMock();
@@ -232,7 +223,9 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        console.warn('Fallo al crear actividad en backend real, usando mock:', err.message);
+        // Con backend real no se cae al mock: un 400/403/500 o una caída de red deben verse,
+        // si no la pantalla anuncia «Actividad agendada» sin haber guardado nada.
+        throw err;
       }
     }
 
@@ -291,7 +284,8 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        console.warn('Fallo al actualizar actividad en backend real, usando mock:', err.message);
+        // Sin fallback al mock: el formulario muestra el error en vez de anunciar cambios no guardados.
+        throw err;
       }
     }
 
@@ -332,12 +326,9 @@ export const actividadService = {
    */
   async eliminarActividad(eventoId, actividadId) {
     if (USE_REAL_BACKEND) {
-      try {
-        await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
-        return { ok: true };
-      } catch (err) {
-        console.warn('Fallo al eliminar actividad en backend real, usando mock:', err.message);
-      }
+      // Sin fallback al mock: si el borrado falla, el error llega a la pantalla.
+      await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
+      return { ok: true };
     }
 
     // Modo Mock

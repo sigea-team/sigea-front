@@ -4,6 +4,7 @@ import { ListChecks, Users } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import ModalShell from '../../eventos/components/ModalShell';
 import RubricaEditor from './RubricaEditor';
+import { motivoBloqueoRubrica } from '../rubricaUtils';
 import ComiteEvaluadorPanel from '../../comiteEvaluador/components/ComiteEvaluadorPanel';
 
 /**
@@ -22,7 +23,7 @@ const PESTANAS = [
 /**
  * @param {Object} props
  * @param {boolean} props.isOpen
- * @param {{ id: number, titulo: string, eventoNombre?: string }} props.convocatoria
+ * @param {{ id: number, titulo: string, eventoNombre?: string, fechaApertura?: string }} props.convocatoria
  * @param {typeof import('../../../api/rubricaService').rubricaService} props.apiRubricas
  * @param {typeof import('../../../api/comiteEvaluadorService').comiteEvaluadorService} props.apiComite
  * @param {'rubrica'|'comite'} [props.pestanaInicial='rubrica']
@@ -95,7 +96,11 @@ export default function ConfiguracionEvaluacionModal({
 
         {/* Ambos paneles quedan montados para no perder lo escrito al cambiar de pestaña */}
         <div id="panel-rubrica" role="tabpanel" aria-labelledby="pestana-rubrica" hidden={pestana !== 'rubrica'}>
-          <RubricaEditor convocatoriaId={convocatoria.id} api={apiRubricas} />
+          <RubricaEditor
+            convocatoriaId={convocatoria.id}
+            api={apiRubricas}
+            bloqueo={motivoBloqueoRubrica(convocatoria)}
+          />
         </div>
         <div id="panel-comite" role="tabpanel" aria-labelledby="pestana-comite" hidden={pestana !== 'comite'}>
           <ComiteEvaluadorPanel convocatoriaId={convocatoria.id} api={apiComite} />

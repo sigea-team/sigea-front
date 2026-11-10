@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { agruparPermisosPorModulo, esRolEvaluador, validarRol, mensajeErrorApi } from './rolUtils';
-import { puedeEvaluar, tienePermiso } from '../../utils/permisos';
+import { puedeEvaluar, tienePermiso, veEvaluaciones, veEventos } from '../../utils/permisos';
 import { normalizarSesion } from '../../store/authStore';
 import { crearRolesApiMock, PERMISOS_MOCK } from './mocks/rolesMock';
 
@@ -57,5 +57,25 @@ describe('HU-02 - acceso al perfil Evaluador', () => {
     const actualizado = await api.actualizarRolesUsuario(3, [2, 3]);
     expect(actualizado.permisos).toContain('PROPUESTAS_EVALUAR');
     expect(actualizado.roles.map((r) => r.nombre)).toEqual(['PARTICIPANTE', 'EVALUADOR']);
+  });
+});
+
+describe('HU-02 - módulos visibles según el perfil de ingreso', () => {
+  const evaluador = { roles: ['PARTICIPANTE', 'EVALUADOR'], permisos: ['PROPUESTAS_EVALUAR'] };
+
+  it('una cuenta con permiso de evaluador que entra como Asistente no ve Evaluaciones', () => {
+    expect(veEvaluaciones({ ...evaluador, modoIngreso: 'ASISTENTE' })).toBe(false);
+    expect(veEvaluaciones({ ...evaluador, modoIngreso: 'PONENTE' })).toBe(false);
+    expect(veEventos({ ...evaluador, modoIngreso: 'ASISTENTE' })).toBe(true);
+  });
+
+  it('con el perfil Evaluador ve Evaluaciones y no ve Eventos', () => {
+    expect(veEvaluaciones({ ...evaluador, modoIngreso: 'EVALUADOR' })).toBe(true);
+    expect(veEventos({ ...evaluador, modoIngreso: 'EVALUADOR' })).toBe(false);
+  });
+
+  it('el perfil Evaluador sin el permiso no ve Evaluaciones; el administrador sí', () => {
+    expect(veEvaluaciones({ roles: ['PARTICIPANTE'], permisos: [], modoIngreso: 'EVALUADOR' })).toBe(false);
+    expect(veEvaluaciones({ roles: ['ADMIN'], permisos: [], modoIngreso: 'ADMINISTRADOR' })).toBe(true);
   });
 });

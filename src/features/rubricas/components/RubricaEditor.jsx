@@ -89,8 +89,10 @@ function colorSuma(suma) {
  * @param {number} props.convocatoriaId
  * @param {typeof import('../../../api/rubricaService').rubricaService} props.api
  * @param {function(Object): void} [props.onGuardada] - Recibe la rúbrica guardada.
+ * @param {string|null} [props.bloqueo] - Motivo por el que la rúbrica ya no se puede modificar (convocatoria abierta);
+ *   con valor, el formulario queda de solo lectura.
  */
-export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
+export default function RubricaEditor({ convocatoriaId, api, onGuardada, bloqueo = null }) {
   const [carga, setCarga] = useState({ cargando: true, error: null, impacto: null, existe: false });
   const [form, setForm] = useState(null);
   const [errores, setErrores] = useState({});
@@ -257,6 +259,14 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
 
   return (
     <form onSubmit={guardar} noValidate className="space-y-5" aria-label="Rúbrica de evaluación">
+      {bloqueo && (
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-surface-muted border border-border" role="note">
+          <Info className="w-4 h-4 mt-0.5 shrink-0 text-ink-600" />
+          <p className="text-sm text-ink-600 leading-relaxed">{bloqueo}</p>
+        </div>
+      )}
+      {/* Con la convocatoria abierta, todo el formulario queda deshabilitado (fieldset disabled) */}
+      <fieldset disabled={Boolean(bloqueo)} className="space-y-5 border-0 p-0 m-0 min-w-0">
       {/* Criterio 4: advertencia previa si la rúbrica ya se usó para calificar */}
       {enUso && (
         <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700" role="note">
@@ -445,12 +455,15 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
         </p>
       )}
 
-      <div className="flex justify-end">
-        <Button type="submit" variant="primary" loading={guardando}>
-          <Save className="w-4 h-4" />
-          <span>{carga.existe ? 'Guardar cambios' : 'Crear rúbrica'}</span>
-        </Button>
-      </div>
+      {!bloqueo && (
+        <div className="flex justify-end">
+          <Button type="submit" variant="primary" loading={guardando}>
+            <Save className="w-4 h-4" />
+            <span>{carga.existe ? 'Guardar cambios' : 'Crear rúbrica'}</span>
+          </Button>
+        </div>
+      )}
+      </fieldset>
     </form>
   );
 }
@@ -463,4 +476,5 @@ RubricaEditor.propTypes = {
     configurarRubrica: PropTypes.func.isRequired,
   }).isRequired,
   onGuardada: PropTypes.func,
+  bloqueo: PropTypes.string,
 };

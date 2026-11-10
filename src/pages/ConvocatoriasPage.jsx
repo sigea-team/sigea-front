@@ -145,7 +145,7 @@ export default function ConvocatoriasPage({
     return () => {
       activo = false;
     };
-  }, [api, apiEventos, version]);
+  }, [api, apiEventos, version, isAdmin]);
 
   const recargar = () => setVersion((v) => v + 1);
   const cerrarModal = () => setModal(null);
@@ -350,13 +350,23 @@ export default function ConvocatoriasPage({
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await api.eliminarConvocatoria(convocatoria.id);
-        recargar();
-        Swal.fire({
-          ...ALERTA_EXITO,
-          title: 'Convocatoria eliminada',
-          text: `La convocatoria «${convocatoria.titulo}» ha sido eliminada.`,
-        });
+        try {
+          await api.eliminarConvocatoria(convocatoria.id);
+          recargar();
+          Swal.fire({
+            ...ALERTA_EXITO,
+            title: 'Convocatoria eliminada',
+            text: `La convocatoria «${convocatoria.titulo}» ha sido eliminada.`,
+          });
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo eliminar la convocatoria',
+            text: mensajeErrorApi(err, 'No se pudo eliminar la convocatoria.'),
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+          });
+        }
       }
     });
   };

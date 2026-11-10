@@ -63,17 +63,13 @@ export const propuestaService = {
   /**
    * Lista las propuestas asociadas a una convocatoria específica.
    * Backend endpoint: GET /api/v1/convocatorias/{id}/propuestas
-   * Fallback: GET /api/v1/propuestas?convocatoriaId={id} (si el endpoint dedicado no existe)
+   * Los errores se propagan: una lista vacía por un fallo se confundiría con «no hay propuestas».
    * @param {string|number} convocatoriaId
    * @returns {Promise<Array<Object>>}
    */
   async listarPorConvocatoria(convocatoriaId) {
-    try {
-      const { data } = await httpClient.get(`/convocatorias/${convocatoriaId}/propuestas`);
-      return Array.isArray(data) ? data.map(normalizarPropuestaResponse) : [];
-    } catch {
-      return [];
-    }
+    const { data } = await httpClient.get(`/convocatorias/${convocatoriaId}/propuestas`);
+    return Array.isArray(data) ? data.map(normalizarPropuestaResponse) : [];
   },
 
   /**

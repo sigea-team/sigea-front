@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { CalendarDays } from 'lucide-react';
 import Button from '../../../components/ui/Button';
@@ -9,6 +9,10 @@ import AlertaConflicto from './AlertaConflicto';
 import {
   verificarConflictoProgramacionActividad,
 } from '../salaUtils';
+import { parametroEventoService } from '../../../api/parametroEventoService';
+
+/** Carga por defecto de los tipos de actividad del evento (HU-05); se puede inyectar en pruebas. */
+const cargarTiposPorDefecto = (eventoId) => parametroEventoService.listar('tipos', eventoId);
 
 /**
  * @file ProgramarActividadModal.jsx
@@ -23,9 +27,11 @@ export default function ProgramarActividadModal({
   ponentes = [],
   onClose,
   onSubmit,
+  cargarTiposActividad = cargarTiposPorDefecto,
 }) {
   const [form, setForm] = useState({
     nombre: '',
+    tipoActividadId: '',
     salaId: salas[0]?.id ? String(salas[0].id) : '',
     ponenteId: '',
     fecha: evento?.fechaInicio || '',
@@ -37,6 +43,31 @@ export default function ProgramarActividadModal({
 
   const [errores, setErrores] = useState({});
   const [guardando, setGuardando] = useState(false);
+  // El backend exige tipoActividadId (ActividadRequest @NotNull); sin él responde 400.
+  const [tiposActividad, setTiposActividad] = useState([]);
+  const [estadoTipos, setEstadoTipos] = useState('cargando'); // 'cargando' | 'listo' | 'error'
+
+  const eventoId = evento?.id;
+  useEffect(() => {
+    if (!isOpen || !eventoId) return undefined;
+    let activo = true;
+    Promise.resolve(cargarTiposActividad(eventoId))
+      .then((lista) => {
+        if (!activo) return;
+        const tipos = Array.isArray(lista) ? lista : [];
+        setTiposActividad(tipos);
+        setEstadoTipos('listo');
+        if (tipos.length === 1) {
+          setForm((p) => (p.tipoActividadId ? p : { ...p, tipoActividadId: String(tipos[0].id) }));
+        }
+      })
+      .catch(() => {
+        if (activo) setEstadoTipos('error');
+      });
+    return () => {
+      activo = false;
+    };
+  }, [isOpen, eventoId, cargarTiposActividad]);
 
   if (!isOpen) return null;
 
@@ -61,6 +92,7 @@ export default function ProgramarActividadModal({
 
     const err = {};
     if (!form.nombre.trim()) err.nombre = 'Escribe el nombre de la actividad.';
+    if (!form.tipoActividadId) err.tipoActividadId = 'Selecciona el tipo de actividad.';
     if (!form.salaId) err.salaId = 'Selecciona una sala.';
     if (!form.fecha) err.fecha = 'Selecciona la fecha.';
     if (!form.horaInicio) err.horaInicio = 'Indica la hora de inicio.';
@@ -116,6 +148,7 @@ export default function ProgramarActividadModal({
       setGuardando(true);
       await onSubmit({
         ...form,
+        tipoActividadId: Number(form.tipoActividadId),
         salaId: Number(form.salaId),
         ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
         inscripcionesActivas: Number(form.inscripcionesActivas || 0),
@@ -140,6 +173,26 @@ export default function ProgramarActividadModal({
       label: `${s.nombre} (${s.tipo === 'virtual' ? 'Virtual' : 'Física'} — Aforo: ${s.aforoMaximo})`,
     })),
   ];
+
+  const opcionesTipos = [
+    {
+      value: '',
+      label:
+        estadoTipos === 'cargando'
+          ? 'Cargando tipos...'
+          : tiposActividad.length === 0
+            ? 'El evento no tiene tipos de actividad'
+            : 'Selecciona un tipo...',
+    },
+    ...tiposActividad.map((t) => ({ value: String(t.id), label: t.nombre })),
+  ];
+
+  const ayudaTipos =
+    estadoTipos === 'error'
+      ? 'No se pudieron cargar los tipos de actividad del evento.'
+      : estadoTipos === 'listo' && tiposActividad.length === 0
+        ? 'Crea al menos uno en Eventos → «Tipos y líneas temáticas».'
+        : null;
 
   const opcionesPonentes = [
     { value: '', label: 'Sin ponente asignado (opcional)' },
@@ -196,6 +249,19 @@ export default function ProgramarActividadModal({
           error={errores.nombre}
           autoFocus
         />
+
+        <div>
+          <Select
+            id="tipo-actividad"
+            label="Tipo de actividad *"
+            value={form.tipoActividadId}
+            onChange={(e) => setForm((p) => ({ ...p, tipoActividadId: e.target.value }))}
+            options={opcionesTipos}
+            error={errores.tipoActividadId}
+            disabled={estadoTipos !== 'listo' || tiposActividad.length === 0}
+          />
+          {ayudaTipos && <p className="text-[11px] text-brand-700 mt-1">{ayudaTipos}</p>}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>

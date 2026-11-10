@@ -360,3 +360,19 @@ export function interpretarErrorClasificacion(err) {
   }
   return { mensaje, campos, codigo: data?.codigo, status, noEvaluada: data?.codigo === 'PROPUESTA_NO_EVALUADA' };
 }
+
+/**
+ * Los umbrales de clasificación solo se modifican antes de la fecha de apertura de la convocatoria (igual que la
+ * rúbrica; el backend lo rechaza después con 409). Devuelve el motivo del bloqueo, o null si todavía se pueden editar.
+ * Una convocatoria sin fecha de apertura sigue siendo editable.
+ * @param {{ fechaApertura?: string|null }} convocatoria
+ * @param {Date} [ahora=new Date()]
+ * @returns {string|null}
+ */
+export function motivoBloqueoUmbrales(convocatoria, ahora = new Date()) {
+  if (!convocatoria?.fechaApertura) return null;
+  const apertura = new Date(convocatoria.fechaApertura);
+  if (Number.isNaN(apertura.getTime()) || ahora < apertura) return null;
+  const fecha = apertura.toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
+  return `La convocatoria abrió el ${fecha}, así que los umbrales quedan fijos para que todas las propuestas se clasifiquen con las mismas reglas. Para cambiar el resultado de una propuesta, usa el ajuste manual en su detalle.`;
+}
