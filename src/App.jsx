@@ -22,6 +22,7 @@ import MisPropuestasPage from './pages/MisPropuestasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
+import SinPerfilEvaluadorRoute from './routes/SinPerfilEvaluadorRoute';
 
 function App() {
   return (
@@ -45,7 +46,10 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/eventos" element={<EventosPage />} />
+            {/* El perfil «Evaluador» no ve Eventos: se le envía a su bandeja de evaluaciones */}
+            <Route element={<SinPerfilEvaluadorRoute />}>
+              <Route path="/eventos" element={<EventosPage />} />
+            </Route>
             <Route path="/agenda" element={<AgendaPage />} />
             <Route path="/eventos/:eventoId/agenda" element={<AgendaPage />} />
             <Route path="/salas" element={<SalasPage />} />

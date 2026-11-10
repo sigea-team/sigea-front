@@ -23,6 +23,7 @@ import Swal from 'sweetalert2';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { reenviarVerificacion, despertarServidor } from '../../../api/authService';
+import { obtenerMiPerfilConferencista } from '../../../api/conferencistaService';
 import { useAuth } from '../../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, rutaSegunRoles, useAuthStore } from '../../../store/authStore';
 import { puedeEvaluar, tieneRolAdministrador } from '../../../utils/permisos';
@@ -186,6 +187,35 @@ export default function LoginForm() {
         }
         navigate('/evaluaciones', { replace: true });
         return;
+      }
+
+      // HU-12, perfil Conferencista: solo cuentas que el organizador registró como conferencista
+      // (el backend responde 404 en /conferencistas/mi-perfil si no lo es).
+      if (modoFinal === 'conferencista') {
+        let esConferencista = false;
+        let mensaje =
+          'Acceso denegado: esta cuenta no está registrada como conferencista. Si te invitaron como conferencista, completa primero tu registro desde el enlace del correo de invitación.';
+        try {
+          await obtenerMiPerfilConferencista();
+          esConferencista = true;
+        } catch (errPerfil) {
+          if (errPerfil?.response?.status !== 404) {
+            mensaje = 'No se pudo verificar tu perfil de conferencista. Intenta de nuevo en unos segundos.';
+          }
+        }
+        if (!esConferencista) {
+          useAuthStore.getState().cerrarSesion();
+          setGeneralError(mensaje);
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: mensaje,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#a6192e',
+            customClass: { popup: 'rounded-[16px]' },
+          });
+          return;
+        }
       }
 
       // Perfil Ponente: entra directo a la gestión y envío de propuestas
