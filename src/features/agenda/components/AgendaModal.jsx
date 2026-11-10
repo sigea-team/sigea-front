@@ -228,6 +228,7 @@ export default function AgendaModal({
             actividades={todasActividades}
             tiposActividad={tiposActividad}
             ponentes={ponentes}
+            propuestas={propuestasProgramables}
             version={version}
             api={apiAgenda}
             apiActividades={apiActividades}

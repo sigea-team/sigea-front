@@ -24,6 +24,7 @@ import { estadoPublicacion, separarActividades } from '../agendaPublicacionUtils
  * @param {Array<Object>} props.actividades - Todas las actividades del evento (con y sin horario).
  * @param {Array<Object>} [props.tiposActividad]
  * @param {Array<Object>} [props.ponentes]
+ * @param {Array<Object>} [props.propuestas] - Propuestas con versión definitiva (HU-19).
  * @param {number} [props.version] - Cambia cuando la pantalla recarga la agenda (vuelve a pedir el estado).
  * @param {Object} [props.api] - Cliente de HU-22 (inyectable para Storybook).
  * @param {Object} [props.apiActividades] - Cliente de HU-21.
@@ -35,6 +36,7 @@ export default function AgendaGeneracionPanel({
   actividades = [],
   tiposActividad = [],
   ponentes = [],
+  propuestas = [],
   version = 0,
   api = agendaService,
   apiActividades = actividadService,
@@ -129,6 +131,7 @@ export default function AgendaGeneracionPanel({
             automaticas={automaticas}
             tiposActividad={tiposActividad}
             ponentes={ponentes}
+            propuestas={propuestas}
             api={api}
             apiActividades={apiActividades}
             onCambios={onCambios}
