@@ -14,13 +14,24 @@ export default {
 
 /**
  * Convocatoria con seis propuestas: una aceptada, una ajustada manualmente, dos evaluadas sin clasificar y dos con
- * la evaluación incompleta. Prueba «Clasificar todas», «Editar umbrales» y el ajuste manual desde el detalle.
+ * la evaluación incompleta. Como ya hay clasificadas, «Editar umbrales» está desactivado. Prueba «Clasificar
+ * todas» y el ajuste manual desde el detalle.
  */
 export const ConPropuestas = {
   args: {
     isOpen: true,
     convocatoria: CONVOCATORIA_CLASIFICACION_MOCK,
     api: crearClasificacionApiMock(),
+    onClose: () => {},
+  },
+};
+
+/** Ninguna propuesta clasificada todavía: los umbrales se pueden editar hasta presionar «Clasificar todas». */
+export const SinClasificar = {
+  args: {
+    isOpen: true,
+    convocatoria: CONVOCATORIA_CLASIFICACION_MOCK,
+    api: crearClasificacionApiMock({ sinClasificar: true }),
     onClose: () => {},
   },
 };

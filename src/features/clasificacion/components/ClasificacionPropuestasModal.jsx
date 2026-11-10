@@ -14,6 +14,7 @@ import {
   GRUPOS,
   interpretarErrorClasificacion,
   motivoIncompleta,
+  clasificacionIniciada,
   plural,
   requiereReclasificar,
   resumenAplicacion,
@@ -23,7 +24,8 @@ import {
  * @file ClasificacionPropuestasModal.jsx
  * @description Clasificación de las propuestas evaluadas de una convocatoria (HU-18: RF27).
  * - Criterio 1: muestra y permite definir los umbrales; «Clasificar todas» asigna a cada propuesta evaluada su
- *   clasificación (Aceptada, Aceptada con modificaciones o Rechazada).
+ *   clasificación (Aceptada, Aceptada con modificaciones o Rechazada). Los umbrales solo se editan mientras
+ *   ninguna propuesta está clasificada: desde la primera, todas se clasifican con los mismos.
  * - Criterio 2: desde el detalle de cada propuesta se ajusta la clasificación con un motivo, que queda en el
  *   historial.
  * - Criterio 3: las propuestas sin evaluación completa no se pueden clasificar; se listan aparte con el motivo.
@@ -88,18 +90,12 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
   const seleccionada = propuestas.find((p) => p.propuestaId === seleccionadaId) || null;
   const gruposVisibles = filtro === 'todas' ? grupos : grupos.filter((g) => g.id === filtro);
   const umbrales = datos ? { umbralAceptacion: datos.umbralAceptacion, umbralAjustes: datos.umbralAjustes } : null;
+  const umbralesFijos = clasificacionIniciada(propuestas);
 
   // Criterio 1: umbrales guardados
-  const terminarUmbrales = (respuesta) => {
+  const terminarUmbrales = () => {
     setEditandoUmbrales(false);
-    const porReaplicar = Number(respuesta?.propuestasPorReaplicar) || 0;
-    setAviso({
-      tipo: 'exito',
-      texto:
-        porReaplicar > 0
-          ? `Umbrales guardados. ${plural(porReaplicar, 'propuesta ya clasificada cambiaría', 'propuestas ya clasificadas cambiarían')} con los nuevos umbrales: usa «Clasificar todas» para actualizarlas.`
-          : 'Umbrales guardados. Se usarán en las próximas clasificaciones.',
-    });
+    setAviso({ tipo: 'exito', texto: 'Umbrales guardados. Se usarán al clasificar las propuestas.' });
     recargar();
   };
 
@@ -243,6 +239,13 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
                         por debajo (puntuación de 0 a 10)
                       </p>
                     )}
+                    {!editandoUmbrales && umbralesFijos && (
+                      <p className="text-xs text-ink-600 mt-1">
+                        Ya hay propuestas clasificadas, así que los umbrales quedan fijos para que todas se clasifiquen
+                        con las mismas reglas. Para cambiar el resultado de una propuesta, usa el ajuste manual en su
+                        detalle.
+                      </p>
+                    )}
                   </div>
                   {!editandoUmbrales && (
                     <Button
@@ -252,6 +255,8 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
                         setAviso(null);
                         setEditandoUmbrales(true);
                       }}
+                      disabled={umbralesFijos}
+                      title={umbralesFijos ? 'Los umbrales no se pueden cambiar: ya hay propuestas clasificadas' : undefined}
                       className="h-9 px-4 text-xs shrink-0"
                     >
                       <Pencil className="w-3.5 h-3.5" aria-hidden="true" />

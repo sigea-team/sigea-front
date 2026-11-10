@@ -50,6 +50,21 @@ export const RubricaEnUso = {
   },
 };
 
+/** HU-18: la convocatoria ya tiene propuestas clasificadas; la rúbrica se muestra solo para consulta. */
+export const RubricaBloqueada = {
+  args: {
+    isOpen: true,
+    convocatoria,
+    apiRubricas: crearRubricaApiMock({
+      rubrica: RUBRICA_MOCK,
+      enUso: { calificaciones: 6, asignaciones: 3, propuestas: 2 },
+      clasificadas: 2,
+    }),
+    apiComite: crearComiteEvaluadorApiMock(),
+    onClose: () => {},
+  },
+};
+
 /**
  * Criterios 3 y 4: comité evaluador. Prueba ana.perez@ufps.edu.co (ya está → duplicado),
  * laura.mendoza@ufps.edu.co (registrada) o un correo nuevo (pide los datos de la persona).

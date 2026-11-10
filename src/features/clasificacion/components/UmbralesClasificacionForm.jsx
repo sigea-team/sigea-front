@@ -109,7 +109,7 @@ export default function UmbralesClasificacionForm({ convocatoriaId, umbrales, ap
       )}
 
       <p className="text-xs text-ink-600">
-        Las propuestas ya clasificadas no cambian solas: después de guardar, vuelve a aplicar la clasificación.
+        Los umbrales solo se pueden cambiar hasta que se clasifique la primera propuesta de la convocatoria.
       </p>
 
       {errorGeneral && (

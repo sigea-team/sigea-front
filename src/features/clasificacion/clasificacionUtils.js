@@ -181,6 +181,16 @@ export function difiereDeUmbrales(fila) {
 }
 
 /**
+ * La clasificación de la convocatoria empezó cuando al menos una propuesta tiene la clasificación aplicada. Desde
+ * ese momento los umbrales (HU-18) y la rúbrica (HU-15) quedan fijos; el backend lo exige con 409.
+ * @param {Array<{ fechaClasificacion?: string|null }>} propuestas - Filas del listado de clasificación.
+ * @returns {boolean}
+ */
+export function clasificacionIniciada(propuestas) {
+  return (propuestas || []).some((p) => Boolean(p?.fechaClasificacion));
+}
+
+/**
  * Convierte el texto de un campo numérico en número (acepta coma decimal). Vacío o inválido → null.
  * @param {string|number|null|undefined} valor
  * @returns {number|null}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { AlertTriangle, CheckCircle2, Info, Plus, RotateCw, Save, Shapes, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, Lock, Plus, RotateCw, Save, Shapes, Trash2 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import {
@@ -29,6 +29,8 @@ import {
  *   backend lo rechaza con RUBRICA_INVALIDA).
  * - Criterio 4: si la rúbrica ya tiene calificaciones se advierte el impacto antes de editar y, al guardar,
  *   se pide confirmación (409 RUBRICA_EN_USO → reintento con confirmar = true).
+ * - HU-18: desde que se clasifica la primera propuesta de la convocatoria la rúbrica queda fija (`bloqueada` en el
+ *   impacto; el backend responde 409 si se intenta guardar) y el formulario se muestra solo para consulta.
  * El padre debe montarlo con una `key` distinta por convocatoria.
  * @module features/rubricas/components/RubricaEditor
  */
@@ -148,7 +150,8 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
   const suma = sumaPesos(form.criterios);
   const colores = colorSuma(suma);
   const impacto = carga.impacto;
-  const enUso = Boolean(impacto?.requiereConfirmacion);
+  const bloqueada = Boolean(impacto?.bloqueada);
+  const enUso = Boolean(impacto?.requiereConfirmacion) && !bloqueada;
 
   const limpiarError = (...claves) => {
     if (errorGeneral) setErrorGeneral(null);
@@ -210,7 +213,7 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
         error: null,
         existe: true,
         impacto: { rubricaId: guardada?.rubricaId ?? null, calificacionesRegistradas: 0, asignacionesAfectadas: 0,
-          propuestasAfectadas: 0, requiereConfirmacion: false },
+          propuestasAfectadas: 0, requiereConfirmacion: false, propuestasClasificadas: 0, bloqueada: false },
       });
       setAviso(
         reabiertas > 0
@@ -257,6 +260,23 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
 
   return (
     <form onSubmit={guardar} noValidate className="space-y-5" aria-label="Rúbrica de evaluación">
+      {/* HU-18: con propuestas clasificadas la rúbrica ya no se modifica */}
+      {bloqueada && (
+        <div className="flex items-start gap-3 p-4 rounded-[12px] bg-surface-muted border border-border" role="note">
+          <Lock className="w-4 h-4 mt-0.5 shrink-0 text-ink-600" aria-hidden="true" />
+          <p className="text-sm text-ink-600 leading-relaxed">
+            Ya hay{' '}
+            <strong className="text-ink-900">
+              {plural(impacto.propuestasClasificadas, 'propuesta clasificada', 'propuestas clasificadas')}
+            </strong>{' '}
+            con esta rúbrica, así que ya no se puede modificar: todas las propuestas de la convocatoria se clasifican con
+            las mismas reglas. Para cambiar el resultado de una propuesta, usa el ajuste manual en «Clasificación de
+            propuestas».
+          </p>
+        </div>
+      )}
+
+      <fieldset disabled={bloqueada} className="space-y-5 min-w-0">
       {/* Criterio 4: advertencia previa si la rúbrica ya se usó para calificar */}
       {enUso && (
         <div className="flex items-start gap-3 p-4 rounded-[12px] bg-brand-100 border border-brand-600 text-brand-700" role="note">
@@ -434,6 +454,8 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
         )}
       </div>
 
+      </fieldset>
+
       {errorGeneral && (
         <p className="text-sm text-brand-700 bg-brand-100 px-3 py-2 rounded-[8px]" role="alert">
           {errorGeneral}
@@ -445,12 +467,14 @@ export default function RubricaEditor({ convocatoriaId, api, onGuardada }) {
         </p>
       )}
 
-      <div className="flex justify-end">
-        <Button type="submit" variant="primary" loading={guardando}>
-          <Save className="w-4 h-4" />
-          <span>{carga.existe ? 'Guardar cambios' : 'Crear rúbrica'}</span>
-        </Button>
-      </div>
+      {!bloqueada && (
+        <div className="flex justify-end">
+          <Button type="submit" variant="primary" loading={guardando}>
+            <Save className="w-4 h-4" />
+            <span>{carga.existe ? 'Guardar cambios' : 'Crear rúbrica'}</span>
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

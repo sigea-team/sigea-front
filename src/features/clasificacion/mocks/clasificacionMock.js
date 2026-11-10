@@ -66,14 +66,18 @@ const errorApi = (status, codigo, message, erroresValidacion) => {
 
 /**
  * API simulada con estado en memoria. Cada llamada devuelve copias para que la interfaz no comparta objetos.
- * @param {{ demora?: number, umbrales?: { umbralAceptacion: number, umbralAjustes: number } }} [opciones]
+ * @param {{ demora?: number, umbrales?: { umbralAceptacion: number, umbralAjustes: number },
+ *   sinClasificar?: boolean }} [opciones] - Con `sinClasificar` ninguna propuesta empieza clasificada (los umbrales
+ *   se pueden editar).
  * @returns {typeof import('../../../api/clasificacionService').clasificacionService}
  */
-export function crearClasificacionApiMock({ demora = 250, umbrales = UMBRALES_POR_DEFECTO } = {}) {
+export function crearClasificacionApiMock({ demora = 250, umbrales = UMBRALES_POR_DEFECTO, sinClasificar = false } = {}) {
   const estado = {
     umbrales: { ...umbrales },
-    propuestas: propuestasIniciales(),
-    historial: historialInicial(),
+    propuestas: sinClasificar
+      ? propuestasIniciales().map((p) => ({ ...p, clasificacion: null, fechaClasificacion: null, estado: 'en_evaluacion', manual: false }))
+      : propuestasIniciales(),
+    historial: sinClasificar ? [] : historialInicial(),
     siguienteId: 100,
   };
   const esperar = (valor) => new Promise((resolve) => setTimeout(() => resolve(valor), demora));
@@ -160,11 +164,16 @@ export function crearClasificacionApiMock({ demora = 250, umbrales = UMBRALES_PO
       if (umbralAjustes > umbralAceptacion) {
         throw errorApi(400, 'SOLICITUD_INVALIDA', 'El umbral de aprobación con ajustes no puede ser mayor que el umbral de aprobación.');
       }
+      const clasificadas = estado.propuestas.filter((p) => p.fechaClasificacion).length;
+      if (clasificadas > 0) {
+        throw errorApi(
+          409,
+          'OPERACION_NO_PERMITIDA',
+          `No se pueden cambiar los umbrales: ${clasificadas} propuesta(s) de la convocatoria ya están clasificadas con los actuales. Para corregir el resultado de una propuesta use el ajuste manual.`
+        );
+      }
       estado.umbrales = { umbralAceptacion, umbralAjustes };
-      const propuestasPorReaplicar = estado.propuestas.filter(
-        (p) => completa(p) && !p.manual && p.fechaClasificacion && clasificarPuntuacion(p.puntuacion, estado.umbrales) !== p.clasificacion
-      ).length;
-      return { convocatoriaId, umbralAceptacion, umbralAjustes, propuestasPorReaplicar };
+      return { convocatoriaId, umbralAceptacion, umbralAjustes, propuestasPorReaplicar: 0 };
     },
 
     async aplicarConvocatoria(convocatoriaId) {

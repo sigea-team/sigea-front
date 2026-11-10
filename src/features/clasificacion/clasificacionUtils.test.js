@@ -16,6 +16,7 @@ import {
   resumenAplicacion,
   validarMotivo,
   validarUmbrales,
+  clasificacionIniciada,
 } from './clasificacionUtils';
 import { crearClasificacionApiMock } from './mocks/clasificacionMock';
 
@@ -146,6 +147,27 @@ describe('clasificacionUtils (HU-18)', () => {
     expect(validacion.campos).toEqual({ motivo: 'Obligatorio' });
     expect(interpretarErrorClasificacion(errorApi(403)).mensaje).toContain('PROPUESTAS_CLASIFICAR');
     expect(interpretarErrorClasificacion({ request: {} }).mensaje).toContain('conectarse');
+  });
+});
+
+describe('Configuración fija desde la primera clasificación', () => {
+  it('la clasificación empieza con la primera propuesta que tiene fecha de clasificación', () => {
+    expect(clasificacionIniciada([])).toBe(false);
+    expect(clasificacionIniciada(undefined)).toBe(false);
+    expect(clasificacionIniciada([{ fechaClasificacion: null }, { fechaClasificacion: null }])).toBe(false);
+    expect(clasificacionIniciada([{ fechaClasificacion: null }, { fechaClasificacion: '2026-11-04T10:30:00' }])).toBe(true);
+  });
+
+  it('sin propuestas clasificadas los umbrales se guardan; después de «Clasificar todas» responde 409', async () => {
+    const api = crearClasificacionApiMock({ demora: 0, sinClasificar: true });
+    const guardados = await api.configurarUmbrales(10, { umbralAceptacion: 8, umbralAjustes: 6 });
+    expect(guardados).toMatchObject({ umbralAceptacion: 8, umbralAjustes: 6, propuestasPorReaplicar: 0 });
+    await api.aplicarConvocatoria(10);
+    await expect(api.configurarUmbrales(10, { umbralAceptacion: 9, umbralAjustes: 6 })).rejects.toMatchObject({
+      response: { status: 409, data: { codigo: 'OPERACION_NO_PERMITIDA' } },
+    });
+    const listado = await api.listarPorConvocatoria(10);
+    expect(listado.umbralAceptacion).toBe(8);
   });
 });
 

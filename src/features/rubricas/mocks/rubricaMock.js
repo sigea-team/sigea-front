@@ -2,7 +2,8 @@
  * @file rubricaMock.js
  * @description API simulada de la rúbrica de evaluación (HU-15), solo para Storybook.
  * Imita las respuestas y reglas del backend sin necesidad de servidor:
- * pesos que suman 100 % (400 RUBRICA_INVALIDA) y rúbrica con calificaciones (409 RUBRICA_EN_USO).
+ * pesos que suman 100 % (400 RUBRICA_INVALIDA), rúbrica con calificaciones (409 RUBRICA_EN_USO) y rúbrica fija
+ * porque la convocatoria ya tiene propuestas clasificadas (409 OPERACION_NO_PERMITIDA).
  * @module features/rubricas/mocks/rubricaMock
  */
 
@@ -35,8 +36,9 @@ function errorApi(status, message, extra = {}) {
  * @param {Object|null} [opciones.rubrica=null] - Rúbrica activa inicial (null: la convocatoria no tiene).
  * @param {{ calificaciones: number, asignaciones: number, propuestas: number }|null} [opciones.enUso=null]
  *   Si se indica, la rúbrica ya tiene calificaciones y modificarla exige confirmar (Criterio 4).
+ * @param {number} [opciones.clasificadas=0] - Propuestas ya clasificadas (HU-18): si hay, la rúbrica no se modifica.
  */
-export function crearRubricaApiMock({ rubrica = null, enUso = null } = {}) {
+export function crearRubricaApiMock({ rubrica = null, enUso = null, clasificadas = 0 } = {}) {
   let actual = rubrica ? { ...rubrica, criterios: rubrica.criterios.map((c) => ({ ...c })) } : null;
   let uso = enUso;
   let siguienteRubricaId = 50;
@@ -48,6 +50,8 @@ export function crearRubricaApiMock({ rubrica = null, enUso = null } = {}) {
     asignacionesAfectadas: uso?.asignaciones ?? 0,
     propuestasAfectadas: uso?.propuestas ?? 0,
     requiereConfirmacion: Boolean(uso),
+    propuestasClasificadas: actual ? clasificadas : 0,
+    bloqueada: Boolean(actual) && clasificadas > 0,
   });
 
   return {
@@ -69,6 +73,13 @@ export function crearRubricaApiMock({ rubrica = null, enUso = null } = {}) {
           codigo: 'RUBRICA_INVALIDA',
           erroresValidacion: { pesoPorcentual: `La suma de los pesos es ${suma}% y debe ser exactamente 100%.` },
         });
+      }
+      if (actual && clasificadas > 0) {
+        throw errorApi(
+          409,
+          `No se puede modificar la rúbrica '${actual.nombre}': ${clasificadas} propuesta(s) de la convocatoria ya están clasificadas con ella. Para corregir el resultado de una propuesta use el ajuste manual de la clasificación.`,
+          { codigo: 'OPERACION_NO_PERMITIDA' }
+        );
       }
       if (uso && !confirmar) {
         throw errorApi(
