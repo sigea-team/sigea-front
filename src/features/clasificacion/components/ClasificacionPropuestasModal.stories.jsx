@@ -4,6 +4,7 @@ import {
   clasificacionApiMockConError,
   crearClasificacionApiMock,
 } from '../mocks/clasificacionMock';
+import { crearObservacionesApiMock } from '../../observaciones/mocks/observacionesMock';
 
 export default {
   title: 'Features/Clasificacion/ClasificacionPropuestasModal',
@@ -21,6 +22,8 @@ export const ConPropuestas = {
     isOpen: true,
     convocatoria: CONVOCATORIA_CLASIFICACION_MOCK,
     api: crearClasificacionApiMock(),
+    // HU-19: el detalle de una propuesta aceptada muestra observaciones y la aprobación de la versión definitiva.
+    apiObservaciones: crearObservacionesApiMock(),
     onClose: () => {},
   },
 };

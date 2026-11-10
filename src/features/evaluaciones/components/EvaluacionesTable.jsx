@@ -9,6 +9,7 @@ import {
   FileText,
   AlertTriangle,
   History,
+  MessageSquareText,
 } from 'lucide-react';
 import Button from '../../../components/ui/Button';
 import {
@@ -29,6 +30,7 @@ import {
  *  - Criterio 3: Identificación de propuestas con evaluaciones pendientes.
  *  - Criterio 4: Indicación clara de periodo cerrado y deshabilitación de edición.
  * HU-14 (Criterio 4): si se pasa `onVerVersiones`, cada fila permite consultar el historial de versiones.
+ * HU-19: si se pasa `onVerObservaciones`, cada fila abre las observaciones y ajustes de la propuesta.
  * @module features/evaluaciones/components/EvaluacionesTable
  */
 
@@ -39,6 +41,7 @@ export default function EvaluacionesTable({
   onAbrirEvaluacion,
   onVerResultado,
   onVerVersiones,
+  onVerObservaciones,
 }) {
   const columnasTotales = 5;
 
@@ -240,6 +243,21 @@ export default function EvaluacionesTable({
                           <span className="hidden sm:inline">Versiones</span>
                         </Button>
                       )}
+
+                      {/* HU-19: observaciones y ajustes requeridos */}
+                      {onVerObservaciones && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onVerObservaciones(asignacion)}
+                          title="Registrar observaciones y ajustes, y revisar los atendidos (HU-19)"
+                          className="text-xs text-ink-600 hover:text-brand-600"
+                        >
+                          <MessageSquareText className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Observaciones</span>
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -259,4 +277,5 @@ EvaluacionesTable.propTypes = {
   onAbrirEvaluacion: PropTypes.func.isRequired,
   onVerResultado: PropTypes.func.isRequired,
   onVerVersiones: PropTypes.func,
+  onVerObservaciones: PropTypes.func,
 };

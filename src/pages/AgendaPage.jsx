@@ -61,6 +61,7 @@ export default function AgendaPage({
   const [salas, setSalas] = useState([]);
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
+  const [propuestasProgramables, setPropuestasProgramables] = useState([]);
 
   const [cargando, setCargando] = useState(false);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
@@ -114,13 +115,18 @@ export default function AgendaPage({
       apiSalas.listarSalas(idEventoActivo),
       apiConferencistas.listarConferencistas(idEventoActivo),
       apiParametros.listar('tipos', idEventoActivo),
-    ]).then(([resAct, resSalas, resPonentes, resTipos]) => {
+      // HU-19: propuestas aprobadas en versión definitiva que se pueden vincular a una actividad
+      apiAgenda?.listarPropuestasProgramables
+        ? apiAgenda.listarPropuestasProgramables(idEventoActivo)
+        : Promise.resolve([]),
+    ]).then(([resAct, resSalas, resPonentes, resTipos, resPropuestas]) => {
       if (!activo) return;
 
       if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
+      setPropuestasProgramables(resPropuestas.status === 'fulfilled' ? resPropuestas.value || [] : []);
 
       setCargando(false);
     });
@@ -128,7 +134,7 @@ export default function AgendaPage({
     return () => {
       activo = false;
     };
-  }, [idEventoActivo, version, apiActividades, apiSalas, apiConferencistas, apiParametros]);
+  }, [idEventoActivo, version, apiActividades, apiSalas, apiConferencistas, apiParametros, apiAgenda]);
 
   // HU-22: las actividades por programar no tienen fecha ni horario; no van en la línea de tiempo ni en la tabla.
   const { programadas: actividades } = useMemo(() => separarActividades(todasActividades), [todasActividades]);
@@ -481,6 +487,7 @@ export default function AgendaPage({
           salas={salas}
           ponentes={ponentes}
           tiposActividad={tiposActividad}
+          propuestas={propuestasProgramables}
           actividadesExistentes={actividades}
           onClose={() => setModalFormulario(null)}
           onSubmit={modalFormulario.tipo === 'editar' ? handleEditar : handleCrear}

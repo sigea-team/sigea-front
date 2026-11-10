@@ -14,12 +14,15 @@ import {
   detectarConflictosActividad,
   MODALIDADES_ACTIVIDAD,
 } from '../agendaUtils';
+import { opcionesPropuestasProgramables } from '../../observaciones/observacionUtils';
 
 /**
  * @file ActividadFormModal.jsx
  * @description Modal para programar o modificar una actividad de la agenda (HU-21: Criterios 1, 2, 3, 4 y 5).
  * Valida obligatorios, detecta cruces de horario, sala o ponente antes de guardar,
  * y permite marcar simultaneidad intencional.
+ * HU-19, Criterio 3: permite vincular la actividad a una propuesta aprobada en versión definitiva (`propuestas`, de
+ * `GET /eventos/{id}/propuestas-programables`); al elegirla sugiere el nombre y el ponente.
  */
 export default function ActividadFormModal({
   isOpen,
@@ -28,6 +31,7 @@ export default function ActividadFormModal({
   salas = [],
   ponentes = [],
   tiposActividad = [],
+  propuestas = [],
   actividadesExistentes = [],
   onClose,
   onSubmit,
@@ -42,6 +46,7 @@ export default function ActividadFormModal({
     horaFin: actividad?.horaFin || '10:30',
     salaId: actividad?.salaId ? String(actividad.salaId) : (salas[0]?.id ? String(salas[0].id) : ''),
     ponenteId: actividad?.ponenteId ? String(actividad.ponenteId) : '',
+    propuestaId: actividad?.propuestaId ? String(actividad.propuestaId) : '',
     modalidad: actividad?.modalidad || 'presencial',
     permiteSimultaneidad: actividad?.permiteSimultaneidad ?? false,
     descripcion: actividad?.descripcion || '',
@@ -117,6 +122,22 @@ export default function ActividadFormModal({
       };
     }),
   ];
+
+  // HU-19: solo propuestas con versión definitiva (el backend rechaza las demás)
+  const opcionesPropuestas = opcionesPropuestasProgramables(propuestas, actividad?.propuestaId);
+  const propuestaSeleccionada = propuestas.find((p) => String(p.propuestaId) === String(form.propuestaId));
+
+  const elegirPropuesta = (valor) => {
+    const elegida = propuestas.find((p) => String(p.propuestaId) === String(valor));
+    setForm((actual) => {
+      const siguiente = { ...actual, propuestaId: valor };
+      if (elegida && !actual.nombre.trim()) siguiente.nombre = elegida.titulo;
+      const sugerido = elegida?.ponenteSugeridoId != null ? String(elegida.ponenteSugeridoId) : '';
+      const ponenteExiste = ponentes.some((pn) => String(pn.personaId ?? pn.id) === sugerido);
+      if (sugerido && ponenteExiste && !actual.ponenteId) siguiente.ponenteId = sugerido;
+      return siguiente;
+    });
+  };
 
   const opcionesTipos = [
     { value: '', label: 'Selecciona el tipo de actividad (opcional)' },
@@ -464,6 +485,24 @@ export default function ActividadFormModal({
               </p>
             )}
           </div>
+        </div>
+
+        {/* HU-19, Criterio 3: propuesta aprobada en versión definitiva que presenta la actividad */}
+        <div>
+          <Select
+            id="propuesta-actividad"
+            label="Propuesta aprobada que se presenta"
+            value={form.propuestaId}
+            onChange={(e) => elegirPropuesta(e.target.value)}
+            options={opcionesPropuestas}
+          />
+          <p className="text-[11px] text-ink-600 mt-1">
+            {propuestaSeleccionada
+              ? `Versión definitiva ${propuestaSeleccionada.numeroVersion}${
+                  propuestaSeleccionada.autores?.length ? ` · ${propuestaSeleccionada.autores.join(', ')}` : ''
+                }${propuestaSeleccionada.programada ? ' · ya tiene otra actividad programada' : ''}`
+              : 'Solo aparecen las propuestas con versión definitiva aprobada.'}
+          </p>
         </div>
 
         {/* Casilla de Actividad Simultánea Intencional (Criterio 3) */}

@@ -14,6 +14,7 @@ import { normalizarActividadResponse } from './actividadService';
  * - GET  /api/v1/eventos/{eventoId}/agenda/validacion                        -> Revisión antes de publicar
  * - POST /api/v1/eventos/{eventoId}/agenda/publicar                          -> Publicar (409 si incompleta o con cruces)
  * - GET  /api/v1/publico/eventos/{eventoId}/agenda                           -> Agenda publicada, sin sesión
+ * - GET  /api/v1/eventos/{eventoId}/propuestas-programables                  -> Propuestas con versión definitiva (HU-19)
  * @module api/agendaService
  */
 
@@ -145,6 +146,22 @@ export async function obtenerAgendaPublica(eventoId) {
   return data;
 }
 
+/**
+ * HU-19, Criterio 3: propuestas de las convocatorias del evento con versión definitiva aprobada, las únicas que
+ * se pueden vincular a una actividad.
+ * @param {number|string} eventoId
+ * @param {{ soloSinProgramar?: boolean }} [opciones]
+ * @returns {Promise<Array<{ propuestaId: number, titulo: string, convocatoriaTitulo: string,
+ *   lineaTematicaId: number|null, numeroVersion: number, autores: string[], ponenteSugeridoId: number|null,
+ *   programada: boolean, actividadIds: number[] }>>}
+ */
+export async function listarPropuestasProgramables(eventoId, { soloSinProgramar = false } = {}) {
+  const { data } = await httpClient.get(`/eventos/${eventoId}/propuestas-programables`, {
+    params: soloSinProgramar ? { soloSinProgramar: true } : undefined,
+  });
+  return Array.isArray(data) ? data : [];
+}
+
 /** Agrupa las funciones para poder inyectar una API simulada en Storybook. */
 export const agendaService = {
   registrarPorProgramar,
@@ -155,6 +172,7 @@ export const agendaService = {
   validar,
   publicar,
   obtenerAgendaPublica,
+  listarPropuestasProgramables,
 };
 
 export default agendaService;

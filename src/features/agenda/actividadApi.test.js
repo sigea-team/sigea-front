@@ -192,6 +192,29 @@ describe('HU-21: Cliente API de Actividades y Agenda (actividadService)', () => 
       expect(res.puedeGuardar).toBe(true);
     });
 
+    it('HU-19: propaga el 400 del backend (propuesta sin versión definitiva) en vez de guardar en el respaldo', async () => {
+      httpClient.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: {
+            codigo: 'SOLICITUD_INVALIDA',
+            message: 'La propuesta «IA» aún no tiene versión definitiva aprobada; solo las propuestas aprobadas en versión definitiva se pueden programar en la agenda.',
+          },
+        },
+      });
+
+      await expect(
+        actividadService.crearActividad(1, {
+          nombre: 'Ponencia',
+          fecha: '2026-10-21',
+          horaInicio: '09:00',
+          horaFin: '10:00',
+          salaId: 3,
+          propuestaId: 70,
+        })
+      ).rejects.toMatchObject({ codigo: 'SOLICITUD_INVALIDA', status: 400 });
+    });
+
     it('propaga 409 con codigo y detalles cuando hay conflicto o confirmación requerida', async () => {
       httpClient.post.mockRejectedValueOnce({
         response: {

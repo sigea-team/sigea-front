@@ -36,6 +36,7 @@ export default function AgendaModal({
   const [salas, setSalas] = useState([]);
   const [ponentes, setPonentes] = useState([]);
   const [tiposActividad, setTiposActividad] = useState([]);
+  const [propuestasProgramables, setPropuestasProgramables] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
 
@@ -62,13 +63,18 @@ export default function AgendaModal({
       apiSalas.listarSalas(eventoId),
       apiConferencistas.listarConferencistas(eventoId),
       apiParametros.listar('tipos', eventoId),
-    ]).then(([resAct, resSalas, resPonentes, resTipos]) => {
+      // HU-19: propuestas aprobadas en versión definitiva que se pueden vincular a una actividad
+      apiAgenda?.listarPropuestasProgramables
+        ? apiAgenda.listarPropuestasProgramables(eventoId)
+        : Promise.resolve([]),
+    ]).then(([resAct, resSalas, resPonentes, resTipos, resPropuestas]) => {
       if (!activo) return;
 
       if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
+      setPropuestasProgramables(resPropuestas.status === 'fulfilled' ? resPropuestas.value || [] : []);
 
       setCargando(false);
     });
@@ -76,7 +82,7 @@ export default function AgendaModal({
     return () => {
       activo = false;
     };
-  }, [isOpen, eventoId, version, apiActividades, apiSalas, apiConferencistas, apiParametros]);
+  }, [isOpen, eventoId, version, apiActividades, apiSalas, apiConferencistas, apiParametros, apiAgenda]);
 
   if (!isOpen || !evento) return null;
 
@@ -288,6 +294,7 @@ export default function AgendaModal({
           salas={salas}
           ponentes={ponentes}
           tiposActividad={tiposActividad}
+          propuestas={propuestasProgramables}
           actividadesExistentes={actividades}
           onClose={() => setModalFormulario(null)}
           onSubmit={modalFormulario.tipo === 'editar' ? handleEditar : handleCrear}

@@ -32,6 +32,24 @@ import {
  */
 export const USE_REAL_BACKEND = true;
 
+/**
+ * Si el backend respondió con un error del cliente (4xx distinto de 409), lo propaga con su mensaje en vez de usar
+ * el almacenamiento de respaldo, que solo tiene sentido cuando el backend no responde.
+ * @param {any} err
+ * @param {string} porDefecto - Mensaje si el backend no envía uno.
+ */
+function lanzarSiRechazoDelBackend(err, porDefecto) {
+  const status = err?.response?.status;
+  if (status >= 400 && status < 500 && status !== 409) {
+    const data = err.response.data || {};
+    const errDetalle = new Error(typeof data.message === 'string' && data.message.trim() ? data.message : porDefecto);
+    errDetalle.codigo = data.codigo;
+    errDetalle.status = status;
+    errDetalle.response = err.response;
+    throw errDetalle;
+  }
+}
+
 /** Prefijo base de la ruta REST para las actividades de un evento */
 const rutaBase = (eventoId) => `/eventos/${eventoId}/actividades`;
 
@@ -232,6 +250,9 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
+        // HU-19: un rechazo del backend (400/403/404, p. ej. una propuesta sin versión definitiva) se muestra al
+        // usuario; antes caía al almacenamiento de respaldo y la actividad parecía guardada.
+        lanzarSiRechazoDelBackend(err, 'No se pudo programar la actividad.');
         console.warn('Fallo al crear actividad en backend real, usando mock:', err.message);
       }
     }
@@ -291,6 +312,7 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
+        lanzarSiRechazoDelBackend(err, 'No se pudo actualizar la actividad.');
         console.warn('Fallo al actualizar actividad en backend real, usando mock:', err.message);
       }
     }
