@@ -16,6 +16,7 @@ import {
   resumenAplicacion,
   validarMotivo,
   validarUmbrales,
+  motivoBloqueoUmbrales,
 } from './clasificacionUtils';
 import { crearClasificacionApiMock } from './mocks/clasificacionMock';
 
@@ -174,5 +175,20 @@ describe('API simulada de clasificación (HU-18)', () => {
     await expect(api.aplicarPropuesta(44)).rejects.toMatchObject({
       response: { status: 409, data: { codigo: 'PROPUESTA_NO_EVALUADA' } },
     });
+  });
+});
+
+describe('HU-18 - umbrales fijos desde la apertura de la convocatoria', () => {
+  const ahora = new Date('2026-11-10T10:00:00');
+
+  it('se pueden editar antes de la apertura o si la convocatoria no tiene fecha', () => {
+    expect(motivoBloqueoUmbrales({ fechaApertura: '2026-11-20T08:00' }, ahora)).toBeNull();
+    expect(motivoBloqueoUmbrales({ fechaApertura: null }, ahora)).toBeNull();
+    expect(motivoBloqueoUmbrales(null, ahora)).toBeNull();
+  });
+
+  it('quedan fijos desde la apertura', () => {
+    expect(motivoBloqueoUmbrales({ fechaApertura: '2026-11-10T10:00' }, ahora)).toContain('quedan fijos');
+    expect(motivoBloqueoUmbrales({ fechaApertura: '2026-10-01T08:00' }, ahora)).toContain('ajuste manual');
   });
 });
