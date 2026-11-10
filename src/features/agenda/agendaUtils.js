@@ -196,6 +196,7 @@ export function detectarConflictosActividad(
   if (!actividad || !actividad.fecha || !actividad.horaInicio || !actividad.horaFin) {
     return {
       hayConflicto: false,
+      hayCruces: false,
       conflictosHorario,
       conflictosSala,
       conflictosPonente,
@@ -212,6 +213,8 @@ export function detectarConflictosActividad(
     if (idExcluir !== null && idExcluir !== undefined) {
       if (String(otra.id) === String(idExcluir)) return false;
     }
+    // Las canceladas ya no ocupan sala ni ponente (igual que el backend)
+    if (String(otra.estado || '').toLowerCase() === 'cancelada') return false;
     // Solo interesan actividades del mismo día
     return otra.fecha === actividad.fecha;
   });
@@ -244,22 +247,12 @@ export function detectarConflictosActividad(
     const otraEsSimultanea = Boolean(otra.permiteSimultaneidad);
     const mismoHorarioRango = `${formatearHora(otra.horaInicio)} a ${formatearHora(otra.horaFin)}`;
 
-    // Conflicto de SALA (Criterio 2 y 3)
-    // Dos actividades NUNCA pueden ocupar la misma sala en horario solapado,
-    // incluso si se marcaron como simultáneas (salvo configuración especial inexistente).
-    const mismaSala = String(otra.salaId) === String(actividad.salaId);
-    if (mismaSala) {
-      const detalle = {
-        actividadConflictiva: otra,
-        tipo: 'sala',
-        mensaje: `La sala «${nombreSala}» ya está ocupada por la actividad «${otra.nombre}» (${mismoHorarioRango}).`,
-      };
-      conflictosSala.push(detalle);
-      motivos.push(detalle.mensaje);
-    }
+    // Mismas reglas que el backend (ActividadService.detectarConflictos):
+    // - PONENTE: el mismo ponente en dos actividades que se traslapan nunca se permite.
+    // - SALA: la misma sala solo se comparte si ambas son simultáneas y la sala admite simultaneidad.
+    // - HORARIO: en salas distintas, el traslape solo se permite si ambas están marcadas como simultáneas.
+    const ambasSimultaneas = esSimultanea && otraEsSimultanea;
 
-    // Conflicto de PONENTE (Criterio 2 y 3)
-    // Un mismo ponente no puede estar en dos actividades simultáneas o solapadas
     if (actividad.ponenteId && String(otra.ponenteId) === String(actividad.ponenteId)) {
       const detalle = {
         actividadConflictiva: otra,
@@ -270,20 +263,29 @@ export function detectarConflictosActividad(
       motivos.push(detalle.mensaje);
     }
 
-    // Conflicto de HORARIO (Criterios 2 y 3)
-    // Criterio 3: Si AMBAS están explícitamente marcadas como simultáneas (ej. talleres paralelos),
-    // NO se genera alerta de conflicto de horario general.
-    // Pero si al menos una de ellas no es simultánea, se reporta el cruce de horario!
-    if (!(esSimultanea && otraEsSimultanea)) {
+    const mismaSala = String(otra.salaId) === String(actividad.salaId);
+    if (mismaSala) {
+      let mensajeSala = null;
+      if (!ambasSimultaneas) {
+        mensajeSala = `La sala «${nombreSala}» ya está ocupada por la actividad «${otra.nombre}» (${mismoHorarioRango}).`;
+      } else if (!salaSeleccionada?.permiteSimultaneidad) {
+        mensajeSala = `La sala «${nombreSala}» no está configurada para actividades simultáneas y ya tiene «${otra.nombre}» (${mismoHorarioRango}). Usa otra sala para la actividad paralela.`;
+      }
+      if (mensajeSala) {
+        const detalle = { actividadConflictiva: otra, tipo: 'sala', mensaje: mensajeSala };
+        conflictosSala.push(detalle);
+        motivos.push(detalle.mensaje);
+      }
+    } else if (!ambasSimultaneas) {
       const detalle = {
         actividadConflictiva: otra,
         tipo: 'horario',
         mensaje: `Cruce de horario con la actividad «${otra.nombre}» (${mismoHorarioRango}). ${
-          esSimultanea && !otraEsSimultanea
+          esSimultanea
             ? `«${otra.nombre}» no está marcada como simultánea.`
-            : !esSimultanea && otraEsSimultanea
+            : otraEsSimultanea
             ? 'Esta actividad no está marcada como simultánea.'
-            : 'Ninguna de las actividades fue marcada para desarrollarse en paralelo.'
+            : 'Si son actividades paralelas, márcalas ambas como simultáneas.'
         }`,
       };
       conflictosHorario.push(detalle);
@@ -321,14 +323,14 @@ export function detectarConflictosActividad(
     }
   }
 
-  const hayConflicto =
-    conflictosHorario.length > 0 ||
-    conflictosSala.length > 0 ||
-    conflictosPonente.length > 0 ||
-    conflictosDisponibilidad.length > 0;
+  // Los cruces bloquean (el backend responde 409 CONFLICTO_PROGRAMACION); la falta de disponibilidad
+  // solo advierte y se puede confirmar (CONFIRMACION_REQUERIDA).
+  const hayCruces = conflictosHorario.length > 0 || conflictosSala.length > 0 || conflictosPonente.length > 0;
+  const hayConflicto = hayCruces || conflictosDisponibilidad.length > 0;
 
   return {
     hayConflicto,
+    hayCruces,
     conflictosHorario,
     conflictosSala,
     conflictosPonente,

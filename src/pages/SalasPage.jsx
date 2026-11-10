@@ -203,26 +203,27 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       });
     } else if (modalSala?.tipo === 'editar') {
       const salaId = modalSala.sala.id;
+      let actualizada = null;
       if (typeof api.actualizarSalaGlobal === 'function') {
-        await conMensajeApi(
+        actualizada = await conMensajeApi(
           () => api.actualizarSalaGlobal(salaId, datos),
           'No fue posible actualizar la sala en el catálogo.'
         );
       } else {
         const targetId = modalSala.sala.eventoId || idEventoActivo || (eventos[0]?.id ? String(eventos[0].id) : null);
         if (targetId) {
-          await conMensajeApi(
+          actualizada = await conMensajeApi(
             () => api.actualizarSala(targetId, salaId, datos),
             'No fue posible actualizar la sala.'
           );
         }
       }
-      Swal.fire({
-        icon: 'success',
-        title: 'Sala actualizada',
-        text: `Se actualizaron los datos y la disponibilidad de «${datos.nombre}».`,
-        confirmButtonColor: '#a6192e',
-      });
+      // HU-20 Criterio 5: si las nuevas franjas dejan actividades fuera, se listan (igual que «Configurar disponibilidad»).
+      await avisarDisponibilidad(
+        actualizada,
+        'Sala actualizada',
+        `Se actualizaron los datos y la disponibilidad de «${datos.nombre}».`
+      );
     }
     recargar();
   };

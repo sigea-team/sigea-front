@@ -142,16 +142,12 @@ export default function SalasModal({ isOpen, evento, api, onClose }) {
 
   const handleGuardarSala = async (datos) => {
     if (modalSala?.tipo === 'editar') {
-      await conMensajeApi(
+      const actualizada = await conMensajeApi(
         () => api.actualizarSala(eventoId, modalSala.sala.id, datos),
         'No fue posible actualizar la sala.'
       );
-      Swal.fire({
-        icon: 'success',
-        title: 'Sala actualizada',
-        text: `Se actualizaron los datos de «${datos.nombre}».`,
-        confirmButtonColor: '#a6192e',
-      });
+      // HU-20 Criterio 5: avisa las actividades del evento que quedaron fuera de las nuevas franjas.
+      await avisarDisponibilidad(actualizada, 'Sala actualizada', `Se actualizaron los datos de «${datos.nombre}».`);
     }
     recargar();
   };
