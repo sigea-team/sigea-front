@@ -5,6 +5,7 @@
  *  - Criterio 1: criterios con nombre, peso y escala; los pesos deben sumar exactamente 100 %.
  *  - Criterio 2: si los pesos no suman 100 % se impide guardar y se señala el error.
  *  - Criterio 4: traduce el aviso RUBRICA_EN_USO (rúbrica con calificaciones) para pedir confirmación.
+ *  - Bloqueo: la rúbrica solo se modifica antes de la fecha de apertura de la convocatoria.
  * Las claves de error siguen el formato del backend (`criterios[0].pesoPorcentual`), así los errores
  * locales y los del servidor se muestran en el mismo lugar.
  * @module features/rubricas/rubricaUtils
@@ -13,6 +14,22 @@
 /** Rango permitido para cualquier escala (el mismo que acepta el registro de evaluaciones, HU-17). */
 export const ESCALA_LIMITE_MINIMO = 0;
 export const ESCALA_LIMITE_MAXIMO = 10;
+
+/**
+ * La rúbrica solo se puede crear o modificar antes de la fecha de apertura de la convocatoria (el backend lo
+ * rechaza después). Devuelve el motivo del bloqueo, o null si todavía se puede editar.
+ * Una convocatoria sin fecha de apertura sigue siendo editable.
+ * @param {{ fechaApertura?: string|null }} convocatoria
+ * @param {Date} [ahora=new Date()]
+ * @returns {string|null}
+ */
+export function motivoBloqueoRubrica(convocatoria, ahora = new Date()) {
+  if (!convocatoria?.fechaApertura) return null;
+  const apertura = new Date(convocatoria.fechaApertura);
+  if (Number.isNaN(apertura.getTime()) || ahora < apertura) return null;
+  const fecha = apertura.toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
+  return `La convocatoria abrió el ${fecha}. La rúbrica solo se puede modificar antes de la apertura, para que todas las propuestas se califiquen con los mismos criterios.`;
+}
 
 /** Límites de longitud del backend. */
 export const LIMITES_RUBRICA = { nombre: 100, criterio: 100, maxCriterios: 30 };

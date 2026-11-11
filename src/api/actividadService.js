@@ -33,8 +33,8 @@ import {
 export const USE_REAL_BACKEND = true;
 
 /**
- * Si el backend respondió con un error del cliente (4xx distinto de 409), lo propaga con su mensaje en vez de usar
- * el almacenamiento de respaldo, que solo tiene sentido cuando el backend no responde.
+ * Si el backend respondió con un error del cliente (4xx distinto de 409), lo lanza con el mensaje del backend para
+ * que el formulario lo muestre (en vez de «Request failed with status code 400»).
  * @param {any} err
  * @param {string} porDefecto - Mensaje si el backend no envía uno.
  */
@@ -136,16 +136,11 @@ export const actividadService = {
     if (!eventoId) return [];
 
     if (USE_REAL_BACKEND) {
-      try {
-        const params = fecha ? { fecha } : {};
-        const { data } = await httpClient.get(rutaBase(eventoId), { params });
-        const normalizadas = (Array.isArray(data) ? data : []).map(normalizarActividadResponse);
-        return ordenarCronologicamente(normalizadas);
-      } catch (err) {
-        // En caso de fallo de red o backend local no disponible, fallback a mock
-        console.warn('Fallo al conectar con el backend real, usando almacenamiento de respaldo:', err.message);
-        return this._listarMock(eventoId, fecha);
-      }
+      // Sin fallback al mock: si el backend falla, la agenda muestra el error en vez de datos de demostración.
+      const params = fecha ? { fecha } : {};
+      const { data } = await httpClient.get(rutaBase(eventoId), { params });
+      const normalizadas = (Array.isArray(data) ? data : []).map(normalizarActividadResponse);
+      return ordenarCronologicamente(normalizadas);
     }
 
     return this._listarMock(eventoId, fecha);
@@ -157,12 +152,8 @@ export const actividadService = {
    */
   async obtenerActividad(eventoId, actividadId) {
     if (USE_REAL_BACKEND) {
-      try {
-        const { data } = await httpClient.get(`${rutaBase(eventoId)}/${actividadId}`);
-        return normalizarActividadResponse(data);
-      } catch (err) {
-        console.warn('Fallo al obtener actividad del backend real, usando mock:', err.message);
-      }
+      const { data } = await httpClient.get(`${rutaBase(eventoId)}/${actividadId}`);
+      return normalizarActividadResponse(data);
     }
 
     const todas = obtenerActividadesMock();
@@ -250,10 +241,10 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        // HU-19: un rechazo del backend (400/403/404, p. ej. una propuesta sin versión definitiva) se muestra al
-        // usuario; antes caía al almacenamiento de respaldo y la actividad parecía guardada.
+        // HU-19: un rechazo del backend (400/403/404, p. ej. una propuesta sin versión definitiva) se muestra con
+        // su mensaje. Con backend real no se cae al mock: si no, la pantalla anuncia «Actividad agendada» sin guardar.
         lanzarSiRechazoDelBackend(err, 'No se pudo programar la actividad.');
-        console.warn('Fallo al crear actividad en backend real, usando mock:', err.message);
+        throw err;
       }
     }
 
@@ -312,8 +303,9 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
+        // Sin fallback al mock: el formulario muestra el error (con el mensaje del backend si es un 4xx).
         lanzarSiRechazoDelBackend(err, 'No se pudo actualizar la actividad.');
-        console.warn('Fallo al actualizar actividad en backend real, usando mock:', err.message);
+        throw err;
       }
     }
 
@@ -354,12 +346,9 @@ export const actividadService = {
    */
   async eliminarActividad(eventoId, actividadId) {
     if (USE_REAL_BACKEND) {
-      try {
-        await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
-        return { ok: true };
-      } catch (err) {
-        console.warn('Fallo al eliminar actividad en backend real, usando mock:', err.message);
-      }
+      // Sin fallback al mock: si el borrado falla, el error llega a la pantalla.
+      await httpClient.delete(`${rutaBase(eventoId)}/${actividadId}`);
+      return { ok: true };
     }
 
     // Modo Mock

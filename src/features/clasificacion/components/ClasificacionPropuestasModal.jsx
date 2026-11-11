@@ -17,6 +17,7 @@ import {
   plural,
   requiereReclasificar,
   resumenAplicacion,
+  motivoBloqueoUmbrales,
 } from '../clasificacionUtils';
 
 /**
@@ -44,7 +45,7 @@ const ESTILO_SWAL = {
 /**
  * @param {Object} props
  * @param {boolean} props.isOpen
- * @param {{ id: number, titulo: string, eventoNombre?: string }} props.convocatoria
+ * @param {{ id: number, titulo: string, eventoNombre?: string, fechaApertura?: string }} props.convocatoria
  * @param {typeof import('../../../api/clasificacionService').clasificacionService} props.api
  * @param {function(): void} props.onClose
  * @param {Object} [props.apiObservaciones] - API de observaciones y versión definitiva (HU-19); Storybook la simula.
@@ -84,6 +85,9 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
   const porClasificar = useMemo(() => contarPorClasificar(propuestas), [propuestas]);
 
   if (!isOpen || !convocatoria) return null;
+
+  // Umbrales fijos desde la apertura de la convocatoria (el backend responde 409 si se intenta cambiarlos)
+  const bloqueoUmbrales = motivoBloqueoUmbrales(convocatoria);
 
   const recargar = () => setVersion((v) => v + 1);
   const seleccionada = propuestas.find((p) => p.propuestaId === seleccionadaId) || null;
@@ -245,6 +249,9 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
                         por debajo (puntuación de 0 a 10)
                       </p>
                     )}
+                    {!editandoUmbrales && bloqueoUmbrales && (
+                      <p className="text-xs text-ink-600 mt-1">{bloqueoUmbrales}</p>
+                    )}
                   </div>
                   {!editandoUmbrales && (
                     <Button
@@ -254,6 +261,8 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
                         setAviso(null);
                         setEditandoUmbrales(true);
                       }}
+                      disabled={Boolean(bloqueoUmbrales)}
+                      title={bloqueoUmbrales ? 'Los umbrales no se pueden cambiar: la convocatoria ya abrió' : undefined}
                       className="h-9 px-4 text-xs shrink-0"
                     >
                       <Pencil className="w-3.5 h-3.5" aria-hidden="true" />

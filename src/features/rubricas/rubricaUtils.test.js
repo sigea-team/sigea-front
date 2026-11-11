@@ -5,6 +5,7 @@ import {
   desdeRubrica,
   impactoDeError,
   interpretarErrorApi,
+  motivoBloqueoRubrica,
   pesosCompletos,
   repartirPesos,
   sumaPesos,
@@ -135,5 +136,20 @@ describe('HU-15 - rubricaUtils', () => {
       expect(r.campos.pesoPorcentual).toBe('Suma 90%');
       expect(r.codigo).toBe('RUBRICA_INVALIDA');
     });
+  });
+});
+
+describe('bloqueo de la rúbrica por fecha de apertura', () => {
+  const ahora = new Date('2026-11-10T10:00:00');
+
+  it('se puede editar antes de la apertura o si la convocatoria no tiene fecha', () => {
+    expect(motivoBloqueoRubrica({ fechaApertura: '2026-11-20T08:00' }, ahora)).toBeNull();
+    expect(motivoBloqueoRubrica({ fechaApertura: null }, ahora)).toBeNull();
+    expect(motivoBloqueoRubrica(null, ahora)).toBeNull();
+  });
+
+  it('queda bloqueada desde la apertura', () => {
+    expect(motivoBloqueoRubrica({ fechaApertura: '2026-11-10T10:00' }, ahora)).toContain('antes de la apertura');
+    expect(motivoBloqueoRubrica({ fechaApertura: '2026-10-01T08:00' }, ahora)).toContain('antes de la apertura');
   });
 });

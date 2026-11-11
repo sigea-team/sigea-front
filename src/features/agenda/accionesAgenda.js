@@ -55,3 +55,42 @@ export async function confirmarDesprogramar(api, eventoId, actividad, onListo) {
     return false;
   }
 }
+
+/**
+ * Pide confirmación y elimina la actividad de la agenda (HU-21). Si el backend falla, muestra el error
+ * en vez de anunciar un borrado que no ocurrió.
+ * @param {{ eliminarActividad: Function }} api - Cliente de actividades.
+ * @param {number|string} eventoId
+ * @param {{ id: number, nombre: string }} actividad
+ * @param {() => void} onListo - Se llama si se eliminó (para recargar la agenda).
+ * @returns {Promise<boolean>} true si se eliminó.
+ */
+export async function confirmarEliminarActividad(api, eventoId, actividad, onListo) {
+  const r = await Swal.fire({
+    title: '¿Eliminar actividad de la agenda?',
+    text: `Se removerá «${actividad.nombre}» del cronograma del evento.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#a6192e',
+    cancelButtonColor: '#5b5f66',
+    customClass: CLASES,
+  });
+  if (!r.isConfirmed) return false;
+  try {
+    await api.eliminarActividad(eventoId, actividad.id);
+    onListo?.();
+    Swal.fire({ icon: 'success', title: 'Actividad eliminada', timer: 1800, showConfirmButton: false });
+    return true;
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'No se pudo eliminar la actividad',
+      text: extraerError(err).mensaje,
+      confirmButtonColor: '#a6192e',
+      customClass: CLASES,
+    });
+    return false;
+  }
+}

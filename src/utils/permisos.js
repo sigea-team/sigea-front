@@ -71,3 +71,34 @@ export function tienePermiso(usuario, codigo) {
 export function puedeEvaluar(usuario) {
   return tienePermiso(usuario, PERMISO_EVALUAR) || tieneRolAdministrador(usuario);
 }
+
+/**
+ * Indica si la sesión entró con el perfil «Evaluador».
+ * @param {{ modoIngreso?: string } | null | undefined} usuario
+ * @returns {boolean}
+ */
+export function esModoEvaluador(usuario) {
+  return String(usuario?.modoIngreso || '').toUpperCase() === 'EVALUADOR';
+}
+
+/**
+ * Decide si la sesión ve el módulo de Evaluaciones (menú y ruta /evaluaciones).
+ * No basta con que la cuenta tenga el permiso: hay que haber entrado con el perfil «Evaluador».
+ * Una cuenta con permiso de evaluador que entra como Asistente o Ponente no lo ve.
+ * El administrador (en su perfil de administrador) también lo ve.
+ * @param {{ modoIngreso?: string, roles?: string[], permisos?: string[] } | null | undefined} usuario
+ * @returns {boolean}
+ */
+export function veEvaluaciones(usuario) {
+  return esAdministrador(usuario) || (esModoEvaluador(usuario) && puedeEvaluar(usuario));
+}
+
+/**
+ * Decide si la sesión ve los módulos de Eventos y Certificados. Con el perfil «Evaluador» la sesión se limita a evaluar
+ * propuestas, así que no se muestra.
+ * @param {{ modoIngreso?: string } | null | undefined} usuario
+ * @returns {boolean}
+ */
+export function veEventos(usuario) {
+  return !esModoEvaluador(usuario);
+}

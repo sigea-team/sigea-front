@@ -20,7 +20,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../../store/authStore';
-import { esAdministrador, puedeEvaluar } from '../../utils/permisos';
+import { esAdministrador, veEvaluaciones, veEventos } from '../../utils/permisos';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -164,6 +164,10 @@ export default function Sidebar({
       if (item.id === 'convocatorias') {
         return isAdmin;
       }
+      // Con el perfil «Evaluador» no se muestran Eventos ni Certificados
+      if (item.id === 'eventos' || item.id === 'certificados') {
+        return veEventos(usuario);
+      }
       return true;
     });
 
@@ -174,10 +178,9 @@ export default function Sidebar({
       navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
     }
 
-    // El menú de evaluaciones depende del permiso real, no del perfil elegido al iniciar sesión
-    const esEvaluador = puedeEvaluar(usuario);
-
-    if (esEvaluador) {
+    // Evaluaciones: solo si entró con el perfil «Evaluador» (y la cuenta tiene el permiso) o es administrador.
+    // Una cuenta con permiso de evaluador que entra como Asistente no lo ve.
+    if (veEvaluaciones(usuario)) {
       const eventosIndex = navItems.findIndex((item) => item.id === 'eventos');
       if (eventosIndex !== -1) {
         navItems.splice(eventosIndex, 0, EVALUADOR_NAV_ITEM);

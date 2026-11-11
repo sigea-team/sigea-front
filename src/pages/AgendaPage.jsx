@@ -26,8 +26,9 @@ import FiltrosAgenda from '../features/agenda/components/FiltrosAgenda';
 import ActividadFormModal from '../features/agenda/components/ActividadFormModal';
 import AgendaGeneracionPanel from '../features/agenda/components/AgendaGeneracionPanel';
 import { agendaService } from '../api/agendaService';
+import { extraerError } from '../features/eventos/eventoUtils';
 import { separarActividades, precargaAsignacionManual } from '../features/agenda/agendaPublicacionUtils';
-import { confirmarDesprogramar } from '../features/agenda/accionesAgenda';
+import { confirmarDesprogramar, confirmarEliminarActividad } from '../features/agenda/accionesAgenda';
 
 /**
  * @file AgendaPage.jsx
@@ -64,6 +65,8 @@ export default function AgendaPage({
   const [propuestasProgramables, setPropuestasProgramables] = useState([]);
 
   const [cargando, setCargando] = useState(false);
+  // Si la lista de actividades no carga, se muestra el error en vez de una agenda vacía.
+  const [errorCarga, setErrorCarga] = useState(null);
   const [vista, setVista] = useState('timeline'); // 'timeline' | 'tabla'
   const [version, setVersion] = useState(0);
 
@@ -122,7 +125,13 @@ export default function AgendaPage({
     ]).then(([resAct, resSalas, resPonentes, resTipos, resPropuestas]) => {
       if (!activo) return;
 
-      if (resAct.status === 'fulfilled') setActividades(resAct.value || []);
+      if (resAct.status === 'fulfilled') {
+        setActividades(resAct.value || []);
+        setErrorCarga(null);
+      } else {
+        setActividades([]);
+        setErrorCarga(extraerError(resAct.reason).mensaje);
+      }
       if (resSalas.status === 'fulfilled') setSalas(resSalas.value || []);
       if (resPonentes.status === 'fulfilled') setPonentes(resPonentes.value || []);
       if (resTipos.status === 'fulfilled') setTiposActividad(resTipos.value || []);
@@ -211,34 +220,7 @@ export default function AgendaPage({
     });
   };
 
-  const handleEliminar = (act) => {
-    Swal.fire({
-      title: '¿Eliminar actividad de la agenda?',
-      text: `Se removerá «${act.nombre}» del cronograma del evento.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#a6192e',
-      cancelButtonColor: '#5b5f66',
-      customClass: {
-        popup: 'rounded-[16px]',
-        confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-        cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-      },
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await apiActividades.eliminarActividad(idEventoActivo, act.id);
-        recargar();
-        Swal.fire({
-          icon: 'success',
-          title: 'Actividad eliminada',
-          timer: 1800,
-          showConfirmButton: false,
-        });
-      }
-    });
-  };
+  const handleEliminar = (act) => confirmarEliminarActividad(apiActividades, idEventoActivo, act, recargar);
 
   const handleDesprogramar = (act) => confirmarDesprogramar(apiAgenda, idEventoActivo, act, recargar);
 
@@ -454,6 +436,14 @@ export default function AgendaPage({
               <div className="py-20 text-center text-xs text-ink-600">
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-brand-600" />
                 Cargando agenda cronológica...
+              </div>
+            ) : errorCarga ? (
+              <div role="alert" className="py-16 text-center text-xs text-ink-600">
+                <p className="text-sm font-semibold text-brand-700 mb-1">No se pudo cargar la agenda</p>
+                <p className="mb-4">{errorCarga}</p>
+                <Button type="button" variant="outline" onClick={recargar}>
+                  Reintentar
+                </Button>
               </div>
             ) : vista === 'timeline' ? (
               <AgendaTimeline

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import Swal from 'sweetalert2';
+import { escaparHtml } from '../../../utils/html';
 import {
   CalendarDays,
   Layers,
@@ -178,148 +179,145 @@ export default function ActividadFormModal({
       return;
     }
 
-    // Criterio 2 y 5: Si genera conflicto, notificar antes de guardar
-    if (chequeoConflicto.hayConflicto) {
-      const resultadoAlerta = await Swal.fire({
-        icon: 'warning',
-        title: '¡Conflicto de programación detectado!',
+    const CLASES_ALERTA = {
+      popup: 'rounded-[16px]',
+      confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+      cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
+    };
+    const listaHtml = (items) =>
+      `<ul class="list-disc list-inside space-y-1.5 bg-brand-100 p-3 rounded-lg border border-brand-600 text-brand-700">${items
+        .map((m) => `<li>${escaparHtml(m)}</li>`)
+        .join('')}</ul>`;
+
+    // Criterios 2, 3 y 5: un cruce de horario, sala o ponente no se puede guardar (el backend responde
+    // 409 CONFLICTO_PROGRAMACION); solo se ofrece corregir.
+    if (chequeoConflicto.hayCruces) {
+      const cruces = [
+        ...chequeoConflicto.conflictosHorario,
+        ...chequeoConflicto.conflictosSala,
+        ...chequeoConflicto.conflictosPonente,
+      ].map((c) => c.mensaje);
+      await Swal.fire({
+        icon: 'error',
+        title: 'La actividad se cruza con otras de la agenda',
         html: `
           <div class="text-left text-xs text-ink-900 space-y-2.5">
-            <p class="font-medium text-sm text-brand-600">
-              La actividad genera los siguientes cruces no planificados:
-            </p>
-            <ul class="list-disc list-inside space-y-1.5 bg-brand-100 p-3 rounded-lg border border-brand-600 text-brand-700">
-              ${chequeoConflicto.motivos.map((m) => `<li>${m}</li>`).join('')}
-            </ul>
+            ${listaHtml(cruces)}
             <div class="p-2.5 rounded-lg bg-surface-muted border border-border text-ink-900 text-[11px]">
-              <span class="font-semibold">💡 Nota de ayuda (Criterio 3):</span>
-              Si se trata de actividades paralelas intencionales (ej. talleres simultáneos),
-              márquelas como simultáneas y asegúrese de que utilicen salas y ponentes diferentes.
+              <span class="font-semibold">Criterio 3:</span>
+              si son actividades paralelas, márcalas ambas como simultáneas y usa ponentes distintos.
+              Para compartir sala, la sala debe admitir actividades simultáneas.
             </div>
-            <p class="text-xs text-ink-600 mt-2">
-              ¿Deseas guardar de todos modos con esta advertencia o prefieres corregir los datos?
-            </p>
+          </div>
+        `,
+        confirmButtonText: 'Revisar y corregir',
+        confirmButtonColor: '#a6192e',
+        customClass: CLASES_ALERTA,
+      });
+      return;
+    }
+
+    // HU-20: quedar fuera de la disponibilidad registrada solo advierte; se puede confirmar.
+    let advertenciasConfirmadas = false;
+    if (chequeoConflicto.conflictosDisponibilidad.length > 0) {
+      const resultadoAlerta = await Swal.fire({
+        icon: 'warning',
+        title: 'Fuera de la disponibilidad registrada',
+        html: `
+          <div class="text-left text-xs text-ink-900 space-y-2.5">
+            ${listaHtml(chequeoConflicto.conflictosDisponibilidad.map((c) => c.mensaje))}
+            <p class="text-xs text-ink-600 mt-2">¿Deseas programarla de todos modos?</p>
           </div>
         `,
         showCancelButton: true,
-        confirmButtonText: 'Sí, guardar con advertencia',
+        confirmButtonText: 'Sí, programar de todos modos',
         cancelButtonText: 'Revisar y corregir',
         confirmButtonColor: '#a6192e',
         cancelButtonColor: '#5b5f66',
-        customClass: {
-          popup: 'rounded-[16px]',
-          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-          cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-        },
+        customClass: CLASES_ALERTA,
       });
-
-      if (!resultadoAlerta.isConfirmed) {
-        return;
-      }
+      if (!resultadoAlerta.isConfirmed) return;
+      advertenciasConfirmadas = true;
     }
 
-    try {
-      setGuardando(true);
-      const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
+    const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
+    const construirPayload = (confirmar) => ({
+      ...form,
+      nombre: form.nombre.trim(),
+      salaId: Number(form.salaId),
+      salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
+      tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
+      tipoActividadNombre: tipoObj?.nombre || '',
+      ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
+      ponenteNombre: ponenteSeleccionado
+        ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
+        : null,
+      permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
+      simultanea: Boolean(form.permiteSimultaneidad),
+      confirmarAdvertencias: confirmar,
+      asistentesEsperados: form.asistentesEsperados ? Number(form.asistentesEsperados) : null,
+      tieneAdvertencia: chequeoConflicto.hayConflicto,
+      motivosAdvertencia: chequeoConflicto.motivos,
+    });
 
-      const payload = {
-        ...form,
-        nombre: form.nombre.trim(),
-        salaId: Number(form.salaId),
-        salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
-        tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
-        tipoActividadNombre: tipoObj?.nombre || '',
-        ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-        ponenteNombre: ponenteSeleccionado
-          ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
-          : null,
-        permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
-        simultanea: Boolean(form.permiteSimultaneidad),
-        confirmarAdvertencias: Boolean(chequeoConflicto.hayConflicto),
-        asistentesEsperados: form.asistentesEsperados ? Number(form.asistentesEsperados) : null,
-        tieneAdvertencia: chequeoConflicto.hayConflicto,
-        motivosAdvertencia: chequeoConflicto.motivos,
-      };
-
-      await onSubmit(payload);
-      onClose();
-    } catch (error) {
-      if (error.codigo === 'CONFIRMACION_REQUERIDA') {
-        const confirmar = await Swal.fire({
-          icon: 'warning',
-          title: 'Advertencia de disponibilidad horaria',
-          html: `
-            <div class="text-left text-xs text-ink-900 space-y-2">
-              <p class="font-medium text-brand-700">${error.message}</p>
-              <ul class="list-disc list-inside text-brand-700 space-y-1 bg-brand-100 p-2.5 rounded-lg border border-brand-600">
-                ${(error.advertencias || []).map((a) => `<li>${a.mensaje}</li>`).join('')}
-              </ul>
-              <p class="mt-2 text-ink-600">¿Deseas confirmar la programación de la actividad aceptando estas advertencias?</p>
-            </div>
-          `,
-          showCancelButton: true,
-          confirmButtonText: 'Sí, confirmar y guardar',
-          cancelButtonText: 'Revisar datos',
-          confirmButtonColor: '#a6192e',
-          cancelButtonColor: '#5b5f66',
-          customClass: {
-            popup: 'rounded-[16px]',
-            confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-            cancelButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-          },
-        });
-
-        if (confirmar.isConfirmed) {
-          const tipoObj = tiposActividad.find((t) => String(t.id) === String(form.tipoActividadId));
-          await onSubmit({
-            ...form,
-            nombre: form.nombre.trim(),
-            salaId: Number(form.salaId),
-            salaNombre: salaSeleccionada?.nombre || 'Sala asignada',
-            tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
-            tipoActividadNombre: tipoObj?.nombre || '',
-            ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-            simultanea: Boolean(form.permiteSimultaneidad),
-            permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
-            confirmarAdvertencias: true,
-          });
-          onClose();
-          return;
-        }
-        return;
-      }
-
-      if (error.codigo === 'CONFLICTO_PROGRAMACION') {
-        Swal.fire({
+    const mostrarErrorGuardado = (error) => {
+      if (error?.codigo === 'CONFLICTO_PROGRAMACION') {
+        return Swal.fire({
           icon: 'error',
           title: 'Cruce no planificado en la agenda',
           html: `
             <div class="text-left text-xs text-ink-900 space-y-2">
-              <p class="font-medium text-brand-700">${error.message}</p>
-              <ul class="list-disc list-inside text-brand-700 space-y-1 bg-brand-100 p-2.5 rounded-lg border border-brand-600">
-                ${(error.conflictos || []).map((c) => `<li><strong>${c.tipo}:</strong> ${c.mensaje}</li>`).join('')}
-              </ul>
+              <p class="font-medium text-brand-700">${escaparHtml(error.message)}</p>
+              ${listaHtml((error.conflictos || []).map((c) => c.mensaje))}
             </div>
           `,
           confirmButtonColor: '#a6192e',
-          customClass: {
-            popup: 'rounded-[16px]',
-            confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-          },
+          customClass: CLASES_ALERTA,
         });
-        return;
       }
-
-      Swal.fire({
+      return Swal.fire({
         icon: 'error',
         title: 'Error al registrar la actividad',
-        text: error.message || 'Ocurrió un error inesperado al procesar la solicitud.',
+        text: error?.message || 'Ocurrió un error inesperado al procesar la solicitud.',
         confirmButtonColor: '#a6192e',
-        customClass: {
-          popup: 'rounded-[16px]',
-          confirmButton: 'px-6 py-2.5 rounded-[8px] font-medium text-sm',
-        },
+        customClass: CLASES_ALERTA,
       });
+    };
+
+    try {
+      setGuardando(true);
+      await onSubmit(construirPayload(advertenciasConfirmadas));
+      onClose();
+    } catch (error) {
+      // El backend puede encontrar advertencias que la revisión local no vio (p. ej. franjas sin cargar).
+      if (error.codigo !== 'CONFIRMACION_REQUERIDA') {
+        await mostrarErrorGuardado(error);
+        return;
+      }
+      const confirmar = await Swal.fire({
+        icon: 'warning',
+        title: 'Advertencia de disponibilidad horaria',
+        html: `
+          <div class="text-left text-xs text-ink-900 space-y-2">
+            <p class="font-medium text-brand-700">${escaparHtml(error.message)}</p>
+            ${listaHtml((error.advertencias || []).map((a) => a.mensaje))}
+            <p class="mt-2 text-ink-600">¿Deseas confirmar la programación de la actividad aceptando estas advertencias?</p>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Sí, confirmar y guardar',
+        cancelButtonText: 'Revisar datos',
+        confirmButtonColor: '#a6192e',
+        cancelButtonColor: '#5b5f66',
+        customClass: CLASES_ALERTA,
+      });
+      if (!confirmar.isConfirmed) return;
+      try {
+        await onSubmit(construirPayload(true));
+        onClose();
+      } catch (errorReintento) {
+        await mostrarErrorGuardado(errorReintento);
+      }
     } finally {
       setGuardando(false);
     }

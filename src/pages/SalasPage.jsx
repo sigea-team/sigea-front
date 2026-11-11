@@ -203,32 +203,33 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       });
     } else if (modalSala?.tipo === 'editar') {
       const salaId = modalSala.sala.id;
+      let actualizada = null;
       if (typeof api.actualizarSalaGlobal === 'function') {
-        await conMensajeApi(
+        actualizada = await conMensajeApi(
           () => api.actualizarSalaGlobal(salaId, datos),
           'No fue posible actualizar la sala en el catálogo.'
         );
       } else {
         const targetId = modalSala.sala.eventoId || idEventoActivo || (eventos[0]?.id ? String(eventos[0].id) : null);
         if (targetId) {
-          await conMensajeApi(
+          actualizada = await conMensajeApi(
             () => api.actualizarSala(targetId, salaId, datos),
             'No fue posible actualizar la sala.'
           );
         }
       }
-      Swal.fire({
-        icon: 'success',
-        title: 'Sala actualizada',
-        text: `Se actualizaron los datos y la disponibilidad de «${datos.nombre}».`,
-        confirmButtonColor: '#a6192e',
-      });
+      // HU-20 Criterio 5: si las nuevas franjas dejan actividades fuera, se listan (igual que «Configurar disponibilidad»).
+      await avisarDisponibilidad(
+        actualizada,
+        'Sala actualizada',
+        `Se actualizaron los datos y la disponibilidad de «${datos.nombre}».`
+      );
     }
     recargar();
   };
 
-  // Operación: Asignar sala existente a un evento y opcionalmente reservar franja inicial
-  const handleAsignarSalaEvento = async ({ sala, eventoDestinoId, eventoDestino, reserva }) => {
+  // Operación: Asignar sala existente a un evento (las actividades se agendan con «Programar actividad»)
+  const handleAsignarSalaEvento = async ({ sala, eventoDestinoId, eventoDestino }) => {
     if (typeof api.vincularSalaEvento === 'function') {
       await conMensajeApi(
         () => api.vincularSalaEvento(eventoDestinoId, sala.id),
@@ -248,28 +249,10 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       );
     }
 
-    // Si además reservó horario específico para este evento, programar actividad
-    if (reserva && reserva.fecha && reserva.horaInicio && reserva.horaFin) {
-      try {
-        await api.programarActividad(eventoDestinoId, {
-          nombre: reserva.nombre || `Uso de ${sala.nombre}`,
-          salaId: sala.id,
-          fecha: reserva.fecha,
-          horaInicio: reserva.horaInicio,
-          horaFin: reserva.horaFin,
-          modalidad: sala.tipo === 'virtual' ? 'virtual' : 'presencial',
-        });
-      } catch (err) {
-        console.warn('La sala fue vinculada pero no se pudo reservar el horario inicial:', err);
-      }
-    }
-
     Swal.fire({
       icon: 'success',
       title: 'Sala vinculada al evento',
-      text: `La sala «${sala.nombre}» quedó vinculada exitosamente a «${eventoDestino?.nombre || 'el evento'}»${
-        reserva ? ' y el horario seleccionado quedó reservado' : ''
-      }.`,
+      text: `La sala «${sala.nombre}» quedó vinculada exitosamente a «${eventoDestino?.nombre || 'el evento'}».`,
       confirmButtonColor: '#a6192e',
     });
     recargar();
@@ -417,13 +400,22 @@ export default function SalasPage({ api = salaService, apiEventos = eventoServic
       cancelButtonColor: '#5b5f66',
     });
     if (confirmacion.isConfirmed) {
-      await api.eliminarActividad(idEventoActivo, actividadId);
-      Swal.fire({
-        icon: 'success',
-        title: 'Actividad eliminada',
-        timer: 1800,
-        showConfirmButton: false,
-      });
+      try {
+        await api.eliminarActividad(idEventoActivo, actividadId);
+        Swal.fire({
+          icon: 'success',
+          title: 'Actividad eliminada',
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo eliminar la actividad',
+          text: mensajeApi(err, 'No fue posible eliminar la actividad.'),
+          confirmButtonColor: '#a6192e',
+        });
+      }
       recargar();
     }
   };
