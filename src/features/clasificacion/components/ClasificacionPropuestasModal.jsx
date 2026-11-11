@@ -48,8 +48,9 @@ const ESTILO_SWAL = {
  * @param {{ id: number, titulo: string, eventoNombre?: string, fechaApertura?: string }} props.convocatoria
  * @param {typeof import('../../../api/clasificacionService').clasificacionService} props.api
  * @param {function(): void} props.onClose
+ * @param {Object} [props.apiObservaciones] - API de observaciones y versión definitiva (HU-19); Storybook la simula.
  */
-export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api, onClose }) {
+export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api, onClose, apiObservaciones }) {
   const [datos, setDatos] = useState(null);
   const [errorCarga, setErrorCarga] = useState(null);
   const [version, setVersion] = useState(0);
@@ -202,6 +203,7 @@ export default function ClasificacionPropuestasModal({ isOpen, convocatoria, api
             propuesta={seleccionada}
             api={api}
             onCambio={terminarCambioDetalle}
+            apiObservaciones={apiObservaciones}
           />
         </div>
       ) : (
@@ -441,6 +443,7 @@ FilaPropuesta.propTypes = {
 
 ClasificacionPropuestasModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
+  apiObservaciones: PropTypes.object,
   convocatoria: PropTypes.shape({
     id: PropTypes.number.isRequired,
     titulo: PropTypes.string,

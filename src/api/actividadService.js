@@ -32,6 +32,24 @@ import {
  */
 export const USE_REAL_BACKEND = true;
 
+/**
+ * Si el backend respondió con un error del cliente (4xx distinto de 409), lo lanza con el mensaje del backend para
+ * que el formulario lo muestre (en vez de «Request failed with status code 400»).
+ * @param {any} err
+ * @param {string} porDefecto - Mensaje si el backend no envía uno.
+ */
+function lanzarSiRechazoDelBackend(err, porDefecto) {
+  const status = err?.response?.status;
+  if (status >= 400 && status < 500 && status !== 409) {
+    const data = err.response.data || {};
+    const errDetalle = new Error(typeof data.message === 'string' && data.message.trim() ? data.message : porDefecto);
+    errDetalle.codigo = data.codigo;
+    errDetalle.status = status;
+    errDetalle.response = err.response;
+    throw errDetalle;
+  }
+}
+
 /** Prefijo base de la ruta REST para las actividades de un evento */
 const rutaBase = (eventoId) => `/eventos/${eventoId}/actividades`;
 
@@ -223,8 +241,9 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        // Con backend real no se cae al mock: un 400/403/500 o una caída de red deben verse,
-        // si no la pantalla anuncia «Actividad agendada» sin haber guardado nada.
+        // HU-19: un rechazo del backend (400/403/404, p. ej. una propuesta sin versión definitiva) se muestra con
+        // su mensaje. Con backend real no se cae al mock: si no, la pantalla anuncia «Actividad agendada» sin guardar.
+        lanzarSiRechazoDelBackend(err, 'No se pudo programar la actividad.');
         throw err;
       }
     }
@@ -284,7 +303,8 @@ export const actividadService = {
           errDetalle.response = err.response;
           throw errDetalle;
         }
-        // Sin fallback al mock: el formulario muestra el error en vez de anunciar cambios no guardados.
+        // Sin fallback al mock: el formulario muestra el error (con el mensaje del backend si es un 4xx).
+        lanzarSiRechazoDelBackend(err, 'No se pudo actualizar la actividad.');
         throw err;
       }
     }

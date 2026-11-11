@@ -5,6 +5,9 @@ import Button from '../../../components/ui/Button';
 import ClasificacionBadge from './ClasificacionBadge';
 import AjusteClasificacionForm from './AjusteClasificacionForm';
 import HistorialClasificaciones from './HistorialClasificaciones';
+import ObservacionesPanel from '../../observaciones/components/ObservacionesPanel';
+import { observacionService } from '../../../api/observacionService';
+import { gestionaObservaciones } from '../../observaciones/observacionUtils';
 import {
   etiquetaClasificacion,
   formatearFechaHora,
@@ -19,6 +22,8 @@ import {
  * @file DetalleClasificacionPanel.jsx
  * @description Clasificación de una propuesta (HU-18): puntuación, clasificación por umbrales y vigente, acción
  * de clasificar (Criterios 1 y 3), ajuste manual con motivo (Criterio 2) e historial de movimientos.
+ * HU-19: con la clasificación aplicada como aceptada o aceptada con modificaciones, muestra las observaciones y la
+ * aprobación de la versión definitiva; con la versión definitiva aprobada ya no se puede clasificar ni ajustar.
  * El padre debe montarlo con una `key` distinta por propuesta.
  * @module features/clasificacion/components/DetalleClasificacionPanel
  */
@@ -28,14 +33,17 @@ import {
  * @param {Object} props.propuesta - Fila del listado de clasificación.
  * @param {typeof import('../../../api/clasificacionService').clasificacionService} props.api
  * @param {function(string): void} props.onCambio - Se llama con un mensaje tras clasificar o ajustar.
+ * @param {typeof observacionService} [props.apiObservaciones] - API de observaciones (HU-19).
  */
-export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) {
+export default function DetalleClasificacionPanel({ propuesta, api, onCambio, apiObservaciones = observacionService }) {
   const [historial, setHistorial] = useState(null);
   const [errorHistorial, setErrorHistorial] = useState(false);
   const [versionHistorial, setVersionHistorial] = useState(0);
   const [ajustando, setAjustando] = useState(false);
   const [clasificando, setClasificando] = useState(false);
   const [error, setError] = useState(null);
+  // HU-19: versión definitiva de la propuesta (llega con las observaciones)
+  const [versionDefinitiva, setVersionDefinitiva] = useState(null);
 
   const propuestaId = propuesta.propuestaId;
 
@@ -62,8 +70,14 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
     setVersionHistorial((v) => v + 1);
   };
 
-  const clasificable = puedeClasificar(propuesta);
-  const ajustable = puedeAjustar(propuesta);
+  const conObservaciones = gestionaObservaciones(propuesta);
+  // HU-19: con la versión definitiva aprobada, la clasificación ya no cambia (el backend lo rechaza).
+  const bloqueoDefinitiva =
+    conObservaciones && versionDefinitiva != null
+      ? { permitido: false, motivo: `Ya tiene versión definitiva aprobada (versión ${versionDefinitiva}); su clasificación no cambia.` }
+      : null;
+  const clasificable = bloqueoDefinitiva || puedeClasificar(propuesta);
+  const ajustable = bloqueoDefinitiva || puedeAjustar(propuesta);
 
   // Criterios 1 y 3: aplicar la clasificación por umbrales a esta propuesta
   const clasificar = async () => {
@@ -212,6 +226,22 @@ export default function DetalleClasificacionPanel({ propuesta, api, onCambio }) 
         />
       )}
 
+      {/* HU-19: observaciones, ajustes y versión definitiva */}
+      {conObservaciones && (
+        <section aria-labelledby="observaciones-clasificacion-titulo" className="space-y-3 pt-2 border-t border-border">
+          <h3 id="observaciones-clasificacion-titulo" className="text-sm font-bold text-ink-900 pt-3">
+            Observaciones y versión definitiva
+          </h3>
+          <ObservacionesPanel
+            propuestaId={propuestaId}
+            modo="admin"
+            api={apiObservaciones}
+            onResumen={(r) => setVersionDefinitiva(r?.versionDefinitiva ?? null)}
+            onCambio={onCambio}
+          />
+        </section>
+      )}
+
       {/* Criterio 2: historial */}
       <section aria-labelledby="historial-clasificacion-titulo" className="space-y-3">
         <h3 id="historial-clasificacion-titulo" className="text-sm font-bold text-ink-900">
@@ -237,4 +267,5 @@ DetalleClasificacionPanel.propTypes = {
   }).isRequired,
   api: PropTypes.object.isRequired,
   onCambio: PropTypes.func.isRequired,
+  apiObservaciones: PropTypes.object,
 };

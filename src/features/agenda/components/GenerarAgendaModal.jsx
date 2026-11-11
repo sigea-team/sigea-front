@@ -54,6 +54,7 @@ const SWAL_CLASES = {
  * @param {number} [props.automaticas] - Cuántas actividades programadas puso una generación anterior.
  * @param {Array<Object>} [props.tiposActividad]
  * @param {Array<Object>} [props.ponentes]
+ * @param {Array<Object>} [props.propuestas] - Propuestas con versión definitiva (HU-19).
  * @param {Object} [props.api] - Cliente de HU-22 (inyectable para Storybook).
  * @param {Object} [props.apiActividades] - Cliente de HU-21 (para eliminar).
  * @param {() => void} props.onCambios - Se llama tras guardar algo, para que la pantalla recargue la agenda.
@@ -66,6 +67,7 @@ export default function GenerarAgendaModal({
   automaticas = 0,
   tiposActividad = [],
   ponentes = [],
+  propuestas = [],
   api = agendaService,
   apiActividades = actividadService,
   onCambios,
@@ -401,6 +403,7 @@ export default function GenerarAgendaModal({
           actividad={formulario.actividad}
           tiposActividad={tiposActividad}
           ponentes={ponentes}
+          propuestas={propuestas}
           onSubmit={guardarActividad}
           onClose={() => setFormulario(null)}
         />

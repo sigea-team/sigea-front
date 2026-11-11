@@ -15,6 +15,8 @@ import EvaluacionesTable from '../features/evaluaciones/components/EvaluacionesT
 import EvaluacionFormModal from '../features/evaluaciones/components/EvaluacionFormModal';
 import ResultadoEvaluacionModal from '../features/evaluaciones/components/ResultadoEvaluacionModal';
 import HistorialVersionesModal from '../features/propuestas/components/HistorialVersionesModal';
+import ObservacionesPropuestaModal from '../features/observaciones/components/ObservacionesPropuestaModal';
+import { observacionService } from '../api/observacionService';
 import { evaluacionService } from '../api/evaluacionService';
 import { propuestaService } from '../api/propuestaService';
 import { calcularPuntuacionPonderada } from '../features/evaluaciones/evaluacionUtils';
@@ -29,14 +31,16 @@ import { calcularPuntuacionPonderada } from '../features/evaluaciones/evaluacion
  *  - Verificación en vivo de completitud y restricción de periodo cerrado (Criterio 4).
  *  - Consultar el dictamen consolidado y alerta de incompletitud (Criterio 3).
  *  - HU-14, Criterio 4: consultar el historial de versiones de las propuestas asignadas.
+ *  - HU-19: registrar observaciones y ajustes requeridos y dar por resueltos los que el autor atendió.
  * @module pages/EvaluacionesPage
  */
 
 /**
  * @param {Object} props
  * @param {typeof propuestaService} [props.apiPropuestas] - API de propuestas para el historial de versiones (HU-14).
+ * @param {typeof observacionService} [props.apiObservaciones] - API de observaciones (HU-19).
  */
-export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
+export default function EvaluacionesPage({ apiPropuestas = propuestaService, apiObservaciones = observacionService }) {
   const [asignaciones, setAsignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
@@ -44,6 +48,8 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
   const [filtroEstado, setFiltroEstado] = useState('todos'); // 'todos' | 'pendiente' | 'completada'
   // HU-14: propuesta cuyo historial de versiones se consulta
   const [historialPropuesta, setHistorialPropuesta] = useState(null);
+  // HU-19: propuesta cuyas observaciones se gestionan
+  const [observacionesPropuesta, setObservacionesPropuesta] = useState(null);
 
   // Estados de modales
   const [asignacionSeleccionada, setAsignacionSeleccionada] = useState(null);
@@ -288,6 +294,9 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
           onVerVersiones={(asignacion) =>
             setHistorialPropuesta({ id: asignacion.propuestaId, titulo: asignacion.propuestaTitulo })
           }
+          onVerObservaciones={(asignacion) =>
+            setObservacionesPropuesta({ id: asignacion.propuestaId, titulo: asignacion.propuestaTitulo })
+          }
         />
 
         {/* Modales */}
@@ -315,6 +324,17 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService }) {
             propuesta={historialPropuesta}
             api={apiPropuestas}
             onClose={() => setHistorialPropuesta(null)}
+          />
+        )}
+
+        {/* HU-19: el evaluador asignado registra observaciones y resuelve los ajustes atendidos */}
+        {observacionesPropuesta && (
+          <ObservacionesPropuestaModal
+            key={`observaciones-${observacionesPropuesta.id}`}
+            propuesta={observacionesPropuesta}
+            modo="evaluador"
+            api={apiObservaciones}
+            onClose={() => setObservacionesPropuesta(null)}
           />
         )}
       </div>
