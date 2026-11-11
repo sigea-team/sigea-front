@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FilePen, FileStack, History, Info, Lock, RotateCw } from 'lucide-react';
+import { FilePen, FileStack, History, Info, Lock, MessageSquareText, RotateCw } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import { propuestaService } from '../api/propuestaService';
 import HistorialVersionesModal from '../features/propuestas/components/HistorialVersionesModal';
 import NuevaVersionModal from '../features/propuestas/components/NuevaVersionModal';
+import ObservacionesPropuestaModal from '../features/observaciones/components/ObservacionesPropuestaModal';
+import { observacionService } from '../api/observacionService';
 import { ESTADOS_PROPUESTA, formatearFechaHoraCorta } from '../features/asignaciones/asignacionUtils';
 import { interpretarErrorPropuesta, puedeModificarPropuesta } from '../features/propuestas/documentoUtils';
 
@@ -16,6 +18,8 @@ import { interpretarErrorPropuesta, puedeModificarPropuesta } from '../features/
  * - Criterio 3: modifica la propuesta (datos o documentos) y se crea una nueva versión.
  * - Criterio 4: consulta el historial de versiones con fecha y autor del cambio.
  * - Criterio 5: ve si la propuesta está bloqueada por versión definitiva o si tiene autorización para modificarla.
+ * HU-19: consulta las observaciones y ajustes de cada propuesta y qué versión los atendió, y ve cuántos ajustes le
+ * faltan por atender (los sube con «Modificar», que ya admite el estado «ajustes»).
  * Ruta: /mis-propuestas
  * @module pages/MisPropuestasPage
  */
@@ -23,14 +27,22 @@ import { interpretarErrorPropuesta, puedeModificarPropuesta } from '../features/
 /**
  * @param {Object} props
  * @param {typeof propuestaService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
+ * @param {typeof observacionService} [props.apiObservaciones] - API de observaciones (HU-19).
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {Function} [props.onSelectNav]
  */
-export default function MisPropuestasPage({ api = propuestaService, usuarioProp, onSelectNav }) {
+export default function MisPropuestasPage({
+  api = propuestaService,
+  apiObservaciones = observacionService,
+  usuarioProp,
+  onSelectNav,
+}) {
   const [propuestas, setPropuestas] = useState(null);
+  // HU-19: situación de las observaciones por propuesta (solo de las aprobadas con ajustes)
+  const [observaciones, setObservaciones] = useState({});
   const [error, setError] = useState(null);
   const [version, setVersion] = useState(0);
-  // { tipo: 'historial' | 'modificar', mia }
+  // { tipo: 'historial' | 'modificar' | 'observaciones', mia }
   const [modal, setModal] = useState(null);
 
   useEffect(() => {
@@ -41,6 +53,20 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
         if (!activo) return;
         setPropuestas(lista);
         setError(null);
+        // HU-19: ajustes por atender de las propuestas aprobadas con ajustes. Si falla, la tabla se muestra igual.
+        const conObservaciones = (lista || []).filter(
+          (m) => String(m?.propuesta?.estado || '').toLowerCase() === 'ajustes'
+        );
+        return Promise.allSettled(
+          conObservaciones.map((m) => apiObservaciones.listarObservaciones(m.propuesta.id))
+        ).then((resultados) => {
+          if (!activo) return;
+          const mapa = {};
+          resultados.forEach((r, i) => {
+            if (r.status === 'fulfilled') mapa[conObservaciones[i].propuesta.id] = r.value;
+          });
+          setObservaciones(mapa);
+        });
       })
       .catch((err) => {
         if (activo) setError(interpretarErrorPropuesta(err).mensaje);
@@ -48,7 +74,7 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
     return () => {
       activo = false;
     };
-  }, [api, version]);
+  }, [api, apiObservaciones, version]);
 
   const recargar = () => setVersion((v) => v + 1);
 
@@ -133,7 +159,9 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
 
                 {propuestas?.map((mia) => {
                   const p = mia.propuesta;
+                  const resumenObs = observaciones[p.id];
                   const edicion = puedeModificarPropuesta(mia);
+                  const porAtender = Number(resumenObs?.ajustesPorAtender) || 0;
                   return (
                     <tr key={p.id} className="hover:bg-surface-muted transition-colors">
                       <td className="py-3.5 px-4 align-middle max-w-md">
@@ -149,6 +177,12 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                           <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-brand-700">
                             <Lock className="w-3 h-3" aria-hidden="true" />
                             Versión definitiva
+                          </span>
+                        )}
+                        {porAtender > 0 && !mia.tieneVersionDefinitiva && (
+                          <span className="mt-1 flex items-center gap-1 text-xs font-semibold text-brand-700">
+                            <MessageSquareText className="w-3 h-3" aria-hidden="true" />
+                            {porAtender} {porAtender === 1 ? 'ajuste por atender' : 'ajustes por atender'}
                           </span>
                         )}
                       </td>
@@ -168,6 +202,16 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
                           >
                             <History className="w-3.5 h-3.5" aria-hidden="true" />
                             Versiones
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setModal({ tipo: 'observaciones', mia })}
+                            title="Ver las observaciones y ajustes solicitados"
+                            className="h-9 px-3 text-xs"
+                          >
+                            <MessageSquareText className="w-3.5 h-3.5" aria-hidden="true" />
+                            Observaciones
                           </Button>
                           <Button
                             type="button"
@@ -202,6 +246,16 @@ export default function MisPropuestasPage({ api = propuestaService, usuarioProp,
           key={`historial-${modal.mia.propuesta.id}`}
           propuesta={modal.mia.propuesta}
           api={api}
+          onClose={() => setModal(null)}
+        />
+      )}
+
+      {modal?.tipo === 'observaciones' && (
+        <ObservacionesPropuestaModal
+          key={`observaciones-${modal.mia.propuesta.id}`}
+          propuesta={{ id: modal.mia.propuesta.id, titulo: modal.mia.propuesta.titulo }}
+          modo="autor"
+          api={apiObservaciones}
           onClose={() => setModal(null)}
         />
       )}

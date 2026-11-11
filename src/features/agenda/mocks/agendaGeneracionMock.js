@@ -315,8 +315,47 @@ export function crearAgendaApiMock({
       })).filter((d) => d.actividades.length > 0);
       return { eventoId: evento.id, eventoNombre: evento.nombre, fechaPublicacion, dias: porDia };
     },
+    // HU-19, Criterio 3: propuestas con versión definitiva disponibles para vincular a una actividad.
+    async listarPropuestasProgramables() {
+      await esperar(demora);
+      return propuestasProgramablesMock();
+    },
     _estado: () => ({ actividades: lista.map((a) => ({ ...a })), diasPublicados: [...diasPublicados] }),
   };
+}
+
+/** HU-19: propuestas aprobadas en versión definitiva del evento de ejemplo. */
+export function propuestasProgramablesMock() {
+  return [
+    {
+      propuestaId: 40,
+      titulo: 'Analítica de aprendizaje en cursos de programación',
+      convocatoriaId: 10,
+      convocatoriaTitulo: 'Convocatoria de Ponencias 2026',
+      lineaTematicaId: null,
+      lineaTematicaNombre: null,
+      numeroVersion: 2,
+      fechaDefinitiva: '2026-11-08T09:00:00',
+      autores: ['Ana Pérez'],
+      ponenteSugeridoId: 20,
+      programada: false,
+      actividadIds: [],
+    },
+    {
+      propuestaId: 41,
+      titulo: 'Gamificación en la enseñanza de bases de datos',
+      convocatoriaId: 10,
+      convocatoriaTitulo: 'Convocatoria de Ponencias 2026',
+      lineaTematicaId: null,
+      lineaTematicaNombre: null,
+      numeroVersion: 1,
+      fechaDefinitiva: '2026-11-07T15:30:00',
+      autores: ['Carlos Gómez'],
+      ponenteSugeridoId: null,
+      programada: true,
+      actividadIds: [3],
+    },
+  ];
 }
 
 /** API simulada que no tiene la agenda publicada (la página pública responde 404). */
