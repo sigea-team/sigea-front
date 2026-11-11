@@ -14,6 +14,7 @@ import {
   validarActividad,
   detectarConflictosActividad,
   MODALIDADES_ACTIVIDAD,
+  nombrePonente,
 } from '../agendaUtils';
 
 /**
@@ -110,7 +111,7 @@ export default function ActividadFormModal({
     { value: '', label: 'Sin ponente asignado (opcional)' },
     ...ponentes.map((p) => {
       const pId = p.personaId ?? p.id;
-      const nom = `${p.nombres || ''} ${p.apellidos || ''}`.trim() || p.nombre || `Ponente #${pId}`;
+      const nom = nombrePonente(p);
       const inst = p.institucion ? ` — ${p.institucion}` : '';
       return {
         value: String(pId),
@@ -228,9 +229,7 @@ export default function ActividadFormModal({
       tipoActividadId: form.tipoActividadId ? Number(form.tipoActividadId) : null,
       tipoActividadNombre: tipoObj?.nombre || '',
       ponenteId: form.ponenteId ? Number(form.ponenteId) : null,
-      ponenteNombre: ponenteSeleccionado
-        ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
-        : null,
+      ponenteNombre: ponenteSeleccionado ? nombrePonente(ponenteSeleccionado) : null,
       permiteSimultaneidad: Boolean(form.permiteSimultaneidad),
       simultanea: Boolean(form.permiteSimultaneidad),
       confirmarAdvertencias: confirmar,

@@ -157,6 +157,19 @@ export function validarActividad(form = {}) {
 }
 
 /**
+ * Nombre visible de un ponente del evento. La API de conferencistas (`/eventos/{id}/conferencistas`) lo envía en
+ * `nombreCompleto`; otras fuentes usan `nombres` + `apellidos` o `nombre`.
+ * @param {{ nombreCompleto?: string, nombres?: string, apellidos?: string, nombre?: string,
+ *   personaId?: number, id?: number } | null | undefined} ponente
+ * @returns {string}
+ */
+export function nombrePonente(ponente) {
+  if (!ponente) return '';
+  const partes = `${ponente.nombres || ''} ${ponente.apellidos || ''}`.trim();
+  return ponente.nombreCompleto || partes || ponente.nombre || `Ponente #${ponente.personaId ?? ponente.id}`;
+}
+
+/**
  * Criterios 2, 3 y 5: Motor de detección de conflictos de agenda.
  *
  * Evalúa una actividad contra el resto de la agenda y la disponibilidad configurada:
@@ -229,9 +242,7 @@ export function detectarConflictosActividad(
   });
 
   const nombreSala = salaSeleccionada?.nombre || `Sala #${actividad.salaId}`;
-  const nombrePonente = ponenteSeleccionado
-    ? `${ponenteSeleccionado.nombres || ''} ${ponenteSeleccionado.apellidos || ''}`.trim() || ponenteSeleccionado.nombre
-    : null;
+  const nombreDelPonente = ponenteSeleccionado ? nombrePonente(ponenteSeleccionado) : null;
 
   // 1. Evaluar traslapes con otras actividades programadas en la misma fecha
   for (const otra of actividadesAComparar) {
@@ -257,7 +268,7 @@ export function detectarConflictosActividad(
       const detalle = {
         actividadConflictiva: otra,
         tipo: 'ponente',
-        mensaje: `El ponente «${nombrePonente || 'Asignado'}» ya está programado en la actividad «${otra.nombre}» (${mismoHorarioRango}).`,
+        mensaje: `El ponente «${nombreDelPonente || 'Asignado'}» ya está programado en la actividad «${otra.nombre}» (${mismoHorarioRango}).`,
       };
       conflictosPonente.push(detalle);
       motivos.push(detalle.mensaje);
@@ -314,7 +325,7 @@ export function detectarConflictosActividad(
     if (!ponenteCubierto) {
       const detalle = {
         tipo: 'disponibilidad_ponente',
-        mensaje: `El ponente «${nombrePonente}» no tiene franja de disponibilidad registrada para el horario ${formatearHora(
+        mensaje: `El ponente «${nombreDelPonente}» no tiene franja de disponibilidad registrada para el horario ${formatearHora(
           actividad.horaInicio
         )} a ${formatearHora(actividad.horaFin)} en la fecha ${actividad.fecha}.`,
       };
