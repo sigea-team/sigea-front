@@ -10,7 +10,7 @@ import {
   Sparkles,
   Undo2,
 } from 'lucide-react';
-import { formatearHora, agruparPorFecha } from '../agendaUtils';
+import { formatearHora, agruparPorFecha, nombrePonente } from '../agendaUtils';
 
 /**
  * @file AgendaTimeline.jsx
@@ -161,7 +161,7 @@ export default function AgendaTimeline({
                             <User className="w-3.5 h-3.5 text-brand-600" />
                             <span>
                               {ponente
-                                ? `${ponente.nombres || ''} ${ponente.apellidos || ''}`.trim()
+                                ? nombrePonente(ponente)
                                 : act.ponenteNombre}
                             </span>
                             {ponente?.institucion && (

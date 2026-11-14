@@ -6,7 +6,7 @@ import {
   Sparkles,
   Undo2,
 } from 'lucide-react';
-import { formatearHora } from '../agendaUtils';
+import { formatearHora, nombrePonente } from '../agendaUtils';
 
 /**
  * @file AgendaTabla.jsx
@@ -92,7 +92,7 @@ export default function AgendaTabla({
                   {ponente ? (
                     <div>
                       <p className="font-medium">
-                        {`${ponente.nombres || ''} ${ponente.apellidos || ''}`.trim()}
+                        {nombrePonente(ponente)}
                       </p>
                       {ponente.institucion && (
                         <p className="text-[10px] text-ink-600">{ponente.institucion}</p>

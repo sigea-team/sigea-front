@@ -4,7 +4,7 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Select from '../../../components/ui/Select';
 import ModalShell from '../../eventos/components/ModalShell';
-import { MODALIDADES_ACTIVIDAD } from '../agendaUtils';
+import { MODALIDADES_ACTIVIDAD, nombrePonente } from '../agendaUtils';
 import {
   DURACIONES_SUGERIDAS,
   DURACION_MAXIMA,
@@ -111,7 +111,7 @@ export default function ActividadPorProgramarModal({
     { value: '', label: 'Sin ponente (opcional)' },
     ...ponentes.map((p) => {
       const id = p.personaId ?? p.id;
-      const nombre = `${p.nombres || ''} ${p.apellidos || ''}`.trim() || p.nombre || `Ponente #${id}`;
+      const nombre = nombrePonente(p);
       return { value: String(id), label: p.institucion ? `${nombre} — ${p.institucion}` : nombre };
     }),
   ];

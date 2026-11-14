@@ -4,6 +4,7 @@ import {
   detectarConflictosActividad,
   ordenarCronologicamente,
   agruparPorFecha,
+  nombrePonente,
 } from './agendaUtils';
 
 describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', () => {
@@ -458,5 +459,18 @@ describe('HU-21: Utilidades y lógica de negocio de la Agenda de Actividades', (
       // Misma sala: un solo motivo (de sala), igual que el backend
       expect(resultado.conflictosHorario).toHaveLength(0);
     });
+  });
+});
+
+describe('nombre visible del ponente', () => {
+  it('usa nombreCompleto, que es lo que envía la API de conferencistas del evento', () => {
+    expect(nombrePonente({ personaId: 5, nombreCompleto: 'Ana Autora' })).toBe('Ana Autora');
+  });
+
+  it('acepta nombres + apellidos o nombre, y solo como último recurso muestra el ID', () => {
+    expect(nombrePonente({ nombres: 'María', apellidos: 'Gómez' })).toBe('María Gómez');
+    expect(nombrePonente({ nombre: 'Luis Pérez' })).toBe('Luis Pérez');
+    expect(nombrePonente({ personaId: 9 })).toBe('Ponente #9');
+    expect(nombrePonente(null)).toBe('');
   });
 });
