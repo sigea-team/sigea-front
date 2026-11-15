@@ -18,6 +18,7 @@ import { salaService } from '../api/salaService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
+import ModificarFechasModal from '../features/eventos/components/ModificarFechasModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
@@ -238,6 +239,11 @@ export default function EventosPage({
   const editar = async (datos) => {
     const actualizado = await api.actualizarEvento(modal.evento.id, datos);
     terminar('Cambios guardados', `Se actualizó la configuración de «${actualizado.nombre}».`);
+  };
+
+  const modificarFechas = async (datos) => {
+    const actualizado = await api.modificarFechasEvento(modal.evento.id, datos);
+    terminar('Fechas actualizadas', `«${actualizado.nombre}» ahora va del ${formatearRango(actualizado.fechaInicio, actualizado.fechaFin)}.`);
   };
 
   const crearEdicion = async (datos) => {
@@ -464,6 +470,9 @@ export default function EventosPage({
                                   {
                                     titulo: 'Configuración del evento',
                                     acciones: [
+                                      ...(evento.estado === 'habilitado' || evento.estado === 'en_ejecucion'
+                                        ? [{ id: 'fechas', etiqueta: 'Modificar fechas', icono: CalendarDays, onClick: () => setModal({ tipo: 'fechas', evento }) }]
+                                        : []),
                                       { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
                                       { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
                                       { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
@@ -534,6 +543,16 @@ export default function EventosPage({
           origen={modal.evento}
           onClose={cerrarModal}
           onSubmit={crearEdicion}
+        />
+      )}
+
+      {modal?.tipo === 'fechas' && (
+        <ModificarFechasModal
+          key={`fechas-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          onClose={cerrarModal}
+          onSubmit={modificarFechas}
         />
       )}
 
