@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { CalendarCheck, CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -30,6 +30,9 @@ import AgendaModal from '../features/agenda/components/AgendaModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
+import InscripcionEventoModal from '../features/inscripciones/components/InscripcionEventoModal';
+import { inscripcionService } from '../api/inscripcionService';
+import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
   esEditable,
@@ -53,6 +56,7 @@ import { esAdministrador } from '../utils/permisos';
  * Desde cada fila también se abren los gastos y la ejecución presupuestal del evento (HU-09).
  * En cada fila solo quedan visibles «Publicar» y «Editar» (cuando el evento está en configuración);
  * el resto de acciones va agrupado por tema en el menú «Más».
+ * El participante (sin perfil de administrador) se inscribe desde cada fila al evento y a sus actividades (HU-23).
  * @module pages/EventosPage
  */
 
@@ -99,6 +103,7 @@ const ALERTA_EXITO = {
  * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
  * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
+ * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
@@ -112,6 +117,7 @@ export default function EventosPage({
   apiPresupuestoAprobado = presupuestoAprobadoService,
   apiEjecucion = ejecucionPresupuestalService,
   apiSalas = salaService,
+  apiInscripciones = inscripcionService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -377,13 +383,13 @@ export default function EventosPage({
                   <th scope="col" className="py-3.5 px-5">Semestre</th>
                   <th scope="col" className="py-3.5 px-5">Modalidad</th>
                   <th scope="col" className="py-3.5 px-5">Estado</th>
-                  {isAdmin && <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>}
+                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Inscripción'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-sm text-ink-900">
                 {cargando && eventos.length === 0 && (
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center text-ink-600" role="status">
+                    <td colSpan={6} className="py-12 px-5 text-center text-ink-600" role="status">
                       Cargando eventos...
                     </td>
                   </tr>
@@ -391,7 +397,7 @@ export default function EventosPage({
 
                 {!cargando && errorCarga && eventos.length === 0 && (
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center">
+                    <td colSpan={6} className="py-12 px-5 text-center">
                       <p className="font-semibold text-base text-ink-900">No se pudieron cargar los eventos</p>
                       <button
                         type="button"
@@ -406,7 +412,7 @@ export default function EventosPage({
 
                 {!cargando && !errorCarga && eventosFiltrados.length === 0 && (
                   <tr>
-                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center">
+                    <td colSpan={6} className="py-12 px-5 text-center">
                       {hayFiltros ? (
                         <>
                           <p className="font-semibold text-base text-ink-900">Ningún evento coincide con la búsqueda</p>
@@ -450,6 +456,19 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">
                         <EstadoEventoBadge estado={evento.estado} />
                       </td>
+                      {!isAdmin && (
+                        <td className="py-4 px-5 align-middle">
+                          <div className="flex items-center justify-end">
+                            <BotonFila
+                              icono={CalendarCheck}
+                              principal={inscripcionesAbiertas(evento)}
+                              onClick={() => setModal({ tipo: 'inscripcion', evento })}
+                            >
+                              {inscripcionesAbiertas(evento) ? 'Inscribirme' : 'Ver inscripción'}
+                            </BotonFila>
+                          </div>
+                        </td>
+                      )}
                       {isAdmin && (
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
@@ -647,6 +666,16 @@ export default function EventosPage({
           api={apiEjecucion}
           onClose={cerrarModal}
           onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
+        />
+      )}
+
+      {modal?.tipo === 'inscripcion' && (
+        <InscripcionEventoModal
+          key={`inscripcion-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiInscripciones}
+          onClose={cerrarModal}
         />
       )}
 
