@@ -157,6 +157,7 @@ export function idActividad(item) {
 /**
  * Estado de una actividad para el participante, en orden de prioridad:
  * - `inscrito`: ya está inscrito (puede cancelar).
+ * - `cerrada`: el evento ya no admite inscripciones (no se muestran cupos ni conflictos).
  * - `no_disponible`: sin horario o sala, o cancelada.
  * - `agotado`: alcanzó el aforo de la sala (Criterios 2 y 4).
  * - `conflicto`: se cruza con otra inscrita (Criterio 3).
@@ -164,12 +165,14 @@ export function idActividad(item) {
  * @param {Object} actividad - Actividad normalizada.
  * @param {Object|undefined} cupo - CupoActividadResponse.
  * @param {Array<Object>} inscritas - InscripcionActividadResponse del participante.
- * @returns {{ estado: 'inscrito'|'no_disponible'|'agotado'|'conflicto'|'disponible', conflicto: Object|null }}
+ * @param {boolean} [abiertas=true] - Si el evento admite inscripciones (ver {@link inscripcionesAbiertas}).
+ * @returns {{ estado: 'inscrito'|'cerrada'|'no_disponible'|'agotado'|'conflicto'|'disponible', conflicto: Object|null }}
  */
-export function estadoActividad(actividad, cupo, inscritas) {
+export function estadoActividad(actividad, cupo, inscritas, abiertas = true) {
   const yaInscrito =
     Boolean(cupo?.estaInscrito) || (inscritas || []).some((i) => idActividad(i) === actividad.id);
   if (yaInscrito) return { estado: 'inscrito', conflicto: null };
+  if (!abiertas) return { estado: 'cerrada', conflicto: null };
   if (!actividad.inscribible) return { estado: 'no_disponible', conflicto: null };
   if (cupo?.cupoAgotado) return { estado: 'agotado', conflicto: null };
   const conflicto = buscarConflicto(actividad, inscritas);

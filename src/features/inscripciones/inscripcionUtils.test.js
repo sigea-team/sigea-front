@@ -101,6 +101,12 @@ describe('HU-23 - estado de la actividad para el participante', () => {
     expect(estadoActividad(siguiente, { estaInscrito: true }, []).estado).toBe('inscrito');
   });
 
+  it('con el evento cerrado muestra «cerrada» salvo las ya inscritas', () => {
+    expect(estadoActividad(taller, { cupoAgotado: false }, inscritas, false).estado).toBe('inscrito');
+    expect(estadoActividad(siguiente, { cupoAgotado: false }, inscritas, false).estado).toBe('cerrada');
+    expect(estadoActividad(charla, { cupoAgotado: true }, inscritas, false)).toEqual({ estado: 'cerrada', conflicto: null });
+  });
+
   it('marca como no disponible la actividad sin programar', () => {
     expect(estadoActividad({ id: 9, inscribible: false }, undefined, []).estado).toBe('no_disponible');
   });

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { AlertTriangle, CalendarCheck, CheckCircle2, Clock, MapPin, Mic, Ticket, Users, XCircle } from 'lucide-react';
+import { AlertTriangle, CalendarCheck, CheckCircle2, Clock, Lock, MapPin, Mic, Ticket, Users, XCircle } from 'lucide-react';
 import ModalShell from '../../eventos/components/ModalShell';
 import Button from '../../../components/ui/Button';
 import Select from '../../../components/ui/Select';
@@ -59,6 +59,7 @@ const ESTADOS_VISUALES = {
   inscrito: { texto: 'Inscrito', clase: 'bg-green-50 text-green-700 border-green-200', icono: CheckCircle2 },
   agotado: { texto: 'Cupo agotado', clase: 'bg-red-50 text-red-700 border-red-200', icono: XCircle },
   conflicto: { texto: 'Cruce de horario', clase: 'bg-amber-50 text-amber-800 border-amber-200', icono: AlertTriangle },
+  cerrada: { texto: 'Inscripciones cerradas', clase: 'bg-surface-muted text-ink-600 border-border', icono: Lock },
   no_disponible: { texto: 'No disponible', clase: 'bg-surface-muted text-ink-600 border-border', icono: Clock },
   disponible: { texto: 'Cupos disponibles', clase: 'bg-brand-100 text-brand-700 border-brand-100', icono: Ticket },
 };
@@ -398,7 +399,7 @@ export default function InscripcionEventoModal({ isOpen, evento, api = inscripci
                     <ul className="space-y-2">
                       {dia.actividades.map((actividad) => {
                         const cupo = cupos[actividad.id];
-                        const { estado, conflicto } = estadoActividad(actividad, cupo, inscritas);
+                        const { estado, conflicto } = estadoActividad(actividad, cupo, inscritas, abiertas);
                         const ocupado = procesando !== null;
                         return (
                           <li
@@ -436,7 +437,7 @@ export default function InscripcionEventoModal({ isOpen, evento, api = inscripci
                                   Se cruza con «{conflicto.actividadNombre || conflicto.nombre}» ({rangoHoras(conflicto)}).
                                 </p>
                               )}
-                              {actividad.inscribible && <BarraCupo cupo={cupo} />}
+                              {actividad.inscribible && abiertas && <BarraCupo cupo={cupo} />}
                             </div>
 
                             {inscripcion && abiertas && (
