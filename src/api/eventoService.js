@@ -87,6 +87,17 @@ export async function publicarEvento(id) {
 }
 
 /**
+ * Cambia las fechas de un evento publicado (habilitado) o en ejecución.
+ * Endpoint: PATCH /api/v1/eventos/{id}/fechas
+ * @param {number} id
+ * @param {{fechaInicio: string, fechaFin: string}} fechas
+ */
+export async function modificarFechasEvento(id, fechas) {
+  const { data } = await httpClient.patch(`/eventos/${id}/fechas`, fechas);
+  return data;
+}
+
+/**
  * Elimina un evento o edición. Se llama solo después de que el usuario confirma en la
  * interfaz, por eso siempre envía confirmar=true (Criterio 5).
  * Endpoint: DELETE /api/v1/eventos/{id}?confirmar=true
@@ -100,6 +111,7 @@ export async function eliminarEvento(id) {
 /** Agrupa las funciones para poder inyectar una API simulada en Storybook. */
 export const eventoService = {
   listarEventos,
+  modificarFechasEvento,
   obtenerEvento,
   crearEvento,
   actualizarEvento,

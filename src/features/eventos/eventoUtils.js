@@ -172,3 +172,16 @@ export function extraerError(err) {
 
   return { mensaje, campos, status, codigo: data?.codigo };
 }
+
+/** Estados de evento visibles para asistentes: publicados (habilitado) o en ejecución. */
+export const ESTADOS_EVENTO_PUBLICOS = ['habilitado', 'en_ejecucion'];
+
+/**
+ * Deja solo los eventos que un asistente puede ver (publicados o en ejecución).
+ * El backend ya filtra para cuentas sin EVENTOS_VER; esto cubre al administrador que entra en modo asistente.
+ * @param {Array<{estado?: string}>} eventos
+ * @returns {Array<Object>}
+ */
+export function filtrarEventosPublicos(eventos) {
+  return (Array.isArray(eventos) ? eventos : []).filter((e) => ESTADOS_EVENTO_PUBLICOS.includes(e?.estado));
+}
