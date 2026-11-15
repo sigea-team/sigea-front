@@ -207,7 +207,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`h-screen flex flex-col bg-brand-700 border-r border-brand-600 shrink-0 select-none transition-[width] duration-300 ease-in-out ${
+      className={`h-screen flex flex-col bg-brand-700 border-r border-brand-600 shrink-0 select-none overflow-x-hidden transition-[width] duration-300 ease-in-out ${
         isCollapsed ? 'w-[76px]' : 'w-[260px]'
       } ${className}`}
       aria-expanded={!isCollapsed}
@@ -258,7 +258,7 @@ export default function Sidebar({
       </div>
 
       {/* Menú de Navegación Principal */}
-      <nav className={`flex-1 overflow-y-auto space-y-1.5 ${isCollapsed ? 'p-2' : 'p-4'}`}>
+      <nav className={`flex-1 overflow-y-auto overflow-x-hidden space-y-1.5 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         {!isCollapsed ? (
           <p className="px-3 text-[11px] font-bold text-brand-100 uppercase tracking-wider mb-2">
             Navegación
