@@ -5,7 +5,6 @@ import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import BotonAccion from '../components/ui/BotonAccion';
 import MenuAcciones from '../components/ui/MenuAcciones';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
@@ -35,6 +34,7 @@ import {
   esEditable,
   etiquetaModalidad,
   extraerError,
+  filtrarEventosPublicos,
   formatearRango,
 } from '../features/eventos/eventoUtils';
 import { useAuth } from '../context/AuthContext';
@@ -166,7 +166,8 @@ export default function EventosPage({
       .listarEventos()
       .then((data) => {
         if (!activo) return;
-        setEventos(Array.isArray(data) ? data : []);
+        const lista = Array.isArray(data) ? data : [];
+        setEventos(isAdmin ? lista : filtrarEventosPublicos(lista));
         setErrorCarga(false);
       })
       .catch((err) => {
@@ -194,7 +195,7 @@ export default function EventosPage({
     return () => {
       activo = false;
     };
-  }, [api, version]);
+  }, [api, version, isAdmin]);
 
   const recargar = () => {
     setCargando(true);
@@ -370,13 +371,13 @@ export default function EventosPage({
                   <th scope="col" className="py-3.5 px-5">Semestre</th>
                   <th scope="col" className="py-3.5 px-5">Modalidad</th>
                   <th scope="col" className="py-3.5 px-5">Estado</th>
-                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Detalles'}</th>
+                  {isAdmin && <th scope="col" className="py-3.5 px-5 text-right">Acciones</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-sm text-ink-900">
                 {cargando && eventos.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center text-ink-600" role="status">
+                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center text-ink-600" role="status">
                       Cargando eventos...
                     </td>
                   </tr>
@@ -384,7 +385,7 @@ export default function EventosPage({
 
                 {!cargando && errorCarga && eventos.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center">
+                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center">
                       <p className="font-semibold text-base text-ink-900">No se pudieron cargar los eventos</p>
                       <button
                         type="button"
@@ -399,7 +400,7 @@ export default function EventosPage({
 
                 {!cargando && !errorCarga && eventosFiltrados.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center">
+                    <td colSpan={isAdmin ? 6 : 5} className="py-12 px-5 text-center">
                       {hayFiltros ? (
                         <>
                           <p className="font-semibold text-base text-ink-900">Ningún evento coincide con la búsqueda</p>
@@ -443,9 +444,9 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">
                         <EstadoEventoBadge estado={evento.estado} />
                       </td>
+                      {isAdmin && (
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
-                          {isAdmin ? (
                             <>
                               {editable && (
                                 <>
@@ -501,15 +502,9 @@ export default function EventosPage({
                                 ]}
                               />
                             </>
-                          ) : (
-                            <BotonAccion
-                              icono={History}
-                              etiqueta="Ver historial de ediciones"
-                              onClick={() => setModal({ tipo: 'historial', evento })}
-                            />
-                          )}
                         </div>
                       </td>
+                      )}
                     </tr>
                   );
                 })}
