@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import HomeNavbar from '../features/home/components/HomeNavbar';
+import Topbar from '../components/ui/Topbar';
 import HomeHero from '../features/home/components/HomeHero';
 import HomeEventosSection from '../features/home/components/HomeEventosSection';
 import HomeConvocatoriasSection from '../features/home/components/HomeConvocatoriasSection';
 import HomeAboutSection from '../features/home/components/HomeAboutSection';
 import HomeRolesSection from '../features/home/components/HomeRolesSection';
 import HomeCtaBanner from '../features/home/components/HomeCtaBanner';
-import HomeFooter from '../features/home/components/HomeFooter';
+import Footer from '../components/ui/Footer';
 import { convocatoriaService } from '../api/convocatoriaService';
 import {
   EVENTOS_BASE_INSTITUCIONALES,
@@ -52,7 +52,6 @@ export default function HomePage({
       .catch((err) => {
         if (!activo) return;
         console.warn('[HomePage] No se pudieron cargar convocatorias en vivo:', err?.message);
-        // Mantiene los eventos base institucionales en caso de desconexión
         setEventos(combinarEventosConConvocatorias(eventosIniciales, []));
       })
       .finally(() => {
@@ -68,8 +67,8 @@ export default function HomePage({
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-surface text-ink-900 font-sans antialiased selection:bg-brand-100 selection:text-brand-700">
-      {/* 1. Barra de navegación pública con accesos y estado de autenticación */}
-      <HomeNavbar />
+      {/* 1. Barra de navegación pública (Topbar unificado en modo público) */}
+      <Topbar variante="publica" />
 
       <main className="flex-1 w-full">
         {/* 2. Hero Section de alto impacto con métricas institucionales */}
@@ -94,8 +93,8 @@ export default function HomePage({
         <HomeCtaBanner />
       </main>
 
-      {/* 8. Pie de página institucional completo */}
-      <HomeFooter />
+      {/* 8. Pie de página institucional completo (versión full) */}
+      <Footer />
     </div>
   );
 }

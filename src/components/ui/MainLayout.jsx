@@ -105,7 +105,7 @@ export default function MainLayout({
         </main>
 
         {/* Footer Global al final del contenido (solo visible al bajar) */}
-        <Footer />
+        <Footer compacto />
       </div>
     </div>
   );

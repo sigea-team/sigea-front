@@ -1,15 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, ChevronDown, UserCog, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { User, ChevronDown, UserCog, LogOut, CalendarDays, FileText, Info, Sparkles, LogIn, UserPlus, LayoutDashboard, Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthStore } from '../../store/authStore';
 import NotificacionesCampana from '../../features/notificaciones/components/NotificacionesCampana';
+import UfpsLogo from './UfpsLogo';
 
 /**
  * @file Topbar.jsx
- * @description Barra superior institucional (64px) independiente para el sistema SIGEA.
- * Maneja el título de la página activa, la campana de notificaciones (HU-11)
- * y el menú de perfil de usuario con acceso a la gestión de cuenta y cierre de sesión.
+ * @description Barra superior institucional (64px) unificada para el sistema SIGEA.
+ * Soporta dos modos:
+ * - **Privado (por defecto):** Título de página activa, campana de notificaciones (HU-11)
+ *   y menú de perfil de usuario.
+ * - **Público (`variante="publica"`):** Navegación ancla a secciones de la Home y botones
+ *   de autenticación (Iniciar sesión / Registrarse) o acceso al dashboard si hay sesión.
  * @module components/ui/Topbar
  */
 export default function Topbar({
@@ -18,13 +22,17 @@ export default function Topbar({
   onLogout: onLogoutProp,
   apiNotificaciones,
   className = '',
+  variante = 'privada',
 }) {
   const navigate = useNavigate();
   const auth = useAuth();
   const storeUser = useAuthStore((state) => state.usuario);
+  const token = useAuthStore((state) => state.token);
   const usuario = usuarioProp || auth?.usuario || storeUser;
+  const conSesion = Boolean(token);
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const userMenuRef = useRef(null);
 
   useEffect(() => {
@@ -49,6 +57,167 @@ export default function Topbar({
     }
   };
 
+  /* ── Variante Pública (Home / Landing) ── */
+  if (variante === 'publica') {
+    const enlaces = [
+      { href: '#eventos', label: 'Eventos & Agenda', icon: CalendarDays },
+      { href: '#convocatorias', label: 'Convocatorias', icon: FileText },
+      { href: '#que-es-sigea', label: '¿Qué es SIGEA?', icon: Info },
+      { href: '#beneficios', label: 'Beneficios', icon: Sparkles },
+    ];
+
+    return (
+      <header className={`sticky top-0 z-40 w-full h-16 bg-surface border-b border-border shadow-2xs ${className}`}>
+        <div className="w-full h-full px-6 sm:px-8 flex items-center justify-between">
+          {/* Identidad institucional: Escudo UFPS + Nombre SIGEA */}
+          <Link to="/" className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-lg p-1">
+            <UfpsLogo
+              variante="vertical"
+              className="h-10 w-auto max-w-[44px] object-contain shrink-0 group-hover:opacity-90 transition-opacity"
+            />
+            <div className="leading-tight">
+              <div className="flex items-center gap-2">
+                <span className="font-serif-title text-xl font-bold text-brand-600 tracking-tight">SIGEA</span>
+                <span className="text-[10px] font-semibold bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Cúcuta
+                </span>
+              </div>
+              <p className="text-[11px] text-ink-600 font-normal">
+                Ingeniería de Sistemas · UFPS
+              </p>
+            </div>
+          </Link>
+
+          {/* Enlaces de navegación desktop */}
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Navegación principal">
+            {enlaces.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="px-3 py-2 text-sm font-medium text-ink-600 hover:text-brand-600 hover:bg-surface-muted rounded-[8px] transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
+            <Link
+              to="/convocatorias-publicas"
+              className="px-3 py-2 text-sm font-medium text-ink-600 hover:text-brand-600 hover:bg-surface-muted rounded-[8px] transition-colors"
+            >
+              Portal Convocatorias
+            </Link>
+          </nav>
+
+          {/* Acciones de autenticación + menú móvil */}
+          <div className="flex items-center gap-3">
+            {/* Botones auth (desktop) */}
+            <div className="hidden sm:flex items-center gap-3">
+              {conSesion ? (
+                <Link
+                  to="/dashboard"
+                  className="h-10 px-4 rounded-[8px] bg-brand-600 text-white font-medium text-sm hover:bg-brand-700 transition-colors inline-flex items-center gap-2 shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>{usuario?.nombreCompleto || usuario?.nombre || 'Mi panel'}</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="h-10 px-4 rounded-[8px] border border-field-border text-ink-900 bg-white hover:bg-surface-muted font-medium text-sm transition-colors inline-flex items-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                  >
+                    <LogIn className="w-4 h-4 text-ink-600" />
+                    <span>Iniciar sesión</span>
+                  </Link>
+                  <Link
+                    to="/registro"
+                    className="h-10 px-4 rounded-[8px] bg-brand-600 text-white hover:bg-brand-700 font-medium text-sm transition-colors inline-flex items-center gap-2 shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Registrarse</span>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Botón menú móvil */}
+            <button
+              type="button"
+              onClick={() => setMenuAbierto((prev) => !prev)}
+              className="lg:hidden p-2 rounded-[8px] text-ink-600 hover:text-ink-900 hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+              aria-expanded={menuAbierto}
+              aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+            >
+              {menuAbierto ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Menú móvil desplegable */}
+        {menuAbierto && (
+          <div className="lg:hidden border-t border-border bg-white px-6 sm:px-8 pt-3 pb-6 space-y-3 shadow-lg">
+            <nav className="flex flex-col space-y-1">
+              {enlaces.map((item) => {
+                const Icono = item.icon;
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuAbierto(false)}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm font-medium text-ink-900 hover:bg-surface-muted hover:text-brand-600"
+                  >
+                    <Icono className="w-4 h-4 text-ink-600" />
+                    <span>{item.label}</span>
+                  </a>
+                );
+              })}
+              <Link
+                to="/convocatorias-publicas"
+                onClick={() => setMenuAbierto(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm font-medium text-ink-900 hover:bg-surface-muted hover:text-brand-600"
+              >
+                <FileText className="w-4 h-4 text-ink-600" />
+                <span>Portal de Convocatorias</span>
+              </Link>
+            </nav>
+
+            <div className="pt-3 border-t border-border flex flex-col gap-2">
+              {conSesion ? (
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMenuAbierto(false)}
+                  className="w-full h-11 rounded-[8px] bg-brand-600 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-brand-700"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Ir a mi panel ({usuario?.nombreCompleto || usuario?.nombre || 'Usuario'})</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setMenuAbierto(false)}
+                    className="w-full h-11 rounded-[8px] border border-field-border text-ink-900 font-medium text-sm flex items-center justify-center gap-2 hover:bg-surface-muted"
+                  >
+                    <LogIn className="w-4 h-4 text-ink-600" />
+                    <span>Iniciar sesión</span>
+                  </Link>
+                  <Link
+                    to="/registro"
+                    onClick={() => setMenuAbierto(false)}
+                    className="w-full h-11 rounded-[8px] bg-brand-600 text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-brand-700 shadow-xs"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Registrarse en SIGEA</span>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+    );
+  }
+
+  /* ── Variante Privada (Dashboard / App interna) ── */
   const nombreCompleto = usuario?.nombreCompleto || 'Usuario SIGEA';
   const rol = usuario?.rol || (Array.isArray(usuario?.roles) ? usuario.roles[0] : 'Asistente');
   const email = usuario?.correo || usuario?.email || '';

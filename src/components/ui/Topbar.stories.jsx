@@ -9,6 +9,7 @@ export default {
   },
   argTypes: {
     title: { control: 'text' },
+    variante: { control: 'select', options: ['privada', 'publica'] },
     onLogout: { action: 'logged out' },
   },
 };
@@ -33,5 +34,11 @@ export const ConAvatar = {
       correo: 'elena.rossi@ufps.edu.co',
       avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
     },
+  },
+};
+
+export const Publica = {
+  args: {
+    variante: 'publica',
   },
 };

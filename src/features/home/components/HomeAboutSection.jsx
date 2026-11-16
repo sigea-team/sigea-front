@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ExternalLink,
 } from 'lucide-react';
+import UfpsLogo from '../../../components/ui/UfpsLogo';
 
 /**
  * @file HomeAboutSection.jsx
@@ -51,8 +52,8 @@ export default function HomeAboutSection() {
   ];
 
   return (
-    <section id="que-es-sigea" className="py-16 sm:py-24 bg-surface-muted border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <section id="que-es-sigea" className="min-h-screen py-16 sm:py-24 bg-surface-muted border-b border-border flex flex-col justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Bloque 1: ¿Qué es SIGEA? */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-5 space-y-4">
@@ -139,8 +140,11 @@ export default function HomeAboutSection() {
 
           <div className="lg:col-span-5 bg-surface-muted border border-border rounded-[12px] p-6 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-brand-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                UFPS
+              <div className="w-12 h-12 rounded-xl bg-white border border-border p-1 flex items-center justify-center shrink-0 shadow-2xs">
+                <UfpsLogo
+                  variante="vertical"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-ink-900">Campus Universitario Central</h4>

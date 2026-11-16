@@ -36,20 +36,13 @@ export default function HomeHero() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-surface to-surface-muted border-b border-border pt-12 pb-16 lg:pt-16 lg:pb-24">
+    <section className="relative overflow-hidden bg-white border-b border-border min-h-screen flex flex-col justify-center py-16 sm:py-20 lg:py-24">
       {/* Elementos decorativos sutiles institucionales */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-brand-100/20 rounded-full blur-3xl pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto space-y-6">
-          {/* Kicker institucional */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-100 border border-brand-100 text-brand-700 text-xs font-semibold tracking-wide uppercase shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-brand-600 animate-pulse" />
-            <span>Universidad Francisco de Paula Santander · Cúcuta</span>
-          </div>
-
-          {/* Título Display Serif */}
           <h1 className="font-serif-title text-4xl sm:text-5xl lg:text-6xl text-ink-900 leading-[1.15] tracking-tight">
             Sistema Integral de Gestión de{' '}
             <span className="text-brand-600">Eventos Académicos</span>

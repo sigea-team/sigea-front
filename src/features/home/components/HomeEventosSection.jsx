@@ -46,8 +46,8 @@ export default function HomeEventosSection({ eventos = [] }) {
   ];
 
   return (
-    <section id="eventos" className="py-16 sm:py-20 bg-surface-muted border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <section id="eventos" className="min-h-screen py-16 sm:py-20 bg-surface-muted border-b border-border flex flex-col justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Encabezado de la sección */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2 max-w-2xl">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import UfpsLogo from './UfpsLogo';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -224,16 +225,22 @@ export default function Sidebar({
             onClick={handleToggle}
             title="Expandir menú lateral"
             aria-label="Expandir menú lateral"
-            className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm hover:bg-brand-700 transition-colors cursor-pointer group"
+            className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm hover:bg-white/90 transition-colors cursor-pointer group"
           >
-            <span className="group-hover:hidden">UFPS</span>
-            <ChevronRight className="w-5 h-5 hidden group-hover:block" />
+            <UfpsLogo
+              variante="vertical"
+              className="w-full h-full object-contain group-hover:hidden"
+            />
+            <ChevronRight className="w-5 h-5 text-brand-600 hidden group-hover:block" />
           </button>
         ) : (
           <>
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm shrink-0">
-                UFPS
+              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm shrink-0">
+                <UfpsLogo
+                  variante="vertical"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="min-w-0">
                 <span className="font-serif-title text-xl text-surface tracking-tight block leading-none">

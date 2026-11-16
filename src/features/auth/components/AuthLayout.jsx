@@ -1,4 +1,5 @@
 import React from 'react';
+import UfpsLogo from '../../../components/ui/UfpsLogo';
 
 /**
  * MainLayout - Layout compartido para el sistema SIGEA
@@ -14,8 +15,11 @@ export default function AuthLayout({ children }) {
         <div className="space-y-8">
           {/* Logo / Escudo institucional UFPS */}
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-surface flex items-center justify-center shadow-md">
-              <span className="text-brand-600 font-bold text-xl tracking-tight">UFPS</span>
+            <div className="w-14 h-14 rounded-xl bg-surface p-1.5 flex items-center justify-center shadow-md">
+              <UfpsLogo
+                variante="vertical"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <p className="text-xs font-semibold tracking-wider text-brand-100 uppercase">

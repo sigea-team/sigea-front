@@ -32,8 +32,8 @@ export default function HomeRolesSection() {
   const IconoActivo = iconosPorRol[rolActivo.id] || Users;
 
   return (
-    <section id="beneficios" className="py-16 sm:py-24 bg-white border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="beneficios" className="min-h-screen py-16 sm:py-24 bg-white border-b border-border flex flex-col justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Encabezado */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 uppercase tracking-wider">
@@ -50,7 +50,7 @@ export default function HomeRolesSection() {
         </div>
 
         {/* Selector de Pestañas por Rol */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-surface-muted border border-border rounded-[12px] max-w-2xl mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-surface-muted border border-border rounded-[12px] w-full max-w-3xl mx-auto">
           {BENEFICIOS_POR_ROL.map((item) => {
             const Icono = iconosPorRol[item.id] || Users;
             const activo = item.id === rolSeleccionado;
@@ -73,7 +73,7 @@ export default function HomeRolesSection() {
         </div>
 
         {/* Tarjeta de Detalle del Rol Activo */}
-        <div className="bg-surface-muted border border-border rounded-[16px] p-6 sm:p-10 shadow-2xs max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div className="w-full bg-surface-muted border border-border rounded-[16px] p-6 sm:p-10 lg:p-12 shadow-2xs grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="md:col-span-5 space-y-4">
             <div className="w-14 h-14 rounded-[12px] bg-brand-100 text-brand-600 flex items-center justify-center">
               <IconoActivo className="w-7 h-7" />
@@ -83,7 +83,7 @@ export default function HomeRolesSection() {
               <span className="text-xs font-semibold text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded-full inline-block">
                 {rolActivo.tag}
               </span>
-              <h3 className="font-serif-title text-2xl text-ink-900 mt-2">
+              <h3 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-2">
                 {rolActivo.rol}
               </h3>
             </div>
@@ -103,14 +103,14 @@ export default function HomeRolesSection() {
             </div>
           </div>
 
-          <div className="md:col-span-7 bg-white border border-border rounded-[12px] p-6 space-y-4 shadow-2xs">
+          <div className="md:col-span-7 bg-white border border-border rounded-[14px] p-6 sm:p-8 space-y-4 shadow-2xs">
             <h4 className="text-xs font-semibold text-ink-900 uppercase tracking-wider text-ink-600">
               Lo que puedes hacer en la plataforma:
             </h4>
 
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {rolActivo.beneficios.map((beneficio) => (
-                <li key={beneficio} className="flex items-start gap-3 text-xs sm:text-sm text-ink-900 font-normal">
+                <li key={beneficio} className="flex items-start gap-3 text-xs sm:text-sm text-ink-900 font-normal bg-surface-muted/60 p-3.5 rounded-[10px] border border-border/50">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <span className="leading-snug">{beneficio}</span>
                 </li>
@@ -119,33 +119,7 @@ export default function HomeRolesSection() {
           </div>
         </div>
 
-        {/* Rejilla rápida complementaria para los demás roles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {BENEFICIOS_POR_ROL.map((item) => {
-            const Icono = iconosPorRol[item.id] || Users;
-            return (
-              <div
-                key={item.id}
-                onClick={() => setRolSeleccionado(item.id)}
-                className={`p-5 rounded-[12px] border transition-all cursor-pointer text-left ${
-                  item.id === rolSeleccionado
-                    ? 'bg-brand-100/40 border-brand-600/40 shadow-xs'
-                    : 'bg-white border-border hover:border-brand-600/30 hover:bg-surface-muted/50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-[8px] bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
-                    <Icono className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-ink-900 leading-tight">{item.rol}</h4>
-                    <span className="text-[11px] text-ink-600">{item.tag}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+
       </div>
     </section>
   );

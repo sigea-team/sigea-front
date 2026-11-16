@@ -11,8 +11,8 @@ export default function HomeCtaBanner() {
   const conSesion = Boolean(useAuthStore((state) => state.token));
 
   return (
-    <section className="py-16 sm:py-20 bg-surface-muted">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen py-16 sm:py-20 bg-surface-muted flex flex-col justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-700 rounded-[16px] p-8 sm:p-12 lg:p-16 text-white shadow-lg relative overflow-hidden">
           {/* Acentos de fondo sutiles */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-2xl pointer-events-none" />

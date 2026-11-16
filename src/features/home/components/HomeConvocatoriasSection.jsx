@@ -29,8 +29,8 @@ export default function HomeConvocatoriasSection({ convocatorias = [], cargando 
   });
 
   return (
-    <section id="convocatorias" className="py-16 sm:py-20 bg-white border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <section id="convocatorias" className="min-h-screen py-16 sm:py-20 bg-white border-b border-border flex flex-col justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Encabezado */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
