@@ -209,7 +209,7 @@ export default function Sidebar({
   return (
     <aside
       className={`h-screen flex flex-col bg-brand-700 border-r border-brand-600 shrink-0 select-none overflow-x-hidden transition-[width] duration-300 ease-in-out ${
-        isCollapsed ? 'w-[76px]' : 'w-[260px]'
+        isCollapsed ? 'w-[7px]' : 'w-[276px]'
       } ${className}`}
       aria-expanded={!isCollapsed}
     >
@@ -236,12 +236,12 @@ export default function Sidebar({
         ) : (
           <>
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm shrink-0">
+              {/*<div className="w-16 h-16 p-1 flex items-center justify-center shadow-sm shrink-0">*/}
                 <UfpsLogo
-                  variante="vertical"
-                  className="w-full h-full object-contain"
+                  variante="white"
+                  className="w-16 p-0 m-0 h-full object-contain"
                 />
-              </div>
+              {/*</div>*/}
               <div className="min-w-0">
                 <span className="font-serif-title text-xl text-surface tracking-tight block leading-none">
                   SIGEA

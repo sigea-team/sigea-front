@@ -1,5 +1,6 @@
 import ufpsLogoVertical from '../../assets/ufps-logo-vertical.png';
 import ufpsLogoHorizontal from '../../assets/ufps-logo-horizontal.png';
+import ufpsLogoWhite from '../../assets/ufps-logo-blanco.png';
 
 /**
  * @file UfpsLogo.jsx
@@ -8,13 +9,20 @@ import ufpsLogoHorizontal from '../../assets/ufps-logo-horizontal.png';
  * tanto en desarrollo local como en producción / GitHub Pages.
  * @module components/ui/UfpsLogo
  */
+
+const LOGOS = {
+  vertical: ufpsLogoVertical,
+  horizontal: ufpsLogoHorizontal,
+  white: ufpsLogoWhite,
+};
+
 export default function UfpsLogo({
   variante = 'vertical',
   className = 'h-10 w-auto object-contain',
   alt = 'Logo UFPS',
   ...props
 }) {
-  const src = variante === 'horizontal' ? ufpsLogoHorizontal : ufpsLogoVertical;
+  const src = LOGOS[variante] || ufpsLogoVertical;
 
   return (
     <img
@@ -27,4 +35,4 @@ export default function UfpsLogo({
   );
 }
 
-export { ufpsLogoVertical, ufpsLogoHorizontal };
+export { ufpsLogoVertical, ufpsLogoHorizontal, ufpsLogoWhite };
