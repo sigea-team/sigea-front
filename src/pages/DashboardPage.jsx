@@ -28,6 +28,7 @@ import { propuestaService } from '../api/propuestaService';
 import BannerModoEvaluador from '../features/evaluaciones/components/BannerModoEvaluador';
 import { esAdministrador, puedeEvaluar } from '../utils/permisos';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
+import { filtrarEventosPublicos } from '../features/eventos/eventoUtils';
 
 export default function DashboardPage({
   apiEventos = eventoService,
@@ -78,7 +79,7 @@ export default function DashboardPage({
       if (!activo) return;
 
       if (resEventos.status === 'fulfilled' && Array.isArray(resEventos.value)) {
-        setEventos(resEventos.value);
+        setEventos(isAdmin ? resEventos.value : filtrarEventosPublicos(resEventos.value));
       } else {
         setEventos([]);
       }

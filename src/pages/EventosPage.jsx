@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { CalendarCheck, CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import BotonAccion from '../components/ui/BotonAccion';
 import MenuAcciones from '../components/ui/MenuAcciones';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
@@ -19,6 +18,7 @@ import { salaService } from '../api/salaService';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
+import ModificarFechasModal from '../features/eventos/components/ModificarFechasModal';
 import EdicionesModal from '../features/eventos/components/EdicionesModal';
 import EventoDeleteModal from '../features/eventos/components/EventoDeleteModal';
 import ParametrosEventoModal from '../features/eventos/components/ParametrosEventoModal';
@@ -30,11 +30,15 @@ import AgendaModal from '../features/agenda/components/AgendaModal';
 import PresupuestoPreliminarModal from '../features/presupuesto/components/PresupuestoPreliminarModal';
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
+import InscripcionEventoModal from '../features/inscripciones/components/InscripcionEventoModal';
+import { inscripcionService } from '../api/inscripcionService';
+import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
   esEditable,
   etiquetaModalidad,
   extraerError,
+  filtrarEventosPublicos,
   formatearRango,
 } from '../features/eventos/eventoUtils';
 import { useAuth } from '../context/AuthContext';
@@ -52,6 +56,7 @@ import { esAdministrador } from '../utils/permisos';
  * Desde cada fila también se abren los gastos y la ejecución presupuestal del evento (HU-09).
  * En cada fila solo quedan visibles «Publicar» y «Editar» (cuando el evento está en configuración);
  * el resto de acciones va agrupado por tema en el menú «Más».
+ * El participante (sin perfil de administrador) se inscribe desde cada fila al evento y a sus actividades (HU-23).
  * @module pages/EventosPage
  */
 
@@ -98,6 +103,7 @@ const ALERTA_EXITO = {
  * @param {typeof presupuestoAprobadoService} [props.apiPresupuestoAprobado] - Cliente de la API del presupuesto aprobado (HU-08); Storybook inyecta una versión simulada.
  * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
+ * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
@@ -111,6 +117,7 @@ export default function EventosPage({
   apiPresupuestoAprobado = presupuestoAprobadoService,
   apiEjecucion = ejecucionPresupuestalService,
   apiSalas = salaService,
+  apiInscripciones = inscripcionService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -166,7 +173,8 @@ export default function EventosPage({
       .listarEventos()
       .then((data) => {
         if (!activo) return;
-        setEventos(Array.isArray(data) ? data : []);
+        const lista = Array.isArray(data) ? data : [];
+        setEventos(isAdmin ? lista : filtrarEventosPublicos(lista));
         setErrorCarga(false);
       })
       .catch((err) => {
@@ -194,7 +202,7 @@ export default function EventosPage({
     return () => {
       activo = false;
     };
-  }, [api, version]);
+  }, [api, version, isAdmin]);
 
   const recargar = () => {
     setCargando(true);
@@ -237,6 +245,11 @@ export default function EventosPage({
   const editar = async (datos) => {
     const actualizado = await api.actualizarEvento(modal.evento.id, datos);
     terminar('Cambios guardados', `Se actualizó la configuración de «${actualizado.nombre}».`);
+  };
+
+  const modificarFechas = async (datos) => {
+    const actualizado = await api.modificarFechasEvento(modal.evento.id, datos);
+    terminar('Fechas actualizadas', `«${actualizado.nombre}» ahora va del ${formatearRango(actualizado.fechaInicio, actualizado.fechaFin)}.`);
   };
 
   const crearEdicion = async (datos) => {
@@ -370,7 +383,7 @@ export default function EventosPage({
                   <th scope="col" className="py-3.5 px-5">Semestre</th>
                   <th scope="col" className="py-3.5 px-5">Modalidad</th>
                   <th scope="col" className="py-3.5 px-5">Estado</th>
-                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Detalles'}</th>
+                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Inscripción'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-sm text-ink-900">
@@ -443,9 +456,22 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">
                         <EstadoEventoBadge estado={evento.estado} />
                       </td>
+                      {!isAdmin && (
+                        <td className="py-4 px-5 align-middle">
+                          <div className="flex items-center justify-end">
+                            <BotonFila
+                              icono={CalendarCheck}
+                              principal={inscripcionesAbiertas(evento)}
+                              onClick={() => setModal({ tipo: 'inscripcion', evento })}
+                            >
+                              {inscripcionesAbiertas(evento) ? 'Inscribirme' : 'Ver inscripción'}
+                            </BotonFila>
+                          </div>
+                        </td>
+                      )}
+                      {isAdmin && (
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
-                          {isAdmin ? (
                             <>
                               {editable && (
                                 <>
@@ -463,6 +489,9 @@ export default function EventosPage({
                                   {
                                     titulo: 'Configuración del evento',
                                     acciones: [
+                                      ...(evento.estado === 'habilitado' || evento.estado === 'en_ejecucion'
+                                        ? [{ id: 'fechas', etiqueta: 'Modificar fechas', icono: CalendarDays, onClick: () => setModal({ tipo: 'fechas', evento }) }]
+                                        : []),
                                       { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
                                       { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
                                       { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
@@ -501,15 +530,9 @@ export default function EventosPage({
                                 ]}
                               />
                             </>
-                          ) : (
-                            <BotonAccion
-                              icono={History}
-                              etiqueta="Ver historial de ediciones"
-                              onClick={() => setModal({ tipo: 'historial', evento })}
-                            />
-                          )}
                         </div>
                       </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -539,6 +562,16 @@ export default function EventosPage({
           origen={modal.evento}
           onClose={cerrarModal}
           onSubmit={crearEdicion}
+        />
+      )}
+
+      {modal?.tipo === 'fechas' && (
+        <ModificarFechasModal
+          key={`fechas-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          onClose={cerrarModal}
+          onSubmit={modificarFechas}
         />
       )}
 
@@ -633,6 +666,16 @@ export default function EventosPage({
           api={apiEjecucion}
           onClose={cerrarModal}
           onAbrirPresupuestoAprobado={() => setModal({ tipo: 'presupuestoAprobado', evento: modal.evento })}
+        />
+      )}
+
+      {modal?.tipo === 'inscripcion' && (
+        <InscripcionEventoModal
+          key={`inscripcion-${modal.evento.id}`}
+          isOpen
+          evento={modal.evento}
+          api={apiInscripciones}
+          onClose={cerrarModal}
         />
       )}
 
