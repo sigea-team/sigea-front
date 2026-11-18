@@ -5,7 +5,7 @@ import HomeEventosSection from '../features/home/components/HomeEventosSection';
 import HomeConvocatoriasSection from '../features/home/components/HomeConvocatoriasSection';
 import HomeAboutSection from '../features/home/components/HomeAboutSection';
 import HomeRolesSection from '../features/home/components/HomeRolesSection';
-import HomeCtaBanner from '../features/home/components/HomeCtaBanner';
+//import HomeCtaBanner from '../features/home/components/HomeCtaBanner';
 import Footer from '../components/ui/Footer';
 import { convocatoriaService } from '../api/convocatoriaService';
 import { eventoService } from '../api/eventoService';
@@ -68,10 +68,10 @@ export default function HomePage({
     }
 
     // Cargar eventos en vivo desde el backend si no fueron provistos estáticamente
-    if (eventosIniciales === null && apiEventos?.listarEventosPublicos) {
+    const fetchEventos = apiEventos?.listarEventosPublicos || apiEventos?.listarEventos;
+    if (eventosIniciales === null && fetchEventos) {
       setCargandoEventos(true);
-      apiEventos
-        .listarEventosPublicos()
+      fetchEventos()
         .then((lista) => {
           if (!activo) return;
           setEventosRaw(Array.isArray(lista) ? lista : []);
@@ -127,7 +127,7 @@ export default function HomePage({
         <HomeRolesSection />
 
         {/* 7. Banner CTA de llamada a la acción */}
-        <HomeCtaBanner />
+        
       </main>
 
       {/* 8. Pie de página institucional completo */}

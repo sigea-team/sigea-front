@@ -9,56 +9,44 @@
 import { httpClient } from './httpClient';
 
 /**
- * Lista todos los eventos y ediciones, del más reciente al más antiguo.
+ * Lista todos los eventos accesibles.
  * Endpoint: GET /api/v1/eventos
+ * - Usuarios no autenticados / asistentes: devuelve eventos habilitados o en ejecución (o cerrados).
+ * - Administradores / gestores: devuelve todos los eventos incluidos los que están en configuración.
+ * @param {Object} [params] - Filtros opcionales (semestre, estado).
  * @returns {Promise<Array<Object>>}
  */
-export async function listarEventos() {
+export async function listarEventos(params) {
   try {
-    const { data } = await httpClient.get('/eventos');
+    const { data } = await httpClient.get('/eventos', { params });
     return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.warn('[eventoService] No se pudieron listar eventos por restricción de permisos del backend:', err?.response?.status || err?.message);
+    console.warn('[eventoService] No se pudieron listar eventos:', err?.response?.status || err?.message);
     return [];
   }
 }
 
 /**
- * Consulta pública de eventos académicos publicados (no requiere sesión).
- * Endpoint: GET /api/v1/publico/eventos
+ * Consulta de eventos para la vista pública (consume directamente /api/v1/eventos).
  * @param {string} [semestre] - Filtra por semestre.
  * @returns {Promise<Array<Object>>}
  */
 export async function listarEventosPublicos(semestre) {
-  try {
-    const params = semestre ? { semestre } : undefined;
-    const { data } = await httpClient.get('/publico/eventos', { params });
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.warn('[eventoService] No se pudieron listar eventos públicos:', err?.response?.status || err?.message);
-    return [];
-  }
-}
-
-/**
- * Consulta pública del detalle de un evento (no requiere sesión).
- * Endpoint: GET /api/v1/publico/eventos/{id}
- * @param {number|string} id
- */
-export async function obtenerEventoPublico(id) {
-  const { data } = await httpClient.get(`/publico/eventos/${id}`);
-  return data;
+  const params = semestre ? { semestre } : undefined;
+  return listarEventos(params);
 }
 
 /**
  * Consulta un evento por su ID.
  * Endpoint: GET /api/v1/eventos/{id}
- * @param {number} id
+ * @param {number|string} id
  */
 export async function obtenerEvento(id) {
   const { data } = await httpClient.get(`/eventos/${id}`);
   return data;
 }
+
+export const obtenerEventoPublico = obtenerEvento;
 
 /**
  * Crea un evento nuevo; queda en estado "en_configuracion" (Criterio 1).
