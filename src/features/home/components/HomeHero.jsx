@@ -7,25 +7,25 @@ import { CalendarDays, FileText, ArrowRight, ShieldCheck, Award, Users, BookOpen
  * Presenta el sistema, el programa de Ingeniería de Sistemas UFPS y las acciones inmediatas para el visitante.
  * @module features/home/components/HomeHero
  */
-export default function HomeHero() {
+export default function HomeHero({ totalEventos, totalConvocatorias }) {
   const metricas = [
     {
       icono: CalendarDays,
-      valor: '+15',
-      etiqueta: 'Eventos & Ediciones',
-      detalle: 'Congresos, simposios y hackatones anuales',
+      valor: typeof totalEventos === 'number' ? String(totalEventos) : '+15',
+      etiqueta: 'Eventos Publicados',
+      detalle: 'Congresos, simposios y hackatones registrados',
+    },
+    {
+      icono: FileText,
+      valor: typeof totalConvocatorias === 'number' ? String(totalConvocatorias) : 'Activas',
+      etiqueta: 'Convocatorias de Ponencias',
+      detalle: 'Recepción y arbitraje de artículos científicos',
     },
     {
       icono: ShieldCheck,
       valor: '100%',
       etiqueta: 'Evaluación a Doble Ciego',
       detalle: 'Rigor científico con rúbricas cuantitativas',
-    },
-    {
-      icono: Users,
-      valor: '+500',
-      etiqueta: 'Investigadores y Autores',
-      detalle: 'Comunidad universitaria conectada',
     },
     {
       icono: Award,

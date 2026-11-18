@@ -8,74 +8,111 @@ import HomeRolesSection from '../features/home/components/HomeRolesSection';
 import HomeCtaBanner from '../features/home/components/HomeCtaBanner';
 import Footer from '../components/ui/Footer';
 import { convocatoriaService } from '../api/convocatoriaService';
-import {
-  EVENTOS_BASE_INSTITUCIONALES,
-  combinarEventosConConvocatorias,
-} from '../features/home/homeUtils';
+import { eventoService } from '../api/eventoService';
+import { combinarEventosConConvocatorias } from '../features/home/homeUtils';
 
 /**
  * @file HomePage.jsx
  * @description Página de inicio pública oficial (Landing Page / Home) de SIGEA.
  * Diseñada para el Programa de Ingeniería de Sistemas de la Universidad Francisco de Paula Santander (UFPS) en Cúcuta.
  *
- * Cumple con los 3 objetivos clave:
- * 1. Consulta pública de eventos y programación sin necesidad de iniciar sesión.
- * 2. Explicación institucional de SIGEA, del Programa y de la UFPS.
- * 3. Puerta de entrada amigable hacia registro, inicio de sesión y convocatorias abiertas (Call for Papers).
+ * Consume directamente los endpoints del backend para eventos y convocatorias publicados:
+ * - GET /api/v1/publico/eventos
+ * - GET /api/v1/publico/convocatorias
  *
  * @module pages/HomePage
  * @param {Object} props
- * @param {{ listarConvocatoriasPublicadas: Function }} [props.api=convocatoriaService] - Cliente API inyectable para pruebas y Storybook.
- * @param {Array<Object>} [props.eventosIniciales] - Lista opcional de eventos para testing/Storybook.
+ * @param {{ listarConvocatoriasPublicadas: Function }} [props.api] - Cliente de convocatorias (para compatibilidad con Storybook).
+ * @param {{ listarConvocatoriasPublicadas: Function }} [props.apiConvocatorias=convocatoriaService] - Cliente de API de convocatorias.
+ * @param {{ listarEventosPublicos: Function }} [props.apiEventos=eventoService] - Cliente de API de eventos.
+ * @param {Array<Object>} [props.eventosIniciales=null] - Lista opcional para pruebas/Storybook (si es null, consume el backend).
+ * @param {Array<Object>} [props.convocatoriasIniciales=null] - Lista opcional para pruebas/Storybook.
  */
 export default function HomePage({
-  api = convocatoriaService,
-  eventosIniciales = EVENTOS_BASE_INSTITUCIONALES,
+  api,
+  apiConvocatorias = convocatoriaService,
+  apiEventos = eventoService,
+  eventosIniciales = null,
+  convocatoriasIniciales = null,
 }) {
-  const [convocatorias, setConvocatorias] = useState([]);
-  const [cargandoConvocatorias, setCargandoConvocatorias] = useState(true);
-  const [eventos, setEventos] = useState(() =>
-    combinarEventosConConvocatorias(eventosIniciales, [])
-  );
+  const clienteConvocatorias = api || apiConvocatorias;
+
+  const [convocatorias, setConvocatorias] = useState(() => convocatoriasIniciales || []);
+  const [cargandoConvocatorias, setCargandoConvocatorias] = useState(() => convocatoriasIniciales === null);
+
+  const [eventosRaw, setEventosRaw] = useState(() => eventosIniciales || []);
+  const [cargandoEventos, setCargandoEventos] = useState(() => eventosIniciales === null);
 
   useEffect(() => {
     let activo = true;
 
-    api
-      .listarConvocatoriasPublicadas()
-      .then((lista) => {
-        if (!activo) return;
-        const listaValida = Array.isArray(lista) ? lista : [];
-        setConvocatorias(listaValida);
-        setEventos(combinarEventosConConvocatorias(eventosIniciales, listaValida));
-      })
-      .catch((err) => {
-        if (!activo) return;
-        console.warn('[HomePage] No se pudieron cargar convocatorias en vivo:', err?.message);
-        setEventos(combinarEventosConConvocatorias(eventosIniciales, []));
-      })
-      .finally(() => {
-        if (activo) {
-          setCargandoConvocatorias(false);
-        }
-      });
+    // Cargar convocatorias en vivo desde el backend si no fueron provistas estáticamente
+    if (convocatoriasIniciales === null && clienteConvocatorias?.listarConvocatoriasPublicadas) {
+      setCargandoConvocatorias(true);
+      clienteConvocatorias
+        .listarConvocatoriasPublicadas()
+        .then((lista) => {
+          if (!activo) return;
+          setConvocatorias(Array.isArray(lista) ? lista : []);
+        })
+        .catch((err) => {
+          if (!activo) return;
+          console.warn('[HomePage] No se pudieron cargar convocatorias en vivo:', err?.message);
+          setConvocatorias([]);
+        })
+        .finally(() => {
+          if (activo) {
+            setCargandoConvocatorias(false);
+          }
+        });
+    }
+
+    // Cargar eventos en vivo desde el backend si no fueron provistos estáticamente
+    if (eventosIniciales === null && apiEventos?.listarEventosPublicos) {
+      setCargandoEventos(true);
+      apiEventos
+        .listarEventosPublicos()
+        .then((lista) => {
+          if (!activo) return;
+          setEventosRaw(Array.isArray(lista) ? lista : []);
+        })
+        .catch((err) => {
+          if (!activo) return;
+          console.warn('[HomePage] No se pudieron cargar eventos en vivo:', err?.message);
+          setEventosRaw([]);
+        })
+        .finally(() => {
+          if (activo) {
+            setCargandoEventos(false);
+          }
+        });
+    }
 
     return () => {
       activo = false;
     };
-  }, [api, eventosIniciales]);
+  }, [clienteConvocatorias, apiEventos, convocatoriasIniciales, eventosIniciales]);
+
+  // Se combinan los eventos reales con las convocatorias reales
+  const eventos = combinarEventosConConvocatorias(eventosRaw, convocatorias);
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-surface text-ink-900 font-sans antialiased selection:bg-brand-100 selection:text-brand-700">
-      {/* 1. Barra de navegación pública (Topbar unificado en modo público) */}
+      {/* 1. Barra de navegación pública (Topbar unificado con estado de cuenta si hay sesión) */}
       <Topbar variante="publica" />
 
       <main className="flex-1 w-full">
-        {/* 2. Hero Section de alto impacto con métricas institucionales */}
-        <HomeHero />
+        {/* 2. Hero Section con métricas reales */}
+        <HomeHero
+          totalEventos={cargandoEventos ? undefined : eventos.length}
+          totalConvocatorias={cargandoConvocatorias ? undefined : convocatorias.length}
+        />
 
         {/* 3. Sección de Eventos y Programación en vivo (Objetivo 1) */}
-        <HomeEventosSection eventos={eventos} />
+        <HomeEventosSection
+          eventos={eventos}
+          cargando={cargandoEventos}
+        />
 
         {/* 4. Sección de Convocatorias Abiertas (Objetivo 3) */}
         <HomeConvocatoriasSection
@@ -93,7 +130,7 @@ export default function HomePage({
         <HomeCtaBanner />
       </main>
 
-      {/* 8. Pie de página institucional completo (versión full) */}
+      {/* 8. Pie de página institucional completo */}
       <Footer />
     </div>
   );

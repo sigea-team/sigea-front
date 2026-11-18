@@ -24,6 +24,33 @@ export async function listarEventos() {
 }
 
 /**
+ * Consulta pública de eventos académicos publicados (no requiere sesión).
+ * Endpoint: GET /api/v1/publico/eventos
+ * @param {string} [semestre] - Filtra por semestre.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function listarEventosPublicos(semestre) {
+  try {
+    const params = semestre ? { semestre } : undefined;
+    const { data } = await httpClient.get('/publico/eventos', { params });
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('[eventoService] No se pudieron listar eventos públicos:', err?.response?.status || err?.message);
+    return [];
+  }
+}
+
+/**
+ * Consulta pública del detalle de un evento (no requiere sesión).
+ * Endpoint: GET /api/v1/publico/eventos/{id}
+ * @param {number|string} id
+ */
+export async function obtenerEventoPublico(id) {
+  const { data } = await httpClient.get(`/publico/eventos/${id}`);
+  return data;
+}
+
+/**
  * Consulta un evento por su ID.
  * Endpoint: GET /api/v1/eventos/{id}
  * @param {number} id
@@ -111,6 +138,8 @@ export async function eliminarEvento(id) {
 /** Agrupa las funciones para poder inyectar una API simulada en Storybook. */
 export const eventoService = {
   listarEventos,
+  listarEventosPublicos,
+  obtenerEventoPublico,
   modificarFechasEvento,
   obtenerEvento,
   crearEvento,

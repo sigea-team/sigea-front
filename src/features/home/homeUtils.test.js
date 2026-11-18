@@ -47,6 +47,25 @@ describe('homeUtils', () => {
   });
 
   describe('combinarEventosConConvocatorias', () => {
+    it('retorna arreglo vacío si no hay eventos ni convocatorias (evita cargar datos falsos)', () => {
+      expect(combinarEventosConConvocatorias()).toEqual([]);
+      expect(combinarEventosConConvocatorias([], [])).toEqual([]);
+    });
+
+    it('combina eventos reales del backend e inyecta convocatorias correspondientes', () => {
+      const eventosReales = [
+        { id: 5, nombre: 'Congreso Real 2026', modalidad: 'presencial', fechaInicio: '2026-11-20', fechaFin: '2026-11-22' },
+      ];
+      const convs = [
+        { id: 10, eventoId: 5, eventoNombre: 'Congreso Real 2026', titulo: 'Call for Papers' },
+      ];
+      const resultado = combinarEventosConConvocatorias(eventosReales, convs);
+      expect(resultado).toHaveLength(1);
+      expect(resultado[0].nombre).toBe('Congreso Real 2026');
+      expect(resultado[0].convocatorias).toHaveLength(1);
+      expect(resultado[0].convocatorias[0].id).toBe(10);
+    });
+
     it('combina eventos base e inyecta convocatorias correspondientes', () => {
       const convs = [
         { id: 10, eventoId: 1, eventoNombre: 'Hackathon', titulo: 'Convocatoria Hack' },

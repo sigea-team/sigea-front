@@ -147,13 +147,13 @@ export function calcularEstadoEvento(fechaInicio, fechaFin) {
 }
 
 /**
- * Combina la lista de eventos institucionales base con las convocatorias públicas y eventos del backend.
- * @param {Array<Object>} [eventosBase=EVENTOS_BASE_INSTITUCIONALES]
+ * Combina la lista de eventos con las convocatorias públicas correspondientes.
+ * @param {Array<Object>} [eventosBase=[]]
  * @param {Array<Object>} [convocatoriasPublicas=[]]
  * @returns {Array<Object>}
  */
 export function combinarEventosConConvocatorias(
-  eventosBase = EVENTOS_BASE_INSTITUCIONALES,
+  eventosBase = [],
   convocatoriasPublicas = []
 ) {
   const mapa = new Map();

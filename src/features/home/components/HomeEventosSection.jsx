@@ -24,7 +24,7 @@ import { filtrarEventos, formatearRangoFechas } from '../homeUtils';
  * acceder a la agenda publicada y nómina de conferencistas.
  * @module features/home/components/HomeEventosSection
  */
-export default function HomeEventosSection({ eventos = [] }) {
+export default function HomeEventosSection({ eventos = [], cargando = false }) {
   const [busqueda, setBusqueda] = useState('');
   const [modalidadFiltro, setModalidadFiltro] = useState('todas');
   const [estadoFiltro, setEstadoFiltro] = useState('todos');
@@ -168,7 +168,22 @@ export default function HomeEventosSection({ eventos = [] }) {
         </div>
 
         {/* Rejilla de Tarjetas de Eventos */}
-        {eventosFiltrados.length === 0 ? (
+        {cargando ? (
+          <div className="bg-white border border-border rounded-[16px] p-12 text-center space-y-3">
+            <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-ink-600">Cargando eventos académicos del servidor...</p>
+          </div>
+        ) : eventos.length === 0 ? (
+          <div className="bg-white border border-border rounded-[16px] p-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mx-auto">
+              <CalendarDays className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-semibold text-ink-900">No hay eventos académicos publicados actualmente</h3>
+            <p className="text-sm text-ink-600 max-w-md mx-auto">
+              El comité organizador publicará próximamente la programación de las nuevas jornadas, congresos y simposios institucionales.
+            </p>
+          </div>
+        ) : eventosFiltrados.length === 0 ? (
           <div className="bg-white border border-border rounded-[16px] p-12 text-center space-y-3">
             <div className="w-12 h-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center mx-auto">
               <Search className="w-6 h-6" />

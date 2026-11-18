@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import UfpsLogo from './UfpsLogo';
+import SidebarNavItem from './SidebarNavItem';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -275,38 +276,20 @@ export default function Sidebar({
         )}
 
         {navItems.map((item) => {
-          const Icon = item.icon;
           const currentPath = location?.pathname;
           const isActive =
             activeItem === item.id ||
             activeItem === item.label.toLowerCase() ||
-            (currentPath && item.href && (currentPath === item.href || (item.href !== '/dashboard' && currentPath.startsWith(item.href))));
+            Boolean(currentPath && item.href && (currentPath === item.href || (item.href !== '/dashboard' && currentPath.startsWith(item.href))));
 
           return (
-            <div key={item.id} className="relative group">
-              <button
-                type="button"
-                onClick={() => handleNavClick(item)}
-                title={isCollapsed ? item.label : undefined}
-                className={`w-full flex items-center rounded-[8px] text-sm font-medium transition-colors cursor-pointer ${
-                  isCollapsed ? 'justify-center h-11 px-0' : 'gap-3 px-3.5 py-2.5 text-left'
-                } ${
-                  isActive
-                    ? 'bg-surface text-brand-600'
-                    : 'text-surface hover:bg-brand-600 hover:text-surface'
-                }`}
-              >
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand-600' : 'text-surface'}`} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-              </button>
-
-              {/* Tooltip flotante al estar colapsado */}
-              {isCollapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-ink-900 text-surface text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                  {item.label}
-                </div>
-              )}
-            </div>
+            <SidebarNavItem
+              key={item.id}
+              item={item}
+              isActive={isActive}
+              isCollapsed={isCollapsed}
+              onClick={handleNavClick}
+            />
           );
         })}
       </nav>
