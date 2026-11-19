@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import UfpsLogo from './UfpsLogo';
+import SidebarNavItem from './SidebarNavItem';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -208,7 +210,7 @@ export default function Sidebar({
   return (
     <aside
       className={`h-screen flex flex-col bg-brand-700 border-r border-brand-600 shrink-0 select-none overflow-x-hidden transition-[width] duration-300 ease-in-out ${
-        isCollapsed ? 'w-[76px]' : 'w-[260px]'
+        isCollapsed ? 'w-[7px]' : 'w-[276px]'
       } ${className}`}
       aria-expanded={!isCollapsed}
     >
@@ -224,17 +226,23 @@ export default function Sidebar({
             onClick={handleToggle}
             title="Expandir menú lateral"
             aria-label="Expandir menú lateral"
-            className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm hover:bg-brand-700 transition-colors cursor-pointer group"
+            className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-sm hover:bg-white/90 transition-colors cursor-pointer group"
           >
-            <span className="group-hover:hidden">UFPS</span>
-            <ChevronRight className="w-5 h-5 hidden group-hover:block" />
+            <UfpsLogo
+              variante="vertical"
+              className="w-full h-full object-contain group-hover:hidden"
+            />
+            <ChevronRight className="w-5 h-5 text-brand-600 hidden group-hover:block" />
           </button>
         ) : (
           <>
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-surface font-bold text-sm shadow-sm shrink-0">
-                UFPS
-              </div>
+              {/*<div className="w-16 h-16 p-1 flex items-center justify-center shadow-sm shrink-0">*/}
+                <UfpsLogo
+                  variante="white"
+                  className="w-16 p-0 m-0 h-full object-contain"
+                />
+              {/*</div>*/}
               <div className="min-w-0">
                 <span className="font-serif-title text-xl text-surface tracking-tight block leading-none">
                   SIGEA
@@ -268,38 +276,20 @@ export default function Sidebar({
         )}
 
         {navItems.map((item) => {
-          const Icon = item.icon;
           const currentPath = location?.pathname;
           const isActive =
             activeItem === item.id ||
             activeItem === item.label.toLowerCase() ||
-            (currentPath && item.href && (currentPath === item.href || (item.href !== '/dashboard' && currentPath.startsWith(item.href))));
+            Boolean(currentPath && item.href && (currentPath === item.href || (item.href !== '/dashboard' && currentPath.startsWith(item.href))));
 
           return (
-            <div key={item.id} className="relative group">
-              <button
-                type="button"
-                onClick={() => handleNavClick(item)}
-                title={isCollapsed ? item.label : undefined}
-                className={`w-full flex items-center rounded-[8px] text-sm font-medium transition-colors cursor-pointer ${
-                  isCollapsed ? 'justify-center h-11 px-0' : 'gap-3 px-3.5 py-2.5 text-left'
-                } ${
-                  isActive
-                    ? 'bg-surface text-brand-600'
-                    : 'text-surface hover:bg-brand-600 hover:text-surface'
-                }`}
-              >
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-brand-600' : 'text-surface'}`} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-              </button>
-
-              {/* Tooltip flotante al estar colapsado */}
-              {isCollapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-ink-900 text-surface text-xs font-medium rounded-md shadow-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                  {item.label}
-                </div>
-              )}
-            </div>
+            <SidebarNavItem
+              key={item.id}
+              item={item}
+              isActive={isActive}
+              isCollapsed={isCollapsed}
+              onClick={handleNavClick}
+            />
           );
         })}
       </nav>

@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore';
 import { extraerError } from '../features/eventos/eventoUtils';
 import { formatearHora } from '../features/agenda/agendaUtils';
 import { tituloDia } from '../features/agenda/agendaPublicacionUtils';
+import UfpsLogo from '../components/ui/UfpsLogo';
 
 /**
  * @file AgendaPublicaPage.jsx
@@ -59,9 +60,10 @@ export default function AgendaPublicaPage({ api = agendaService, eventoId: event
     <div className="min-h-screen w-full flex flex-col bg-[#f7f7f8] text-[#1f2023] font-sans antialiased">
       <header className="h-16 px-8 bg-white border-b border-[#e5e7ea] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#a6192e] flex items-center justify-center">
-            <span className="text-white font-bold text-[11px] tracking-tight">UFPS</span>
-          </div>
+          <UfpsLogo
+            variante="vertical"
+            className="h-10 w-auto max-w-[40px] object-contain shrink-0"
+          />
           <div className="leading-tight">
             <p className="text-base font-bold text-[#a6192e]">SIGEA</p>
             <p className="text-[11px] text-[#5b5f66]">Sistema Integral de Gestión de Eventos Académicos</p>
@@ -212,7 +214,7 @@ export default function AgendaPublicaPage({ api = agendaService, eventoId: event
         ))}
       </main>
 
-      <Footer />
+      <Footer compacto />
     </div>
   );
 }

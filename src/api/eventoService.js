@@ -9,29 +9,44 @@
 import { httpClient } from './httpClient';
 
 /**
- * Lista todos los eventos y ediciones, del más reciente al más antiguo.
+ * Lista todos los eventos accesibles.
  * Endpoint: GET /api/v1/eventos
+ * - Usuarios no autenticados / asistentes: devuelve eventos habilitados o en ejecución (o cerrados).
+ * - Administradores / gestores: devuelve todos los eventos incluidos los que están en configuración.
+ * @param {Object} [params] - Filtros opcionales (semestre, estado).
  * @returns {Promise<Array<Object>>}
  */
-export async function listarEventos() {
+export async function listarEventos(params) {
   try {
-    const { data } = await httpClient.get('/eventos');
+    const { data } = await httpClient.get('/eventos', { params });
     return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.warn('[eventoService] No se pudieron listar eventos por restricción de permisos del backend:', err?.response?.status || err?.message);
+    console.warn('[eventoService] No se pudieron listar eventos:', err?.response?.status || err?.message);
     return [];
   }
 }
 
 /**
+ * Consulta de eventos para la vista pública (consume directamente /api/v1/eventos).
+ * @param {string} [semestre] - Filtra por semestre.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function listarEventosPublicos(semestre) {
+  const params = semestre ? { semestre } : undefined;
+  return listarEventos(params);
+}
+
+/**
  * Consulta un evento por su ID.
  * Endpoint: GET /api/v1/eventos/{id}
- * @param {number} id
+ * @param {number|string} id
  */
 export async function obtenerEvento(id) {
   const { data } = await httpClient.get(`/eventos/${id}`);
   return data;
 }
+
+export const obtenerEventoPublico = obtenerEvento;
 
 /**
  * Crea un evento nuevo; queda en estado "en_configuracion" (Criterio 1).
@@ -111,6 +126,8 @@ export async function eliminarEvento(id) {
 /** Agrupa las funciones para poder inyectar una API simulada en Storybook. */
 export const eventoService = {
   listarEventos,
+  listarEventosPublicos,
+  obtenerEventoPublico,
   modificarFechasEvento,
   obtenerEvento,
   crearEvento,

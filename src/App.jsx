@@ -1,5 +1,6 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -8,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import RolesPage from './pages/RolesPage';
 import AuditoriaPage from './pages/AuditoriaPage';
 import EventosPage from './pages/EventosPage';
+import EventoDetallePage from './pages/EventoDetallePage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
 import CuentaPage from './pages/CuentaPage';
 import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
@@ -29,7 +31,9 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Vista pública principal (lo primero que ve cualquier visitante) */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/recuperar-password" element={<ForgotPasswordPage />} />
@@ -41,6 +45,9 @@ function App() {
           <Route path="/eventos/:eventoId/conferencistas-publicos" element={<ConferencistasPublicosPage />} />
           {/* HU-22 (Criterio 3): agenda publicada del evento, organizada por día y hora, sin iniciar sesión */}
           <Route path="/eventos/:eventoId/agenda-publica" element={<AgendaPublicaPage />} />
+          {/* Información completa de un evento académico público */}
+          <Route path="/eventos/:eventoId" element={<EventoDetallePage />} />
+          <Route path="/eventos/:eventoId/detalle" element={<EventoDetallePage />} />
           {/* HU-12: el conferencista invitado registra sus datos desde el enlace del correo (sin sesión) */}
           <Route path="/conferencista/invitacion" element={<ConferencistaInvitacionPage />} />
 
@@ -74,7 +81,7 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

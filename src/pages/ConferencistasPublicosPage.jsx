@@ -6,6 +6,7 @@ import { conferencistaService } from '../api/conferencistaService';
 import { useAuthStore } from '../store/authStore';
 import ConferencistaPublicoCard from '../features/conferencistas/components/ConferencistaPublicoCard';
 import { extraerError, formatearRango } from '../features/eventos/eventoUtils';
+import UfpsLogo from '../components/ui/UfpsLogo';
 
 /**
  * @file ConferencistasPublicosPage.jsx
@@ -58,9 +59,10 @@ export default function ConferencistasPublicosPage({ api = conferencistaService,
     <div className="min-h-screen w-full flex flex-col bg-surface-muted text-ink-900 font-sans antialiased">
       <header className="h-16 px-8 bg-white border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center">
-            <span className="text-white font-bold text-[11px] tracking-tight">UFPS</span>
-          </div>
+          <UfpsLogo
+            variante="vertical"
+            className="h-10 w-auto max-w-[40px] object-contain shrink-0"
+          />
           <div className="leading-tight">
             <p className="text-base font-bold text-brand-600">SIGEA</p>
             <p className="text-[11px] text-ink-600">Sistema Integral de Gestión de Eventos Académicos</p>
@@ -132,7 +134,7 @@ export default function ConferencistasPublicosPage({ api = conferencistaService,
         </div>
       </main>
 
-      <Footer />
+      <Footer compacto />
     </div>
   );
 }
