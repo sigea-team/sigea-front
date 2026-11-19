@@ -36,6 +36,13 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
   const [version, setVersion] = useState(0);
   const [abierta, setAbierta] = useState(null); // encuesta que se está respondiendo
   const [aviso, setAviso] = useState(null);
+  // Hora de referencia para saber si una encuesta venció mientras la página está abierta; se renueva cada 30 s.
+  const [ahora, setAhora] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setAhora(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let activo = true;
@@ -43,7 +50,8 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
       .listarMisEncuestas()
       .then((lista) => {
         if (!activo) return;
-        setEncuestas(ordenarMisEncuestas(filtrarMisEncuestas(lista)));
+        setEncuestas(lista);
+        setAhora(new Date());
         setError(null);
       })
       .catch((err) => {
@@ -62,7 +70,21 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
     recargar();
   };
 
-  const pendientes = (encuestas || []).filter((e) => situacionParticipante(e).id === 'pendiente').length;
+  const visibles = encuestas ? ordenarMisEncuestas(filtrarMisEncuestas(encuestas, ahora), ahora) : null;
+  const pendientes = (visibles || []).filter((e) => situacionParticipante(e, ahora).id === 'pendiente').length;
+
+  const abrir = (e) => {
+    const momento = new Date();
+    // Pudo vencer entre la última revisión y el clic: no se abre y se refresca la lista.
+    if (situacionParticipante(e, momento).id !== 'pendiente') {
+      setAviso(`La encuesta «${e.titulo}» ya no recibe respuestas.`);
+      setAhora(momento);
+      recargar();
+      return;
+    }
+    setAviso(null);
+    setAbierta(e);
+  };
 
   return (
     <MainLayout title="Mis encuestas" activeNav="mis-encuestas" onSelectNav={onSelectNav} usuario={usuarioProp}>
@@ -103,7 +125,7 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
           <p className="text-sm text-ink-600 py-6 text-center" role="status">Cargando encuestas...</p>
         )}
 
-        {!error && encuestas && encuestas.length === 0 && (
+        {!error && visibles && visibles.length === 0 && (
           <div className="p-8 rounded-[12px] border border-dashed border-field-border bg-white text-center space-y-1">
             <p className="text-sm font-semibold text-ink-900">No tienes encuestas por responder.</p>
             <p className="text-sm text-ink-600">
@@ -112,14 +134,14 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
           </div>
         )}
 
-        {!error && encuestas && encuestas.length > 0 && (
+        {!error && visibles && visibles.length > 0 && (
           <>
             <p className="text-sm text-ink-600">
               {pendientes > 0 ? `Tienes ${plural(pendientes, 'encuesta')} por responder.` : 'Ya respondiste todas tus encuestas.'}
             </p>
             <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {encuestas.map((e) => {
-                const situacion = situacionParticipante(e);
+              {visibles.map((e) => {
+                const situacion = situacionParticipante(e, ahora);
                 return (
                   <li key={e.encuestaId} className="p-5 rounded-[12px] border border-border bg-white flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
@@ -151,10 +173,7 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
                         <Button
                           type="button"
                           variant="primary"
-                          onClick={() => {
-                            setAviso(null);
-                            setAbierta(e);
-                          }}
+                          onClick={() => abrir(e)}
                           className="h-9 px-3 text-xs shrink-0"
                         >
                           <Send className="w-3.5 h-3.5" aria-hidden="true" />

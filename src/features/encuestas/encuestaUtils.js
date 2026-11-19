@@ -524,15 +524,29 @@ export function erroresRespuestasDeBackend(campos) {
 }
 
 /**
- * Situación de una encuesta para el participante.
- * @param {{ respondida?: boolean, recibeRespuestas?: boolean }} encuesta
+ * Indica si la fecha de cierre de la encuesta ya pasó. Sirve para no mostrar como respondible una encuesta que venció
+ * mientras la página seguía abierta: `recibeRespuestas` es el valor que calculó el servidor al cargar la lista.
+ * @param {{ fechaCierre?: string|null }} encuesta
+ * @param {Date} [ahora=new Date()]
+ */
+export function estaVencida(encuesta, ahora = new Date()) {
+  if (!encuesta?.fechaCierre) return false;
+  const cierre = new Date(encuesta.fechaCierre);
+  return !Number.isNaN(cierre.getTime()) && cierre <= ahora;
+}
+
+/**
+ * Situación de una encuesta para el participante. Además de lo que dice el servidor, revisa la fecha de cierre
+ * contra la hora actual.
+ * @param {{ respondida?: boolean, recibeRespuestas?: boolean, fechaCierre?: string|null }} encuesta
+ * @param {Date} [ahora=new Date()]
  * @returns {{ id: 'pendiente'|'respondida'|'cerrada', etiqueta: string, clases: string }}
  */
-export function situacionParticipante(encuesta) {
+export function situacionParticipante(encuesta, ahora = new Date()) {
   if (encuesta?.respondida) {
     return { id: 'respondida', etiqueta: 'Respondida', clases: 'bg-surface-muted text-ink-900 border-ink-600' };
   }
-  if (encuesta?.recibeRespuestas) {
+  if (encuesta?.recibeRespuestas && !estaVencida(encuesta, ahora)) {
     return { id: 'pendiente', etiqueta: 'Por responder', clases: 'bg-brand-100 text-brand-700 border-brand-600' };
   }
   return { id: 'cerrada', etiqueta: 'Cerrada', clases: 'bg-white text-ink-600 border-field-border' };
@@ -540,21 +554,23 @@ export function situacionParticipante(encuesta) {
 
 /**
  * Deja en «Mis encuestas» solo las que el participante todavía puede responder y las que ya respondió. El backend
- * ya filtra así; esto evita mostrar como accionable una que cerró o venció entre la consulta y la vista.
+ * ya filtra así; esto quita además las que cerraron o vencieron después de cargar la lista.
  * @param {Array<Object>} encuestas
+ * @param {Date} [ahora=new Date()]
  */
-export function filtrarMisEncuestas(encuestas) {
-  return (encuestas || []).filter((e) => situacionParticipante(e).id !== 'cerrada');
+export function filtrarMisEncuestas(encuestas, ahora = new Date()) {
+  return (encuestas || []).filter((e) => situacionParticipante(e, ahora).id !== 'cerrada');
 }
 
 /**
  * Ordena las encuestas del participante: primero las que puede responder (las que cierran antes, primero) y
  * después las respondidas (la más reciente primero).
  * @param {Array<Object>} encuestas
+ * @param {Date} [ahora=new Date()]
  */
-export function ordenarMisEncuestas(encuestas) {
+export function ordenarMisEncuestas(encuestas, ahora = new Date()) {
   const lista = [...(encuestas || [])];
-  const peso = (e) => (situacionParticipante(e).id === 'pendiente' ? 0 : 1);
+  const peso = (e) => (situacionParticipante(e, ahora).id === 'pendiente' ? 0 : 1);
   return lista.sort((a, b) => {
     if (peso(a) !== peso(b)) return peso(a) - peso(b);
     if (peso(a) === 0) {

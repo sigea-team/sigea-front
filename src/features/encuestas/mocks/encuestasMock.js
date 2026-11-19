@@ -286,6 +286,9 @@ export function crearEncuestasApiMock(opciones = {}) {
         throw errorApi(409, 'EVENTO_NO_DISPONIBLE', 'El evento está en configuración: todavía nadie ha podido asistir. Publique la encuesta cuando el evento esté habilitado.');
       }
       const actividad = e.actividadId ? estado.actividades.find((a) => a.id === e.actividadId) : null;
+      if (e.actividadId && !actividad) {
+        throw errorApi(409, 'ACTIVIDAD_NO_DISPONIBLE', `La actividad de la encuesta «${e.titulo}» ya no existe en el evento; no se puede publicar.`);
+      }
       if (actividad && (actividad.estado === 'cancelada' || actividad.estado === 'por_programar')) {
         throw errorApi(409, 'ACTIVIDAD_NO_DISPONIBLE', `La actividad «${actividad.nombre}» ${actividad.estado === 'cancelada' ? 'está cancelada' : 'aún no está programada'}; no se puede publicar su encuesta.`);
       }

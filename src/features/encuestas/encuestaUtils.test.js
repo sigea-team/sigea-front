@@ -11,6 +11,7 @@ import {
   cambiarTipoPregunta,
   erroresDeBackend,
   erroresRespuestasDeBackend,
+  estaVencida,
   filtrarMisEncuestas,
   formatearPorcentaje,
   formatearPromedio,
@@ -247,6 +248,23 @@ describe('mis encuestas (Criterios 1 y 3)', () => {
     expect(situacionParticipante({ recibeRespuestas: false }).id).toBe('cerrada');
   });
 
+  it('una pendiente cuya fecha de cierre ya pasó se considera cerrada aunque el servidor dijera que recibía', () => {
+    const encuesta = { recibeRespuestas: true, fechaCierre: '2026-11-20T09:59:00' };
+    expect(estaVencida(encuesta, AHORA)).toBe(true);
+    expect(situacionParticipante(encuesta, AHORA).id).toBe('cerrada');
+    expect(situacionParticipante({ ...encuesta, fechaCierre: '2026-11-20T10:01:00' }, AHORA).id).toBe('pendiente');
+    expect(estaVencida({ fechaCierre: null }, AHORA)).toBe(false);
+  });
+
+  it('el filtro quita las que vencieron después de cargar la lista', () => {
+    const lista = [
+      { encuestaId: 1, recibeRespuestas: true, fechaCierre: '2026-11-20T09:00:00' },
+      { encuestaId: 2, recibeRespuestas: true, fechaCierre: '2026-11-21T09:00:00' },
+      { encuestaId: 3, respondida: true, fechaCierre: '2026-11-19T09:00:00' },
+    ];
+    expect(filtrarMisEncuestas(lista, AHORA).map((e) => e.encuestaId)).toEqual([2, 3]);
+  });
+
   it('no muestra las que cerraron o vencieron sin responder', () => {
     const lista = filtrarMisEncuestas([
       { encuestaId: 1, recibeRespuestas: true },
@@ -333,6 +351,16 @@ describe('el mock aplica las reglas del backend', () => {
     expect(r.status).toBe(400);
     expect(r.data.codigo).toBe('ENCUESTA_CONFIGURACION_INVALIDA');
     expect(Object.keys(r.data.erroresValidacion).sort()).toEqual(['actividadId', 'fechaCierre']);
+  });
+
+  it('no publica si la actividad de la encuesta ya no existe', async () => {
+    const api = crearEncuestasApiMock({ respuestas: [] });
+    const borrador = api._estado.encuestas[1];
+    borrador.actividadId = 999;
+    const r = await rechazo(api.publicarEncuesta(1, borrador.encuestaId));
+    expect(r.status).toBe(409);
+    expect(r.data.codigo).toBe('ACTIVIDAD_NO_DISPONIBLE');
+    expect(borrador.estado).toBe('borrador');
   });
 
   it('no publica en un evento en configuración ni dos veces', async () => {
