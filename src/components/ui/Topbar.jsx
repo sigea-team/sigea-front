@@ -178,11 +178,19 @@ export default function Topbar({
 
   /* ── Variante Pública (Home / Landing) ── */
   if (variante === 'publica') {
+    const scrollASeccion = (e, sectionId) => {
+      e.preventDefault();
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
     const enlaces = [
-      { href: '#eventos', label: 'Eventos & Agenda', icon: CalendarDays },
-      { href: '#convocatorias', label: 'Convocatorias', icon: FileText },
-      { href: '#que-es-sigea', label: '¿Qué es SIGEA?', icon: Info },
-      { href: '#beneficios', label: 'Beneficios', icon: Sparkles },
+      { href: '#eventos', sectionId: 'eventos', label: 'Eventos & Jornadas', icon: CalendarDays },
+      { href: '#convocatorias', sectionId: 'convocatorias', label: 'Convocatorias', icon: FileText },
+      { href: '#que-es-sigea', sectionId: 'que-es-sigea', label: '¿Qué es SIGEA?', icon: Info },
+      { href: '#beneficios', sectionId: 'beneficios', label: 'Beneficios', icon: Sparkles },
     ];
 
     return (
@@ -213,17 +221,12 @@ export default function Topbar({
               <a
                 key={item.href}
                 href={item.href}
+                onClick={(e) => scrollASeccion(e, item.sectionId)}
                 className="px-3 py-2 text-sm font-medium text-ink-600 hover:text-brand-600 hover:bg-surface-muted rounded-[8px] transition-colors"
               >
                 {item.label}
               </a>
             ))}
-            <Link
-              to="/convocatorias-publicas"
-              className="px-3 py-2 text-sm font-medium text-ink-600 hover:text-brand-600 hover:bg-surface-muted rounded-[8px] transition-colors"
-            >
-              Portal Convocatorias
-            </Link>
           </nav>
 
           {/* Acciones de autenticación / perfil + menú móvil */}
@@ -289,7 +292,10 @@ export default function Topbar({
                   <a
                     key={item.href}
                     href={item.href}
-                    onClick={() => setMenuAbierto(false)}
+                    onClick={(e) => {
+                      scrollASeccion(e, item.sectionId);
+                      setMenuAbierto(false);
+                    }}
                     className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm font-medium text-ink-900 hover:bg-surface-muted hover:text-brand-600"
                   >
                     <Icono className="w-4 h-4 text-ink-600" />
@@ -297,14 +303,6 @@ export default function Topbar({
                   </a>
                 );
               })}
-              <Link
-                to="/convocatorias-publicas"
-                onClick={() => setMenuAbierto(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm font-medium text-ink-900 hover:bg-surface-muted hover:text-brand-600"
-              >
-                <FileText className="w-4 h-4 text-ink-600" />
-                <span>Portal de Convocatorias</span>
-              </Link>
             </nav>
 
             <div className="pt-3 border-t border-border flex flex-col gap-2">

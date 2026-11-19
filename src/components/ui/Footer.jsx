@@ -26,7 +26,7 @@ export default function Footer({ className = '', compacto = false }) {
 
   /* Versión completa: se usa en la Home y en páginas públicas */
   return (
-    <footer className={`bg-white border-t border-border text-ink-600 font-sans ${className}`}>
+    <footer className={`bg-surface-page border-t border-border text-ink-600 font-sans ${className}`}>
       <div className="w-full px-6 sm:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Columna 1: Marca institucional */}

@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import RolesPage from './pages/RolesPage';
 import AuditoriaPage from './pages/AuditoriaPage';
 import EventosPage from './pages/EventosPage';
+import EventoDetallePage from './pages/EventoDetallePage';
 import ConvocatoriasPage from './pages/ConvocatoriasPage';
 import CuentaPage from './pages/CuentaPage';
 import ConvocatoriasPublicasPage from './pages/ConvocatoriasPublicasPage';
@@ -44,6 +45,9 @@ function App() {
           <Route path="/eventos/:eventoId/conferencistas-publicos" element={<ConferencistasPublicosPage />} />
           {/* HU-22 (Criterio 3): agenda publicada del evento, organizada por día y hora, sin iniciar sesión */}
           <Route path="/eventos/:eventoId/agenda-publica" element={<AgendaPublicaPage />} />
+          {/* Información completa de un evento académico público */}
+          <Route path="/eventos/:eventoId" element={<EventoDetallePage />} />
+          <Route path="/eventos/:eventoId/detalle" element={<EventoDetallePage />} />
           {/* HU-12: el conferencista invitado registra sus datos desde el enlace del correo (sin sesión) */}
           <Route path="/conferencista/invitacion" element={<ConferencistaInvitacionPage />} />
 
