@@ -190,7 +190,9 @@ export function accionesEncuesta(encuesta, evento, ahora = new Date()) {
   }
 
   return {
-    editar: borrador ? permitido : no('Una encuesta publicada no se modifica: cambiar las preguntas alteraría las respuestas.'),
+    editar: borrador
+      ? permitido
+      : no(`Una encuesta ${encuesta?.estado === 'cerrada' ? 'cerrada' : 'publicada'} no se modifica: cambiar las preguntas alteraría las respuestas.`),
     publicar,
     cerrar: encuesta?.estado === 'publicada' ? permitido : no(borrador ? 'Todavía no está publicada.' : 'Ya está cerrada.'),
     eliminar: respuestas > 0 ? no(`Tiene ${plural(respuestas, 'respuesta')}. Puedes cerrarla para que no reciba más.`) : permitido,
@@ -404,6 +406,23 @@ export function opcionesAlcance(actividades) {
   ];
 }
 
+/**
+ * Valida que el alcance elegido siga entre las opciones disponibles. Pasa al editar un borrador cuya actividad se
+ * canceló o se devolvió a «por programar» después de crear la encuesta: esa actividad ya no está en el selector.
+ * Mientras las actividades no han cargado (`opciones` null) no se valida.
+ * @param {string} actividadId - Valor del formulario ({@link ALCANCE_EVENTO} o el id de la actividad).
+ * @param {Array<{ value: string }>|null} opciones - Resultado de {@link opcionesAlcance}.
+ * @returns {string|null} Mensaje de error o null.
+ */
+export function validarAlcance(actividadId, opciones) {
+  if (!opciones) return null;
+  if (!actividadId) return 'Elige a qué se aplica la encuesta.';
+  if (actividadId === ALCANCE_EVENTO) return null;
+  return opciones.some((o) => o.value === String(actividadId))
+    ? null
+    : 'La actividad elegida ya no está disponible (fue cancelada o está por programar). Elige otra o aplica la encuesta al evento en general.';
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Participante: responder
 // ──────────────────────────────────────────────────────────────────────────────
@@ -517,6 +536,15 @@ export function situacionParticipante(encuesta) {
     return { id: 'pendiente', etiqueta: 'Por responder', clases: 'bg-brand-100 text-brand-700 border-brand-600' };
   }
   return { id: 'cerrada', etiqueta: 'Cerrada', clases: 'bg-white text-ink-600 border-field-border' };
+}
+
+/**
+ * Deja en «Mis encuestas» solo las que el participante todavía puede responder y las que ya respondió. El backend
+ * ya filtra así; esto evita mostrar como accionable una que cerró o venció entre la consulta y la vista.
+ * @param {Array<Object>} encuestas
+ */
+export function filtrarMisEncuestas(encuestas) {
+  return (encuestas || []).filter((e) => situacionParticipante(e).id !== 'cerrada');
 }
 
 /**

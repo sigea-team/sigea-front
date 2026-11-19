@@ -3,6 +3,8 @@
  * @description API simulada de encuestas de satisfacción (HU-25), solo para Storybook y pruebas. Imita las reglas de
  * `EncuestaService` y `RespuestaEncuestaService` del backend sin servidor: borrador → publicada → cerrada,
  * habilitación por asistencia, anónimas o identificadas, una respuesta por persona y resultados consolidados.
+ * Al guardar y publicar aplica las mismas validaciones (actividad cancelada o por programar, fecha de cierre vencida,
+ * sin preguntas, evento en configuración) y devuelve los mismos códigos de error.
  * @module features/encuestas/mocks/encuestasMock
  */
 
@@ -141,7 +143,12 @@ export function crearEncuestasApiMock(opciones = {}) {
     if (solicitud.actividadId) {
       actividad = estado.actividades.find((a) => a.id === Number(solicitud.actividadId));
       if (!actividad) throw errorApi(404, 'RECURSO_NO_ENCONTRADO', `No se encontró la actividad con ID ${solicitud.actividadId} en este evento.`);
-      if (actividad.estado === 'cancelada') errores.actividadId = `La actividad «${actividad.nombre}» está cancelada; no se le puede aplicar una encuesta.`;
+      if (actividad.estado === 'cancelada' || actividad.estado === 'por_programar') {
+        errores.actividadId = `La actividad «${actividad.nombre}» ${actividad.estado === 'cancelada' ? 'está cancelada' : 'aún no está programada'}; no se le puede aplicar una encuesta.`;
+      }
+    }
+    if (solicitud.fechaCierre && new Date(solicitud.fechaCierre) <= new Date()) {
+      errores.fechaCierre = 'La fecha de cierre debe ser posterior a la fecha y hora actual.';
     }
     (solicitud.preguntas || []).forEach((p, i) => {
       if (p.tipoRespuesta === 'opcion' && (p.opciones || []).length < 2) {
@@ -278,8 +285,17 @@ export function crearEncuestasApiMock(opciones = {}) {
       if (estado.estadoEvento === 'en_configuracion') {
         throw errorApi(409, 'EVENTO_NO_DISPONIBLE', 'El evento está en configuración: todavía nadie ha podido asistir. Publique la encuesta cuando el evento esté habilitado.');
       }
-      if (e.preguntas.length === 0) {
-        throw errorApi(409, 'ENCUESTA_INCOMPLETA', 'La encuesta no se puede publicar todavía.', { preguntas: 'Agregue al menos una pregunta antes de publicar.' });
+      const actividad = e.actividadId ? estado.actividades.find((a) => a.id === e.actividadId) : null;
+      if (actividad && (actividad.estado === 'cancelada' || actividad.estado === 'por_programar')) {
+        throw errorApi(409, 'ACTIVIDAD_NO_DISPONIBLE', `La actividad «${actividad.nombre}» ${actividad.estado === 'cancelada' ? 'está cancelada' : 'aún no está programada'}; no se puede publicar su encuesta.`);
+      }
+      const faltantes = {};
+      if (e.preguntas.length === 0) faltantes.preguntas = 'Agregue al menos una pregunta antes de publicar.';
+      if (e.fechaCierre && new Date(e.fechaCierre) <= new Date()) {
+        faltantes.fechaCierre = 'La fecha de cierre ya pasó. Cámbiela o déjela vacía.';
+      }
+      if (Object.keys(faltantes).length) {
+        throw errorApi(409, 'ENCUESTA_INCOMPLETA', 'La encuesta no se puede publicar todavía.', faltantes);
       }
       e.estado = 'publicada';
       e.fechaPublicacion = ahoraIso();
@@ -341,6 +357,7 @@ export function crearEncuestasApiMock(opciones = {}) {
     async responderEncuesta(encuestaId, respuestas) {
       await fallar();
       const e = buscar(encuestaId);
+      if (e.estado === 'borrador') throw errorApi(404, 'RECURSO_NO_ENCONTRADO', `No se encontró la encuesta con ID ${encuestaId}.`);
       if (!estado.asistio.has(e.encuestaId)) throw noHabilitada(e);
       if (!recibe(e)) throw errorApi(409, 'ENCUESTA_CERRADA', `La encuesta «${e.titulo}» está cerrada; ya no recibe respuestas.`);
       if (respuestasDe(encuestaId).some((r) => r.personaId === estado.participanteId)) {

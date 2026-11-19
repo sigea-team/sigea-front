@@ -7,6 +7,7 @@ import Select from '../../../components/ui/Select';
 import TextArea from '../../eventos/components/TextArea';
 import { encuestaService } from '../../../api/encuestaService';
 import {
+  ALCANCE_EVENTO,
   ESCALA_MAX_PERMITIDA,
   ESCALA_MIN_PERMITIDA,
   MAX_DESCRIPCION,
@@ -24,6 +25,7 @@ import {
   interpretarErrorEncuesta,
   opcionesAlcance,
   preguntaVacia,
+  validarAlcance,
   validarEncuesta,
 } from '../encuestaUtils';
 
@@ -111,8 +113,10 @@ export default function EncuestaFormulario({ eventoId, encuesta = null, api = en
   const guardar = async () => {
     setErrorGeneral(null);
     const validacion = validarEncuesta(form);
-    if (!validacion.valido) {
-      setErrores(validacion.errores);
+    const alcanceInvalido =
+      actividades !== null && !errorActividades ? validarAlcance(form.actividadId, opcionesAlcance(actividades)) : null;
+    if (!validacion.valido || alcanceInvalido) {
+      setErrores({ ...validacion.errores, actividadId: alcanceInvalido || undefined });
       setErrorGeneral({ titulo: 'Revisa los campos marcados', mensaje: 'Hay datos incompletos o inválidos en la encuesta.' });
       return;
     }
@@ -137,7 +141,26 @@ export default function EncuestaFormulario({ eventoId, encuesta = null, api = en
     }
   };
 
-  const alcance = opcionesAlcance(actividades);
+  const alcanceDisponible = opcionesAlcance(actividades);
+  // Las actividades cargaron bien: se puede saber si la del borrador sigue admitiendo encuestas.
+  const actividadesCargadas = actividades !== null && !errorActividades;
+  const errorAlcanceLocal = actividadesCargadas ? validarAlcance(form.actividadId, alcanceDisponible) : null;
+  // Si el borrador apunta a una actividad que no está en la lista (cancelada, por programar, o no se pudieron cargar
+  // las actividades), se muestra igual para que el organizador vea cuál era; si ya no está disponible, guardar queda
+  // bloqueado por validarAlcance.
+  const actividadFueraDeLista =
+    actividades !== null && form.actividadId && form.actividadId !== ALCANCE_EVENTO &&
+    !alcanceDisponible.some((o) => o.value === String(form.actividadId));
+  const alcance = actividadFueraDeLista
+    ? [
+        ...alcanceDisponible,
+        {
+          value: String(form.actividadId),
+          label: `${encuesta?.actividadNombre || `Actividad #${form.actividadId}`}${actividadesCargadas ? ' (ya no disponible)' : ''}`,
+        },
+      ]
+    : alcanceDisponible;
+  const errorAlcance = errores.actividadId || errorAlcanceLocal;
 
   return (
     <div className="space-y-5">
@@ -181,7 +204,7 @@ export default function EncuestaFormulario({ eventoId, encuesta = null, api = en
             onChange={(e) => cambiar('actividadId', e.target.value)}
             options={alcance}
             disabled={actividades === null}
-            error={errores.actividadId}
+            error={errorAlcance}
             helperText={
               actividades === null
                 ? 'Cargando actividades...'

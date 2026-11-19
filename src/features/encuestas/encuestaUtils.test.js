@@ -11,6 +11,7 @@ import {
   cambiarTipoPregunta,
   erroresDeBackend,
   erroresRespuestasDeBackend,
+  filtrarMisEncuestas,
   formatearPorcentaje,
   formatearPromedio,
   formularioVacio,
@@ -21,6 +22,7 @@ import {
   resumenPregunta,
   situacionParticipante,
   textoAlcance,
+  validarAlcance,
   validarEncuesta,
   validarRespuestas,
   valoresEscala,
@@ -156,6 +158,13 @@ describe('accionesEncuesta', () => {
     expect(accionesEncuesta({ ...borrador, fechaCierre: '2026-11-19T00:00:00' }, {}, AHORA).publicar.motivo).toMatch(/pasó/);
   });
 
+  it('una cerrada no se edita y el motivo lo dice', () => {
+    const a = accionesEncuesta({ estado: 'cerrada', preguntas: [{}], totalRespuestas: 0 }, {}, AHORA);
+    expect(a.editar.permitido).toBe(false);
+    expect(a.editar.motivo).toMatch(/Una encuesta cerrada no se modifica/);
+    expect(a.cerrar.permitido).toBe(false);
+  });
+
   it('una publicada con respuestas no se edita ni se elimina; se cierra', () => {
     const a = accionesEncuesta({ estado: 'publicada', preguntas: [{}], totalRespuestas: 3 }, {}, AHORA);
     expect(a.editar.permitido).toBe(false);
@@ -171,6 +180,25 @@ describe('opcionesAlcance', () => {
     expect(opciones[0].value).toBe(ALCANCE_EVENTO);
     expect(opciones.map((o) => o.value)).toEqual([ALCANCE_EVENTO, '201', '202']);
     expect(opciones[1].label).toBe('Taller de Spring Boot — 20/11/2026 09:00');
+  });
+});
+
+describe('validarAlcance', () => {
+  const opciones = opcionesAlcance(crearEncuestasApiMock()._estado.actividades);
+
+  it('acepta el evento en general y las actividades disponibles', () => {
+    expect(validarAlcance(ALCANCE_EVENTO, opciones)).toBeNull();
+    expect(validarAlcance('201', opciones)).toBeNull();
+  });
+
+  it('rechaza una actividad cancelada o que ya no está en la lista', () => {
+    expect(validarAlcance('203', opciones)).toMatch(/ya no está disponible/);
+    expect(validarAlcance('999', opciones)).toMatch(/ya no está disponible/);
+    expect(validarAlcance('', opciones)).toMatch(/Elige/);
+  });
+
+  it('no valida mientras las actividades no han cargado', () => {
+    expect(validarAlcance('203', null)).toBeNull();
   });
 });
 
@@ -219,6 +247,15 @@ describe('mis encuestas (Criterios 1 y 3)', () => {
     expect(situacionParticipante({ recibeRespuestas: false }).id).toBe('cerrada');
   });
 
+  it('no muestra las que cerraron o vencieron sin responder', () => {
+    const lista = filtrarMisEncuestas([
+      { encuestaId: 1, recibeRespuestas: true },
+      { encuestaId: 2, recibeRespuestas: false, respondida: false },
+      { encuestaId: 3, respondida: true },
+    ]);
+    expect(lista.map((e) => e.encuestaId)).toEqual([1, 3]);
+  });
+
   it('ordena primero las pendientes (la que cierra antes primero)', () => {
     const lista = ordenarMisEncuestas([
       { encuestaId: 1, respondida: true, fechaRespuesta: '2026-11-19T10:00:00' },
@@ -262,6 +299,46 @@ describe('resultados (Criterio 4)', () => {
     expect(r.preguntas[1].distribucion.map((x) => x.cantidad)).toEqual([2, 1, 1]);
     expect(r.preguntas[2].respuestasTexto).toHaveLength(2);
     expect(r.preguntas[2].respuestasTexto[0].participanteNombre).toBeUndefined();
+  });
+});
+
+describe('el mock aplica las reglas del backend', () => {
+  const rechazo = async (promesa) => {
+    try {
+      await promesa;
+    } catch (err) {
+      return err.response;
+    }
+    return null;
+  };
+
+  it('no publica con la fecha de cierre vencida ni con la actividad cancelada', async () => {
+    const api = crearEncuestasApiMock({ respuestas: [] });
+    const borrador = api._estado.encuestas[1];
+    borrador.fechaCierre = '2020-01-01T00:00:00';
+    const vencida = await rechazo(api.publicarEncuesta(1, borrador.encuestaId));
+    expect(vencida.status).toBe(409);
+    expect(vencida.data.codigo).toBe('ENCUESTA_INCOMPLETA');
+    expect(vencida.data.erroresValidacion.fechaCierre).toBeTruthy();
+
+    borrador.fechaCierre = null;
+    borrador.actividadId = 203;
+    const cancelada = await rechazo(api.publicarEncuesta(1, borrador.encuestaId));
+    expect(cancelada.data.codigo).toBe('ACTIVIDAD_NO_DISPONIBLE');
+  });
+
+  it('no guarda una encuesta con actividad cancelada o fecha de cierre pasada', async () => {
+    const api = crearEncuestasApiMock();
+    const r = await rechazo(api.crearEncuesta(1, { titulo: 'X', actividadId: 203, fechaCierre: '2020-01-01T00:00:00', preguntas: [] }));
+    expect(r.status).toBe(400);
+    expect(r.data.codigo).toBe('ENCUESTA_CONFIGURACION_INVALIDA');
+    expect(Object.keys(r.data.erroresValidacion).sort()).toEqual(['actividadId', 'fechaCierre']);
+  });
+
+  it('no publica en un evento en configuración ni dos veces', async () => {
+    const enConfiguracion = crearEncuestasApiMock({ estadoEvento: 'en_configuracion' });
+    expect((await rechazo(enConfiguracion.publicarEncuesta(1, 8))).data.codigo).toBe('EVENTO_NO_DISPONIBLE');
+    expect((await rechazo(crearEncuestasApiMock().publicarEncuesta(1, 7))).data.codigo).toBe('ENCUESTA_ESTADO_INVALIDO');
   });
 });
 

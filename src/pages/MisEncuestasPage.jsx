@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import ResponderEncuestaModal from '../features/encuestas/components/ResponderEncuestaModal';
 import { encuestaService } from '../api/encuestaService';
 import {
+  filtrarMisEncuestas,
   formatearFechaHora,
   interpretarErrorEncuesta,
   ordenarMisEncuestas,
@@ -42,7 +43,7 @@ export default function MisEncuestasPage({ api = encuestaService, usuarioProp, o
       .listarMisEncuestas()
       .then((lista) => {
         if (!activo) return;
-        setEncuestas(ordenarMisEncuestas(lista));
+        setEncuestas(ordenarMisEncuestas(filtrarMisEncuestas(lista)));
         setError(null);
       })
       .catch((err) => {
