@@ -12,6 +12,8 @@ import { agendaService } from '../../../api/agendaService';
 import { extraerError } from '../../eventos/eventoUtils';
 import { separarActividades, precargaAsignacionManual } from '../agendaPublicacionUtils';
 import { confirmarDesprogramar, confirmarEliminarActividad } from '../accionesAgenda';
+import RegistroAsistenciaModal from '../../asistencia/components/RegistroAsistenciaModal';
+import { asistenciaService } from '../../../api/asistenciaService';
 import { actividadService } from '../../../api/actividadService';
 import { salaService } from '../../../api/salaService';
 import { conferencistaService } from '../../../api/conferencistaService';
@@ -32,6 +34,7 @@ export default function AgendaModal({
   apiConferencistas = conferencistaService,
   apiParametros = parametroEventoService,
   apiAgenda = agendaService,
+  apiAsistencia = asistenciaService,
 }) {
   const [todasActividades, setActividades] = useState([]);
   const [salas, setSalas] = useState([]);
@@ -51,6 +54,8 @@ export default function AgendaModal({
 
   // Modales
   const [modalFormulario, setModalFormulario] = useState(null); // null | { tipo: 'crear'|'editar', actividad: ... }
+  // HU-24: actividad cuya asistencia se está registrando
+  const [actividadAsistencia, setActividadAsistencia] = useState(null);
   const [version, setVersion] = useState(0);
 
   const eventoId = evento?.id;
@@ -261,6 +266,7 @@ export default function AgendaModal({
               onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
               onEliminar={handleEliminar}
               onDesprogramar={handleDesprogramar}
+              onAsistencia={setActividadAsistencia}
             />
           ) : (
             <AgendaTabla
@@ -270,6 +276,7 @@ export default function AgendaModal({
               onEditar={(act) => setModalFormulario({ tipo: 'editar', actividad: act })}
               onEliminar={handleEliminar}
               onDesprogramar={handleDesprogramar}
+              onAsistencia={setActividadAsistencia}
             />
           )}
         </div>
@@ -289,6 +296,17 @@ export default function AgendaModal({
           actividadesExistentes={actividades}
           onClose={() => setModalFormulario(null)}
           onSubmit={modalFormulario.tipo === 'editar' ? handleEditar : handleCrear}
+        />
+      )}
+      {/* HU-24: registro de asistencia con el código QR */}
+      {actividadAsistencia && evento && (
+        <RegistroAsistenciaModal
+          key={`asistencia-${actividadAsistencia.id}`}
+          isOpen
+          evento={evento}
+          actividad={actividadAsistencia}
+          api={apiAsistencia}
+          onClose={() => setActividadAsistencia(null)}
         />
       )}
     </>

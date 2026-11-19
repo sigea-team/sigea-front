@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Sparkles,
   Undo2,
+  UserCheck,
 } from 'lucide-react';
 import { formatearHora, agruparPorFecha, nombrePonente } from '../agendaUtils';
 
@@ -27,6 +28,7 @@ export default function AgendaTimeline({
   onEditar,
   onEliminar,
   onDesprogramar,
+  onAsistencia,
 }) {
   const gruposPorDia = agruparPorFecha(actividades);
 
@@ -176,6 +178,19 @@ export default function AgendaTimeline({
 
                     {/* Botones de acción: Editar y Eliminar (Criterio 5) */}
                     <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-start">
+                      {onAsistencia && (
+                        <button
+                          type="button"
+                          onClick={() => onAsistencia(act)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-600 hover:bg-brand-100 rounded-lg transition-colors cursor-pointer"
+                          title="Registrar asistencia con el código QR (HU-24)"
+                          aria-label={`Registrar asistencia de «${act.nombre}»`}
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>Asistencia</span>
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         onClick={() => onEditar(act)}

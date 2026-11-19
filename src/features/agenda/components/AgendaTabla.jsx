@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Sparkles,
   Undo2,
+  UserCheck,
 } from 'lucide-react';
 import { formatearHora, nombrePonente } from '../agendaUtils';
 
@@ -12,6 +13,7 @@ import { formatearHora, nombrePonente } from '../agendaUtils';
  * @file AgendaTabla.jsx
  * @description Vista tabular de las actividades de la agenda (HU-21). HU-22: marca las ubicadas por la generación
  * automática y permite devolverlas a «por programar» si se pasa `onDesprogramar`.
+ * HU-24: si se pasa `onAsistencia`, cada actividad tiene el botón para registrar la asistencia con el QR.
  */
 export default function AgendaTabla({
   actividades = [],
@@ -20,6 +22,7 @@ export default function AgendaTabla({
   onEditar,
   onEliminar,
   onDesprogramar,
+  onAsistencia,
 }) {
   if (actividades.length === 0) {
     return (
@@ -124,6 +127,17 @@ export default function AgendaTabla({
 
                 <td className="py-3 px-4 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-1">
+                    {onAsistencia && (
+                      <button
+                        type="button"
+                        onClick={() => onAsistencia(act)}
+                        className="p-1.5 text-ink-600 hover:text-ink-900 hover:bg-surface-muted rounded cursor-pointer"
+                        title="Registrar asistencia con el código QR (HU-24)"
+                        aria-label={`Registrar asistencia de «${act.nombre}»`}
+                      >
+                        <UserCheck className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onEditar(act)}

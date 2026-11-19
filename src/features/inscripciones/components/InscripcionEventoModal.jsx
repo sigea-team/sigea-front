@@ -5,6 +5,8 @@ import ModalShell from '../../eventos/components/ModalShell';
 import Button from '../../../components/ui/Button';
 import Select from '../../../components/ui/Select';
 import { inscripcionService } from '../../../api/inscripcionService';
+import { asistenciaService } from '../../../api/asistenciaService';
+import CodigoQrInscripcion from '../../asistencia/components/CodigoQrInscripcion';
 import { escaparHtml } from '../../../utils/html';
 import { formatearFecha, formatearRango } from '../../eventos/eventoUtils';
 import {
@@ -26,6 +28,7 @@ import {
  * otra inscrita se marcan y no se pueden tomar (Criterios 3 y 4); en un cruce puede cancelar la anterior e
  * inscribirse a la nueva. Al cancelar se libera el cupo y se refresca la disponibilidad (Criterio 5).
  * El backend vuelve a validar todo; si rechaza, se informa el motivo y se recargan los cupos.
+ * HU-24: con la inscripción confirmada se muestra el código QR del participante y la opción de reenviarlo.
  * @module features/inscripciones/components/InscripcionEventoModal
  */
 
@@ -109,9 +112,16 @@ function BarraCupo({ cupo }) {
  * @param {boolean} props.isOpen
  * @param {{ id: number, nombre: string, estado: string, fechaInicio?: string, fechaFin?: string }} props.evento
  * @param {typeof inscripcionService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
+ * @param {typeof asistenciaService} [props.apiAsistencia] - Cliente de la API del QR (HU-24); Storybook inyecta una versión simulada.
  * @param {function(): void} props.onClose
  */
-export default function InscripcionEventoModal({ isOpen, evento, api = inscripcionService, onClose }) {
+export default function InscripcionEventoModal({
+  isOpen,
+  evento,
+  api = inscripcionService,
+  apiAsistencia = asistenciaService,
+  onClose,
+}) {
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
   const [inscripcion, setInscripcion] = useState(null);
@@ -176,7 +186,10 @@ export default function InscripcionEventoModal({ isOpen, evento, api = inscripci
     await ejecutar('evento', async () => {
       try {
         await api.inscribirAEvento(evento.id, categoria);
-        avisarExito('¡Inscripción registrada!', `Quedaste inscrito en «${evento.nombre}» como ${etiquetaCategoria(categoria).toLowerCase()}. Ahora puedes elegir tus actividades.`);
+        avisarExito(
+          '¡Inscripción registrada!',
+          `Quedaste inscrito en «${evento.nombre}» como ${etiquetaCategoria(categoria).toLowerCase()}. Te enviamos tu código QR de asistencia por correo; también lo verás aquí. Ahora puedes elegir tus actividades.`
+        );
       } catch (err) {
         await avisarError(err, 'No se pudo registrar la inscripción');
       }
@@ -325,18 +338,28 @@ export default function InscripcionEventoModal({ isOpen, evento, api = inscripci
         <div className="space-y-6">
           {/* Paso 1: inscripción al evento */}
           {inscripcion ? (
-            <section className="rounded-[12px] border border-green-200 bg-green-50 px-4 py-3 flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-700 shrink-0 mt-0.5" aria-hidden="true" />
-              <div className="text-sm">
-                <p className="font-semibold text-ink-900">Estás inscrito en este evento</p>
-                <p className="text-ink-600 text-xs mt-0.5">
-                  Categoría: <strong className="text-ink-900">{etiquetaCategoria(inscripcion.categoria)}</strong>
-                  {inscripcion.fechaInscripcion && <> · desde el {formatearFecha(inscripcion.fechaInscripcion.slice(0, 10))}</>}
-                  {' · '}
-                  {inscritas.length} {inscritas.length === 1 ? 'actividad inscrita' : 'actividades inscritas'}
-                </p>
-              </div>
-            </section>
+            <div className="space-y-3">
+              <section className="rounded-[12px] border border-green-200 bg-green-50 px-4 py-3 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-700 shrink-0 mt-0.5" aria-hidden="true" />
+                <div className="text-sm">
+                  <p className="font-semibold text-ink-900">Estás inscrito en este evento</p>
+                  <p className="text-ink-600 text-xs mt-0.5">
+                    Categoría: <strong className="text-ink-900">{etiquetaCategoria(inscripcion.categoria)}</strong>
+                    {inscripcion.fechaInscripcion && <> · desde el {formatearFecha(inscripcion.fechaInscripcion.slice(0, 10))}</>}
+                    {' · '}
+                    {inscritas.length} {inscritas.length === 1 ? 'actividad inscrita' : 'actividades inscritas'}
+                  </p>
+                </div>
+              </section>
+              {/* HU-24: código QR de la inscripción */}
+              <CodigoQrInscripcion
+                key={`qr-${inscripcion.inscripcionId ?? evento.id}`}
+                eventoId={evento.id}
+                eventoNombre={evento.nombre}
+                codigoInicial={inscripcion.codigoQr}
+                api={apiAsistencia}
+              />
+            </div>
           ) : abiertas ? (
             <form onSubmit={inscribirEvento} className="rounded-[12px] border border-border p-4 space-y-3" noValidate>
               <div>

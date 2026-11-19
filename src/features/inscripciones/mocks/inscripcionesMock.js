@@ -22,6 +22,9 @@ export const ACTIVIDADES_INSCRIPCION_MOCK = [
   { id: 105, nombre: 'Taller de robótica educativa', tipoActividadNombre: 'Taller', fecha: '2026-11-21', horaInicio: '10:00:00', horaFin: '12:00:00', salaId: 2, salaNombre: 'Laboratorio 3', ponenteNombre: 'MSc. Ana Pérez', estado: 'programada', aforo: 25, inscritos: 24 },
 ];
 
+/** Código QR simulado de la inscripción (HU-24). */
+export const CODIGO_QR_INSCRIPCION_MOCK = 'SIGEA-4f1c2a7be04d4c6b8a3e51d7c2f09b44';
+
 const esperar = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 
 const rechazo = (status, codigo, message) => {
@@ -42,7 +45,10 @@ export function crearInscripcionApiMock({
   actividades = ACTIVIDADES_INSCRIPCION_MOCK,
 } = {}) {
   const catalogo = actividades.map((a) => ({ ...a }));
-  let inscripcion = inscrito ? { inscripcionId: 1, categoria, fechaInscripcion: '2026-11-15T10:00:00' } : null;
+  // HU-24: la inscripción trae su código QR
+  let inscripcion = inscrito
+    ? { inscripcionId: 1, categoria, fechaInscripcion: '2026-11-15T10:00:00', codigoQr: CODIGO_QR_INSCRIPCION_MOCK }
+    : null;
   let mias = new Set(inscrito ? actividadesInscritas : []);
 
   const buscar = (id) => catalogo.find((a) => a.id === Number(id));
@@ -72,7 +78,7 @@ export function crearInscripcionApiMock({
     async inscribirAEvento(eventoId, cat) {
       await esperar();
       if (inscripcion) throw rechazo(409, 'INSCRIPCION_DUPLICADA', 'El participante ya se encuentra inscrito previamente en el evento.');
-      inscripcion = { inscripcionId: 1, categoria: cat, fechaInscripcion: new Date().toISOString() };
+      inscripcion = { inscripcionId: 1, categoria: cat, fechaInscripcion: new Date().toISOString(), codigoQr: CODIGO_QR_INSCRIPCION_MOCK };
       return { ...inscripcion, eventoId };
     },
     async obtenerMiInscripcion() {
