@@ -21,6 +21,7 @@ import SalasPage from './pages/SalasPage';
 import AgendaPage from './pages/AgendaPage';
 import AgendaPublicaPage from './pages/AgendaPublicaPage';
 import MisPropuestasPage from './pages/MisPropuestasPage';
+import MisEncuestasPage from './pages/MisEncuestasPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
@@ -68,6 +69,8 @@ function App() {
             </Route>
             {/* HU-14: propuestas del autor, sus versiones y modificación */}
             <Route path="/mis-propuestas" element={<MisPropuestasPage />} />
+            {/* HU-25: encuestas de satisfacción de los eventos y actividades a los que asistió el participante */}
+            <Route path="/mis-encuestas" element={<MisEncuestasPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             {/* HU-12: perfil de ingreso «Conferencista»: el conferencista actualiza su trayectoria */}
