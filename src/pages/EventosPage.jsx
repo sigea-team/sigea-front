@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarCheck, CalendarDays, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -31,6 +31,8 @@ import PresupuestoPreliminarModal from '../features/presupuesto/components/Presu
 import PresupuestoAprobadoModal from '../features/presupuesto/components/PresupuestoAprobadoModal';
 import EjecucionPresupuestalModal from '../features/presupuesto/components/EjecucionPresupuestalModal';
 import InscripcionEventoModal from '../features/inscripciones/components/InscripcionEventoModal';
+import EncuestasEventoModal from '../features/encuestas/components/EncuestasEventoModal';
+import { encuestaService } from '../api/encuestaService';
 import { inscripcionService } from '../api/inscripcionService';
 import { asistenciaService } from '../api/asistenciaService';
 import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
@@ -58,6 +60,7 @@ import { esAdministrador } from '../utils/permisos';
  * En cada fila solo quedan visibles «Publicar» y «Editar» (cuando el evento está en configuración);
  * el resto de acciones va agrupado por tema en el menú «Más».
  * El participante (sin perfil de administrador) se inscribe desde cada fila al evento y a sus actividades (HU-23).
+ * Desde el menú «Más» el organizador configura, publica y consulta las encuestas de satisfacción del evento (HU-25).
  * @module pages/EventosPage
  */
 
@@ -106,6 +109,7 @@ const ALERTA_EXITO = {
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
  * @param {typeof asistenciaService} [props.apiAsistencia] - Cliente de la API del código QR (HU-24); Storybook inyecta una versión simulada.
+ * @param {typeof encuestaService} [props.apiEncuestas] - Cliente de la API de encuestas de satisfacción (HU-25); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
@@ -121,6 +125,7 @@ export default function EventosPage({
   apiSalas = salaService,
   apiInscripciones = inscripcionService,
   apiAsistencia = asistenciaService,
+  apiEncuestas = encuestaService,
   usuarioProp,
   onSelectNav,
 }) {
@@ -503,6 +508,12 @@ export default function EventosPage({
                                     ],
                                   },
                                   {
+                                    titulo: 'Participantes',
+                                    acciones: [
+                                      { id: 'encuestas', etiqueta: 'Encuestas de satisfacción', icono: ClipboardList, onClick: () => setModal({ tipo: 'encuestas', evento }) },
+                                    ],
+                                  },
+                                  {
                                     titulo: 'Presupuesto',
                                     acciones: [
                                       { id: 'presupuesto', etiqueta: 'Presupuesto preliminar', icono: Wallet, onClick: () => setModal({ tipo: 'presupuesto', evento }) },
@@ -634,6 +645,15 @@ export default function EventosPage({
           key={`agenda-${modal.evento.id}`}
           isOpen
           evento={modal.evento}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'encuestas' && (
+        <EncuestasEventoModal
+          key={`encuestas-${modal.evento.id}`}
+          evento={modal.evento}
+          api={apiEncuestas}
           onClose={cerrarModal}
         />
       )}

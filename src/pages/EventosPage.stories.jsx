@@ -7,6 +7,7 @@ import { crearConferencistasApiMock } from '../features/conferencistas/mocks/con
 import { crearPresupuestoApiMock } from '../features/presupuesto/mocks/presupuestoMock';
 import { crearPresupuestoAprobadoApiMock } from '../features/presupuesto/mocks/presupuestoAprobadoMock';
 import { crearEjecucionApiMock } from '../features/presupuesto/mocks/ejecucionMock';
+import { crearEncuestasApiMock } from '../features/encuestas/mocks/encuestasMock';
 
 export default {
   title: 'Pages/EventosPage',
@@ -31,6 +32,7 @@ export const FlujoCompleto = {
     apiPresupuesto: crearPresupuestoApiMock(),
     apiPresupuestoAprobado: crearPresupuestoAprobadoApiMock(),
     apiEjecucion: crearEjecucionApiMock(),
+    apiEncuestas: crearEncuestasApiMock(),
     usuarioProp: usuario 
   },
 };
