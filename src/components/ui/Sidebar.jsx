@@ -18,6 +18,7 @@ import {
   Building,
   CalendarClock,
   FileStack,
+  ClipboardList,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -41,6 +42,14 @@ const MIS_PROPUESTAS_NAV_ITEM = {
   label: 'Mis propuestas',
   icon: FileStack,
   href: '/mis-propuestas',
+};
+
+/** HU-25: encuestas de satisfacción de los eventos y actividades a los que asistió el usuario. */
+const MIS_ENCUESTAS_NAV_ITEM = {
+  id: 'mis-encuestas',
+  label: 'Mis encuestas',
+  icon: ClipboardList,
+  href: '/mis-encuestas',
 };
 
 /** HU-17: evaluaciones de propuestas asignadas según rúbrica */
@@ -178,6 +187,12 @@ export default function Sidebar({
 
     if (esConferencista) {
       navItems.splice(1, 0, MI_PERFIL_CONFERENCISTA_NAV_ITEM);
+    }
+
+    // HU-25: quien asiste a eventos responde sus encuestas de satisfacción (no aplica al perfil «Evaluador»).
+    if (veEventos(usuario)) {
+      const cuentaIndex = navItems.findIndex((item) => item.id === 'cuenta');
+      navItems.splice(cuentaIndex === -1 ? navItems.length : cuentaIndex, 0, MIS_ENCUESTAS_NAV_ITEM);
     }
 
     // Evaluaciones: solo si entró con el perfil «Evaluador» (y la cuenta tiene el permiso) o es administrador.
