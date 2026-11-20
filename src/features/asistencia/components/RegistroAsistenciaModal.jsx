@@ -174,10 +174,17 @@ export default function RegistroAsistenciaModal({
     return filtrarInscritos(porEstado, busqueda);
   }, [filas, filtro, busqueda]);
 
-  /** Suma la asistencia nueva sin recargar todo (el escáner se usa seguido). */
+  /**
+   * Suma la asistencia nueva sin recargar todo (el escáner se usa seguido). Se deduplica por asistencia y por
+   * inscripción: un participante tiene a lo sumo una asistencia por actividad.
+   */
   const agregarAsistencia = (asistencia) => {
     setResumen((prev) => {
-      if (prev.asistencias.some((a) => a.asistenciaId === asistencia.asistenciaId)) return prev;
+      const yaEsta = prev.asistencias.some(
+        (a) =>
+          a.asistenciaId === asistencia.asistenciaId || String(a.inscripcionId) === String(asistencia.inscripcionId)
+      );
+      if (yaEsta) return prev;
       return { ...prev, asistentes: (prev.asistentes ?? prev.asistencias.length) + 1, asistencias: [...prev.asistencias, asistencia] };
     });
   };

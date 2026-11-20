@@ -24,6 +24,20 @@ function mensajeCamara(err) {
   return 'No se pudo iniciar la cámara. Usa el campo de código mientras tanto.';
 }
 
+/** Detiene la cámara y limpia el contenedor; ignora los errores de un lector que ya estaba detenido. */
+async function liberarLector(lector) {
+  try {
+    await lector.stop();
+  } catch {
+    // No estaba activo.
+  }
+  try {
+    lector.clear();
+  } catch {
+    // El contenedor ya no existe.
+  }
+}
+
 /**
  * @param {Object} props
  * @param {function(string): void} props.onLectura - Recibe el texto de cada QR leído.
@@ -31,6 +45,7 @@ function mensajeCamara(err) {
 export default function EscanerQr({ onLectura }) {
   const idContenedor = `lector-qr-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const lectorRef = useRef(null);
+  const montadoRef = useRef(false);
   const onLecturaRef = useRef(onLectura);
   const [estado, setEstado] = useState('inactivo'); // 'inactivo' | 'iniciando' | 'activo' | 'error'
   const [error, setError] = useState(null);
@@ -39,26 +54,16 @@ export default function EscanerQr({ onLectura }) {
     onLecturaRef.current = onLectura;
   }, [onLectura]);
 
-  // Al desmontar se libera la cámara.
-  useEffect(
-    () => () => {
+  // Al desmontar se libera la cámara. `montadoRef` avisa a un inicio todavía pendiente que el componente ya no está.
+  useEffect(() => {
+    montadoRef.current = true;
+    return () => {
+      montadoRef.current = false;
       const lector = lectorRef.current;
       lectorRef.current = null;
-      if (lector) {
-        Promise.resolve()
-          .then(() => lector.stop())
-          .catch(() => {})
-          .finally(() => {
-            try {
-              lector.clear();
-            } catch {
-              // El contenedor ya no existe.
-            }
-          });
-      }
-    },
-    []
-  );
+      if (lector) liberarLector(lector);
+    };
+  }, []);
 
   const iniciar = async () => {
     setError(null);
@@ -70,6 +75,7 @@ export default function EscanerQr({ onLectura }) {
     setEstado('iniciando');
     try {
       const { Html5Qrcode } = await import('html5-qrcode');
+      if (!montadoRef.current) return;
       const lector = new Html5Qrcode(idContenedor, { verbose: false });
       lectorRef.current = lector;
       await lector.start(
@@ -80,8 +86,14 @@ export default function EscanerQr({ onLectura }) {
           // Fotogramas sin QR: se ignoran.
         }
       );
+      // Si el modal se cerró (o se detuvo) mientras la cámara arrancaba, se apaga apenas termina de iniciar.
+      if (!montadoRef.current || lectorRef.current !== lector) {
+        await liberarLector(lector);
+        return;
+      }
       setEstado('activo');
     } catch (err) {
+      if (!montadoRef.current) return;
       const lector = lectorRef.current;
       lectorRef.current = null;
       try {
@@ -97,18 +109,7 @@ export default function EscanerQr({ onLectura }) {
   const detener = async () => {
     const lector = lectorRef.current;
     lectorRef.current = null;
-    if (lector) {
-      try {
-        await lector.stop();
-      } catch {
-        // Ya estaba detenido.
-      }
-      try {
-        lector.clear();
-      } catch {
-        // Nada que limpiar.
-      }
-    }
+    if (lector) await liberarLector(lector);
     setEstado('inactivo');
   };
 
