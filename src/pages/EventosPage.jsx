@@ -34,6 +34,7 @@ import InscripcionEventoModal from '../features/inscripciones/components/Inscrip
 import EncuestasEventoModal from '../features/encuestas/components/EncuestasEventoModal';
 import { encuestaService } from '../api/encuestaService';
 import { inscripcionService } from '../api/inscripcionService';
+import { asistenciaService } from '../api/asistenciaService';
 import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
@@ -107,6 +108,7 @@ const ALERTA_EXITO = {
  * @param {typeof ejecucionPresupuestalService} [props.apiEjecucion] - Cliente de la API de la ejecución presupuestal (HU-09); Storybook inyecta una versión simulada.
  * @param {typeof tipoEventoService} [props.apiTiposEvento] - Cliente del catálogo de tipos de evento; Storybook inyecta una versión simulada.
  * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
+ * @param {typeof asistenciaService} [props.apiAsistencia] - Cliente de la API del código QR (HU-24); Storybook inyecta una versión simulada.
  * @param {typeof encuestaService} [props.apiEncuestas] - Cliente de la API de encuestas de satisfacción (HU-25); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
@@ -122,6 +124,7 @@ export default function EventosPage({
   apiEjecucion = ejecucionPresupuestalService,
   apiSalas = salaService,
   apiInscripciones = inscripcionService,
+  apiAsistencia = asistenciaService,
   apiEncuestas = encuestaService,
   usuarioProp,
   onSelectNav,
@@ -695,6 +698,7 @@ export default function EventosPage({
           isOpen
           evento={modal.evento}
           api={apiInscripciones}
+          apiAsistencia={apiAsistencia}
           onClose={cerrarModal}
         />
       )}

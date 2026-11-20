@@ -1,5 +1,9 @@
 import InscripcionEventoModal from './InscripcionEventoModal';
-import { EVENTO_INSCRIPCION_MOCK, crearInscripcionApiMock } from '../mocks/inscripcionesMock';
+import { CODIGO_QR_INSCRIPCION_MOCK, EVENTO_INSCRIPCION_MOCK, crearInscripcionApiMock } from '../mocks/inscripcionesMock';
+import { crearAsistenciaApiMock } from '../../asistencia/mocks/asistenciaMock';
+
+/** HU-24: API simulada del código QR (la imagen es ilustrativa). */
+const apiAsistencia = crearAsistenciaApiMock({ codigo: CODIGO_QR_INSCRIPCION_MOCK });
 
 export default {
   title: 'Features/Inscripciones/InscripcionEventoModal',
@@ -16,12 +20,14 @@ export const SinInscripcion = {
     isOpen: true,
     evento: EVENTO_INSCRIPCION_MOCK,
     api: crearInscripcionApiMock(),
+    apiAsistencia,
     onClose: () => {},
   },
 };
 
 /**
- * Criterios 2 a 5: inscrito al evento y a las actividades 101 y 104. Se ven los cupos, una actividad llena (102),
+ * Criterios 2 a 5: inscrito al evento y a las actividades 101 y 104. HU-24: se ve su código QR con las opciones de
+ * descargarlo, copiarlo y reenviarlo. Se ven los cupos, una actividad llena (102),
  * una con cruce de horario (105 se cruza con 104, permite cambiar cancelando la anterior) y la opción de cancelar.
  */
 export const InscritoConActividades = {
@@ -29,6 +35,7 @@ export const InscritoConActividades = {
     isOpen: true,
     evento: EVENTO_INSCRIPCION_MOCK,
     api: crearInscripcionApiMock({ inscrito: true, categoria: 'docente', actividadesInscritas: [101, 104] }),
+    apiAsistencia,
     onClose: () => {},
   },
 };
@@ -39,6 +46,7 @@ export const InscripcionesCerradas = {
     isOpen: true,
     evento: { ...EVENTO_INSCRIPCION_MOCK, estado: 'cerrado' },
     api: crearInscripcionApiMock(),
+    apiAsistencia,
     onClose: () => {},
   },
 };
@@ -49,6 +57,7 @@ export const SinActividades = {
     isOpen: true,
     evento: EVENTO_INSCRIPCION_MOCK,
     api: crearInscripcionApiMock({ inscrito: true, actividades: [] }),
+    apiAsistencia,
     onClose: () => {},
   },
 };

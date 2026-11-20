@@ -10,6 +10,7 @@ import {
   TIPOS_ACTIVIDAD_MOCK,
   crearAgendaApiMock,
 } from '../features/agenda/mocks/agendaGeneracionMock';
+import { crearAsistenciaApiMock } from '../features/asistencia/mocks/asistenciaMock';
 
 export default {
   title: 'Pages/AgendaPage',
@@ -54,7 +55,8 @@ export const ConEventoSeleccionado = () => (
 
 /**
  * HU-22: agenda con actividades por programar. Prueba «Generar agenda» (propuesta, guardado y pendientes con su
- * motivo), «Asignar a mano», «Devolver a por programar» y «Publicar agenda».
+ * motivo), «Asignar a mano», «Devolver a por programar» y «Publicar agenda». HU-24: el botón «Asistencia» de cada
+ * actividad abre el registro con la API simulada (la cámara real necesita permiso).
  */
 export const GeneracionYPublicacion = () => {
   const api = crearAgendaApiMock();
@@ -71,6 +73,7 @@ export const GeneracionYPublicacion = () => {
               apiSalas={{ listarSalas: async () => SALAS_AGENDA_MOCK }}
               apiConferencistas={{ listarConferencistas: async () => PONENTES_AGENDA_MOCK }}
               apiParametros={{ listar: async () => TIPOS_ACTIVIDAD_MOCK }}
+              apiAsistencia={crearAsistenciaApiMock()}
             />
           }
         />
