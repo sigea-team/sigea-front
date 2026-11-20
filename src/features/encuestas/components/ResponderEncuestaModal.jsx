@@ -9,6 +9,7 @@ import {
   MAX_TEXTO_RESPUESTA,
   aRespuestasRequest,
   erroresRespuestasDeBackend,
+  estaVencida,
   formatearFechaHora,
   interpretarErrorEncuesta,
   respuestasVacias,
@@ -23,6 +24,8 @@ import {
  * - Criterio 2: envía las respuestas; se guardan anónimas o identificadas según la configuración, y se le informa cuál.
  * - Criterio 3: si no registró asistencia, el backend responde 403 ENCUESTA_NO_HABILITADA y se muestra el motivo.
  * - CU-22, flujo alterno: si ya respondió, se le informa y no se envía de nuevo.
+ * - Si la fecha de cierre pasa con el formulario abierto, se deshabilita el envío y se avisa; las respuestas escritas
+ *   quedan a la vista (deshabilitadas). La hora se revisa cada 15 s y otra vez al pulsar «Enviar respuestas».
  * @module features/encuestas/components/ResponderEncuestaModal
  */
 
@@ -43,6 +46,15 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
   const [errorGeneral, setErrorGeneral] = useState(null);
   const [enviando, setEnviando] = useState(false);
   const [envio, setEnvio] = useState(null);
+  // Hora de referencia para detectar que la encuesta venció con el formulario abierto.
+  const [ahora, setAhora] = useState(() => new Date());
+
+  const vigilarCierre = Boolean(encuesta?.fechaCierre && encuesta.recibeRespuestas && !encuesta.respondida && !envio);
+  useEffect(() => {
+    if (!vigilarCierre) return undefined;
+    const id = setInterval(() => setAhora(new Date()), 15000);
+    return () => clearInterval(id);
+  }, [vigilarCierre]);
 
   useEffect(() => {
     let activo = true;
@@ -75,6 +87,12 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
   };
 
   const enviar = async () => {
+    // Pudo vencer entre la última revisión y el clic: no se envía.
+    const momento = new Date();
+    if (estaVencida(encuesta, momento)) {
+      setAhora(momento);
+      return;
+    }
     setErrorGeneral(null);
     const validacion = validarRespuestas(encuesta.preguntas, valores);
     if (!validacion.valido) {
@@ -101,8 +119,11 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
     }
   };
 
+  // El servidor la enviaba como abierta, pero la fecha de cierre ya pasó mientras el formulario seguía abierto.
+  const vencioAbierta = Boolean(encuesta?.recibeRespuestas && !encuesta.respondida && !envio && estaVencida(encuesta, ahora));
+
   const bloqueada =
-    envio || (encuesta && (!encuesta.recibeRespuestas || encuesta.respondida)) ||
+    envio || vencioAbierta || (encuesta && (!encuesta.recibeRespuestas || encuesta.respondida)) ||
     ['ENCUESTA_YA_RESPONDIDA', 'ENCUESTA_CERRADA', 'ENCUESTA_NO_HABILITADA'].includes(errorGeneral?.codigo);
 
   let contenido;
@@ -153,7 +174,7 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
               ? 'Encuesta anónima: tus respuestas no quedan asociadas a tu nombre.'
               : 'Encuesta identificada: los organizadores verán tus respuestas con tu nombre.'}
           </p>
-          {encuesta.fechaCierre && encuesta.recibeRespuestas && (
+          {encuesta.fechaCierre && encuesta.recibeRespuestas && !vencioAbierta && (
             <p className="text-xs text-ink-600">Puedes responder hasta el {formatearFechaHora(encuesta.fechaCierre)}.</p>
           )}
         </div>
@@ -162,6 +183,12 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
           <p className="text-sm text-ink-900 bg-surface-muted border border-border px-3 py-2 rounded-[8px] flex items-center gap-2" role="status">
             <CheckCircle2 className="w-4 h-4 text-brand-600 shrink-0" aria-hidden="true" />
             Ya respondiste esta encuesta el {formatearFechaHora(encuesta.fechaRespuesta)}. Gracias por tu opinión.
+          </p>
+        )}
+        {vencioAbierta && (
+          <p className="text-sm text-brand-700 bg-brand-100 border border-brand-600 px-3 py-2 rounded-[8px]" role="alert">
+            Esta encuesta cerró el {formatearFechaHora(encuesta.fechaCierre)} y ya no recibe respuestas. Tus respuestas no
+            se enviaron.
           </p>
         )}
         {!encuesta.respondida && !encuesta.recibeRespuestas && (
@@ -181,89 +208,92 @@ export default function ResponderEncuestaModal({ encuestaId, titulo, api = encue
         )}
 
         {!encuesta.respondida && encuesta.recibeRespuestas && (
-          <ol className="space-y-4">
-            {encuesta.preguntas.map((p, i) => {
-              const error = errores[p.preguntaId];
-              const idTitulo = `pregunta-${p.preguntaId}-titulo`;
-              return (
-                <li
-                  key={p.preguntaId}
-                  className={`p-4 rounded-[12px] border bg-white space-y-3 ${error ? 'border-brand-600' : 'border-border'}`}
-                >
-                  <p id={idTitulo} className="text-sm font-semibold text-ink-900">
-                    {i + 1}. {p.texto}
-                    {p.obligatoria ? (
-                      <span className="text-brand-600 font-bold ml-1" aria-label="obligatoria">*</span>
-                    ) : (
-                      <span className="text-xs font-normal text-ink-600 ml-1">(opcional)</span>
-                    )}
-                  </p>
+          <fieldset disabled={Boolean(bloqueada)} className={bloqueada ? 'opacity-60' : undefined}>
+            <legend className="sr-only">Preguntas de la encuesta</legend>
+            <ol className="space-y-4">
+              {encuesta.preguntas.map((p, i) => {
+                const error = errores[p.preguntaId];
+                const idTitulo = `pregunta-${p.preguntaId}-titulo`;
+                return (
+                  <li
+                    key={p.preguntaId}
+                    className={`p-4 rounded-[12px] border bg-white space-y-3 ${error ? 'border-brand-600' : 'border-border'}`}
+                  >
+                    <p id={idTitulo} className="text-sm font-semibold text-ink-900">
+                      {i + 1}. {p.texto}
+                      {p.obligatoria ? (
+                        <span className="text-brand-600 font-bold ml-1" aria-label="obligatoria">*</span>
+                      ) : (
+                        <span className="text-xs font-normal text-ink-600 ml-1">(opcional)</span>
+                      )}
+                    </p>
 
-                  {p.tipoRespuesta === 'escala' && (
-                    <div role="radiogroup" aria-labelledby={idTitulo} className="space-y-1">
-                      <div className="flex flex-wrap gap-2">
-                        {valoresEscala(p).map((v) => {
-                          const elegido = String(valores[p.preguntaId]) === String(v);
-                          return (
-                            <label
-                              key={v}
-                              className={`min-w-10 h-10 px-3 inline-flex items-center justify-center rounded-[8px] border text-sm font-semibold cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-600 ${
-                                elegido ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white border-field-border text-ink-900 hover:bg-surface-muted'
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                name={`pregunta-${p.preguntaId}`}
-                                value={v}
-                                checked={elegido}
-                                onChange={() => cambiar(p.preguntaId, String(v))}
-                                className="sr-only"
-                              />
-                              {v}
-                            </label>
-                          );
-                        })}
+                    {p.tipoRespuesta === 'escala' && (
+                      <div role="radiogroup" aria-labelledby={idTitulo} className="space-y-1">
+                        <div className="flex flex-wrap gap-2">
+                          {valoresEscala(p).map((v) => {
+                            const elegido = String(valores[p.preguntaId]) === String(v);
+                            return (
+                              <label
+                                key={v}
+                                className={`min-w-10 h-10 px-3 inline-flex items-center justify-center rounded-[8px] border text-sm font-semibold cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-brand-600 ${
+                                  elegido ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white border-field-border text-ink-900 hover:bg-surface-muted'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`pregunta-${p.preguntaId}`}
+                                  value={v}
+                                  checked={elegido}
+                                  onChange={() => cambiar(p.preguntaId, String(v))}
+                                  className="sr-only"
+                                />
+                                {v}
+                              </label>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[11px] text-ink-600">
+                          De {p.escalaMinima} (más bajo) a {p.escalaMaxima} (más alto)
+                        </p>
                       </div>
-                      <p className="text-[11px] text-ink-600">
-                        De {p.escalaMinima} (más bajo) a {p.escalaMaxima} (más alto)
-                      </p>
-                    </div>
-                  )}
+                    )}
 
-                  {p.tipoRespuesta === 'opcion' && (
-                    <div role="radiogroup" aria-labelledby={idTitulo} className="space-y-1.5">
-                      {(p.opciones || []).map((o) => (
-                        <label key={o.opcionId} className="flex items-center gap-2 text-sm text-ink-900 cursor-pointer select-none">
-                          <input
-                            type="radio"
-                            name={`pregunta-${p.preguntaId}`}
-                            value={o.opcionId}
-                            checked={String(valores[p.preguntaId]) === String(o.opcionId)}
-                            onChange={() => cambiar(p.preguntaId, String(o.opcionId))}
-                            className="w-4 h-4 accent-brand-600"
-                          />
-                          {o.texto}
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                    {p.tipoRespuesta === 'opcion' && (
+                      <div role="radiogroup" aria-labelledby={idTitulo} className="space-y-1.5">
+                        {(p.opciones || []).map((o) => (
+                          <label key={o.opcionId} className="flex items-center gap-2 text-sm text-ink-900 cursor-pointer select-none">
+                            <input
+                              type="radio"
+                              name={`pregunta-${p.preguntaId}`}
+                              value={o.opcionId}
+                              checked={String(valores[p.preguntaId]) === String(o.opcionId)}
+                              onChange={() => cambiar(p.preguntaId, String(o.opcionId))}
+                              className="w-4 h-4 accent-brand-600"
+                            />
+                            {o.texto}
+                          </label>
+                        ))}
+                      </div>
+                    )}
 
-                  {p.tipoRespuesta === 'texto' && (
-                    <TextArea
-                      id={`pregunta-${p.preguntaId}-respuesta`}
-                      value={valores[p.preguntaId] || ''}
-                      onChange={(e) => cambiar(p.preguntaId, e.target.value)}
-                      placeholder="Escribe tu respuesta."
-                      rows={3}
-                      maxLength={MAX_TEXTO_RESPUESTA}
-                    />
-                  )}
+                    {p.tipoRespuesta === 'texto' && (
+                      <TextArea
+                        id={`pregunta-${p.preguntaId}-respuesta`}
+                        value={valores[p.preguntaId] || ''}
+                        onChange={(e) => cambiar(p.preguntaId, e.target.value)}
+                        placeholder="Escribe tu respuesta."
+                        rows={3}
+                        maxLength={MAX_TEXTO_RESPUESTA}
+                      />
+                    )}
 
-                  {error && <p className="text-xs text-brand-700 font-medium" role="alert">{error}</p>}
-                </li>
-              );
-            })}
-          </ol>
+                    {error && <p className="text-xs text-brand-700 font-medium" role="alert">{error}</p>}
+                  </li>
+                );
+              })}
+            </ol>
+          </fieldset>
         )}
       </div>
     );
