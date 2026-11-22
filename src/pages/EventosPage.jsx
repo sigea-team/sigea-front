@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { Archive, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -35,6 +35,12 @@ import EncuestasEventoModal from '../features/encuestas/components/EncuestasEven
 import { encuestaService } from '../api/encuestaService';
 import { inscripcionService } from '../api/inscripcionService';
 import { asistenciaService } from '../api/asistenciaService';
+import { memoriaHistoricaService } from '../api/memoriaHistoricaService';
+import CierreFormalModal from '../features/memoria/components/CierreFormalModal';
+import MemoriaHistoricaModal from '../features/memoria/components/MemoriaHistoricaModal';
+import EliminacionHistoricaModal from '../features/memoria/components/EliminacionHistoricaModal';
+import EventoArchivadoBadge from '../features/memoria/components/EventoArchivadoBadge';
+import { puedeCerrarFormalmente, puedeEliminarConAutorizacion } from '../features/memoria/memoriaUtils';
 import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
@@ -61,6 +67,9 @@ import { esAdministrador } from '../utils/permisos';
  * el resto de acciones va agrupado por tema en el menú «Más».
  * El participante (sin perfil de administrador) se inscribe desde cada fila al evento y a sus actividades (HU-23).
  * Desde el menú «Más» el organizador configura, publica y consulta las encuestas de satisfacción del evento (HU-25).
+ * HU-28: desde el menú «Más» el organizador hace el cierre formal de un evento finalizado. Un evento cerrado
+ * formalmente se marca «Memoria histórica» y su menú solo ofrece consultar la memoria y sus ediciones (su información
+ * ya no se modifica); quien tiene la autorización especial también puede eliminarlo.
  * @module pages/EventosPage
  */
 
@@ -110,6 +119,7 @@ const ALERTA_EXITO = {
  * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
  * @param {typeof asistenciaService} [props.apiAsistencia] - Cliente de la API del código QR (HU-24); Storybook inyecta una versión simulada.
  * @param {typeof encuestaService} [props.apiEncuestas] - Cliente de la API de encuestas de satisfacción (HU-25); Storybook inyecta una versión simulada.
+ * @param {typeof memoriaHistoricaService} [props.apiMemoria] - Cliente de la API de la memoria histórica (HU-28); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
  */
@@ -126,12 +136,14 @@ export default function EventosPage({
   apiInscripciones = inscripcionService,
   apiAsistencia = asistenciaService,
   apiEncuestas = encuestaService,
+  apiMemoria = memoriaHistoricaService,
   usuarioProp,
   onSelectNav,
 }) {
   const auth = useAuth();
   const usuarioActual = usuarioProp || auth?.usuario;
   const isAdmin = esAdministrador(usuarioActual);
+  const puedeEliminarHistorico = puedeEliminarConAutorizacion(usuarioActual);
 
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -314,6 +326,40 @@ export default function EventosPage({
     });
   };
 
+  /**
+   * HU-28: menú de un evento cerrado formalmente. Su información es solo de consulta, así que solo se ofrece la
+   * memoria histórica y las ediciones (se puede crear una nueva a partir de él). Eliminarlo exige la autorización
+   * especial; sin ella la opción aparece desactivada con el motivo.
+   */
+  const gruposArchivado = (evento) => [
+    {
+      titulo: 'Memoria histórica',
+      acciones: [
+        { id: 'memoria', etiqueta: 'Ver memoria histórica', icono: Eye, onClick: () => setModal({ tipo: 'memoria', evento }) },
+      ],
+    },
+    {
+      titulo: 'Ediciones',
+      acciones: [
+        { id: 'historial', etiqueta: 'Historial de ediciones', icono: History, onClick: () => setModal({ tipo: 'historial', evento }) },
+        { id: 'edicion', etiqueta: 'Crear nueva edición', icono: CopyPlus, onClick: () => setModal({ tipo: 'edicion', evento }) },
+      ],
+    },
+    {
+      acciones: [
+        {
+          id: 'eliminarHistorico',
+          etiqueta: 'Eliminar con autorización especial',
+          icono: ShieldAlert,
+          peligro: true,
+          disabled: !puedeEliminarHistorico,
+          motivo: 'Está en la memoria histórica: solo se elimina con la autorización especial MEMORIA_HISTORICA_ELIMINAR.',
+          onClick: () => setModal({ tipo: 'eliminarHistorico', evento }),
+        },
+      ],
+    },
+  ];
+
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
@@ -462,7 +508,10 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">{evento.semestre || '—'}</td>
                       <td className="py-4 px-5 align-middle">{etiquetaModalidad(evento.modalidad)}</td>
                       <td className="py-4 px-5 align-middle">
-                        <EstadoEventoBadge estado={evento.estado} />
+                        <div className="flex flex-col items-start gap-1">
+                          <EstadoEventoBadge estado={evento.estado} />
+                          {evento.archivado && <EventoArchivadoBadge />}
+                        </div>
                       </td>
                       {!isAdmin && (
                         <td className="py-4 px-5 align-middle">
@@ -481,7 +530,8 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                             <>
-                              {editable && (
+                              {/* HU-28: un evento de la memoria histórica nunca muestra Publicar ni Editar (defensa ante datos inconsistentes) */}
+                              {editable && !evento.archivado && (
                                 <>
                                   <BotonFila icono={Globe} principal onClick={() => publicar(evento)}>
                                     Publicar
@@ -493,7 +543,7 @@ export default function EventosPage({
                               )}
                               <MenuAcciones
                                 ariaLabel={`Más acciones de ${evento.nombre}`}
-                                grupos={[
+                                grupos={evento.archivado ? gruposArchivado(evento) : [
                                   {
                                     titulo: 'Configuración del evento',
                                     acciones: [
@@ -526,6 +576,19 @@ export default function EventosPage({
                                     acciones: [
                                       { id: 'historial', etiqueta: 'Historial de ediciones', icono: History, onClick: () => setModal({ tipo: 'historial', evento }) },
                                       { id: 'edicion', etiqueta: 'Crear nueva edición', icono: CopyPlus, onClick: () => setModal({ tipo: 'edicion', evento }) },
+                                    ],
+                                  },
+                                  {
+                                    titulo: 'Memoria histórica',
+                                    acciones: [
+                                      {
+                                        id: 'cierre',
+                                        etiqueta: 'Cierre formal',
+                                        icono: Archive,
+                                        disabled: !puedeCerrarFormalmente(evento),
+                                        motivo: 'Disponible cuando el evento finaliza (desde su último día).',
+                                        onClick: () => setModal({ tipo: 'cierre', evento }),
+                                      },
                                     ],
                                   },
                                   {
@@ -655,6 +718,41 @@ export default function EventosPage({
           evento={modal.evento}
           api={apiEncuestas}
           onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'cierre' && (
+        <CierreFormalModal
+          key={`cierre-${modal.evento.id}`}
+          evento={modal.evento}
+          api={apiMemoria}
+          onClose={cerrarModal}
+          onCerrado={() =>
+            terminar(
+              'Evento cerrado formalmente',
+              `La información de «${modal.evento.nombre}» quedó consolidada en la memoria histórica. Desde ahora es solo de consulta.`
+            )
+          }
+        />
+      )}
+
+      {modal?.tipo === 'memoria' && (
+        <MemoriaHistoricaModal
+          key={`memoria-${modal.evento.id}`}
+          evento={modal.evento}
+          api={apiMemoria}
+          onClose={cerrarModal}
+          onEliminar={puedeEliminarHistorico ? () => setModal({ tipo: 'eliminarHistorico', evento: modal.evento }) : undefined}
+        />
+      )}
+
+      {modal?.tipo === 'eliminarHistorico' && (
+        <EliminacionHistoricaModal
+          key={`eliminar-historico-${modal.evento.id}`}
+          evento={modal.evento}
+          api={apiMemoria}
+          onClose={cerrarModal}
+          onEliminado={(mensaje) => terminar('Evento eliminado', mensaje)}
         />
       )}
 
