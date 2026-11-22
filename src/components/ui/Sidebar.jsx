@@ -19,11 +19,13 @@ import {
   CalendarClock,
   FileStack,
   ClipboardList,
+  Archive,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../../store/authStore';
 import { esAdministrador, veEvaluaciones, veEventos } from '../../utils/permisos';
+import { veMemoriaHistorica } from '../../features/memoria/memoriaUtils';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -89,6 +91,14 @@ const SALAS_NAV_ITEM = {
   label: 'Salas y Espacios',
   icon: Building,
   href: '/salas',
+};
+
+/** HU-28: archivo de los eventos cerrados formalmente (memoria histórica). */
+const MEMORIA_HISTORICA_NAV_ITEM = {
+  id: 'memoria-historica',
+  label: 'Memoria histórica',
+  icon: Archive,
+  href: '/memoria-historica',
 };
 
 /** HU-21: Programar actividades de la agenda controlando conflictos y simultáneas */
@@ -219,6 +229,15 @@ export default function Sidebar({
       } else {
         navItems.push(ADMIN_NAV_ITEM, AUDITORIA_NAV_ITEM);
       }
+    }
+
+    // HU-28: memoria histórica para administradores y cuentas con permiso de memoria histórica o de reportes,
+    // después de Salas (o de Eventos). No aplica al perfil «Evaluador».
+    if (veEventos(usuario) && veMemoriaHistorica(usuario)) {
+      const anclaIdx = ['salas', 'agenda', 'eventos']
+        .map((id) => navItems.findIndex((item) => item.id === id))
+        .find((indice) => indice !== -1);
+      navItems.splice(anclaIdx === undefined ? navItems.length : anclaIdx + 1, 0, MEMORIA_HISTORICA_NAV_ITEM);
     }
   }
 
