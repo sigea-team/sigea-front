@@ -530,7 +530,8 @@ export default function EventosPage({
                       <td className="py-4 px-5 align-middle">
                         <div className="flex items-center justify-end gap-2">
                             <>
-                              {editable && (
+                              {/* HU-28: un evento de la memoria histórica nunca muestra Publicar ni Editar (defensa ante datos inconsistentes) */}
+                              {editable && !evento.archivado && (
                                 <>
                                   <BotonFila icono={Globe} principal onClick={() => publicar(evento)}>
                                     Publicar
