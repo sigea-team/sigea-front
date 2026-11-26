@@ -177,6 +177,8 @@ export default function Sidebar({
     navItems = [
       MIS_PROPUESTAS_NAV_ITEM,
       { id: 'convocatorias', label: 'Enviar propuesta', icon: FileText, href: '/convocatorias' },
+      // HU-26: el ponente también recibe certificado por las actividades a su cargo.
+      DEFAULT_NAV_ITEMS.find((item) => item.id === 'certificados'),
     ];
   } else {
     // Para administradores y otros roles:

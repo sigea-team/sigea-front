@@ -280,7 +280,7 @@ describe('mis encuestas (Criterios 1 y 3)', () => {
       { encuestaId: 2, recibeRespuestas: true },
       { encuestaId: 3, recibeRespuestas: true, fechaCierre: '2026-11-25T10:00:00' },
       { encuestaId: 4, respondida: true, fechaRespuesta: '2026-11-21T10:00:00' },
-    ]);
+    ], AHORA);
     expect(lista.map((e) => e.encuestaId)).toEqual([3, 2, 4, 1]);
   });
 
