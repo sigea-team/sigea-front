@@ -267,26 +267,30 @@ export default function CuentaPage() {
 
   return (
     <MainLayout title="Gestionar Cuenta" activeNav="cuenta">
-      <div className="space-y-8 max-w-4xl">
+      <div className="max-w-5xl mx-auto w-full space-y-6">
         {/* Encabezado descriptivo */}
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
+        <div className="pb-4 border-b border-border">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5" />
             SIGEA — Mi Cuenta
           </span>
-          <h1 className="font-serif-title text-2xl text-ink-900 mt-1">
+          <h1 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
             Gestión de Perfil y Cuenta
           </h1>
-          <p className="text-sm text-ink-600 mt-1">
-            Personaliza tu fotografía, actualiza tus datos de contacto y administra la seguridad de tu sesión.
+          <p className="text-sm text-ink-600 mt-1 max-w-3xl">
+            Personaliza tu fotografía, actualiza tus datos de contacto y administra la seguridad de tu sesión institucional.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* SECCIÓN 1: Fotografía de Perfil (Avatar) */}
-          <div className="p-6 bg-surface-muted border border-border rounded-[14px]">
-            <h2 className="text-base font-semibold text-ink-900 mb-1">
-              Foto de Perfil
-            </h2>
+          <div className="p-6 bg-surface border border-border border-t-4 border-t-brand-600 rounded-[16px] shadow-xs">
+            <div className="flex items-center gap-2 mb-1">
+              <Camera className="w-4 h-4 text-brand-600" />
+              <h2 className="font-serif-title text-base font-semibold text-ink-900">
+                Foto de Perfil
+              </h2>
+            </div>
             <p className="text-xs text-ink-600 mb-5">
               Esta fotografía se mostrará en la barra superior del sistema y en los registros de tus actividades.
             </p>
@@ -294,7 +298,7 @@ export default function CuentaPage() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Contenedor del Avatar */}
               <div className="relative group shrink-0">
-                <div className="w-28 h-28 rounded-full border-2 border-brand-600 bg-brand-100 text-brand-600 flex items-center justify-center overflow-hidden shadow-sm">
+                <div className="w-28 h-28 rounded-full border-2 border-brand-600 bg-brand-100 text-brand-600 flex items-center justify-center overflow-hidden shadow-xs">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
@@ -311,10 +315,10 @@ export default function CuentaPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   title="Cambiar fotografía"
-                  className="absolute inset-0 rounded-full bg-ink-900/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="absolute inset-0 rounded-full bg-ink-900/50 text-surface flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 >
-                  <Camera className="w-6 h-6 mb-1" />
-                  <span className="text-[10px] font-semibold">Cambiar</span>
+                  <Camera className="w-6 h-6 mb-1 text-surface" />
+                  <span className="text-[10px] font-semibold text-surface">Cambiar</span>
                 </button>
               </div>
 
@@ -333,27 +337,26 @@ export default function CuentaPage() {
                     type="button"
                     variant="primary"
                     onClick={() => fileInputRef.current?.click()}
-                    className="!h-9 !px-4 !text-xs"
+                    className="!h-9 !px-4 !text-xs shadow-xs"
                   >
                     <Camera className="w-4 h-4" />
                     <span>Subir nueva foto</span>
                   </Button>
 
                   {avatarUrl && (
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
                       onClick={handleRemovePhoto}
-                      className="!h-9 !px-4 !text-xs text-brand-600 hover:bg-brand-100 border-brand-600"
+                      className="h-9 px-4 rounded-[8px] text-xs font-medium border border-border text-brand-700 bg-surface hover:bg-brand-100 transition-colors cursor-pointer inline-flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-brand-600" />
                       <span>Eliminar foto</span>
-                    </Button>
+                    </button>
                   )}
                 </div>
 
                 <p className="text-[11px] text-ink-600 leading-relaxed">
-                  Formatos recomendados: <strong>PNG, JPG o WEBP</strong>. Tamaño máximo: <strong>2.5 MB</strong>.
+                  Formatos recomendados: <strong className="text-ink-900">PNG, JPG o WEBP</strong>. Tamaño máximo: <strong className="text-ink-900">2.5 MB</strong>.
                   Para un resultado óptimo, usa una imagen cuadrada de al menos 300x300 píxeles.
                 </p>
               </div>
@@ -361,10 +364,13 @@ export default function CuentaPage() {
           </div>
 
           {/* SECCIÓN 2: Información Personal */}
-          <div className="p-6 bg-surface-muted border border-border rounded-[14px] space-y-5">
-            <h2 className="text-base font-semibold text-ink-900">
-              Información de Usuario
-            </h2>
+          <div className="p-6 bg-surface border border-border rounded-[16px] shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-border">
+              <User className="w-4 h-4 text-brand-600" />
+              <h2 className="font-serif-title text-base font-semibold text-ink-900">
+                Información de Usuario
+              </h2>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Input
@@ -388,7 +394,7 @@ export default function CuentaPage() {
                 placeholder="usuario@ufps.edu.co"
                 required
                 error={errores.correo}
-                rightElement={<Mail className="w-4 h-4" />}
+                rightElement={<Mail className="w-4 h-4 text-ink-300" />}
               />
 
               <Input
@@ -399,7 +405,7 @@ export default function CuentaPage() {
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
                 placeholder="Ej: +57 312 345 6789"
-                rightElement={<Phone className="w-4 h-4" />}
+                rightElement={<Phone className="w-4 h-4 text-ink-300" />}
               />
 
               <div className="flex flex-col gap-1.5 w-full">
@@ -415,30 +421,32 @@ export default function CuentaPage() {
                     value={afiliacion}
                     onChange={(e) => setAfiliacion(e.target.value)}
                     placeholder="Universidad Francisco de Paula Santander"
-                    className="w-full h-11 px-3.5 pr-10 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition-colors outline-none"
+                    className="w-full h-11 px-3.5 pr-10 rounded-[8px] bg-surface text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all outline-none"
                   />
                   <datalist id="lista-afiliaciones">
                     {listaAfiliaciones.map((af, idx) => (
                       <option key={af.id || idx} value={af.nombre || af.nombreAfiliacion} />
                     ))}
                   </datalist>
-                  <Building2 className="w-4 h-4 text-ink-600 absolute right-3 pointer-events-none" />
+                  <Building2 className="w-4 h-4 text-ink-300 absolute right-3 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Rol Institucional (Solo lectura) */}
-            <div className="p-4 bg-white border border-border rounded-[10px] flex items-start gap-3">
-              <Shield className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
+            <div className="p-4 bg-surface-muted border border-border rounded-[12px] flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+                <Shield className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-ink-900">Rol Asignado:</span>
-                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-brand-100 text-brand-600 uppercase">
+                  <span className="text-xs font-semibold text-ink-900">Rol Institucional Asignado:</span>
+                  <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-brand-100 text-brand-700 uppercase tracking-wide">
                     {rol}
                   </span>
                 </div>
-                <p className="text-[11px] text-ink-600">
-                  Los privilegios y roles de acceso son administrados de acuerdo a las directrices de la UFPS.
+                <p className="text-xs text-ink-600">
+                  Los privilegios y roles de acceso son administrados de acuerdo a las directrices y permisos de la UFPS.
                 </p>
               </div>
             </div>
@@ -455,34 +463,37 @@ export default function CuentaPage() {
                 value={biografia}
                 onChange={(e) => setBiografia(e.target.value)}
                 placeholder="Breve descripción sobre tu trayectoria profesional, áreas de investigación o participación en eventos académicos..."
-                className="w-full p-3.5 rounded-[8px] bg-white text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition-colors outline-none resize-none"
+                className="w-full p-3.5 rounded-[8px] bg-surface text-sm text-ink-900 placeholder-ink-300 border border-field-border hover:border-ink-300 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all outline-none resize-none leading-relaxed"
               />
             </div>
           </div>
 
           {/* SECCIÓN 3: Seguridad y Contraseña */}
-          <div className="p-6 bg-surface-muted border border-border rounded-[14px] space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-ink-900">
-                  Seguridad y Contraseña
-                </h2>
-                <p className="text-xs text-ink-600">
-                  Mantén protegida tu cuenta actualizando periódicamente tu clave de acceso.
-                </p>
+          <div className="p-6 bg-surface border border-border rounded-[16px] shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-brand-600" />
+                <div>
+                  <h2 className="font-serif-title text-base font-semibold text-ink-900">
+                    Seguridad y Contraseña
+                  </h2>
+                  <p className="text-xs text-ink-600">
+                    Mantén protegida tu cuenta actualizando periódicamente tu clave de acceso.
+                  </p>
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setCambiarPassword(!cambiarPassword)}
-                className="text-xs font-semibold text-brand-600 hover:underline cursor-pointer"
+                className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline cursor-pointer self-start sm:self-auto"
               >
-                {cambiarPassword ? 'Ocultar cambio de contraseña' : '¿Deseas cambiar tu contraseña?'}
+                {cambiarPassword ? 'Cancelar cambio de contraseña' : '¿Deseas cambiar tu contraseña?'}
               </button>
             </div>
 
             {cambiarPassword && (
-              <div className="pt-4 border-t border-border grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
+              <div className="pt-2 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in duration-200">
                 <Input
                   label="Contraseña Actual"
                   id="passwordActual"
@@ -496,7 +507,7 @@ export default function CuentaPage() {
                     <button
                       type="button"
                       onClick={() => setShowPasswordActual(!showPasswordActual)}
-                      className="cursor-pointer focus:outline-none"
+                      className="cursor-pointer focus:outline-none text-ink-600 hover:text-ink-900"
                     >
                       {showPasswordActual ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -516,7 +527,7 @@ export default function CuentaPage() {
                     <button
                       type="button"
                       onClick={() => setShowNuevaPassword(!showNuevaPassword)}
-                      className="cursor-pointer focus:outline-none"
+                      className="cursor-pointer focus:outline-none text-ink-600 hover:text-ink-900"
                     >
                       {showNuevaPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -536,7 +547,7 @@ export default function CuentaPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmarPassword(!showConfirmarPassword)}
-                      className="cursor-pointer focus:outline-none"
+                      className="cursor-pointer focus:outline-none text-ink-600 hover:text-ink-900"
                     >
                       {showConfirmarPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -547,7 +558,7 @@ export default function CuentaPage() {
           </div>
 
           {/* Botones de Acción al Pie */}
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"

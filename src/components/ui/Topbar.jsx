@@ -196,24 +196,8 @@ export default function Topbar({
     return (
       <header className={`sticky top-0 z-40 w-full h-16 bg-surface border-b border-border shadow-2xs ${className}`}>
         <div className="w-full h-full px-6 sm:px-8 flex items-center justify-between">
-          {/* Identidad institucional: Escudo UFPS + Nombre SIGEA */}
-          <Link to="/" className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 rounded-lg p-1">
-            <UfpsLogo
-              variante="vertical"
-              className="h-10 w-auto max-w-[44px] object-contain shrink-0 group-hover:opacity-90 transition-opacity"
-            />
-            <div className="leading-tight">
-              <div className="flex items-center gap-2">
-                <span className="font-serif-title text-xl font-bold text-brand-600 tracking-tight">SIGEA</span>
-                <span className="text-[10px] font-semibold bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  Cúcuta
-                </span>
-              </div>
-              <p className="text-[11px] text-ink-600 font-normal">
-                Ingeniería de Sistemas · UFPS
-              </p>
-            </div>
-          </Link>
+          {/* Espacio de balance izquierdo (logo está en el Sidebar) */}
+          <div />
 
           {/* Enlaces de navegación desktop */}
           <nav className="hidden lg:flex items-center gap-1" aria-label="Navegación principal">

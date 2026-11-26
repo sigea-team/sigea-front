@@ -134,7 +134,7 @@ export default function ConferencistasPublicosPage({ api = conferencistaService,
         </div>
       </main>
 
-      <Footer compacto />
+      <Footer />
     </div>
   );
 }
