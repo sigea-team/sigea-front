@@ -41,6 +41,7 @@ export const TITULOS_ERROR = {
   CERTIFICADO_EMISION_SIMULTANEA: 'Solicitud en curso',
   EVENTO_ARCHIVADO: 'Evento en la memoria histórica',
   ARCHIVO_INVALIDO: 'Imagen no válida',
+  ARCHIVO_INESPERADO: 'Archivo no disponible',
 };
 
 const MENSAJE_POR_ESTADO = {
@@ -312,6 +313,37 @@ export function normalizarCodigo(valor) {
 
 // ── Archivos (navegador) ─────────────────────────────────────────────────────
 
+/** Error con la forma de axios para una respuesta 200 que no trae el archivo esperado. */
+function archivoInesperado(tipoEsperado) {
+  const err = new Error(`Se esperaba ${tipoEsperado}`);
+  err.response = {
+    status: 200,
+    data: { codigo: 'ARCHIVO_INESPERADO', message: 'El servidor no devolvió el archivo esperado. Intenta de nuevo más tarde.' },
+  };
+  return err;
+}
+
+/**
+ * Comprueba que el Blob sea del tipo pedido antes de mostrarlo: un PDF por su tipo o, si el servidor no lo indicó,
+ * por su firma «%PDF»; una imagen por su tipo `image/*`.
+ * @param {Blob} blob
+ * @param {'pdf'|'imagen'} esperado
+ */
+export async function validarBlob(blob, esperado) {
+  if (!blob || typeof blob.size !== 'number' || blob.size === 0) throw archivoInesperado(esperado);
+  const tipo = (blob.type || '').toLowerCase();
+  if (esperado === 'pdf') {
+    if (tipo.includes('application/pdf')) return blob;
+    if (tipo && !tipo.includes('octet-stream')) throw archivoInesperado('pdf');
+    const inicio = await blob.slice(0, 5).text();
+    if (!inicio.startsWith('%PDF')) throw archivoInesperado('pdf');
+    return new Blob([blob], { type: 'application/pdf' });
+  }
+  if (!tipo.startsWith('image/')) throw archivoInesperado('imagen');
+  return blob;
+}
+
+
 /** Entrega un Blob al navegador como descarga con el nombre indicado. */
 export function descargarBlob(blob, nombre) {
   const url = URL.createObjectURL(blob);
@@ -333,8 +365,8 @@ export function descargarBlob(blob, nombre) {
 export async function abrirPdf(obtener, nombre) {
   const ventana = typeof window !== 'undefined' ? window.open('', '_blank') : null;
   try {
-    const blob = await obtener();
-    const pdf = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+    // El servicio ya comprobó que es un PDF (validarBlob).
+    const pdf = await obtener();
     if (ventana) {
       const url = URL.createObjectURL(pdf);
       ventana.location.href = url;

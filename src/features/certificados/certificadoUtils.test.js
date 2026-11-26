@@ -19,6 +19,7 @@ import {
   textoAsistencia,
   validarFirmante,
   validarImagen,
+  validarBlob,
   validarPorcentaje,
 } from './certificadoUtils';
 import { crearCertificadosApiMock } from './mocks/certificadosMock';
@@ -180,6 +181,9 @@ describe('normalizarCodigo', () => {
   it('acepta el código o la URL completa del certificado', () => {
     expect(normalizarCodigo('  cert-ab12 ')).toBe('CERT-AB12');
     expect(normalizarCodigo('https://sigea-team.github.io/sigea-front/#/verificar/CERT-AB12')).toBe('CERT-AB12');
+    // El código va después de «#/verificar/» sin importar el dominio ni la ruta base.
+    expect(normalizarCodigo('http://localhost:5173/sigea-front/#/verificar/cert-e924f7ee')).toBe('CERT-E924F7EE');
+    expect(normalizarCodigo('https://otro-dominio.edu.co/#/verificar/CERT-AB12?origen=qr')).toBe('CERT-AB12');
     expect(normalizarCodigo('')).toBe('');
   });
 });
@@ -210,5 +214,28 @@ describe('API simulada (mismas reglas del backend)', () => {
     expect(a.generadoAhora).toBe(false);
     expect(b.certificado.codigoVerificacion).toBe(a.certificado.codigoVerificacion);
     expect((await api.verificarCertificado(a.certificado.codigoVerificacion)).documento).toBe('CC ********56');
+  });
+});
+
+describe('validarBlob (respuestas de archivos)', () => {
+  const pdf = (type = 'application/pdf') => new Blob(['%PDF-1.4\n...'], { type });
+  const error = { response: { status: 200, data: { codigo: 'ARCHIVO_INESPERADO' } } };
+
+  it('acepta un PDF por su tipo o, sin tipo, por su firma %PDF', async () => {
+    expect((await validarBlob(pdf(), 'pdf')).type).toBe('application/pdf');
+    expect((await validarBlob(pdf(''), 'pdf')).type).toBe('application/pdf');
+    expect((await validarBlob(pdf('application/octet-stream'), 'pdf')).type).toBe('application/pdf');
+  });
+
+  it('rechaza una respuesta 200 que no es el archivo pedido', async () => {
+    await expect(validarBlob(new Blob(['<html></html>'], { type: 'text/html' }), 'pdf')).rejects.toMatchObject(error);
+    await expect(validarBlob(new Blob(['no es pdf'], { type: '' }), 'pdf')).rejects.toMatchObject(error);
+    await expect(validarBlob(new Blob([], { type: 'application/pdf' }), 'pdf')).rejects.toMatchObject(error);
+    await expect(validarBlob(pdf(), 'imagen')).rejects.toMatchObject(error);
+  });
+
+  it('acepta imágenes solo con tipo image/*', async () => {
+    const png = new Blob(['x'], { type: 'image/png' });
+    expect(await validarBlob(png, 'imagen')).toBe(png);
   });
 });

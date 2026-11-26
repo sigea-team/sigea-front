@@ -1,4 +1,5 @@
 import { httpClient } from './httpClient';
+import { validarBlob } from '../features/certificados/certificadoUtils';
 
 /**
  * @file certificadoService.js
@@ -36,10 +37,10 @@ async function conErrorLegible(peticion) {
   }
 }
 
-const comoBlob = (url, params) =>
+const comoBlob = (url, params, esperado) =>
   conErrorLegible(async () => {
     const { data } = await httpClient.get(url, { params, responseType: 'blob' });
-    return data;
+    return validarBlob(data, esperado);
   });
 
 const formulario = (campos) => {
@@ -100,7 +101,7 @@ export async function solicitarCertificado(eventoId, tipo) {
  * @returns {Promise<Blob>}
  */
 export function descargarCertificado(certificadoId) {
-  return comoBlob(`/certificados/${certificadoId}/pdf`);
+  return comoBlob(`/certificados/${certificadoId}/pdf`, undefined, 'pdf');
 }
 
 // ── Organizador ──────────────────────────────────────────────────────────────
@@ -155,7 +156,7 @@ export async function consultarPlantilla(eventoId) {
  * @returns {Promise<Blob>}
  */
 export function vistaPrevia(eventoId, tipo = 'asistente') {
-  return comoBlob(`${plantilla(eventoId)}/vista-previa`, { tipo });
+  return comoBlob(`${plantilla(eventoId)}/vista-previa`, { tipo }, 'pdf');
 }
 
 /**
@@ -163,7 +164,7 @@ export function vistaPrevia(eventoId, tipo = 'asistente') {
  * Endpoint: GET /api/v1/eventos/{eventoId}/certificados/plantilla/fondo
  */
 export function imagenFondo(eventoId, version) {
-  return comoBlob(`${plantilla(eventoId)}/fondo`, version ? { v: version } : undefined);
+  return comoBlob(`${plantilla(eventoId)}/fondo`, version ? { v: version } : undefined, 'imagen');
 }
 
 /** Endpoint: PUT /api/v1/eventos/{eventoId}/certificados/plantilla/fondo (multipart «archivo») */
@@ -180,7 +181,7 @@ export async function eliminarFondo(eventoId) {
 
 /** Endpoint: GET /api/v1/eventos/{eventoId}/certificados/plantilla/firmantes/{firmanteId}/firma */
 export function imagenFirma(eventoId, firmanteId, version) {
-  return comoBlob(`${plantilla(eventoId)}/firmantes/${firmanteId}/firma`, version ? { v: version } : undefined);
+  return comoBlob(`${plantilla(eventoId)}/firmantes/${firmanteId}/firma`, version ? { v: version } : undefined, 'imagen');
 }
 
 /** Endpoint: POST /api/v1/eventos/{eventoId}/certificados/plantilla/firmantes (multipart nombre, cargo, firma) */

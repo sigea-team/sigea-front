@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   AlertTriangle,
@@ -286,9 +286,13 @@ function FirmanteFormulario({ firmante, onGuardar, onCancelar }) {
     setErrores((e) => ({ ...e, [campo]: undefined }));
   };
 
+  // Libera la vista previa de la firma elegida al cambiarla o al cerrar el formulario.
+  useEffect(() => () => {
+    if (vista) URL.revokeObjectURL(vista);
+  }, [vista]);
+
   const elegirFirma = (e) => {
     const archivo = e.target.files?.[0] || null;
-    if (vista) URL.revokeObjectURL(vista);
     setVista(archivo ? URL.createObjectURL(archivo) : null);
     cambiar('firma', archivo);
   };
