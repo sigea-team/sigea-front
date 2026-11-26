@@ -188,7 +188,7 @@ export default function ConferencistaInvitacionPage({ api = conferencistaService
         {contenido}
       </main>
 
-      <Footer compacto />
+      <Footer />
     </div>
   );
 }

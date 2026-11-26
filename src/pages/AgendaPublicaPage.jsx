@@ -214,7 +214,7 @@ export default function AgendaPublicaPage({ api = agendaService, eventoId: event
         ))}
       </main>
 
-      <Footer compacto />
+      <Footer />
     </div>
   );
 }

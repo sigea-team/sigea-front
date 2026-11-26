@@ -175,7 +175,7 @@ export default function ConvocatoriasPublicasPage({ api = convocatoriaService, d
         </div>
       </main>
 
-      <Footer compacto />
+      <Footer />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   Filter,
   CheckCircle2,
   Clock,
-  Award,
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react';
@@ -190,7 +189,7 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService, api
         )}
 
         {/* Tarjetas de métricas rápidas */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
             <div className="flex items-center justify-between text-ink-600">
               <span className="text-xs font-medium">Total Asignadas</span>
@@ -218,16 +217,6 @@ export default function EvaluacionesPage({ apiPropuestas = propuestaService, api
             </div>
             <p className="font-serif-title text-2xl sm:text-3xl text-brand-600 font-bold mt-2">
               {metricas.completadas}
-            </p>
-          </div>
-
-          <div className="p-4 rounded-[12px] bg-surface-muted border border-border">
-            <div className="flex items-center justify-between text-ink-600">
-              <span className="text-xs font-medium">Promedio Otorgado</span>
-              <Award className="w-4 h-4 text-brand-600" />
-            </div>
-            <p className="font-serif-title text-2xl sm:text-3xl text-brand-600 font-bold mt-2">
-              {metricas.promedio}
             </p>
           </div>
         </div>

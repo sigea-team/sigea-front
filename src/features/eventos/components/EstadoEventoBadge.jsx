@@ -3,32 +3,31 @@ import { ESTADOS_EVENTO } from '../eventoUtils';
 /**
  * @file EstadoEventoBadge.jsx
  * @description Píldora con el estado de un evento (HU-04, Criterio 4).
- * Usa solo los tokens del sistema de diseño: el estado se distingue por el texto
- * y por el color del punto (brand-600 para el estado editable "en configuración").
+ * Cumple estrictamente con el sistema de diseño SIGEA (COLOR_STYLES.md):
+ * - Activo / publicado / en ejecución: fondo brand-600, texto surface (blanco), sin borde.
+ * - Pendiente / en configuración: fondo surface-muted, texto ink-600, borde border.
+ * - Cerrado / finalizado: fondo brand-100, texto brand-700, sin borde.
+ * No utiliza puntos de color, siguiendo las pautas de accesibilidad y diseño del proyecto.
  * @module features/eventos/components/EstadoEventoBadge
  */
 
-const PUNTO_POR_ESTADO = {
-  en_configuracion: 'bg-brand-600',
-  habilitado: 'bg-ink-900',
-  en_ejecucion: 'bg-ink-600',
-  cerrado: 'bg-ink-300',
-};
-
 /**
- * @param {{ estado: 'en_configuracion'|'habilitado'|'en_ejecucion'|'cerrado' }} props
+ * @param {{ estado: 'en_configuracion'|'habilitado'|'en_ejecucion'|'cerrado', className?: string }} props
  */
-export default function EstadoEventoBadge({ estado }) {
-  const cerrado = estado === 'cerrado';
+export default function EstadoEventoBadge({ estado, className = '' }) {
+  const estilosPorEstado = {
+    habilitado: 'bg-brand-600 text-surface',
+    en_ejecucion: 'bg-brand-600 text-surface',
+    en_configuracion: 'bg-surface-muted text-ink-600 border border-border',
+    cerrado: 'bg-brand-100 text-brand-700',
+  };
+
+  const clase = estilosPorEstado[estado] || 'bg-surface-muted text-ink-600 border border-border';
+
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${
-        cerrado
-          ? 'bg-surface-page text-ink-600 border-field-border'
-          : 'bg-surface-muted text-ink-900 border-border'
-      }`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${clase} ${className}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${PUNTO_POR_ESTADO[estado] || 'bg-ink-300'}`} aria-hidden="true" />
       {ESTADOS_EVENTO[estado] || estado}
     </span>
   );

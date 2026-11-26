@@ -429,7 +429,7 @@ export default function EventoDetallePage({
       </main>
 
       {/* Pie de página institucional */}
-      <Footer compacto />
+      <Footer />
     </div>
   );
 }

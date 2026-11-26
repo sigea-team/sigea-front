@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
-import Topbar from '../components/ui/Topbar';
 import HomeHero from '../features/home/components/HomeHero';
 import HomeEventosSection from '../features/home/components/HomeEventosSection';
 import HomeConvocatoriasSection from '../features/home/components/HomeConvocatoriasSection';
 import HomeAboutSection from '../features/home/components/HomeAboutSection';
 import HomeRolesSection from '../features/home/components/HomeRolesSection';
-//import HomeCtaBanner from '../features/home/components/HomeCtaBanner';
-import Footer from '../components/ui/Footer';
 import { convocatoriaService } from '../api/convocatoriaService';
 import { eventoService } from '../api/eventoService';
 import { combinarEventosConConvocatorias } from '../features/home/homeUtils';
+import MainLayout from '../components/ui/MainLayout';
 
 /**
  * @file HomePage.jsx
@@ -19,6 +17,9 @@ import { combinarEventosConConvocatorias } from '../features/home/homeUtils';
  * Consume directamente los endpoints del backend para eventos y convocatorias publicados:
  * - GET /api/v1/publico/eventos
  * - GET /api/v1/publico/convocatorias
+ *
+ * Utiliza MainLayout (con Sidebar colapsable y Footer institucional) para mantener coherencia
+ * visual con el resto de la aplicación.
  *
  * @module pages/HomePage
  * @param {Object} props
@@ -97,41 +98,35 @@ export default function HomePage({
   const eventos = combinarEventosConConvocatorias(eventosRaw, convocatorias);
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-surface text-ink-900 font-sans antialiased selection:bg-brand-100 selection:text-brand-700">
-      {/* 1. Barra de navegación pública (Topbar unificado con estado de cuenta si hay sesión) */}
-      <Topbar variante="publica" />
+    <MainLayout
+      title="Inicio"
+      activeNav="home"
+      varianteTopbar="publica"
+      fullWidth
+    >
+      {/* 1. Hero Section con métricas reales */}
+      <HomeHero
+        totalEventos={cargandoEventos ? undefined : eventos.length}
+        totalConvocatorias={cargandoConvocatorias ? undefined : convocatorias.length}
+      />
 
-      <main className="flex-1 w-full">
-        {/* 2. Hero Section con métricas reales */}
-        <HomeHero
-          totalEventos={cargandoEventos ? undefined : eventos.length}
-          totalConvocatorias={cargandoConvocatorias ? undefined : convocatorias.length}
-        />
+      {/* 2. Sección de Eventos y Programación en vivo */}
+      <HomeEventosSection
+        eventos={eventos}
+        cargando={cargandoEventos}
+      />
 
-        {/* 3. Sección de Eventos y Programación en vivo (Objetivo 1) */}
-        <HomeEventosSection
-          eventos={eventos}
-          cargando={cargandoEventos}
-        />
+      {/* 3. Sección de Convocatorias Abiertas */}
+      <HomeConvocatoriasSection
+        convocatorias={convocatorias}
+        cargando={cargandoConvocatorias}
+      />
 
-        {/* 4. Sección de Convocatorias Abiertas (Objetivo 3) */}
-        <HomeConvocatoriasSection
-          convocatorias={convocatorias}
-          cargando={cargandoConvocatorias}
-        />
+      {/* 4. ¿Qué es SIGEA? & Respaldo Institucional UFPS */}
+      <HomeAboutSection />
 
-        {/* 5. ¿Qué es SIGEA? & Respaldo Institucional UFPS (Objetivo 2) */}
-        <HomeAboutSection />
-
-        {/* 6. ¿Por qué registrarte en SIGEA? Beneficios por rol (Objetivo 2 y 3) */}
-        <HomeRolesSection />
-
-        {/* 7. Banner CTA de llamada a la acción */}
-        
-      </main>
-
-      {/* 8. Pie de página institucional completo */}
-      <Footer />
-    </div>
+      {/* 5. ¿Por qué registrarte en SIGEA? Beneficios por rol */}
+      <HomeRolesSection />
+    </MainLayout>
   );
 }

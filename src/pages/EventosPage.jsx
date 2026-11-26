@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { Archive, Award, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { Plus, Search, Shapes, ChevronLeft, ChevronRight } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import MenuAcciones from '../components/ui/MenuAcciones';
 import { eventoService } from '../api/eventoService';
 import { parametroEventoService } from '../api/parametroEventoService';
 import { comiteService } from '../api/comiteService';
@@ -15,7 +14,6 @@ import { tipoEventoService } from '../api/tipoEventoService';
 import { presupuestoAprobadoService } from '../api/presupuestoAprobadoService';
 import { ejecucionPresupuestalService } from '../api/ejecucionPresupuestalService';
 import { salaService } from '../api/salaService';
-import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
 import EventoFormModal from '../features/eventos/components/EventoFormModal';
 import NuevaEdicionModal from '../features/eventos/components/NuevaEdicionModal';
 import ModificarFechasModal from '../features/eventos/components/ModificarFechasModal';
@@ -41,17 +39,15 @@ import { memoriaHistoricaService } from '../api/memoriaHistoricaService';
 import CierreFormalModal from '../features/memoria/components/CierreFormalModal';
 import MemoriaHistoricaModal from '../features/memoria/components/MemoriaHistoricaModal';
 import EliminacionHistoricaModal from '../features/memoria/components/EliminacionHistoricaModal';
-import EventoArchivadoBadge from '../features/memoria/components/EventoArchivadoBadge';
-import { puedeCerrarFormalmente, puedeEliminarConAutorizacion } from '../features/memoria/memoriaUtils';
-import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
+import { puedeEliminarConAutorizacion } from '../features/memoria/memoriaUtils';
 import {
   ESTADOS_EVENTO,
-  esEditable,
-  etiquetaModalidad,
   extraerError,
   filtrarEventosPublicos,
   formatearRango,
 } from '../features/eventos/eventoUtils';
+import EventCard from '../features/eventos/components/EventCard';
+import EventDetailPopup from '../features/eventos/components/EventDetailPopup';
 import { useAuth } from '../context/AuthContext';
 import { esAdministrador } from '../utils/permisos';
 
@@ -80,26 +76,7 @@ const OPCIONES_ESTADO = [
   ...Object.entries(ESTADOS_EVENTO).map(([value, label]) => ({ value, label })),
 ];
 
-/**
- * Botón compacto con ícono y texto para las acciones visibles de una fila.
- * @param {{ icono: React.ElementType, children: React.ReactNode, onClick: function(): void, principal?: boolean }} props
- */
-function BotonFila({ icono: Icono, children, onClick, principal = false }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`h-9 px-3.5 inline-flex items-center gap-1.5 rounded-[8px] border text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-1 ${
-        principal
-          ? 'bg-brand-600 border-brand-600 text-white hover:bg-brand-700 hover:border-brand-700'
-          : 'bg-white border-field-border text-ink-900 hover:bg-surface-muted'
-      }`}
-    >
-      <Icono className={`w-4 h-4 ${principal ? 'text-white' : 'text-ink-600'}`} aria-hidden="true" />
-      {children}
-    </button>
-  );
-}
+const TARJETAS_POR_PAGINA = 8;
 
 const ALERTA_EXITO = {
   icon: 'success',
@@ -156,9 +133,30 @@ export default function EventosPage({
 
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [pagina, setPagina] = useState(1);
 
-  // Modal abierto: { tipo: 'crear'|'editar'|'edicion'|'historial'|'eliminar'|'parametros'|'comite'|'conferencistas'|'presupuesto'|'presupuestoAprobado'|'ejecucion', evento }
+  // Reiniciar a la primera página al cambiar filtros
+  useEffect(() => {
+    setPagina(1);
+  }, [busqueda, filtroEstado]);
+
+  // Modal abierto: { tipo, evento }
   const [modal, setModal] = useState(null);
+
+  // Popup de detalle para evento seleccionado
+  const [eventoDetalle, setEventoDetalle] = useState(null);
+
+  const abrirDetalle = (evento) => setEventoDetalle(evento);
+  const cerrarDetalle = () => setEventoDetalle(null);
+
+  /**
+   * Acción disparada desde el popup: cierra el popup y abre el modal correspondiente.
+   * @param {string} tipo
+   * @param {Object} evento
+   */
+  const manejarAccionPopup = (tipo, evento) => {
+    setModal({ tipo, evento });
+  };
 
   // Catálogo de tipos de evento para el combobox del formulario (null mientras carga). La ventana de
   // administración se abre aparte, encima del formulario, para no perder lo que el usuario escribió.
@@ -255,6 +253,13 @@ export default function EventosPage({
     });
   }, [eventos, busqueda, filtroEstado]);
 
+  const totalPaginas = Math.max(1, Math.ceil(eventosFiltrados.length / TARJETAS_POR_PAGINA));
+
+  const eventosPaginados = useMemo(() => {
+    const inicio = (pagina - 1) * TARJETAS_POR_PAGINA;
+    return eventosFiltrados.slice(inicio, inicio + TARJETAS_POR_PAGINA);
+  }, [eventosFiltrados, pagina]);
+
   const terminar = (titulo, texto) => {
     cerrarModal();
     recargar();
@@ -330,42 +335,6 @@ export default function EventosPage({
     });
   };
 
-  /**
-   * HU-28: menú de un evento cerrado formalmente. Su información es solo de consulta, así que solo se ofrece la
-   * memoria histórica, los certificados emitidos (HU-26) y las ediciones (se puede crear una nueva a partir de él). Eliminarlo exige la autorización
-   * especial; sin ella la opción aparece desactivada con el motivo.
-   */
-  const gruposArchivado = (evento) => [
-    {
-      titulo: 'Memoria histórica',
-      acciones: [
-        { id: 'memoria', etiqueta: 'Ver memoria histórica', icono: Eye, onClick: () => setModal({ tipo: 'memoria', evento }) },
-        // HU-26: los certificados emitidos se siguen consultando y descargando (solo lectura).
-        { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
-      ],
-    },
-    {
-      titulo: 'Ediciones',
-      acciones: [
-        { id: 'historial', etiqueta: 'Historial de ediciones', icono: History, onClick: () => setModal({ tipo: 'historial', evento }) },
-        { id: 'edicion', etiqueta: 'Crear nueva edición', icono: CopyPlus, onClick: () => setModal({ tipo: 'edicion', evento }) },
-      ],
-    },
-    {
-      acciones: [
-        {
-          id: 'eliminarHistorico',
-          etiqueta: 'Eliminar con autorización especial',
-          icono: ShieldAlert,
-          peligro: true,
-          disabled: !puedeEliminarHistorico,
-          motivo: 'Está en la memoria histórica: solo se elimina con la autorización especial MEMORIA_HISTORICA_ELIMINAR.',
-          onClick: () => setModal({ tipo: 'eliminarHistorico', evento }),
-        },
-      ],
-    },
-  ];
-
   const hayFiltros = busqueda.trim() !== '' || filtroEstado !== 'todos';
 
   return (
@@ -380,7 +349,6 @@ export default function EventosPage({
         <div className="flex items-end justify-between gap-4 pb-4 border-b border-border">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5">
-              <CalendarDays className="w-3.5 h-3.5" />
               SIGEA — {isAdmin ? 'Gestión de eventos' : 'Eventos académicos'}
             </span>
             <h2 className="font-serif-title text-2xl sm:text-3xl text-ink-900 mt-1 tracking-tight">
@@ -432,199 +400,139 @@ export default function EventosPage({
           </p>
         </div>
 
-        {/* Tabla */}
-        <div className="overflow-hidden rounded-[12px] border border-border bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-surface-muted border-b border-border text-xs font-bold text-ink-900 uppercase tracking-wider">
-                  <th scope="col" className="py-3.5 px-5">Evento</th>
-                  <th scope="col" className="py-3.5 px-5">Fechas</th>
-                  <th scope="col" className="py-3.5 px-5">Semestre</th>
-                  <th scope="col" className="py-3.5 px-5">Modalidad</th>
-                  <th scope="col" className="py-3.5 px-5">Estado</th>
-                  <th scope="col" className="py-3.5 px-5 text-right">{isAdmin ? 'Acciones' : 'Inscripción'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border text-sm text-ink-900">
-                {cargando && eventos.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center text-ink-600" role="status">
-                      Cargando eventos...
-                    </td>
-                  </tr>
-                )}
+        {/* Galería de tarjetas */}
+        {cargando && eventos.length === 0 && (
+          <p className="py-16 text-center text-ink-600" role="status">Cargando eventos...</p>
+        )}
 
-                {!cargando && errorCarga && eventos.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center">
-                      <p className="font-semibold text-base text-ink-900">No se pudieron cargar los eventos</p>
-                      <button
-                        type="button"
-                        onClick={recargar}
-                        className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
-                      >
-                        Reintentar
-                      </button>
-                    </td>
-                  </tr>
-                )}
-
-                {!cargando && !errorCarga && eventosFiltrados.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-12 px-5 text-center">
-                      {hayFiltros ? (
-                        <>
-                          <p className="font-semibold text-base text-ink-900">Ningún evento coincide con la búsqueda</p>
-                          <p className="text-xs mt-1 text-ink-600">Prueba con otro término o cambia el filtro de estado.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="font-semibold text-base text-ink-900">Todavía no hay eventos registrados</p>
-                          <p className="text-xs mt-1 text-ink-600">
-                            {isAdmin ? 'Usa «Crear evento» para registrar el primero.' : 'Próximamente se publicarán nuevos eventos académicos.'}
-                          </p>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                )}
-
-                {eventosFiltrados.map((evento) => {
-                  const editable = esEditable(evento);
-                  const nombreBase = evento.eventoBaseId ? nombrePorId[evento.eventoBaseId] : null;
-                  const derivadas = edicionesPorBase[evento.id] || 0;
-
-                  return (
-                    <tr key={evento.id} className="hover:bg-surface-muted transition-colors">
-                      <td className="py-4 px-5 align-middle max-w-sm">
-                        <p className="font-semibold text-ink-900">{evento.nombre}</p>
-                        <p className="text-xs text-ink-600 mt-0.5">
-                          {evento.tipo}
-                          {evento.esEdicion
-                            ? ` — edición de ${nombreBase || 'otro evento'}`
-                            : derivadas > 0
-                            ? ` — evento base de ${derivadas} ${derivadas === 1 ? 'edición' : 'ediciones'}`
-                            : ''}
-                        </p>
-                      </td>
-                      <td className="py-4 px-5 align-middle whitespace-nowrap text-ink-900">
-                        {formatearRango(evento.fechaInicio, evento.fechaFin)}
-                      </td>
-                      <td className="py-4 px-5 align-middle">{evento.semestre || '—'}</td>
-                      <td className="py-4 px-5 align-middle">{etiquetaModalidad(evento.modalidad)}</td>
-                      <td className="py-4 px-5 align-middle">
-                        <div className="flex flex-col items-start gap-1">
-                          <EstadoEventoBadge estado={evento.estado} />
-                          {evento.archivado && <EventoArchivadoBadge />}
-                        </div>
-                      </td>
-                      {!isAdmin && (
-                        <td className="py-4 px-5 align-middle">
-                          <div className="flex items-center justify-end">
-                            <BotonFila
-                              icono={CalendarCheck}
-                              principal={inscripcionesAbiertas(evento)}
-                              onClick={() => setModal({ tipo: 'inscripcion', evento })}
-                            >
-                              {inscripcionesAbiertas(evento) ? 'Inscribirme' : 'Ver inscripción'}
-                            </BotonFila>
-                          </div>
-                        </td>
-                      )}
-                      {isAdmin && (
-                      <td className="py-4 px-5 align-middle">
-                        <div className="flex items-center justify-end gap-2">
-                            <>
-                              {/* HU-28: un evento de la memoria histórica nunca muestra Publicar ni Editar (defensa ante datos inconsistentes) */}
-                              {editable && !evento.archivado && (
-                                <>
-                                  <BotonFila icono={Globe} principal onClick={() => publicar(evento)}>
-                                    Publicar
-                                  </BotonFila>
-                                  <BotonFila icono={Pencil} onClick={() => setModal({ tipo: 'editar', evento })}>
-                                    Editar
-                                  </BotonFila>
-                                </>
-                              )}
-                              <MenuAcciones
-                                ariaLabel={`Más acciones de ${evento.nombre}`}
-                                grupos={evento.archivado ? gruposArchivado(evento) : [
-                                  {
-                                    titulo: 'Configuración del evento',
-                                    acciones: [
-                                      ...(evento.estado === 'habilitado' || evento.estado === 'en_ejecucion'
-                                        ? [{ id: 'fechas', etiqueta: 'Modificar fechas', icono: CalendarDays, onClick: () => setModal({ tipo: 'fechas', evento }) }]
-                                        : []),
-                                      { id: 'parametros', etiqueta: 'Tipos y líneas temáticas', icono: Tags, onClick: () => setModal({ tipo: 'parametros', evento }) },
-                                      { id: 'comite', etiqueta: 'Comité organizador', icono: Users, onClick: () => setModal({ tipo: 'comite', evento }) },
-                                      { id: 'conferencistas', etiqueta: 'Conferencistas', icono: Mic, onClick: () => setModal({ tipo: 'conferencistas', evento }) },
-                                      { id: 'salas', etiqueta: 'Salas y espacios', icono: Building, onClick: () => setModal({ tipo: 'salas', evento }) },
-                                      { id: 'agenda', etiqueta: 'Agenda y actividades', icono: CalendarClock, onClick: () => setModal({ tipo: 'agenda', evento }) },
-                                    ],
-                                  },
-                                  {
-                                    titulo: 'Participantes',
-                                    acciones: [
-                                      { id: 'encuestas', etiqueta: 'Encuestas de satisfacción', icono: ClipboardList, onClick: () => setModal({ tipo: 'encuestas', evento }) },
-                                      { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
-                                    ],
-                                  },
-                                  {
-                                    titulo: 'Presupuesto',
-                                    acciones: [
-                                      { id: 'presupuesto', etiqueta: 'Presupuesto preliminar', icono: Wallet, onClick: () => setModal({ tipo: 'presupuesto', evento }) },
-                                      { id: 'presupuestoAprobado', etiqueta: 'Presupuesto aprobado', icono: ShieldCheck, onClick: () => setModal({ tipo: 'presupuestoAprobado', evento }) },
-                                      { id: 'ejecucion', etiqueta: 'Gastos y ejecución', icono: TrendingUp, onClick: () => setModal({ tipo: 'ejecucion', evento }) },
-                                    ],
-                                  },
-                                  {
-                                    titulo: 'Ediciones',
-                                    acciones: [
-                                      { id: 'historial', etiqueta: 'Historial de ediciones', icono: History, onClick: () => setModal({ tipo: 'historial', evento }) },
-                                      { id: 'edicion', etiqueta: 'Crear nueva edición', icono: CopyPlus, onClick: () => setModal({ tipo: 'edicion', evento }) },
-                                    ],
-                                  },
-                                  {
-                                    titulo: 'Memoria histórica',
-                                    acciones: [
-                                      {
-                                        id: 'cierre',
-                                        etiqueta: 'Cierre formal',
-                                        icono: Archive,
-                                        disabled: !puedeCerrarFormalmente(evento),
-                                        motivo: 'Disponible cuando el evento finaliza (desde su último día).',
-                                        onClick: () => setModal({ tipo: 'cierre', evento }),
-                                      },
-                                    ],
-                                  },
-                                  {
-                                    acciones: [
-                                      {
-                                        id: 'eliminar',
-                                        etiqueta: 'Eliminar evento',
-                                        icono: Trash2,
-                                        peligro: true,
-                                        disabled: !editable,
-                                        motivo: 'Solo se puede eliminar mientras está en configuración.',
-                                        onClick: () => setModal({ tipo: 'eliminar', evento }),
-                                      },
-                                    ],
-                                  },
-                                ]}
-                              />
-                            </>
-                        </div>
-                      </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {!cargando && errorCarga && eventos.length === 0 && (
+          <div className="py-16 text-center">
+            <p className="font-semibold text-base text-ink-900">No se pudieron cargar los eventos</p>
+            <button
+              type="button"
+              onClick={recargar}
+              className="text-xs mt-1 text-brand-600 font-semibold underline cursor-pointer"
+            >
+              Reintentar
+            </button>
           </div>
-        </div>
+        )}
+
+        {!cargando && !errorCarga && eventosFiltrados.length === 0 && (
+          <div className="py-16 text-center">
+            {hayFiltros ? (
+              <>
+                <p className="font-semibold text-base text-ink-900">Ningún evento coincide con la búsqueda</p>
+                <p className="text-xs mt-1 text-ink-600">Prueba con otro término o cambia el filtro de estado.</p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-base text-ink-900">Todavía no hay eventos registrados</p>
+                <p className="text-xs mt-1 text-ink-600">
+                  {isAdmin ? 'Usa «Crear evento» para registrar el primero.' : 'Próximamente se publicarán nuevos eventos académicos.'}
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        {eventosFiltrados.length > 0 && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {eventosPaginados.map((evento) => {
+                const nombreBase = evento.eventoBaseId ? nombrePorId[evento.eventoBaseId] : null;
+                const derivadas = edicionesPorBase[evento.id] || 0;
+                return (
+                  <EventCard
+                    key={evento.id}
+                    evento={evento}
+                    nombreBase={nombreBase}
+                    derivadas={derivadas}
+                    onClick={() => abrirDetalle(evento)}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Controles de paginación para optimización de carga y renderizado */}
+            {totalPaginas > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
+                <p className="text-xs text-ink-600">
+                  Mostrando <span className="font-semibold text-ink-900">{(pagina - 1) * TARJETAS_POR_PAGINA + 1}</span> a{' '}
+                  <span className="font-semibold text-ink-900">
+                    {Math.min(pagina * TARJETAS_POR_PAGINA, eventosFiltrados.length)}
+                  </span>{' '}
+                  de <span className="font-semibold text-ink-900">{eventosFiltrados.length}</span> eventos
+                </p>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                    disabled={pagina === 1}
+                    className="h-9 px-3 rounded-[8px] border border-field-border bg-surface text-ink-900 text-xs font-medium hover:bg-surface-muted disabled:bg-surface-muted disabled:text-ink-300 disabled:border-border disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                    aria-label="Página anterior"
+                  >
+                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                    <span>Anterior</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+                      .filter((num) => num === 1 || num === totalPaginas || Math.abs(num - pagina) <= 1)
+                      .map((num, idx, arr) => {
+                        const anterior = arr[idx - 1];
+                        const haySalto = anterior && num - anterior > 1;
+                        return (
+                          <div key={num} className="flex items-center">
+                            {haySalto && <span className="px-1 text-xs text-ink-300">…</span>}
+                            <button
+                              type="button"
+                              onClick={() => setPagina(num)}
+                              className={`w-9 h-9 rounded-[8px] text-xs font-semibold transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
+                                pagina === num
+                                  ? 'bg-brand-600 text-surface shadow-xs'
+                                  : 'bg-surface text-ink-900 border border-field-border hover:bg-surface-muted'
+                              }`}
+                              aria-current={pagina === num ? 'page' : undefined}
+                              aria-label={`Ir a la página ${num}`}
+                            >
+                              {num}
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                    disabled={pagina === totalPaginas}
+                    className="h-9 px-3 rounded-[8px] border border-field-border bg-surface text-ink-900 text-xs font-medium hover:bg-surface-muted disabled:bg-surface-muted disabled:text-ink-300 disabled:border-border disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                    aria-label="Página siguiente"
+                  >
+                    <span>Siguiente</span>
+                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Popup de detalle completo */}
+      <EventDetailPopup
+        isOpen={eventoDetalle !== null}
+        evento={eventoDetalle}
+        nombreBase={eventoDetalle?.eventoBaseId ? nombrePorId[eventoDetalle.eventoBaseId] : null}
+        derivadas={eventoDetalle ? (edicionesPorBase[eventoDetalle.id] || 0) : 0}
+        isAdmin={isAdmin}
+        puedeEliminarHistorico={puedeEliminarHistorico}
+        onClose={cerrarDetalle}
+        onPublicar={publicar}
+        onAccion={manejarAccionPopup}
+      />
 
       {/* Los modales se montan con key para reiniciar su estado en cada apertura */}
       {(modal?.tipo === 'crear' || modal?.tipo === 'editar') && (
