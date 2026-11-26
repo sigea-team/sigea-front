@@ -4,9 +4,12 @@
  * `CertificadoService` y `PlantillaCertificadoService` del backend sin servidor: la plantilla exige fondo y al menos
  * una firma, se puede editar hasta habilitar los certificados, al habilitar se emiten los de quienes cumplen el
  * porcentaje mínimo (los demás quedan excluidos con su motivo), un certificado nunca se duplica y su código se
- * verifica sin sesión. Devuelve los mismos códigos de error.
+ * verifica sin sesión. Devuelve los mismos códigos de error, solo acepta imágenes PNG o JPG y entrega los archivos
+ * con los mismos tipos y validaciones (`validarBlob`) que el servicio real.
  * @module features/certificados/mocks/certificadosMock
  */
+
+import { validarBlob } from '../certificadoUtils';
 
 const espera = (ms = 150) => new Promise((r) => setTimeout(r, ms));
 
@@ -22,13 +25,23 @@ const ahoraIso = () => new Date().toISOString().slice(0, 19);
 
 const DESCRIPCION = { asistente: 'Asistente', ponente: 'Ponente', conferencista: 'Conferencista' };
 
-/** Imagen SVG de ejemplo (fondo o firma) como Blob. */
-function imagenSvg(tipo, texto = '') {
-  const svg =
-    tipo === 'fondo'
-      ? `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="850" viewBox="0 0 1100 850"><rect width="1100" height="850" fill="#fffaf5"/><rect x="24" y="24" width="1052" height="802" fill="none" stroke="#a6192e" stroke-width="10"/><rect x="44" y="44" width="1012" height="762" fill="none" stroke="#c9a15a" stroke-width="3"/><path d="M0 850 L260 850 L0 600 Z" fill="#a6192e" opacity=".85"/><path d="M1100 0 L840 0 L1100 250 Z" fill="#a6192e" opacity=".85"/></svg>`
-      : `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120" viewBox="0 0 360 120"><path d="M20 80 C 60 10, 90 110, 130 50 S 200 20, 230 70 S 300 90, 340 40" fill="none" stroke="#1f2a5a" stroke-width="5" stroke-linecap="round"/><text x="20" y="112" font-family="cursive" font-size="16" fill="#1f2a5a">${texto}</text></svg>`;
-  return new Blob([svg], { type: 'image/svg+xml' });
+// Imágenes de ejemplo en los mismos formatos que entrega el backend: el fondo ya procesado es JPEG y la firma PNG
+// con transparencia (ProcesadorImagenesCertificado). Así pasan por las mismas validaciones que las reales.
+const FONDO_JPEG_BASE64 =
+  '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LlmHm9irsU9EzTRp/dX/ABTH3+sPOs8/UOKzevk9NjDRGjU01aYn76avz0x/hxsdOZ5hiJv4u3fu3JiI0zbmNER9oiI0Q4/M8Vs17glz13Mz1/5/56LX7M4ywW8m/wCos7tV/wCyUvmeK2a9wSrZTRVbxdqmumqmqMNOmKo0T1ksqtm16Ymj8QgFN3tCbfweL59cxGGu26OXER0/XRoj+P4Uh11UxVu/NROCbqc12m14fE1Oa7Ta8PipCdPufr7m6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4mpzXabXh8VINPufpm6TdTmu02vD4vzXRmduiquvF2KaKYmaqqtEREfmehycyzLDZXhecYqqaaNPJpimmZmqrRM6I8Pv0PN87z7FZzXTF3RbsUTM0WqPp/efzOjo0/7RplFURT7n66bFmq7OOGELV79WzOsta29VTOmnlUURTpj8xPRMf7Sia/J9lvePySxhMY7y9Sn+einx/FTX5Pst7x+Rr8n2W94/JLDKrSjmfqpr8n2W94/Jth8fluGuTXZw96mqY0afr0f5lFHzKTaifyZn6AKav/2Q==';
+const FIRMA_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAWgAAAB4CAYAAADfRGj6AAAFKklEQVR42u3dwXHcMBAEwDMT0V8hKUCHpL8jkb8ql63iySQwu9v900/Hww0HIEg+HgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABs8PL69vHy+vbhSAAVHJPC+au/AQS0cAYQ0M8GN4CAFsIAswP6TDgLcEBAAyCgn23GWjQgoAPC+df7zx++dkBAh/kqnLVoQEBvas+fw1mLxh2vCOhiW+r8KEgaw8Yjx9SlDS2aCgVDSAvoMUsbWjQVZ3/GpIAeubShReOOWAT0I2/Xhh8D1cLXuBTQ45Y2tGhSx+/fxqaQFtCmfX4IhIxfBUJAP6YvbfgRkHy3659/Kw8CesyuDS2aio8iMDYF9KilDS3aHW7JMz/r0QJ67K4NTcVrwyrM/IS0gB69tKFFPxfOwmH92BXSAtpmfT8Axyb4OAlpAf2YurShRfvhV3g+uZAW0ON2bQgqd7hVenmEkO5fZg4tTot2Aqs76xPSvcf/YZALoatmLIJhz6xPSOdsPb36uB8GuRb97I9bSOeNW7O+nrPGw7RZi/5OCAiEvDHilvCMG7auPO6HpQ2t5LvN71/HZ3IwpL1RXkivn11e+T0fpogG/R2fy66XnFIhpNc85uCO7/gwRdSir35GhGDYO4aEdO3WXHaJIyksuw34q58RMS0Y0mZ8Qrpua44O6MSlje4t+oofrl0vecdESNdszbEBXW3wdB/sV734oPNxSv9sQrpeay63xJHQzro2xFXtr2MopO3YENI9WnNkQCfv2ugaPKtffNApFKqEs5Cu15rjArrKQJmyznrHQ3wsCwlprbnZEkeVQKw4yO+esXQ+mVWd7dk2WqM1RwV0tcHeYYCvOqF0vGhYOZzdEl6jNccE9JQ1SdPz3rMO41drHrXEkd5GKrfopKesVQqFahcFrUfXbc0RAd1hqlhtgKc8Za1aKHQL50khXbE1bw9oywHzPkvHi1MdPlPnkK7ammOXOFyA6z1jqXjRsONMr3tIV2/NWwO604C3DfAx8uUMU2YDHS/kVmjN2wJ6+pPNnGDqrEdPvIGjckh3as1xSxzdLrRogbVDuutFwa4h3a01bwnoSdPFCkHjxCacq4d019a8PKA9f8H/W/2i4bRbpKs/pKxya45Z4vAgfDOWpGM3bZZX8ZbwCa15aUBPGfRex1V7PVo41y0d3VrzsoD2vFkvwK0Q0sZp9nr0tNa8fYmj68FM+FxVm+Cu/89FweyQntialwS0KWPeYK56grvrcwnn3JCe3JpvD+jJU8YqrztykrNjIzWkp7fmbUsckwf+3QHTZcayaj3aDC8vpLXmBQFt4K//rN1mLHeHtDGaF9Ja84KAdjU86/i4hd4YTQ9prTlgiWPiAV71mTu3wasvGroomBXSWvPCgDZtXN/gJrfBZz+7cM4pIlrzhoB2tssZZFPe9nLFCcqYXXtLuNa8eYnj8wF2oF3oSghps7v9Y1xrDluDdrDvOw4eJu9EVmk9Wmtu8k5CLdpJ8cqLhnZs5F80FMwCulWL1gjPT6mFQu5Y15oF9KidCALg3JRaKOwPad+BgB61o8PbPjTnCt+R1iyg27ZoSxv/97kFw57vyI4uAT12J4LjeX6909HyNEUBzdIdHQY+CGg2tglLGy5IIaAJbNGWNr4X0tY96cIADgrks880EDygQbMxtIUzIKCbv9oJENB40zQgoGfu6BDOIKABENCcbcbaMwho3CYLCGiEMCCgCwe24AYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMvwGddwBRWnDQ5sAAAAASUVORK5CYII=';
+
+function desdeBase64(base64, type) {
+  const binario = atob(base64);
+  const bytes = new Uint8Array(binario.length);
+  for (let i = 0; i < binario.length; i += 1) bytes[i] = binario.charCodeAt(i);
+  return new Blob([bytes], { type });
+}
+
+/** Imagen de ejemplo como Blob: fondo JPEG o firma PNG. */
+function imagenEjemplo(tipo) {
+  return tipo === 'fondo' ? desdeBase64(FONDO_JPEG_BASE64, 'image/jpeg') : desdeBase64(FIRMA_PNG_BASE64, 'image/png');
 }
 
 /** PDF mínimo válido para probar la descarga y la vista previa. */
@@ -146,12 +159,12 @@ export function crearCertificadosApiMock({
   };
   const estado = {
     porcentaje,
-    fondo: conFondo ? imagenSvg('fondo') : null,
+    fondo: conFondo ? imagenEjemplo('fondo') : null,
     versionFondo: 1,
     firmantes: (firmantesIniciales || [
       { nombre: 'Martha Lucía Peña', cargo: 'Directora del Programa de Ingeniería de Sistemas' },
       { nombre: 'Óscar Alberto Gallardo', cargo: 'Decano de la Facultad de Ingeniería' },
-    ]).map((f, i) => ({ firmanteId: 401 + i, nombre: f.nombre, cargo: f.cargo, orden: i + 1, firma: imagenSvg('firma', f.nombre), version: 1 })),
+    ]).map((f, i) => ({ firmanteId: 401 + i, nombre: f.nombre, cargo: f.cargo, orden: i + 1, firma: imagenEjemplo('firma'), version: 1 })),
     siguienteFirmante: 401 + (firmantesIniciales?.length ?? 2),
     fechaHabilitacion: null,
     certificados: [],
@@ -192,6 +205,11 @@ export function crearCertificadosApiMock({
   };
   const validarImagen = (archivo, campo, maximoMb) => {
     if (!archivo) throw errorApi(400, 'ARCHIVO_INVALIDO', 'Seleccione una imagen.', { [campo]: 'Seleccione una imagen.' });
+    // Igual que el backend: solo PNG o JPG.
+    if (!['image/png', 'image/jpeg'].includes(archivo.type)) {
+      const m = 'La imagen debe ser PNG o JPG.';
+      throw errorApi(400, 'ARCHIVO_INVALIDO', m, { [campo]: m });
+    }
     if (archivo.size > maximoMb * 1024 * 1024) {
       const m = `La imagen no puede superar ${maximoMb} MB.`;
       throw errorApi(400, 'ARCHIVO_INVALIDO', m, { [campo]: m });
@@ -340,7 +358,7 @@ export function crearCertificadosApiMock({
     async descargarCertificado(certificadoId) {
       await espera();
       const c = estado.certificados.find((x) => x.certificadoId === certificadoId);
-      return pdfEjemplo(c ? `Certificado ${c.codigoVerificacion}` : 'Certificado');
+      return validarBlob(pdfEjemplo(c ? `Certificado ${c.codigoVerificacion}` : 'Certificado'), 'pdf');
     },
 
     // Organizador
@@ -394,12 +412,12 @@ export function crearCertificadosApiMock({
     },
     async vistaPrevia(eventoId, tipo = 'asistente') {
       await espera(300);
-      return pdfEjemplo(`Vista previa - ${DESCRIPCION[tipo] || tipo}`);
+      return validarBlob(pdfEjemplo(`Vista previa - ${DESCRIPCION[tipo] || tipo}`), 'pdf');
     },
     async imagenFondo() {
       await espera(80);
       if (!estado.fondo) throw errorApi(404, 'NO_ENCONTRADO', 'El evento no tiene imagen de fondo.');
-      return estado.fondo;
+      return validarBlob(estado.fondo, 'imagen');
     },
     async subirFondo(eventoId, archivo) {
       await espera(300);
@@ -419,7 +437,7 @@ export function crearCertificadosApiMock({
       await espera(80);
       const f = estado.firmantes.find((x) => x.firmanteId === firmanteId);
       if (!f) throw errorApi(404, 'NO_ENCONTRADO', 'Firmante no encontrado.');
-      return f.firma;
+      return validarBlob(f.firma, 'imagen');
     },
     async agregarFirmante(eventoId, { nombre, cargo, firma }) {
       await espera(250);

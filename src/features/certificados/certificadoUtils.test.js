@@ -207,6 +207,20 @@ describe('API simulada (mismas reglas del backend)', () => {
     expect(otra.yaEmitidos).toBe(5);
   });
 
+  it('imágenes como el backend: entrega JPEG y PNG, y rechaza otros formatos al subir', async () => {
+    const api = crearCertificadosApiMock();
+    expect((await api.imagenFondo(1)).type).toBe('image/jpeg');
+    expect((await api.imagenFirma(1, 401)).type).toBe('image/png');
+    expect((await api.vistaPrevia(1, 'ponente')).type).toBe('application/pdf');
+    const gif = new Blob(['GIF89a'], { type: 'image/gif' });
+    await expect(api.subirFondo(1, gif)).rejects.toMatchObject({
+      response: { status: 400, data: { codigo: 'ARCHIVO_INVALIDO', erroresValidacion: { fondo: 'La imagen debe ser PNG o JPG.' } } },
+    });
+    await expect(api.agregarFirmante(1, { nombre: 'Ana', cargo: 'Decana', firma: gif })).rejects.toMatchObject({
+      response: { status: 400, data: { codigo: 'ARCHIVO_INVALIDO' } },
+    });
+  });
+
   it('solicitar dos veces entrega el mismo certificado (Criterio 3)', async () => {
     const api = crearCertificadosApiMock({ habilitada: true });
     const a = await api.solicitarCertificado(1, 'asistente');
