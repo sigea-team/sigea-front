@@ -24,6 +24,8 @@ import MisPropuestasPage from './pages/MisPropuestasPage';
 import MisEncuestasPage from './pages/MisEncuestasPage';
 import MemoriaHistoricaPage from './pages/MemoriaHistoricaPage';
 import HistorialPeriodoPage from './pages/HistorialPeriodoPage';
+import MisCertificadosPage from './pages/MisCertificadosPage';
+import VerificarCertificadoPage from './pages/VerificarCertificadoPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import EvaluadorRoute from './routes/EvaluadorRoute';
@@ -54,6 +56,10 @@ function App() {
           {/* HU-12: el conferencista invitado registra sus datos desde el enlace del correo (sin sesión) */}
           <Route path="/conferencista/invitacion" element={<ConferencistaInvitacionPage />} />
 
+          {/* HU-26: verificación pública del código impreso en cada certificado (sin sesión) */}
+          <Route path="/verificar" element={<VerificarCertificadoPage />} />
+          <Route path="/verificar/:codigo" element={<VerificarCertificadoPage />} />
+
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             {/* El perfil «Evaluador» no ve Eventos: se le envía a su bandeja de evaluaciones */}
@@ -79,6 +85,8 @@ function App() {
             <Route path="/mis-propuestas" element={<MisPropuestasPage />} />
             {/* HU-25: encuestas de satisfacción de los eventos y actividades a los que asistió el participante */}
             <Route path="/mis-encuestas" element={<MisEncuestasPage />} />
+            {/* HU-26: certificados del participante */}
+            <Route path="/certificados" element={<MisCertificadosPage />} />
             <Route path="/cuenta" element={<CuentaPage />} />
             <Route path="/perfil" element={<Navigate to="/cuenta" replace />} />
             {/* HU-12: perfil de ingreso «Conferencista»: el conferencista actualiza su trayectoria */}

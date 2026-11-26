@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
-import { Archive, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { Archive, Award, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -33,6 +33,8 @@ import EjecucionPresupuestalModal from '../features/presupuesto/components/Ejecu
 import InscripcionEventoModal from '../features/inscripciones/components/InscripcionEventoModal';
 import EncuestasEventoModal from '../features/encuestas/components/EncuestasEventoModal';
 import { encuestaService } from '../api/encuestaService';
+import CertificadosEventoModal from '../features/certificados/components/CertificadosEventoModal';
+import { certificadoService } from '../api/certificadoService';
 import { inscripcionService } from '../api/inscripcionService';
 import { asistenciaService } from '../api/asistenciaService';
 import { memoriaHistoricaService } from '../api/memoriaHistoricaService';
@@ -119,6 +121,7 @@ const ALERTA_EXITO = {
  * @param {typeof inscripcionService} [props.apiInscripciones] - Cliente de la API de inscripciones (HU-23); Storybook inyecta una versión simulada.
  * @param {typeof asistenciaService} [props.apiAsistencia] - Cliente de la API del código QR (HU-24); Storybook inyecta una versión simulada.
  * @param {typeof encuestaService} [props.apiEncuestas] - Cliente de la API de encuestas de satisfacción (HU-25); Storybook inyecta una versión simulada.
+ * @param {typeof certificadoService} [props.apiCertificados] - Cliente de la API de certificados (HU-26); Storybook inyecta una versión simulada.
  * @param {typeof memoriaHistoricaService} [props.apiMemoria] - Cliente de la API de la memoria histórica (HU-28); Storybook inyecta una versión simulada.
  * @param {Object} [props.usuarioProp] - Usuario a mostrar en el layout (Storybook).
  * @param {function(string): void} [props.onSelectNav]
@@ -136,6 +139,7 @@ export default function EventosPage({
   apiInscripciones = inscripcionService,
   apiAsistencia = asistenciaService,
   apiEncuestas = encuestaService,
+  apiCertificados = certificadoService,
   apiMemoria = memoriaHistoricaService,
   usuarioProp,
   onSelectNav,
@@ -328,7 +332,7 @@ export default function EventosPage({
 
   /**
    * HU-28: menú de un evento cerrado formalmente. Su información es solo de consulta, así que solo se ofrece la
-   * memoria histórica y las ediciones (se puede crear una nueva a partir de él). Eliminarlo exige la autorización
+   * memoria histórica, los certificados emitidos (HU-26) y las ediciones (se puede crear una nueva a partir de él). Eliminarlo exige la autorización
    * especial; sin ella la opción aparece desactivada con el motivo.
    */
   const gruposArchivado = (evento) => [
@@ -336,6 +340,8 @@ export default function EventosPage({
       titulo: 'Memoria histórica',
       acciones: [
         { id: 'memoria', etiqueta: 'Ver memoria histórica', icono: Eye, onClick: () => setModal({ tipo: 'memoria', evento }) },
+        // HU-26: los certificados emitidos se siguen consultando y descargando (solo lectura).
+        { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
       ],
     },
     {
@@ -561,6 +567,7 @@ export default function EventosPage({
                                     titulo: 'Participantes',
                                     acciones: [
                                       { id: 'encuestas', etiqueta: 'Encuestas de satisfacción', icono: ClipboardList, onClick: () => setModal({ tipo: 'encuestas', evento }) },
+                                      { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
                                     ],
                                   },
                                   {
@@ -717,6 +724,15 @@ export default function EventosPage({
           key={`encuestas-${modal.evento.id}`}
           evento={modal.evento}
           api={apiEncuestas}
+          onClose={cerrarModal}
+        />
+      )}
+
+      {modal?.tipo === 'certificados' && (
+        <CertificadosEventoModal
+          key={`certificados-${modal.evento.id}`}
+          evento={modal.evento}
+          api={apiCertificados}
           onClose={cerrarModal}
         />
       )}
