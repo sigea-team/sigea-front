@@ -20,12 +20,14 @@ import {
   FileStack,
   ClipboardList,
   Archive,
+  BarChart3,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from '../../store/authStore';
 import { esAdministrador, veEvaluaciones, veEventos } from '../../utils/permisos';
 import { veMemoriaHistorica } from '../../features/memoria/memoriaUtils';
+import { veHistorialPeriodo } from '../../features/historialPeriodo/historialPeriodoUtils';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -99,6 +101,14 @@ const MEMORIA_HISTORICA_NAV_ITEM = {
   label: 'Memoria histórica',
   icon: Archive,
   href: '/memoria-historica',
+};
+
+/** HU-27: consulta de historial de participación, análisis por periodo y comparación entre semestres */
+const HISTORIAL_PERIODO_NAV_ITEM = {
+  id: 'historial-periodo',
+  label: 'Historial e Indicadores',
+  icon: BarChart3,
+  href: '/historial-periodos',
 };
 
 /** HU-21: Programar actividades de la agenda controlando conflictos y simultáneas */
@@ -240,6 +250,19 @@ export default function Sidebar({
         .map((id) => navItems.findIndex((item) => item.id === id))
         .find((indice) => indice !== -1);
       navItems.splice(anclaIdx === undefined ? navItems.length : anclaIdx + 1, 0, MEMORIA_HISTORICA_NAV_ITEM);
+    }
+
+    // HU-27: historial de participación e indicadores por periodo para administradores y usuarios con permisos de reportes/eventos.
+    if (veEventos(usuario) && veHistorialPeriodo(usuario)) {
+      const memoriaIdx = navItems.findIndex((item) => item.id === 'memoria-historica');
+      if (memoriaIdx !== -1) {
+        navItems.splice(memoriaIdx + 1, 0, HISTORIAL_PERIODO_NAV_ITEM);
+      } else {
+        const anclaIdx = ['salas', 'agenda', 'eventos']
+          .map((id) => navItems.findIndex((item) => item.id === id))
+          .find((indice) => indice !== -1);
+        navItems.splice(anclaIdx === undefined ? navItems.length : anclaIdx + 1, 0, HISTORIAL_PERIODO_NAV_ITEM);
+      }
     }
   }
 

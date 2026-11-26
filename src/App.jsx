@@ -23,6 +23,7 @@ import AgendaPublicaPage from './pages/AgendaPublicaPage';
 import MisPropuestasPage from './pages/MisPropuestasPage';
 import MisEncuestasPage from './pages/MisEncuestasPage';
 import MemoriaHistoricaPage from './pages/MemoriaHistoricaPage';
+import HistorialPeriodoPage from './pages/HistorialPeriodoPage';
 import MisCertificadosPage from './pages/MisCertificadosPage';
 import VerificarCertificadoPage from './pages/VerificarCertificadoPage';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -66,6 +67,10 @@ function App() {
               <Route path="/eventos" element={<EventosPage />} />
               {/* HU-28: archivo de eventos cerrados formalmente (la API exige MEMORIA_HISTORICA_GESTIONAR, EVENTOS_VER, REPORTES_VER o admin) */}
               <Route path="/memoria-historica" element={<MemoriaHistoricaPage />} />
+              {/* HU-27: consulta de historial de participación, indicadores por periodo y comparación entre semestres */}
+              <Route path="/historial-periodos" element={<HistorialPeriodoPage />} />
+              <Route path="/historial-participacion" element={<HistorialPeriodoPage />} />
+              <Route path="/periodos-academicos" element={<HistorialPeriodoPage />} />
             </Route>
             <Route path="/agenda" element={<AgendaPage />} />
             <Route path="/eventos/:eventoId/agenda" element={<AgendaPage />} />
