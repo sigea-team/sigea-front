@@ -1,0 +1,492 @@
+{
+  "eventoId": 901,
+  "nombreEvento": "Congreso completo",
+  "estadoEvento": "en_ejecucion",
+  "archivado": false,
+  "fechaCalculo": "2026-11-26T01:00:00",
+  "hayDatos": true,
+  "mensaje": null,
+  "grupos": [
+    {
+      "codigo": "PARTICIPACION",
+      "nombre": "Participación",
+      "hayDatos": true,
+      "mensaje": null
+    },
+    {
+      "codigo": "ASISTENCIA",
+      "nombre": "Asistencia",
+      "hayDatos": true,
+      "mensaje": null
+    },
+    {
+      "codigo": "ACTIVIDADES",
+      "nombre": "Actividades",
+      "hayDatos": true,
+      "mensaje": null
+    },
+    {
+      "codigo": "PROPUESTAS",
+      "nombre": "Propuestas",
+      "hayDatos": true,
+      "mensaje": null
+    },
+    {
+      "codigo": "SATISFACCION",
+      "nombre": "Satisfacción",
+      "hayDatos": true,
+      "mensaje": null
+    },
+    {
+      "codigo": "PRESUPUESTO",
+      "nombre": "Presupuesto",
+      "hayDatos": true,
+      "mensaje": null
+    }
+  ],
+  "indicadores": [
+    {
+      "codigo": "INSCRITOS",
+      "nombre": "Participantes inscritos",
+      "grupo": "PARTICIPACION",
+      "valor": 4,
+      "unidad": "personas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "ASISTENTES",
+      "nombre": "Participantes con asistencia registrada",
+      "grupo": "ASISTENCIA",
+      "valor": 3,
+      "unidad": "personas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "TASA_ASISTENCIA",
+      "nombre": "Tasa de asistencia de los inscritos",
+      "grupo": "ASISTENCIA",
+      "valor": 75.0,
+      "unidad": "%",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "ASISTENCIAS_REGISTRADAS",
+      "nombre": "Registros de asistencia a actividades",
+      "grupo": "ASISTENCIA",
+      "valor": 4,
+      "unidad": "registros",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "ACTIVIDADES_REALIZADAS",
+      "nombre": "Actividades programadas (no canceladas)",
+      "grupo": "ACTIVIDADES",
+      "valor": 3,
+      "unidad": "actividades",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "ACTIVIDADES_CANCELADAS",
+      "nombre": "Actividades canceladas",
+      "grupo": "ACTIVIDADES",
+      "valor": 1,
+      "unidad": "actividades",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "PROPUESTAS_RECIBIDAS",
+      "nombre": "Propuestas recibidas",
+      "grupo": "PROPUESTAS",
+      "valor": 4,
+      "unidad": "propuestas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "PROPUESTAS_APROBADAS",
+      "nombre": "Propuestas aprobadas (incluye con ajustes)",
+      "grupo": "PROPUESTAS",
+      "valor": 2,
+      "unidad": "propuestas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "PROPUESTAS_RECHAZADAS",
+      "nombre": "Propuestas rechazadas",
+      "grupo": "PROPUESTAS",
+      "valor": 1,
+      "unidad": "propuestas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "TASA_APROBACION",
+      "nombre": "Tasa de aprobación de propuestas",
+      "grupo": "PROPUESTAS",
+      "valor": 50.0,
+      "unidad": "%",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "CONFERENCISTAS",
+      "nombre": "Conferencistas y ponentes",
+      "grupo": "PARTICIPACION",
+      "valor": 1,
+      "unidad": "personas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "RESPUESTAS_ENCUESTAS",
+      "nombre": "Respuestas a encuestas de satisfacción",
+      "grupo": "SATISFACCION",
+      "valor": 3,
+      "unidad": "respuestas",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "SATISFACCION_PROMEDIO",
+      "nombre": "Satisfacción promedio (preguntas de escala)",
+      "grupo": "SATISFACCION",
+      "valor": 85.0,
+      "unidad": "%",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "PRESUPUESTO_APROBADO",
+      "nombre": "Presupuesto aprobado",
+      "grupo": "PRESUPUESTO",
+      "valor": 1200000.0,
+      "unidad": "COP",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "PRESUPUESTO_EJECUTADO",
+      "nombre": "Presupuesto ejecutado",
+      "grupo": "PRESUPUESTO",
+      "valor": 650000.0,
+      "unidad": "COP",
+      "disponible": true,
+      "motivo": null
+    },
+    {
+      "codigo": "EJECUCION_PRESUPUESTAL",
+      "nombre": "Porcentaje de ejecución presupuestal",
+      "grupo": "PRESUPUESTO",
+      "valor": 54.17,
+      "unidad": "%",
+      "disponible": true,
+      "motivo": null
+    }
+  ],
+  "series": [
+    {
+      "codigo": "INSCRIPCIONES_POR_CATEGORIA",
+      "titulo": "Inscritos por categoría de participante",
+      "grafico": "circular",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "inscritos",
+          "nombre": "Inscritos",
+          "unidad": "personas"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "estudiante",
+          "etiqueta": "Estudiante",
+          "valores": {
+            "inscritos": 2
+          }
+        },
+        {
+          "clave": "docente",
+          "etiqueta": "Docente",
+          "valores": {
+            "inscritos": 1
+          }
+        },
+        {
+          "clave": "egresado",
+          "etiqueta": "Egresado",
+          "valores": {
+            "inscritos": 1
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INSCRIPCIONES_POR_FECHA",
+      "titulo": "Evolución de las inscripciones",
+      "grafico": "linea",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "inscripciones",
+          "nombre": "Inscripciones del día",
+          "unidad": "personas"
+        },
+        {
+          "codigo": "acumulado",
+          "nombre": "Total acumulado",
+          "unidad": "personas"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "2026-11-01",
+          "etiqueta": "2026-11-01",
+          "valores": {
+            "inscripciones": 2,
+            "acumulado": 2
+          }
+        },
+        {
+          "clave": "2026-11-03",
+          "etiqueta": "2026-11-03",
+          "valores": {
+            "inscripciones": 1,
+            "acumulado": 3
+          }
+        },
+        {
+          "clave": "2026-11-05",
+          "etiqueta": "2026-11-05",
+          "valores": {
+            "inscripciones": 1,
+            "acumulado": 4
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "ASISTENCIA_POR_ACTIVIDAD",
+      "titulo": "Inscritos y asistentes por actividad",
+      "grafico": "barras_agrupadas",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "inscritos",
+          "nombre": "Inscritos",
+          "unidad": "personas"
+        },
+        {
+          "codigo": "asistentes",
+          "nombre": "Asistentes",
+          "unidad": "personas"
+        },
+        {
+          "codigo": "tasaAsistencia",
+          "nombre": "Tasa de asistencia",
+          "unidad": "%"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "9011",
+          "etiqueta": "Apertura",
+          "valores": {
+            "inscritos": 4,
+            "asistentes": 3,
+            "tasaAsistencia": 75.0
+          }
+        },
+        {
+          "clave": "9012",
+          "etiqueta": "Taller IA",
+          "valores": {
+            "inscritos": 2,
+            "asistentes": 1,
+            "tasaAsistencia": 50.0
+          }
+        },
+        {
+          "clave": "9013",
+          "etiqueta": "Cierre",
+          "valores": {
+            "inscritos": 1,
+            "asistentes": 0,
+            "tasaAsistencia": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "ASISTENCIA_POR_DIA",
+      "titulo": "Inscripciones a actividades y asistencias por día",
+      "grafico": "barras_agrupadas",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "inscritos",
+          "nombre": "Inscripciones a actividades",
+          "unidad": "inscripciones"
+        },
+        {
+          "codigo": "asistentes",
+          "nombre": "Asistencias registradas",
+          "unidad": "registros"
+        },
+        {
+          "codigo": "tasaAsistencia",
+          "nombre": "Tasa de asistencia",
+          "unidad": "%"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "2026-11-20",
+          "etiqueta": "2026-11-20",
+          "valores": {
+            "inscritos": 6,
+            "asistentes": 4,
+            "tasaAsistencia": 66.67
+          }
+        },
+        {
+          "clave": "2026-11-21",
+          "etiqueta": "2026-11-21",
+          "valores": {
+            "inscritos": 1,
+            "asistentes": 0,
+            "tasaAsistencia": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "PROPUESTAS_POR_ESTADO",
+      "titulo": "Propuestas por estado",
+      "grafico": "circular",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "propuestas",
+          "nombre": "Propuestas",
+          "unidad": "propuestas"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "en_evaluacion",
+          "etiqueta": "En evaluación",
+          "valores": {
+            "propuestas": 1
+          }
+        },
+        {
+          "clave": "ajustes",
+          "etiqueta": "Aprobadas con ajustes",
+          "valores": {
+            "propuestas": 1
+          }
+        },
+        {
+          "clave": "aprobada",
+          "etiqueta": "Aprobadas",
+          "valores": {
+            "propuestas": 1
+          }
+        },
+        {
+          "clave": "rechazada",
+          "etiqueta": "Rechazadas",
+          "valores": {
+            "propuestas": 1
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "SATISFACCION_POR_ENCUESTA",
+      "titulo": "Satisfacción por encuesta",
+      "grafico": "barras",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "satisfaccion",
+          "nombre": "Satisfacción promedio",
+          "unidad": "%"
+        },
+        {
+          "codigo": "respuestas",
+          "nombre": "Respuestas",
+          "unidad": "respuestas"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "902",
+          "etiqueta": "Taller — Taller IA",
+          "valores": {
+            "satisfaccion": 80.0,
+            "respuestas": 1
+          }
+        },
+        {
+          "clave": "901",
+          "etiqueta": "General",
+          "valores": {
+            "satisfaccion": 87.5,
+            "respuestas": 2
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "PRESUPUESTO_POR_RUBRO",
+      "titulo": "Presupuesto proyectado y ejecutado por rubro",
+      "grafico": "barras_agrupadas",
+      "hayDatos": true,
+      "mensaje": null,
+      "medidas": [
+        {
+          "codigo": "proyectado",
+          "nombre": "Proyectado",
+          "unidad": "COP"
+        },
+        {
+          "codigo": "ejecutado",
+          "nombre": "Ejecutado",
+          "unidad": "COP"
+        }
+      ],
+      "puntos": [
+        {
+          "clave": "901",
+          "etiqueta": "Refrigerios",
+          "valores": {
+            "proyectado": 500000.0,
+            "ejecutado": 350000.0
+          }
+        },
+        {
+          "clave": "902",
+          "etiqueta": "Viáticos",
+          "valores": {
+            "proyectado": 600000.0,
+            "ejecutado": 300000.0
+          }
+        }
+      ]
+    }
+  ]
+}

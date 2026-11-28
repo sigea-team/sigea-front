@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { Archive, Award, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
+import { Archive, Award, BarChart3, CalendarCheck, CalendarDays, ClipboardList, CopyPlus, Eye, Globe, History, Mic, Pencil, Plus, Search, Shapes, ShieldAlert, ShieldCheck, Tags, Trash2, TrendingUp, Users, Wallet, Building, CalendarClock } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -43,6 +44,7 @@ import MemoriaHistoricaModal from '../features/memoria/components/MemoriaHistori
 import EliminacionHistoricaModal from '../features/memoria/components/EliminacionHistoricaModal';
 import EventoArchivadoBadge from '../features/memoria/components/EventoArchivadoBadge';
 import { puedeCerrarFormalmente, puedeEliminarConAutorizacion } from '../features/memoria/memoriaUtils';
+import { rutaIndicadores, veIndicadoresEvento } from '../features/indicadores/indicadoresUtils';
 import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
@@ -147,6 +149,9 @@ export default function EventosPage({
   const auth = useAuth();
   const usuarioActual = usuarioProp || auth?.usuario;
   const isAdmin = esAdministrador(usuarioActual);
+  const navigate = useNavigate();
+  // HU-29: misma regla que la API (REPORTES_VER, EVENTOS_EDITAR o administrador).
+  const puedeVerIndicadores = veIndicadoresEvento(usuarioActual);
   const puedeEliminarHistorico = puedeEliminarConAutorizacion(usuarioActual);
 
   const [eventos, setEventos] = useState([]);
@@ -340,6 +345,10 @@ export default function EventosPage({
       titulo: 'Memoria histórica',
       acciones: [
         { id: 'memoria', etiqueta: 'Ver memoria histórica', icono: Eye, onClick: () => setModal({ tipo: 'memoria', evento }) },
+        // HU-29: indicadores definitivos del evento archivado (solo consulta).
+        ...(puedeVerIndicadores
+          ? [{ id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) }]
+          : []),
         // HU-26: los certificados emitidos se siguen consultando y descargando (solo lectura).
         { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
       ],
@@ -570,6 +579,15 @@ export default function EventosPage({
                                       { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
                                     ],
                                   },
+                                  // HU-29: dashboard con los indicadores calculados en el momento.
+                                  ...(puedeVerIndicadores
+                                    ? [{
+                                        titulo: 'Indicadores',
+                                        acciones: [
+                                          { id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) },
+                                        ],
+                                      }]
+                                    : []),
                                   {
                                     titulo: 'Presupuesto',
                                     acciones: [
