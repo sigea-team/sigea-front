@@ -32,7 +32,7 @@ export default function TablaInforme({ informe, filasPorPagina = FILAS_POR_PAGIN
 
   return (
     <section aria-labelledby="titulo-vista-previa" className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id="titulo-vista-previa" className="text-base font-semibold text-ink-900">{informe.titulo}</h3>
           <p className="text-xs text-ink-600">
@@ -52,7 +52,7 @@ export default function TablaInforme({ informe, filasPorPagina = FILAS_POR_PAGIN
         </ul>
       )}
 
-      <div className="max-h-[65vh] overflow-auto rounded-[12px] border border-border bg-surface">
+      <div className="relative max-h-[65vh] overflow-auto rounded-[12px] border border-border bg-surface">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
             {informe.titulo}: registros {vista.desde} a {vista.hasta} de {informe.totalFilas}

@@ -34,6 +34,26 @@ import {
  * @module pages/InformesPage
  */
 
+/** Espacio que se deja arriba al desplazar hasta el resultado (barra superior fija de 64 px + margen). */
+const MARGEN_SUPERIOR = 88;
+
+/**
+ * Lleva el resultado a la vista desplazando solo el área de contenido de `MainLayout`. `scrollIntoView` también
+ * desplazaba la ventana, y con ella el menú lateral, dejando un espacio vacío abajo.
+ * @param {HTMLElement|null} elemento
+ */
+function desplazarHasta(elemento) {
+  let contenedor = elemento?.parentElement;
+  while (contenedor && contenedor !== document.body) {
+    const { overflowY } = window.getComputedStyle(contenedor);
+    if ((overflowY === 'auto' || overflowY === 'scroll') && contenedor.scrollHeight > contenedor.clientHeight) break;
+    contenedor = contenedor.parentElement;
+  }
+  if (!contenedor || contenedor === document.body) return;
+  const destino = elemento.getBoundingClientRect().top - contenedor.getBoundingClientRect().top + contenedor.scrollTop;
+  contenedor.scrollTo({ top: Math.max(0, destino - MARGEN_SUPERIOR), behavior: 'smooth' });
+}
+
 /** Listas del formulario; Storybook inyecta una versión simulada. */
 const CATALOGOS = { listarEventos, listarSemestres, listarTiposEvento };
 
@@ -117,7 +137,7 @@ export default function InformesPage({ api = informeService, catalogos = CATALOG
       // La versión reinicia la paginación y el estado de la exportación con cada informe nuevo.
       setResultado((previo) => ({ datos, parametros, version: (previo?.version ?? 0) + 1 }));
       setAviso(datos.hayDatos ? `Informe generado: ${etiquetaRegistros(datos.totalFilas)}.` : datos.mensaje || '');
-      requestAnimationFrame(() => resultadoRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }));
+      requestAnimationFrame(() => desplazarHasta(resultadoRef.current));
     } catch (err) {
       setErrorGenerar(interpretarErrorInforme(err));
     } finally {
@@ -213,7 +233,7 @@ export default function InformesPage({ api = informeService, catalogos = CATALOG
         )}
 
         {resultado && (
-          <div ref={resultadoRef} className={`space-y-4 scroll-mt-6 border-t border-border pt-6 transition-opacity ${generando ? 'opacity-60' : ''}`}>
+          <div ref={resultadoRef} className={`space-y-4 border-t border-border pt-6 transition-opacity ${generando ? 'opacity-60' : ''}`}>
             {filtrosCambiaron && (
               <div className="flex items-start gap-3 rounded-[12px] border border-border bg-surface-muted p-3 text-sm text-ink-900" role="status">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink-600" aria-hidden="true" />
