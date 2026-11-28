@@ -1,11 +1,14 @@
 import IndicadoresEventoPage from './IndicadoresEventoPage';
 import { crearIndicadoresApiMock } from '../features/indicadores/mocks/indicadoresMock';
+import { crearInformesApiMock } from '../features/informes/mocks/informesMock';
 
 export default {
   title: 'Pages/IndicadoresEventoPage',
   component: IndicadoresEventoPage,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
+  // HU-30: la descarga de los indicadores usa la API de informes simulada y no descarga archivos.
+  args: { apiInformes: crearInformesApiMock(), descargar: () => {} },
 };
 
 /** Criterio 1: evento con información en todos los grupos (tarjetas, gráficas y tabla). */
@@ -46,4 +49,9 @@ export const EventoInexistente = {
 /** El servidor no responde. */
 export const SinConexion = {
   args: { eventoIdProp: 7, api: crearIndicadoresApiMock({ falla: true }) },
+};
+
+/** HU-30, Criterio 4: la primera descarga falla por un problema técnico y «Reintentar» la completa. */
+export const DescargaConReintento = {
+  args: { eventoIdProp: 7, api: crearIndicadoresApiMock(), apiInformes: crearInformesApiMock({ fallosExportacion: 1 }) },
 };

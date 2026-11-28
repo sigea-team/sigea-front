@@ -24,6 +24,7 @@ import MisPropuestasPage from './pages/MisPropuestasPage';
 import MisEncuestasPage from './pages/MisEncuestasPage';
 import MemoriaHistoricaPage from './pages/MemoriaHistoricaPage';
 import IndicadoresEventoPage from './pages/IndicadoresEventoPage';
+import InformesPage from './pages/InformesPage';
 import HistorialPeriodoPage from './pages/HistorialPeriodoPage';
 import MisCertificadosPage from './pages/MisCertificadosPage';
 import VerificarCertificadoPage from './pages/VerificarCertificadoPage';
@@ -70,6 +71,8 @@ function App() {
               <Route path="/memoria-historica" element={<MemoriaHistoricaPage />} />
               {/* HU-29: indicadores y dashboard de un evento (administrador/organizador; la API valida el permiso) */}
               <Route path="/eventos/:eventoId/indicadores" element={<IndicadoresEventoPage />} />
+              {/* HU-30: informes parametrizables y exportación a PDF/Excel (REPORTES_VER, EVENTOS_EDITAR o admin; la API valida el permiso) */}
+              <Route path="/informes" element={<InformesPage />} />
               {/* HU-27: consulta de historial de participación, indicadores por periodo y comparación entre semestres */}
               <Route path="/historial-periodos" element={<HistorialPeriodoPage />} />
               <Route path="/historial-participacion" element={<HistorialPeriodoPage />} />

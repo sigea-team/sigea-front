@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, ArrowLeft, ClipboardList, Info, LayoutDashboard, RotateCw } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ClipboardList, FileSearch, Info, LayoutDashboard, RotateCw } from 'lucide-react';
 import MainLayout from '../components/ui/MainLayout';
 import Button from '../components/ui/Button';
 import EstadoEventoBadge from '../features/eventos/components/EstadoEventoBadge';
@@ -8,7 +8,10 @@ import EventoArchivadoBadge from '../features/memoria/components/EventoArchivado
 import TarjetasIndicadores from '../features/indicadores/components/TarjetasIndicadores';
 import TablaIndicadores from '../features/indicadores/components/TablaIndicadores';
 import TarjetaGrafica from '../features/indicadores/components/TarjetaGrafica';
+import ExportarInforme from '../features/informes/components/ExportarInforme';
 import { indicadorEventoService } from '../api/indicadorEventoService';
+import { informeService } from '../api/informeService';
+import { TIPO_INDICADORES, rutaInformes } from '../features/informes/informeUtils';
 import {
   formatearFechaCalculo,
   interpretarErrorIndicadores,
@@ -25,6 +28,8 @@ import {
  * - Criterio 2: lo que no tiene datos suficientes muestra su aviso o motivo, sin error.
  * - Criterio 3: «Actualizar» vuelve a pedir los indicadores; el backend los recalcula con la información más reciente
  *   y la página muestra la hora del cálculo.
+ * - HU-30: «PDF» y «Excel» descargan los indicadores del evento (informe «Indicadores por evento», mismo cálculo), y
+ *   «Más informes» abre la página de informes con el evento elegido.
  * Ruta: /eventos/:eventoId/indicadores (se llega desde el menú «Más» del evento en Eventos).
  * @module pages/IndicadoresEventoPage
  */
@@ -38,19 +43,27 @@ const PESTANAS = [
  * @param {Object} props
  * @param {typeof indicadorEventoService} [props.api] - Cliente de la API; Storybook inyecta una versión simulada.
  * @param {number|string} [props.eventoIdProp] - Evento (Storybook); si no, se toma de la ruta.
+ * @param {typeof informeService} [props.apiInformes] - Exportación de los indicadores (HU-30); Storybook la simula.
+ * @param {function(Blob, string): void} [props.descargar] - Storybook la reemplaza para no descargar archivos.
  */
-export default function IndicadoresEventoPage({ api = indicadorEventoService, eventoIdProp }) {
+export default function IndicadoresEventoPage({
+  api = indicadorEventoService,
+  eventoIdProp,
+  apiInformes = informeService,
+  descargar,
+}) {
   const params = useParams();
   const eventoId = eventoIdProp ?? params.eventoId;
   // La clave reinicia todo el estado (datos, error, pestaña y aviso) cuando cambia el evento de la ruta.
-  return <IndicadoresEvento key={eventoId} api={api} eventoId={eventoId} />;
+  return <IndicadoresEvento key={eventoId} api={api} eventoId={eventoId} apiInformes={apiInformes} descargar={descargar} />;
 }
 
 /**
  * Contenido de la página para un evento.
- * @param {{ api: typeof indicadorEventoService, eventoId: number|string }} props
+ * @param {{ api: typeof indicadorEventoService, eventoId: number|string, apiInformes: typeof informeService,
+ *   descargar?: function(Blob, string): void }} props
  */
-function IndicadoresEvento({ api, eventoId }) {
+function IndicadoresEvento({ api, eventoId, apiInformes, descargar }) {
 
   const [estado, setEstado] = useState({ eventoId: null, datos: null, error: null, cargando: true });
   const [version, setVersion] = useState(0);
@@ -103,7 +116,7 @@ function IndicadoresEvento({ api, eventoId }) {
           Volver a eventos
         </Link>
 
-        <header className="flex flex-wrap items-end justify-between gap-4">
+        <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <h1 className="text-xl font-semibold text-ink-900">Indicadores y dashboard</h1>
             {datos && (
@@ -120,10 +133,30 @@ function IndicadoresEvento({ api, eventoId }) {
             )}
           </div>
           {(datos || error) && (
-            <Button variant="outline" onClick={actualizar} loading={cargando && Boolean(datos)} disabled={cargando}>
-              {!(cargando && datos) && <RotateCw className="h-4 w-4" aria-hidden="true" />}
-              Actualizar
-            </Button>
+            <div className="flex flex-wrap items-start justify-end gap-3">
+              {datos && (
+                <div className="flex flex-col items-end gap-1">
+                  <ExportarInforme
+                    compacto
+                    titulo="Descargar indicadores"
+                    parametros={{ tipo: TIPO_INDICADORES, eventoId: Number(eventoId) }}
+                    api={apiInformes}
+                    {...(descargar ? { descargar } : {})}
+                  />
+                  <Link
+                    to={rutaInformes({ tipo: TIPO_INDICADORES, eventoId })}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline"
+                  >
+                    <FileSearch className="h-3.5 w-3.5" aria-hidden="true" />
+                    Más informes con filtros
+                  </Link>
+                </div>
+              )}
+              <Button variant="outline" onClick={actualizar} loading={cargando && Boolean(datos)} disabled={cargando}>
+                {!(cargando && datos) && <RotateCw className="h-4 w-4" aria-hidden="true" />}
+                Actualizar
+              </Button>
+            </div>
           )}
         </header>
 

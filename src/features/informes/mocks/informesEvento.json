@@ -1,0 +1,1419 @@
+{
+  "INSCRIPCIONES": {
+    "tipo": "INSCRIPCIONES",
+    "titulo": "Inscripciones al evento",
+    "descripcion": "Participantes inscritos en el evento, con su categoría y sus actividades inscritas y asistidas.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Inscripciones al evento"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de inscripción)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "correo",
+        "titulo": "Correo",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "categoria",
+        "titulo": "Categoría",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaInscripcion",
+        "titulo": "Fecha de inscripción",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "actividadesInscritas",
+        "titulo": "Actividades inscritas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "actividadesAsistidas",
+        "titulo": "Actividades asistidas",
+        "tipo": "ENTERO",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "participante": "Zoë Kovács Őrsi",
+        "tipoDocumento": "TI",
+        "numeroDocumento": "1003",
+        "correo": "zoe@example.com",
+        "categoria": "Particular",
+        "fechaInscripcion": "2026-11-06T00:00:00",
+        "actividadesInscritas": 1,
+        "actividadesAsistidas": 0
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "participante": "Ana María Pérez Gómez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1001",
+        "correo": "ana.perez@ufps.edu.co",
+        "categoria": "Estudiante",
+        "fechaInscripcion": "2026-11-01T10:00:00",
+        "actividadesInscritas": 2,
+        "actividadesAsistidas": 2
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "participante": "Luis Ñáñez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1002",
+        "correo": "luis.nanez@ufps.edu.co",
+        "categoria": "Docente",
+        "fechaInscripcion": "2026-11-05T23:59:59",
+        "actividadesInscritas": 1,
+        "actividadesAsistidas": 1
+      }
+    ],
+    "totales": {}
+  },
+  "ASISTENCIA": {
+    "tipo": "ASISTENCIA",
+    "titulo": "Asistencia a actividades",
+    "descripcion": "Registros de asistencia de los participantes a las actividades (código QR o registro manual).",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Asistencia a actividades"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de registro de la asistencia)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "actividad",
+        "titulo": "Actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoActividad",
+        "titulo": "Tipo de actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaActividad",
+        "titulo": "Fecha de la actividad",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "horaInicio",
+        "titulo": "Hora de inicio",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "categoria",
+        "titulo": "Categoría",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "metodo",
+        "titulo": "Método de registro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaRegistro",
+        "titulo": "Fecha y hora de registro",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Taller de Spring Boot",
+        "tipoActividad": "Taller",
+        "fechaActividad": "2026-11-10",
+        "horaInicio": "08:00:00",
+        "participante": "Ana María Pérez Gómez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1001",
+        "categoria": "Estudiante",
+        "metodo": "Código QR",
+        "fechaRegistro": "2026-11-10T08:05:00"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Taller de Spring Boot",
+        "tipoActividad": "Taller",
+        "fechaActividad": "2026-11-10",
+        "horaInicio": "08:00:00",
+        "participante": "Luis Ñáñez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1002",
+        "categoria": "Docente",
+        "metodo": "Manual",
+        "fechaRegistro": "2026-11-10T08:10:00"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Conferencia inaugural con un título bastante largo para probar el ajuste de texto en columnas del PDF",
+        "tipoActividad": "Conferencia",
+        "fechaActividad": "2026-11-11",
+        "horaInicio": "14:00:00",
+        "participante": "Ana María Pérez Gómez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1001",
+        "categoria": "Estudiante",
+        "metodo": "Código QR",
+        "fechaRegistro": "2026-11-11T14:02:00"
+      }
+    ],
+    "totales": {}
+  },
+  "ACTIVIDADES": {
+    "tipo": "ACTIVIDADES",
+    "titulo": "Programación de actividades",
+    "descripcion": "Actividades del evento con su horario, sala, ponente y estado, e inscritos y asistentes de cada una.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Programación de actividades"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de la actividad)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "actividad",
+        "titulo": "Actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoActividad",
+        "titulo": "Tipo de actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "lineaTematica",
+        "titulo": "Línea temática",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fecha",
+        "titulo": "Fecha",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "horaInicio",
+        "titulo": "Hora de inicio",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "horaFin",
+        "titulo": "Hora de fin",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "duracionMinutos",
+        "titulo": "Duración (min)",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "sala",
+        "titulo": "Sala",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "ponente",
+        "titulo": "Ponente",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "modalidad",
+        "titulo": "Modalidad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "inscritos",
+        "titulo": "Inscritos",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "asistentes",
+        "titulo": "Asistentes",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "tasaAsistencia",
+        "titulo": "Tasa de asistencia",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Taller de Spring Boot",
+        "tipoActividad": "Taller",
+        "lineaTematica": "Software",
+        "fecha": "2026-11-10",
+        "horaInicio": "08:00:00",
+        "horaFin": "10:00:00",
+        "duracionMinutos": 120,
+        "sala": "Auditorio A",
+        "ponente": "Carlos Ponente",
+        "modalidad": "Presencial",
+        "estado": "Programada",
+        "inscritos": 2,
+        "asistentes": 2,
+        "tasaAsistencia": 100.0
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Conferencia inaugural con un título bastante largo para probar el ajuste de texto en columnas del PDF",
+        "tipoActividad": "Conferencia",
+        "lineaTematica": null,
+        "fecha": "2026-11-11",
+        "horaInicio": "14:00:00",
+        "horaFin": "15:30:00",
+        "duracionMinutos": 90,
+        "sala": "Auditorio A",
+        "ponente": null,
+        "modalidad": "Híbrida",
+        "estado": "Programada",
+        "inscritos": 2,
+        "asistentes": 1,
+        "tasaAsistencia": 50.0
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "actividad": "Taller por programar",
+        "tipoActividad": "Taller",
+        "lineaTematica": null,
+        "fecha": null,
+        "horaInicio": null,
+        "horaFin": null,
+        "duracionMinutos": 60,
+        "sala": null,
+        "ponente": null,
+        "modalidad": null,
+        "estado": "Por programar",
+        "inscritos": 0,
+        "asistentes": 0,
+        "tasaAsistencia": null
+      }
+    ],
+    "totales": {
+      "inscritos": 4,
+      "asistentes": 3
+    }
+  },
+  "PROPUESTAS": {
+    "tipo": "PROPUESTAS",
+    "titulo": "Propuestas y resultados de evaluación",
+    "descripcion": "Propuestas recibidas en las convocatorias, con sus autores, estado, avance de la evaluación, puntuación y clasificación.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Propuestas y resultados de evaluación"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de envío de la propuesta)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "convocatoria",
+        "titulo": "Convocatoria",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "propuesta",
+        "titulo": "Propuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "autores",
+        "titulo": "Autores",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "lineaTematica",
+        "titulo": "Línea temática",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaEnvio",
+        "titulo": "Fecha de envío",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "evaluacionesAsignadas",
+        "titulo": "Evaluaciones asignadas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "evaluacionesCompletadas",
+        "titulo": "Evaluaciones completadas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "puntuacion",
+        "titulo": "Puntuación",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "clasificacion",
+        "titulo": "Clasificación aplicada",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "convocatoria": "Convocatoria de ponencias",
+        "propuesta": "Microservicios en la UFPS",
+        "autores": "Carlos Ponente; Luis Ñáñez",
+        "lineaTematica": "Software",
+        "estado": "Aprobada",
+        "fechaEnvio": "2026-09-10T12:00:00",
+        "evaluacionesAsignadas": 1,
+        "evaluacionesCompletadas": 1,
+        "puntuacion": 8.5,
+        "clasificacion": "Aceptada"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "convocatoria": "Convocatoria de ponencias",
+        "propuesta": "Propuesta rechazada",
+        "autores": null,
+        "lineaTematica": null,
+        "estado": "Rechazada",
+        "fechaEnvio": "2026-09-20T12:00:00",
+        "evaluacionesAsignadas": 1,
+        "evaluacionesCompletadas": 0,
+        "puntuacion": 3.0,
+        "clasificacion": null
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "convocatoria": "Convocatoria de ponencias",
+        "propuesta": "Propuesta recibida",
+        "autores": null,
+        "lineaTematica": null,
+        "estado": "Recibida",
+        "fechaEnvio": "2026-09-25T12:00:00",
+        "evaluacionesAsignadas": 0,
+        "evaluacionesCompletadas": 0,
+        "puntuacion": null,
+        "clasificacion": null
+      }
+    ],
+    "totales": {}
+  },
+  "EVALUACIONES": {
+    "tipo": "EVALUACIONES",
+    "titulo": "Asignaciones de evaluación",
+    "descripcion": "Propuestas asignadas a cada evaluador, con el estado de la evaluación y los criterios calificados.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Asignaciones de evaluación"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de asignación)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "convocatoria",
+        "titulo": "Convocatoria",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "propuesta",
+        "titulo": "Propuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "evaluador",
+        "titulo": "Evaluador",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "areaExperticia",
+        "titulo": "Área de experticia",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaAsignacion",
+        "titulo": "Fecha de asignación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "criteriosCalificados",
+        "titulo": "Criterios calificados",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "criteriosRubrica",
+        "titulo": "Criterios de la rúbrica",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "ultimaCalificacion",
+        "titulo": "Última calificación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 2,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "convocatoria": "Convocatoria de ponencias",
+        "propuesta": "Microservicios en la UFPS",
+        "evaluador": "Evaluadora Uno",
+        "areaExperticia": "Ingeniería de software",
+        "fechaAsignacion": "2026-10-02T09:00:00",
+        "estado": "Completada",
+        "criteriosCalificados": 2,
+        "criteriosRubrica": 2,
+        "ultimaCalificacion": "2026-10-06T00:00:00"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "convocatoria": "Convocatoria de ponencias",
+        "propuesta": "Propuesta rechazada",
+        "evaluador": "Evaluadora Uno",
+        "areaExperticia": "Ingeniería de software",
+        "fechaAsignacion": "2026-10-02T09:00:00",
+        "estado": "En proceso",
+        "criteriosCalificados": 1,
+        "criteriosRubrica": 2,
+        "ultimaCalificacion": "2026-10-07T00:00:00"
+      }
+    ],
+    "totales": {}
+  },
+  "PRESUPUESTO": {
+    "tipo": "PRESUPUESTO",
+    "titulo": "Presupuesto por rubro",
+    "descripcion": "Rubros del presupuesto con el valor proyectado, el ejecutado, el saldo y el porcentaje de ejecución.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Presupuesto por rubro"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de los gastos (el valor ejecutado solo suma los gastos del rango))",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "rubro",
+        "titulo": "Rubro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "cantidad",
+        "titulo": "Cantidad",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "valorUnitario",
+        "titulo": "Valor unitario proyectado",
+        "tipo": "MONEDA",
+        "sumable": false
+      },
+      {
+        "clave": "proyectado",
+        "titulo": "Valor proyectado",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "gastos",
+        "titulo": "Gastos registrados",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "ejecutado",
+        "titulo": "Valor ejecutado",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "saldo",
+        "titulo": "Saldo",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "ejecucion",
+        "titulo": "Ejecución",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Refrigerios",
+        "estado": "Activo",
+        "cantidad": 100.0,
+        "valorUnitario": 8500.5,
+        "proyectado": 850050.0,
+        "gastos": 2,
+        "ejecutado": 750000.25,
+        "saldo": 100049.75,
+        "ejecucion": 88.23
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Publicidad",
+        "estado": "Activo",
+        "cantidad": 1.0,
+        "valorUnitario": 500000.0,
+        "proyectado": 500000.0,
+        "gastos": 0,
+        "ejecutado": 0,
+        "saldo": 500000.0,
+        "ejecucion": 0.0
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Rubro inactivo",
+        "estado": "Inactivo",
+        "cantidad": 1.0,
+        "valorUnitario": 0.0,
+        "proyectado": 0.0,
+        "gastos": 1,
+        "ejecutado": 1000.0,
+        "saldo": -1000.0,
+        "ejecucion": null
+      }
+    ],
+    "totales": {
+      "proyectado": 1350050.0,
+      "gastos": 3,
+      "ejecutado": 751000.25,
+      "saldo": 599049.75
+    }
+  },
+  "GASTOS": {
+    "tipo": "GASTOS",
+    "titulo": "Gastos ejecutados",
+    "descripcion": "Gastos registrados contra los rubros del presupuesto, con su fecha, valor y soporte.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Gastos ejecutados"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha del gasto)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "rubro",
+        "titulo": "Rubro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "descripcion",
+        "titulo": "Descripción",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaGasto",
+        "titulo": "Fecha del gasto",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "valor",
+        "titulo": "Valor",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "soporte",
+        "titulo": "Soporte adjunto",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "registradoPor",
+        "titulo": "Registrado por",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 3,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Rubro inactivo",
+        "descripcion": "Gasto inactivo",
+        "fechaGasto": "2026-11-01",
+        "valor": 1000.0,
+        "soporte": "No",
+        "registradoPor": "Carlos Ponente"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Refrigerios",
+        "descripcion": "Refrigerios día 1",
+        "fechaGasto": "2026-11-10",
+        "valor": 400000.0,
+        "soporte": "Sí",
+        "registradoPor": "Ana María Pérez Gómez"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "rubro": "Refrigerios",
+        "descripcion": "Refrigerios día 2",
+        "fechaGasto": "2026-11-11",
+        "valor": 350000.25,
+        "soporte": "No",
+        "registradoPor": "Ana María Pérez Gómez"
+      }
+    ],
+    "totales": {
+      "valor": 751000.25
+    }
+  },
+  "ENCUESTAS": {
+    "tipo": "ENCUESTAS",
+    "titulo": "Satisfacción por encuesta",
+    "descripcion": "Encuestas de satisfacción publicadas o cerradas, con sus respuestas y la satisfacción promedio.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Satisfacción por encuesta"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de publicación de la encuesta)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "encuesta",
+        "titulo": "Encuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "alcance",
+        "titulo": "Alcance",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "anonima",
+        "titulo": "Anónima",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaPublicacion",
+        "titulo": "Fecha de publicación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "fechaCierre",
+        "titulo": "Fecha de cierre",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "respuestas",
+        "titulo": "Respuestas",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "satisfaccion",
+        "titulo": "Satisfacción promedio",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 2,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "encuesta": "Encuesta del taller",
+        "alcance": "Actividad: Taller de Spring Boot",
+        "estado": "Publicada",
+        "anonima": "No",
+        "fechaPublicacion": "2026-11-10T11:00:00",
+        "fechaCierre": null,
+        "respuestas": 0,
+        "satisfaccion": null
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "encuesta": "Satisfacción general",
+        "alcance": "Evento completo",
+        "estado": "Cerrada",
+        "anonima": "Sí",
+        "fechaPublicacion": "2026-11-12T18:00:00",
+        "fechaCierre": "2026-11-20T00:00:00",
+        "respuestas": 2,
+        "satisfaccion": 87.5
+      }
+    ],
+    "totales": {
+      "respuestas": 2
+    }
+  },
+  "CERTIFICADOS": {
+    "tipo": "CERTIFICADOS",
+    "titulo": "Certificados emitidos",
+    "descripcion": "Certificados de participación emitidos, con el participante, el tipo, el porcentaje de asistencia y el código de verificación.",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Certificados emitidos"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fecha de emisión del certificado)",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoCertificado",
+        "titulo": "Tipo de certificado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "porcentajeAsistencia",
+        "titulo": "Asistencia",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      },
+      {
+        "clave": "fechaEmision",
+        "titulo": "Fecha de emisión",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "codigoVerificacion",
+        "titulo": "Código de verificación",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 2,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "participante": "Ana María Pérez Gómez",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1001",
+        "tipoCertificado": "Asistente",
+        "porcentajeAsistencia": 100.0,
+        "fechaEmision": "2026-11-21T10:00:00",
+        "codigoVerificacion": "CERT-aaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "participante": "Carlos Ponente",
+        "tipoDocumento": "CC",
+        "numeroDocumento": "1004",
+        "tipoCertificado": "Ponente",
+        "porcentajeAsistencia": null,
+        "fechaEmision": "2026-11-21T10:00:00",
+        "codigoVerificacion": "CERT-bbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "totales": {}
+  },
+  "INDICADORES": {
+    "tipo": "INDICADORES",
+    "titulo": "Indicadores por evento",
+    "descripcion": "Indicadores de participación, propuestas, satisfacción y presupuesto de cada evento (mismo cálculo del dashboard).",
+    "hayDatos": true,
+    "mensaje": null,
+    "generadoEn": "2026-11-28T11:14:00",
+    "filtros": [
+      {
+        "parametro": "tipo",
+        "etiqueta": "Tipo de información",
+        "valor": "Indicadores por evento"
+      },
+      {
+        "parametro": "eventoId",
+        "etiqueta": "Evento",
+        "valor": "Congreso de Ingeniería de Sistemas (2026-2)"
+      },
+      {
+        "parametro": "fechas",
+        "etiqueta": "Rango de fechas (fechas del evento (eventos que se cruzan con el rango))",
+        "valor": "Todas las fechas"
+      }
+    ],
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaInicio",
+        "titulo": "Fecha de inicio",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "fechaFin",
+        "titulo": "Fecha de fin",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "indicador",
+        "titulo": "Indicador",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "valor",
+        "titulo": "Valor",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "unidad",
+        "titulo": "Unidad",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ],
+    "totalFilas": 16,
+    "filas": [
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Participantes inscritos",
+        "valor": 3,
+        "unidad": "personas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Participantes con asistencia registrada",
+        "valor": 2,
+        "unidad": "personas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Tasa de asistencia de los inscritos",
+        "valor": 66.67,
+        "unidad": "%"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Registros de asistencia a actividades",
+        "valor": 3,
+        "unidad": "registros"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Actividades programadas (no canceladas)",
+        "valor": 2,
+        "unidad": "actividades"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Actividades canceladas",
+        "valor": 0,
+        "unidad": "actividades"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Propuestas recibidas",
+        "valor": 3,
+        "unidad": "propuestas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Propuestas aprobadas (incluye con ajustes)",
+        "valor": 1,
+        "unidad": "propuestas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Propuestas rechazadas",
+        "valor": 1,
+        "unidad": "propuestas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Tasa de aprobación de propuestas",
+        "valor": 33.33,
+        "unidad": "%"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Conferencistas y ponentes",
+        "valor": 1,
+        "unidad": "personas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Respuestas a encuestas de satisfacción",
+        "valor": 2,
+        "unidad": "respuestas"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Satisfacción promedio (preguntas de escala)",
+        "valor": 87.5,
+        "unidad": "%"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Presupuesto aprobado",
+        "valor": 1500000.0,
+        "unidad": "COP"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Presupuesto ejecutado",
+        "valor": 751000.25,
+        "unidad": "COP"
+      },
+      {
+        "evento": "Congreso de Ingeniería de Sistemas",
+        "semestre": "2026-2",
+        "fechaInicio": "2026-11-10",
+        "fechaFin": "2026-11-12",
+        "indicador": "Porcentaje de ejecución presupuestal",
+        "valor": 50.07,
+        "unidad": "%"
+      }
+    ],
+    "totales": {}
+  }
+}

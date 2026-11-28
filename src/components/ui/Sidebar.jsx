@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Archive,
   BarChart3,
+  FileSearch,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +29,7 @@ import { RUTA_MI_PERFIL_CONFERENCISTA, esModoConferencista, useAuthStore } from 
 import { esAdministrador, veEvaluaciones, veEventos } from '../../utils/permisos';
 import { veMemoriaHistorica } from '../../features/memoria/memoriaUtils';
 import { veHistorialPeriodo } from '../../features/historialPeriodo/historialPeriodoUtils';
+import { RUTA_INFORMES, veInformes } from '../../features/informes/informeUtils';
 
 /**
  * Items por defecto para la navegación del Sidebar de SIGEA.
@@ -109,6 +111,14 @@ const HISTORIAL_PERIODO_NAV_ITEM = {
   label: 'Historial e Indicadores',
   icon: BarChart3,
   href: '/historial-periodos',
+};
+
+/** HU-30: informes parametrizables con exportación a PDF y Excel. */
+const INFORMES_NAV_ITEM = {
+  id: 'informes',
+  label: 'Informes',
+  icon: FileSearch,
+  href: RUTA_INFORMES,
 };
 
 /** HU-21: Programar actividades de la agenda controlando conflictos y simultáneas */
@@ -263,6 +273,14 @@ export default function Sidebar({
           .find((indice) => indice !== -1);
         navItems.splice(anclaIdx === undefined ? navItems.length : anclaIdx + 1, 0, HISTORIAL_PERIODO_NAV_ITEM);
       }
+    }
+
+    // HU-30: informes parametrizables (administrador, REPORTES_VER o EVENTOS_EDITAR), después de Historial e Indicadores.
+    if (veEventos(usuario) && veInformes(usuario)) {
+      const anclaIdx = ['historial-periodo', 'memoria-historica', 'salas', 'agenda', 'eventos']
+        .map((id) => navItems.findIndex((item) => item.id === id))
+        .find((indice) => indice !== -1);
+      navItems.splice(anclaIdx === undefined ? navItems.length : anclaIdx + 1, 0, INFORMES_NAV_ITEM);
     }
   }
 
