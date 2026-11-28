@@ -19,6 +19,7 @@ import {
   seriesAnchoCompleto,
   tablaSerie,
   totalMedida,
+  valorDetalle,
   veIndicadoresEvento,
 } from './indicadoresUtils';
 
@@ -154,6 +155,14 @@ describe('series', () => {
     expect(totalMedida(serie.puntos, 'tasa')).toBe(75);
     expect(porcentajeDe(1, 3)).toBe(33.3);
     expect(porcentajeDe(1, 0)).toBe(0);
+    expect(porcentajeDe(undefined, 10)).toBe(0);
+    expect(porcentajeDe('abc', 10)).toBe(0);
+    expect(porcentajeDe(NaN, 10)).toBe(0);
+    expect(porcentajeDe(5, null)).toBe(0);
+    expect(porcentajeDe('5', '20')).toBe(25);
+    expect(valorDetalle(null, '%')).toBe('Sin dato');
+    expect(valorDetalle(0, 'personas')).toBe('0');
+    expect(valorDetalle(80, '%')).toBe('80 %');
   });
 
   it('arma la vista en tabla con los valores formateados', () => {

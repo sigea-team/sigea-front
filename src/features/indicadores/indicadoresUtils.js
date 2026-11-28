@@ -280,10 +280,15 @@ export function totalMedida(puntos, medida) {
   return (puntos || []).reduce((suma, p) => suma + (numeroValido(p?.valores?.[medida]) ? Number(p.valores[medida]) : 0), 0);
 }
 
-/** `parte / total` en porcentaje con un decimal; 0 si el total es 0. */
+/** `parte / total` en porcentaje con un decimal; 0 si el total es 0 o alguno de los dos no es un número. */
 export function porcentajeDe(parte, total) {
-  if (!total) return 0;
-  return Math.round((Number(parte) / total) * 1000) / 10;
+  if (!numeroValido(parte) || !numeroValido(total) || Number(total) === 0) return 0;
+  return Math.round((Number(parte) / Number(total)) * 1000) / 10;
+}
+
+/** Texto de un valor para el detalle de las gráficas: «Sin dato» si no hay valor. */
+export function valorDetalle(valor, unidad) {
+  return numeroValido(valor) ? formatearValor(valor, unidad) : 'Sin dato';
 }
 
 /** Medida de la serie por su código. */

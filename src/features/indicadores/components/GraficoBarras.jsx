@@ -6,9 +6,9 @@ import {
   etiquetaPunto,
   focoConTeclado,
   soltarFocoAjeno,
-  formatearValor,
   formatearValorCorto,
   medidaDe,
+  valorDetalle,
 } from '../indicadoresUtils';
 
 /**
@@ -47,12 +47,12 @@ export default function GraficoBarras({ serie, graficadas, detalle = [], maximo 
     ? [
         ...graficadas.map((codigo, i) => ({
           nombre: medidaDe(serie, codigo).nombre,
-          valor: formatearValor(puntoActivo.valores?.[codigo], medidaDe(serie, codigo).unidad),
+          valor: valorDetalle(puntoActivo.valores?.[codigo], medidaDe(serie, codigo).unidad),
           color: COLORES_SERIE[i],
         })),
         ...detalle.map((codigo) => ({
           nombre: medidaDe(serie, codigo).nombre,
-          valor: formatearValor(puntoActivo.valores?.[codigo], medidaDe(serie, codigo).unidad),
+          valor: valorDetalle(puntoActivo.valores?.[codigo], medidaDe(serie, codigo).unidad),
         })),
       ]
     : [];
@@ -63,7 +63,7 @@ export default function GraficoBarras({ serie, graficadas, detalle = [], maximo 
         {serie.puntos.map((punto, indice) => {
           const etiqueta = etiquetaPunto(punto);
           const resumen = [...graficadas, ...detalle]
-            .map((codigo) => `${medidaDe(serie, codigo).nombre}: ${formatearValor(punto.valores?.[codigo], medidaDe(serie, codigo).unidad)}`)
+            .map((codigo) => `${medidaDe(serie, codigo).nombre}: ${valorDetalle(punto.valores?.[codigo], medidaDe(serie, codigo).unidad)}`)
             .join(', ');
           return (
             <li

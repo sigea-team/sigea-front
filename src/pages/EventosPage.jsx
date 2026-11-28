@@ -44,7 +44,7 @@ import MemoriaHistoricaModal from '../features/memoria/components/MemoriaHistori
 import EliminacionHistoricaModal from '../features/memoria/components/EliminacionHistoricaModal';
 import EventoArchivadoBadge from '../features/memoria/components/EventoArchivadoBadge';
 import { puedeCerrarFormalmente, puedeEliminarConAutorizacion } from '../features/memoria/memoriaUtils';
-import { rutaIndicadores } from '../features/indicadores/indicadoresUtils';
+import { rutaIndicadores, veIndicadoresEvento } from '../features/indicadores/indicadoresUtils';
 import { inscripcionesAbiertas } from '../features/inscripciones/inscripcionUtils';
 import {
   ESTADOS_EVENTO,
@@ -150,6 +150,8 @@ export default function EventosPage({
   const usuarioActual = usuarioProp || auth?.usuario;
   const isAdmin = esAdministrador(usuarioActual);
   const navigate = useNavigate();
+  // HU-29: misma regla que la API (REPORTES_VER, EVENTOS_EDITAR o administrador).
+  const puedeVerIndicadores = veIndicadoresEvento(usuarioActual);
   const puedeEliminarHistorico = puedeEliminarConAutorizacion(usuarioActual);
 
   const [eventos, setEventos] = useState([]);
@@ -344,7 +346,9 @@ export default function EventosPage({
       acciones: [
         { id: 'memoria', etiqueta: 'Ver memoria histórica', icono: Eye, onClick: () => setModal({ tipo: 'memoria', evento }) },
         // HU-29: indicadores definitivos del evento archivado (solo consulta).
-        { id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) },
+        ...(puedeVerIndicadores
+          ? [{ id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) }]
+          : []),
         // HU-26: los certificados emitidos se siguen consultando y descargando (solo lectura).
         { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
       ],
@@ -575,13 +579,15 @@ export default function EventosPage({
                                       { id: 'certificados', etiqueta: 'Certificados', icono: Award, onClick: () => setModal({ tipo: 'certificados', evento }) },
                                     ],
                                   },
-                                  {
-                                    titulo: 'Indicadores',
-                                    acciones: [
-                                      // HU-29: dashboard con los indicadores calculados en el momento.
-                                      { id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) },
-                                    ],
-                                  },
+                                  // HU-29: dashboard con los indicadores calculados en el momento.
+                                  ...(puedeVerIndicadores
+                                    ? [{
+                                        titulo: 'Indicadores',
+                                        acciones: [
+                                          { id: 'indicadores', etiqueta: 'Indicadores y dashboard', icono: BarChart3, onClick: () => navigate(rutaIndicadores(evento.id)) },
+                                        ],
+                                      }]
+                                    : []),
                                   {
                                     titulo: 'Presupuesto',
                                     acciones: [

@@ -9,6 +9,7 @@ import {
   formatearValor,
   formatearValorCorto,
   medidaDe,
+  valorDetalle,
 } from '../indicadoresUtils';
 
 /**
@@ -62,15 +63,11 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
     const valor = p?.valores?.[medida.codigo];
     return valor === null || valor === undefined || Number.isNaN(Number(valor));
   };
-  let anteriorConDato = false;
+  // Un punto empieza tramo nuevo («M») si es el primero o si el anterior no tiene dato; si no, continúa («L»).
   const trazo = puntos
     .map((p, i) => {
-      if (sinDato(p)) {
-        anteriorConDato = false;
-        return '';
-      }
-      const comando = anteriorConDato ? 'L' : 'M';
-      anteriorConDato = true;
+      if (sinDato(p)) return '';
+      const comando = i > 0 && !sinDato(puntos[i - 1]) ? 'L' : 'M';
       return `${comando}${x(i)},${y(p.valores[medida.codigo])}`;
     })
     .filter(Boolean)
@@ -121,7 +118,7 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
           const izquierda = puntos.length > 1 ? x(i) - paso / 2 : MARGEN.izquierda;
           const anchoZona = puntos.length > 1 ? paso : interior.ancho;
           const resumen = [medida.codigo, ...detalle]
-            .map((c) => `${medidaDe(serie, c).nombre}: ${formatearValor(p.valores?.[c], medidaDe(serie, c).unidad)}`)
+            .map((c) => `${medidaDe(serie, c).nombre}: ${valorDetalle(p.valores?.[c], medidaDe(serie, c).unidad)}`)
             .join(', ');
           return (
             <rect
@@ -151,8 +148,8 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
         filas={
           puntoActivo
             ? [
-                { nombre: medida.nombre, valor: formatearValor(puntoActivo.valores?.[medida.codigo], medida.unidad), color: COLORES_SERIE[0] },
-                ...detalle.map((c) => ({ nombre: medidaDe(serie, c).nombre, valor: formatearValor(puntoActivo.valores?.[c], medidaDe(serie, c).unidad) })),
+                { nombre: medida.nombre, valor: valorDetalle(puntoActivo.valores?.[medida.codigo], medida.unidad), color: COLORES_SERIE[0] },
+                ...detalle.map((c) => ({ nombre: medidaDe(serie, c).nombre, valor: valorDetalle(puntoActivo.valores?.[c], medidaDe(serie, c).unidad) })),
               ]
             : []
         }

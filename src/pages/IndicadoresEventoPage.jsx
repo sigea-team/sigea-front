@@ -43,7 +43,7 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
   const params = useParams();
   const eventoId = eventoIdProp ?? params.eventoId;
 
-  const [estado, setEstado] = useState({ datos: null, error: null, cargando: true });
+  const [estado, setEstado] = useState({ eventoId: null, datos: null, error: null, cargando: true });
   const [version, setVersion] = useState(0);
   const [pestana, setPestana] = useState('dashboard');
   const [aviso, setAviso] = useState('');
@@ -54,11 +54,19 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
       .generarIndicadores(eventoId)
       .then((datos) => {
         if (!activo) return;
-        setEstado({ datos: normalizarRespuesta(datos), error: null, cargando: false });
+        setEstado({ eventoId, datos: normalizarRespuesta(datos), error: null, cargando: false });
         setAviso(version > 0 ? `Indicadores recalculados el ${formatearFechaCalculo(datos.fechaCalculo)}.` : '');
       })
       .catch((err) => {
-        if (activo) setEstado((previo) => ({ ...previo, error: interpretarErrorIndicadores(err), cargando: false }));
+        if (activo) {
+          setEstado((previo) => ({
+            eventoId,
+            // Los datos anteriores solo se conservan si son del mismo evento.
+            datos: String(previo.eventoId) === String(eventoId) ? previo.datos : null,
+            error: interpretarErrorIndicadores(err),
+            cargando: false,
+          }));
+        }
       });
     return () => {
       activo = false;
@@ -71,10 +79,11 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
     setVersion((v) => v + 1);
   };
 
-  // Si cambia el evento de la ruta, los datos anteriores no se muestran.
-  const datos = estado.datos && String(estado.datos.eventoId) === String(eventoId) ? estado.datos : null;
-  const { error } = estado;
-  const cargando = estado.cargando || (!datos && !error);
+  // Si cambia el evento de la ruta, nada del evento anterior (datos, error, encabezado) se muestra mientras carga.
+  const delEventoActual = String(estado.eventoId) === String(eventoId);
+  const datos = delEventoActual ? estado.datos : null;
+  const error = delEventoActual ? estado.error : null;
+  const cargando = !delEventoActual || estado.cargando || (!datos && !error);
   const anchas = seriesAnchoCompleto(datos?.series);
 
   return (
@@ -102,8 +111,8 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
             )}
           </div>
           {(datos || error) && (
-            <Button variant="outline" onClick={actualizar} loading={estado.cargando && Boolean(datos)} disabled={cargando}>
-              {!(estado.cargando && datos) && <RotateCw className="h-4 w-4" aria-hidden="true" />}
+            <Button variant="outline" onClick={actualizar} loading={cargando && Boolean(datos)} disabled={cargando}>
+              {!(cargando && datos) && <RotateCw className="h-4 w-4" aria-hidden="true" />}
               Actualizar
             </Button>
           )}
@@ -134,7 +143,7 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
         )}
 
         {datos && (
-          <div className={`space-y-6 transition-opacity ${estado.cargando ? 'opacity-60' : ''}`}>
+          <div className={`space-y-6 transition-opacity ${cargando ? 'opacity-60' : ''}`}>
             {datos.mensaje && (
               <div className="flex items-start gap-3 rounded-[12px] border border-border bg-surface-muted p-4 text-sm text-ink-900" role="status">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-ink-600" aria-hidden="true" />
