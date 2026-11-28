@@ -1,0 +1,728 @@
+[
+  {
+    "codigo": "INSCRIPCIONES",
+    "titulo": "Inscripciones al evento",
+    "descripcion": "Participantes inscritos en el evento, con su categoría y sus actividades inscritas y asistidas.",
+    "campoFecha": "Fecha de inscripción",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "correo",
+        "titulo": "Correo",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "categoria",
+        "titulo": "Categoría",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaInscripcion",
+        "titulo": "Fecha de inscripción",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "actividadesInscritas",
+        "titulo": "Actividades inscritas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "actividadesAsistidas",
+        "titulo": "Actividades asistidas",
+        "tipo": "ENTERO",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "ASISTENCIA",
+    "titulo": "Asistencia a actividades",
+    "descripcion": "Registros de asistencia de los participantes a las actividades (código QR o registro manual).",
+    "campoFecha": "Fecha de registro de la asistencia",
+    "admiteTipoActividad": true,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "actividad",
+        "titulo": "Actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoActividad",
+        "titulo": "Tipo de actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaActividad",
+        "titulo": "Fecha de la actividad",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "horaInicio",
+        "titulo": "Hora de inicio",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "categoria",
+        "titulo": "Categoría",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "metodo",
+        "titulo": "Método de registro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaRegistro",
+        "titulo": "Fecha y hora de registro",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "ACTIVIDADES",
+    "titulo": "Programación de actividades",
+    "descripcion": "Actividades del evento con su horario, sala, ponente y estado, e inscritos y asistentes de cada una.",
+    "campoFecha": "Fecha de la actividad",
+    "admiteTipoActividad": true,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "actividad",
+        "titulo": "Actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoActividad",
+        "titulo": "Tipo de actividad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "lineaTematica",
+        "titulo": "Línea temática",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fecha",
+        "titulo": "Fecha",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "horaInicio",
+        "titulo": "Hora de inicio",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "horaFin",
+        "titulo": "Hora de fin",
+        "tipo": "HORA",
+        "sumable": false
+      },
+      {
+        "clave": "duracionMinutos",
+        "titulo": "Duración (min)",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "sala",
+        "titulo": "Sala",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "ponente",
+        "titulo": "Ponente",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "modalidad",
+        "titulo": "Modalidad",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "inscritos",
+        "titulo": "Inscritos",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "asistentes",
+        "titulo": "Asistentes",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "tasaAsistencia",
+        "titulo": "Tasa de asistencia",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "PROPUESTAS",
+    "titulo": "Propuestas y resultados de evaluación",
+    "descripcion": "Propuestas recibidas en las convocatorias, con sus autores, estado, avance de la evaluación, puntuación y clasificación.",
+    "campoFecha": "Fecha de envío de la propuesta",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "convocatoria",
+        "titulo": "Convocatoria",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "propuesta",
+        "titulo": "Propuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "autores",
+        "titulo": "Autores",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "lineaTematica",
+        "titulo": "Línea temática",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaEnvio",
+        "titulo": "Fecha de envío",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "evaluacionesAsignadas",
+        "titulo": "Evaluaciones asignadas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "evaluacionesCompletadas",
+        "titulo": "Evaluaciones completadas",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "puntuacion",
+        "titulo": "Puntuación",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "clasificacion",
+        "titulo": "Clasificación aplicada",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "EVALUACIONES",
+    "titulo": "Asignaciones de evaluación",
+    "descripcion": "Propuestas asignadas a cada evaluador, con el estado de la evaluación y los criterios calificados.",
+    "campoFecha": "Fecha de asignación",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "convocatoria",
+        "titulo": "Convocatoria",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "propuesta",
+        "titulo": "Propuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "evaluador",
+        "titulo": "Evaluador",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "areaExperticia",
+        "titulo": "Área de experticia",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaAsignacion",
+        "titulo": "Fecha de asignación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "criteriosCalificados",
+        "titulo": "Criterios calificados",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "criteriosRubrica",
+        "titulo": "Criterios de la rúbrica",
+        "tipo": "ENTERO",
+        "sumable": false
+      },
+      {
+        "clave": "ultimaCalificacion",
+        "titulo": "Última calificación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "PRESUPUESTO",
+    "titulo": "Presupuesto por rubro",
+    "descripcion": "Rubros del presupuesto con el valor proyectado, el ejecutado, el saldo y el porcentaje de ejecución.",
+    "campoFecha": "Fecha de los gastos (el valor ejecutado solo suma los gastos del rango)",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "rubro",
+        "titulo": "Rubro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "cantidad",
+        "titulo": "Cantidad",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "valorUnitario",
+        "titulo": "Valor unitario proyectado",
+        "tipo": "MONEDA",
+        "sumable": false
+      },
+      {
+        "clave": "proyectado",
+        "titulo": "Valor proyectado",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "gastos",
+        "titulo": "Gastos registrados",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "ejecutado",
+        "titulo": "Valor ejecutado",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "saldo",
+        "titulo": "Saldo",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "ejecucion",
+        "titulo": "Ejecución",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "GASTOS",
+    "titulo": "Gastos ejecutados",
+    "descripcion": "Gastos registrados contra los rubros del presupuesto, con su fecha, valor y soporte.",
+    "campoFecha": "Fecha del gasto",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "rubro",
+        "titulo": "Rubro",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "descripcion",
+        "titulo": "Descripción",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaGasto",
+        "titulo": "Fecha del gasto",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "valor",
+        "titulo": "Valor",
+        "tipo": "MONEDA",
+        "sumable": true
+      },
+      {
+        "clave": "soporte",
+        "titulo": "Soporte adjunto",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "registradoPor",
+        "titulo": "Registrado por",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "ENCUESTAS",
+    "titulo": "Satisfacción por encuesta",
+    "descripcion": "Encuestas de satisfacción publicadas o cerradas, con sus respuestas y la satisfacción promedio.",
+    "campoFecha": "Fecha de publicación de la encuesta",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "encuesta",
+        "titulo": "Encuesta",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "alcance",
+        "titulo": "Alcance",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "estado",
+        "titulo": "Estado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "anonima",
+        "titulo": "Anónima",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaPublicacion",
+        "titulo": "Fecha de publicación",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "fechaCierre",
+        "titulo": "Fecha de cierre",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "respuestas",
+        "titulo": "Respuestas",
+        "tipo": "ENTERO",
+        "sumable": true
+      },
+      {
+        "clave": "satisfaccion",
+        "titulo": "Satisfacción promedio",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "CERTIFICADOS",
+    "titulo": "Certificados emitidos",
+    "descripcion": "Certificados de participación emitidos, con el participante, el tipo, el porcentaje de asistencia y el código de verificación.",
+    "campoFecha": "Fecha de emisión del certificado",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "participante",
+        "titulo": "Participante",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoDocumento",
+        "titulo": "Tipo de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "numeroDocumento",
+        "titulo": "Número de documento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "tipoCertificado",
+        "titulo": "Tipo de certificado",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "porcentajeAsistencia",
+        "titulo": "Asistencia",
+        "tipo": "PORCENTAJE",
+        "sumable": false
+      },
+      {
+        "clave": "fechaEmision",
+        "titulo": "Fecha de emisión",
+        "tipo": "FECHA_HORA",
+        "sumable": false
+      },
+      {
+        "clave": "codigoVerificacion",
+        "titulo": "Código de verificación",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ]
+  },
+  {
+    "codigo": "INDICADORES",
+    "titulo": "Indicadores por evento",
+    "descripcion": "Indicadores de participación, propuestas, satisfacción y presupuesto de cada evento (mismo cálculo del dashboard).",
+    "campoFecha": "Fechas del evento (eventos que se cruzan con el rango)",
+    "admiteTipoActividad": false,
+    "columnas": [
+      {
+        "clave": "evento",
+        "titulo": "Evento",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "semestre",
+        "titulo": "Semestre",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "fechaInicio",
+        "titulo": "Fecha de inicio",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "fechaFin",
+        "titulo": "Fecha de fin",
+        "tipo": "FECHA",
+        "sumable": false
+      },
+      {
+        "clave": "indicador",
+        "titulo": "Indicador",
+        "tipo": "TEXTO",
+        "sumable": false
+      },
+      {
+        "clave": "valor",
+        "titulo": "Valor",
+        "tipo": "DECIMAL",
+        "sumable": false
+      },
+      {
+        "clave": "unidad",
+        "titulo": "Unidad",
+        "tipo": "TEXTO",
+        "sumable": false
+      }
+    ]
+  }
+]
