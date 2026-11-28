@@ -1,4 +1,5 @@
 import { httpClient } from './httpClient';
+import { normalizarRespuesta } from '../features/indicadores/indicadoresUtils';
 
 /**
  * @file indicadorEventoService.js
@@ -27,7 +28,7 @@ import { httpClient } from './httpClient';
  */
 export async function generarIndicadores(eventoId) {
   const { data } = await httpClient.get(`/eventos/${eventoId}/indicadores`);
-  return data;
+  return normalizarRespuesta(data);
 }
 
 export const indicadorEventoService = {

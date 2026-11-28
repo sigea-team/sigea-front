@@ -31,7 +31,8 @@ export default function GraficoBarras({ serie, graficadas, detalle = [], maximo 
   const unidad = medidas[0]?.unidad;
   const valores = serie.puntos.flatMap((p) => graficadas.map((m) => p.valores?.[m]));
   const escala = escalaEje(valores, maximo);
-  const ancho = (valor) => (valor === null || valor === undefined ? 0 : Math.min(100, (Number(valor) / escala.maximo) * 100));
+  const ancho = (valor) =>
+    valor === null || valor === undefined ? 0 : Math.min(100, Math.max(0, (Number(valor) / escala.maximo) * 100));
 
   const mostrar = (indice) => (evento) => {
     const caja = contenedor.current?.getBoundingClientRect();

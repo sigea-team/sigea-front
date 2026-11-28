@@ -57,8 +57,26 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
   const y = (valor) => MARGEN.arriba + interior.alto - (Number(valor || 0) / escala.maximo) * interior.alto;
   const cadaCuanto = Math.max(1, Math.ceil(puntos.length / Math.max(2, Math.floor(interior.ancho / 70))));
 
-  const trazo = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(p.valores?.[medida.codigo])}`).join(' ');
-  const ultimo = puntos[puntos.length - 1];
+  // Un punto sin dato corta la línea: no se dibuja como cero ni se une a los vecinos.
+  const sinDato = (p) => {
+    const valor = p?.valores?.[medida.codigo];
+    return valor === null || valor === undefined || Number.isNaN(Number(valor));
+  };
+  let anteriorConDato = false;
+  const trazo = puntos
+    .map((p, i) => {
+      if (sinDato(p)) {
+        anteriorConDato = false;
+        return '';
+      }
+      const comando = anteriorConDato ? 'L' : 'M';
+      anteriorConDato = true;
+      return `${comando}${x(i)},${y(p.valores[medida.codigo])}`;
+    })
+    .filter(Boolean)
+    .join(' ');
+  const indiceUltimo = puntos.map((p) => !sinDato(p)).lastIndexOf(true);
+  const ultimo = indiceUltimo >= 0 ? puntos[indiceUltimo] : null;
   const puntoActivo = activo !== null ? puntos[activo] : null;
 
   return (
@@ -83,7 +101,7 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
           <line x1={x(activo)} x2={x(activo)} y1={MARGEN.arriba} y2={MARGEN.arriba + interior.alto} stroke="var(--color-ink-300)" strokeWidth="1" strokeDasharray="3 3" />
         )}
         <path d={trazo} fill="none" stroke={COLORES_SERIE[0]} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        {puntos.map((p, i) => (
+        {puntos.map((p, i) => sinDato(p) ? null : (
           <circle
             key={p.clave}
             cx={x(i)}
@@ -95,7 +113,7 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
           />
         ))}
         {ultimo && (
-          <text x={x(puntos.length - 1) + 8} y={y(ultimo.valores?.[medida.codigo])} dy="0.32em" fontSize="11" fontWeight="600" fill="var(--color-ink-900)">
+          <text x={x(indiceUltimo) + 8} y={y(ultimo.valores?.[medida.codigo])} dy="0.32em" fontSize="11" fontWeight="600" fill="var(--color-ink-900)">
             {formatearValorCorto(ultimo.valores?.[medida.codigo], medida.unidad)}
           </text>
         )}
@@ -128,7 +146,7 @@ export default function GraficoLinea({ serie, graficadas, detalle = [] }) {
       <TooltipGrafica
         visible={Boolean(puntoActivo)}
         x={puntoActivo ? Math.min(Math.max(x(activo), 90), ancho - 90) : 0}
-        y={puntoActivo ? y(puntoActivo.valores?.[medida.codigo]) : 0}
+        y={puntoActivo ? (sinDato(puntoActivo) ? MARGEN.arriba + interior.alto : y(puntoActivo.valores[medida.codigo])) : 0}
         titulo={puntoActivo ? etiquetaPunto(puntoActivo) : ''}
         filas={
           puntoActivo

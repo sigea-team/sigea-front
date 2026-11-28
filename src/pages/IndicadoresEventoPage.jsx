@@ -12,6 +12,7 @@ import { indicadorEventoService } from '../api/indicadorEventoService';
 import {
   formatearFechaCalculo,
   interpretarErrorIndicadores,
+  normalizarRespuesta,
   seriesAnchoCompleto,
 } from '../features/indicadores/indicadoresUtils';
 
@@ -53,7 +54,7 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
       .generarIndicadores(eventoId)
       .then((datos) => {
         if (!activo) return;
-        setEstado({ datos, error: null, cargando: false });
+        setEstado({ datos: normalizarRespuesta(datos), error: null, cargando: false });
         setAviso(version > 0 ? `Indicadores recalculados el ${formatearFechaCalculo(datos.fechaCalculo)}.` : '');
       })
       .catch((err) => {
@@ -65,7 +66,8 @@ export default function IndicadoresEventoPage({ api = indicadorEventoService, ev
   }, [api, eventoId, version]);
 
   const actualizar = () => {
-    setEstado((previo) => ({ ...previo, cargando: true }));
+    // El error anterior se quita al pedir de nuevo; si vuelve a fallar, se muestra el nuevo.
+    setEstado((previo) => ({ ...previo, error: null, cargando: true }));
     setVersion((v) => v + 1);
   };
 

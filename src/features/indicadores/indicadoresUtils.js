@@ -77,6 +77,24 @@ export function veIndicadoresEvento(usuario) {
   return esAdministrador(usuario) || PERMISOS_INDICADORES.some((p) => tienePermiso(usuario, p));
 }
 
+/**
+ * Normaliza la respuesta del backend: listas siempre como arreglos y `valores` siempre como objeto, aunque llegue
+ * `null`. Así ningún componente falla con una respuesta incompleta.
+ * @param {Object} respuesta
+ */
+export function normalizarRespuesta(respuesta) {
+  const lista = (valor) => (Array.isArray(valor) ? valor : []);
+  return {
+    ...respuesta,
+    grupos: lista(respuesta?.grupos),
+    indicadores: lista(respuesta?.indicadores),
+    series: lista(respuesta?.series).map((serie) => {
+      const puntos = lista(serie?.puntos).map((p) => ({ ...p, valores: p?.valores && typeof p.valores === 'object' ? p.valores : {} }));
+      return { ...serie, medidas: lista(serie?.medidas), puntos, hayDatos: Boolean(serie?.hayDatos) && puntos.length > 0 };
+    }),
+  };
+}
+
 /** Ruta de la página de indicadores de un evento. */
 export function rutaIndicadores(eventoId) {
   return `/eventos/${eventoId}/indicadores`;

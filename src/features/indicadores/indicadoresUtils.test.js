@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import respuestaBackend from './mocks/respuestaBackend.json';
 import {
   COLORES_SERIE,
   colorCategoria,
@@ -12,6 +13,7 @@ import {
   indicadoresPorGrupo,
   indicadoresTarjeta,
   interpretarErrorIndicadores,
+  normalizarRespuesta,
   porcentajeDe,
   rutaIndicadores,
   seriesAnchoCompleto,
@@ -202,5 +204,54 @@ describe('seriesAnchoCompleto', () => {
     expect([...anchas]).toEqual(['C']);
     expect([...seriesAnchoCompleto([s('A'), s('B')])]).toEqual([]);
     expect([...seriesAnchoCompleto(null)]).toEqual([]);
+  });
+});
+
+describe('normalizarRespuesta', () => {
+  it('convierte listas nulas en arreglos y marca sin datos una serie sin puntos', () => {
+    const r = normalizarRespuesta({ grupos: null, indicadores: undefined, series: [
+      { codigo: 'A', hayDatos: true, medidas: null, puntos: null },
+      { codigo: 'B', hayDatos: true, medidas: [], puntos: [{ clave: '1', valores: null }] },
+    ] });
+    expect(r.grupos).toEqual([]);
+    expect(r.indicadores).toEqual([]);
+    expect(r.series[0]).toMatchObject({ medidas: [], puntos: [], hayDatos: false });
+    expect(r.series[1].puntos[0].valores).toEqual({});
+    expect(r.series[1].hayDatos).toBe(true);
+    expect(normalizarRespuesta(null).series).toEqual([]);
+  });
+});
+
+describe('contrato con el backend', () => {
+  // Respuesta real de GET /api/v1/eventos/{id}/indicadores, generada por el servicio del backend (HU-29) contra
+  // PostgreSQL con datos de prueba.
+  const r = normalizarRespuesta(respuestaBackend);
+
+  it('trae los 16 indicadores, los 6 grupos y las 7 series que espera el dashboard', () => {
+    expect(r.indicadores).toHaveLength(16);
+    expect(r.grupos.map((g) => g.codigo)).toEqual(['PARTICIPACION', 'ASISTENCIA', 'ACTIVIDADES', 'PROPUESTAS', 'SATISFACCION', 'PRESUPUESTO']);
+    expect(indicadoresTarjeta(r.indicadores)).toHaveLength(6);
+    expect(indicadoresPorGrupo(r).map((g) => g.indicadores.length).reduce((a, b) => a + b, 0)).toBe(16);
+  });
+
+  it('cada serie tiene configuración conocida y sus medidas graficadas existen', () => {
+    const formas = Object.fromEntries(r.series.map((s) => [s.codigo, configuracionSerie(s)]));
+    expect(formas.INSCRIPCIONES_POR_CATEGORIA.forma).toBe('segmentada');
+    expect(formas.PROPUESTAS_POR_ESTADO.forma).toBe('segmentada');
+    expect(formas.INSCRIPCIONES_POR_FECHA).toMatchObject({ forma: 'linea', graficadas: ['acumulado'], detalle: ['inscripciones'] });
+    expect(formas.ASISTENCIA_POR_ACTIVIDAD).toMatchObject({ forma: 'barras', graficadas: ['inscritos', 'asistentes'], detalle: ['tasaAsistencia'] });
+    expect(formas.ASISTENCIA_POR_DIA.graficadas).toEqual(['inscritos', 'asistentes']);
+    expect(formas.SATISFACCION_POR_ENCUESTA).toMatchObject({ graficadas: ['satisfaccion'], maximo: 100 });
+    expect(formas.PRESUPUESTO_POR_RUBRO.graficadas).toEqual(['proyectado', 'ejecutado']);
+    r.series.forEach((s) => {
+      expect(['barras', 'barras_agrupadas', 'circular', 'linea'].includes(s.grafico)).toBe(true);
+      configuracionSerie(s).graficadas.forEach((m) => expect(s.medidas.some((x) => x.codigo === m)).toBe(true));
+    });
+  });
+
+  it('usa las unidades que formatea el frontend', () => {
+    const unidades = new Set([...r.indicadores.map((i) => i.unidad), ...r.series.flatMap((s) => s.medidas.map((m) => m.unidad))]);
+    unidades.forEach((u) => expect(['personas', 'registros', 'actividades', 'propuestas', 'respuestas', 'inscripciones', '%', 'COP'].includes(u)).toBe(true));
+    expect(formatearValor(r.indicadores.find((i) => i.codigo === 'PRESUPUESTO_EJECUTADO').valor, 'COP')).toBe('$ 650.000');
   });
 });
