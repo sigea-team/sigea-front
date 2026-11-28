@@ -42,6 +42,15 @@ const PESTANAS = [
 export default function IndicadoresEventoPage({ api = indicadorEventoService, eventoIdProp }) {
   const params = useParams();
   const eventoId = eventoIdProp ?? params.eventoId;
+  // La clave reinicia todo el estado (datos, error, pestaña y aviso) cuando cambia el evento de la ruta.
+  return <IndicadoresEvento key={eventoId} api={api} eventoId={eventoId} />;
+}
+
+/**
+ * Contenido de la página para un evento.
+ * @param {{ api: typeof indicadorEventoService, eventoId: number|string }} props
+ */
+function IndicadoresEvento({ api, eventoId }) {
 
   const [estado, setEstado] = useState({ eventoId: null, datos: null, error: null, cargando: true });
   const [version, setVersion] = useState(0);
